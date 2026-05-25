@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/qari_selector_sheet.dart';
@@ -136,8 +137,7 @@ class AudioPlayerBar extends StatelessWidget {
                       color: cubit.playlistIndex < cubit.playlist.length - 1
                           ? AppColors.primary
                           : Colors.grey[400],
-                      onPressed:
-                          cubit.playlistIndex < cubit.playlist.length - 1
+                      onPressed: cubit.playlistIndex < cubit.playlist.length - 1
                           ? () => unawaited(cubit.nextAyat())
                           : null,
                       tooltip: 'Ayat berikutnya',
@@ -157,11 +157,8 @@ class AudioPlayerBar extends StatelessWidget {
     Map<String, String> audioMap,
   ) {
     unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
+      showAppBottomSheet<void>(
+        context,
         builder: (_) => QariSelectorSheet(
           selectedQari: state.currentQari,
           audioMap: audioMap,

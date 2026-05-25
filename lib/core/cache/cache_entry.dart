@@ -35,9 +35,10 @@ class CacheEntry {
   /// Return null jika format tidak valid.
   static CacheEntry? decode(Object? raw) {
     if (raw == null) return null;
+    if (raw is! String) return null;
     try {
       return CacheEntry.fromJson(
-        jsonDecode(raw as String) as Map<String, dynamic>,
+        jsonDecode(raw) as Map<String, dynamic>,
       );
     } on Object catch (_) {
       return null;

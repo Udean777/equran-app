@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -56,12 +56,12 @@ void main() {
   group('cacheProvinsi', () {
     test('menyimpan provinsi ke box', () async {
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.cacheProvinsi(tProvinsiList);
 
-      verify(() => mockBox.put('provinsi_list', any<dynamic>())).called(1);
+      verify(() => mockBox.put('provinsi_list', any<String>())).called(1);
     });
   });
 

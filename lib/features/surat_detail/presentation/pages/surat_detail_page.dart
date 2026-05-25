@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -69,6 +70,21 @@ class _SuratDetailView extends StatefulWidget {
 class _SuratDetailViewState extends State<_SuratDetailView> {
   final _scrollController = ScrollController();
   final _itemKeys = <int, GlobalKey>{};
+  bool _hasScrolled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll ke initialAyat hanya sekali setelah frame pertama
+    if (widget.initialAyat != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_hasScrolled) {
+          _hasScrolled = true;
+          _scrollToAyat(widget.initialAyat!);
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -122,18 +138,20 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   }
 
   Widget _buildSuccess(BuildContext context, SuratDetail detail) {
-    if (widget.initialAyat != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToAyat(widget.initialAyat!);
-      });
-    }
-
     return BlocBuilder<BookmarkCubit, BookmarkState>(
       builder: (context, bookmarkState) {
         final bookmarks =
             bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
 
         return BlocConsumer<AudioCubit, AudioPlayerState>(
+          // Hanya rebuild saat state yang relevan berubah —
+          // mencegah rebuild seluruh SliverList setiap audio tick
+          buildWhen: (prev, next) =>
+              prev.currentAyat != next.currentAyat ||
+              prev.isPlaying != next.isPlaying ||
+              prev.isLoading != next.isLoading ||
+              prev.isPaused != next.isPaused ||
+              prev.currentQari != next.currentQari,
           // Auto-scroll ke ayat yang sedang diputar saat playlist mode
           listener: (context, audioState) {
             final cubit = context.read<AudioCubit>();
@@ -153,8 +171,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
                   // Tombol Play Surat
                   IconButton(
                     icon: Icon(
-                      cubit.isPlaylistMode &&
-                              audioState.isPlaying
+                      cubit.isPlaylistMode && audioState.isPlaying
                           ? Icons.pause_circle_outline_rounded
                           : Icons.play_circle_outline_rounded,
                     ),
@@ -301,13 +318,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
 
   void _showTafsirBottomSheet(BuildContext context, int nomor) {
     unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
+      showAppBottomSheet<void>(
+        context,
         builder: (_) => TafsirBottomSheet(nomor: nomor),
       ),
     );

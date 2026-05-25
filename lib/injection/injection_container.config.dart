@@ -32,6 +32,8 @@ import 'package:equran_app/features/audio/data/repositories/audio_repository_imp
     as _i550;
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart'
     as _i451;
+import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart'
+    as _i425;
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart'
     as _i380;
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart'
@@ -66,8 +68,6 @@ import 'package:equran_app/features/bookmark/domain/usecases/get_bookmarks.dart'
     as _i1008;
 import 'package:equran_app/features/bookmark/domain/usecases/get_last_read.dart'
     as _i994;
-import 'package:equran_app/features/bookmark/domain/usecases/is_bookmarked.dart'
-    as _i46;
 import 'package:equran_app/features/bookmark/domain/usecases/remove_bookmark.dart'
     as _i778;
 import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart'
@@ -108,8 +108,12 @@ import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart
     as _i28;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart'
     as _i815;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_last_location_imsakiyah.dart'
+    as _i387;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart'
     as _i410;
+import 'package:equran_app/features/imsakiyah/domain/usecases/save_last_location_imsakiyah.dart'
+    as _i1070;
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart'
     as _i165;
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart'
@@ -126,10 +130,14 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_sha
     as _i1042;
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart'
     as _i173;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart'
+    as _i88;
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart'
     as _i598;
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart'
     as _i8;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart'
+    as _i584;
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart'
     as _i69;
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart'
@@ -232,20 +240,30 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.AudioDownloadDataSource>(
       () => _i503.AudioDownloadDataSourceImpl(gh<_i870.DioClient>()),
     );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.tafsirBox(),
       instanceName: 'tafsirBox',
       preResolve: true,
     );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
+    gh.lazySingleton<_i398.TafsirLocalDataSource>(
+      () => _i398.TafsirLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'tafsirBox'),
+      ),
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.settingsBox(),
       instanceName: 'settingsBox',
       preResolve: true,
     );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.tasbihBox(),
       instanceName: 'tasbihBox',
       preResolve: true,
+    );
+    gh.lazySingleton<_i415.TasbihLocalDataSource>(
+      () => _i415.TasbihLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'tasbihBox'),
+      ),
     );
     gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
     gh.lazySingleton<_i380.DeleteAyatAudio>(
@@ -257,67 +275,78 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i232.GetDownloadedAyats>(
       () => _i232.GetDownloadedAyats(gh<_i503.AudioDownloadDataSource>()),
     );
-    gh.singleton<_i945.AudioPlayerDataSource>(
-      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
-    );
-    gh.lazySingleton<_i185.ShalatNotifPrefsDataSource>(
-      () => _i185.ShalatNotifPrefsDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'settingsBox'),
-      ),
-    );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
-      () => hiveModule.shalatBox(),
-      instanceName: 'shalatBox',
-      preResolve: true,
-    );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
-      () => hiveModule.imsakiyahBox(),
-      instanceName: 'imsakiyahBox',
-      preResolve: true,
-    );
-    gh.factory<_i330.AudioStorageCubit>(
-      () => _i330.AudioStorageCubit(
-        gh<_i232.GetDownloadedAyats>(),
-        gh<_i380.DeleteAyatAudio>(),
-        gh<_i503.AudioDownloadDataSource>(),
-      ),
-    );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
-      () => hiveModule.suratBox(),
-      instanceName: 'suratBox',
-      preResolve: true,
-    );
     gh.singleton<_i157.LanguageCubit>(
       () => _i157.LanguageCubit(
-        gh<_i738.Box<dynamic>>(instanceName: 'settingsBox'),
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
       ),
     );
     gh.singleton<_i729.ThemeCubit>(
       () =>
-          _i729.ThemeCubit(gh<_i738.Box<dynamic>>(instanceName: 'settingsBox')),
+          _i729.ThemeCubit(gh<_i738.Box<String>>(instanceName: 'settingsBox')),
     );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
+    gh.singleton<_i945.AudioPlayerDataSource>(
+      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
+      () => hiveModule.shalatBox(),
+      instanceName: 'shalatBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
+      () => hiveModule.imsakiyahBox(),
+      instanceName: 'imsakiyahBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
+      () => hiveModule.suratBox(),
+      instanceName: 'suratBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.bookmarkBox(),
       instanceName: 'bookmarkBox',
       preResolve: true,
     );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.doaBox(),
       instanceName: 'doaBox',
       preResolve: true,
     );
-    await gh.factoryAsync<_i919.Box<dynamic>>(
+    gh.lazySingleton<_i185.ShalatNotifPrefsDataSource>(
+      () => _i185.ShalatNotifPrefsDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
+      ),
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.doaBookmarkBox(),
       instanceName: 'doaBookmarkBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i701.BookmarkLocalDataSource>(
+      () => _i701.BookmarkLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'bookmarkBox'),
+      ),
+    );
+    gh.lazySingleton<_i182.BookmarkRepository>(
+      () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
+    );
     gh.lazySingleton<_i480.QiblaRepository>(
       () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
     );
-    gh.lazySingleton<_i701.BookmarkLocalDataSource>(
-      () => _i701.BookmarkLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
-      ),
+    gh.factory<_i749.AddBookmark>(
+      () => _i749.AddBookmark(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i1008.GetBookmarks>(
+      () => _i1008.GetBookmarks(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i994.GetLastRead>(
+      () => _i994.GetLastRead(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i778.RemoveBookmark>(
+      () => _i778.RemoveBookmark(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i187.SaveLastRead>(
+      () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
     );
     gh.singleton<_i451.AudioRepository>(
       () => _i550.AudioRepositoryImpl(
@@ -325,24 +354,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i503.AudioDownloadDataSource>(),
       ),
     );
-    gh.lazySingleton<_i555.ImsakiyahLocalDataSource>(
-      () => _i555.ImsakiyahLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'imsakiyahBox'),
-      ),
-    );
-    gh.lazySingleton<_i398.TafsirLocalDataSource>(
-      () => _i398.TafsirLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'tafsirBox'),
-      ),
-    );
-    gh.lazySingleton<_i415.TasbihLocalDataSource>(
-      () => _i415.TasbihLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'tasbihBox'),
-      ),
-    );
-    gh.lazySingleton<_i349.SuratDetailLocalDataSource>(
-      () => _i349.SuratDetailLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
+    gh.factory<_i194.BookmarkCubit>(
+      () => _i194.BookmarkCubit(
+        gh<_i1008.GetBookmarks>(),
+        gh<_i749.AddBookmark>(),
+        gh<_i778.RemoveBookmark>(),
+        gh<_i994.GetLastRead>(),
+        gh<_i187.SaveLastRead>(),
       ),
     );
     gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
@@ -362,17 +380,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i959.SuratDetailRemoteDataSource>(
       () => _i959.SuratDetailRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
-    gh.lazySingleton<_i107.SuratLocalDataSource>(
-      () => _i107.SuratLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
-      ),
-    );
     gh.lazySingleton<_i419.TasbihRepository>(
       () => _i940.TasbihRepositoryImpl(gh<_i415.TasbihLocalDataSource>()),
     );
-    gh.lazySingleton<_i560.JadwalShalatLocalDataSource>(
-      () => _i560.JadwalShalatLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'shalatBox'),
+    gh.lazySingleton<_i555.ImsakiyahLocalDataSource>(
+      () => _i555.ImsakiyahLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
+    gh.lazySingleton<_i553.DoaBookmarkDataSource>(
+      () => _i553.DoaBookmarkDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'doaBookmarkBox'),
       ),
     );
     gh.lazySingleton<_i8.GetShalatNotifPrefs>(
@@ -396,22 +414,27 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i69.SaveShalatNotifPrefs>(),
       ),
     );
-    gh.lazySingleton<_i547.DoaLocalDataSource>(
-      () => _i547.DoaLocalDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'doaBox'),
-      ),
-    );
     gh.lazySingleton<_i713.TafsirRemoteDataSource>(
       () => _i713.TafsirRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
     gh.lazySingleton<_i34.DoaRemoteDataSource>(
       () => _i34.DoaRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
-    gh.lazySingleton<_i246.SuratDetailRepository>(
-      () => _i992.SuratDetailRepositoryImpl(
-        gh<_i959.SuratDetailRemoteDataSource>(),
-        gh<_i349.SuratDetailLocalDataSource>(),
+    gh.lazySingleton<_i560.JadwalShalatLocalDataSource>(
+      () => _i560.JadwalShalatLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'shalatBox'),
       ),
+    );
+    gh.lazySingleton<_i107.SuratLocalDataSource>(
+      () => _i107.SuratLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'suratBox'),
+      ),
+    );
+    gh.factory<_i254.GetDoaBookmarks>(
+      () => _i254.GetDoaBookmarks(gh<_i553.DoaBookmarkDataSource>()),
+    );
+    gh.factory<_i107.ToggleDoaBookmark>(
+      () => _i107.ToggleDoaBookmark(gh<_i553.DoaBookmarkDataSource>()),
     );
     gh.factory<_i603.ClearTasbihSessions>(
       () => _i603.ClearTasbihSessions(gh<_i419.TasbihRepository>()),
@@ -424,6 +447,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i259.SaveTasbihSession>(
       () => _i259.SaveTasbihSession(gh<_i419.TasbihRepository>()),
+    );
+    gh.lazySingleton<_i425.DeleteAllAudio>(
+      () => _i425.DeleteAllAudio(gh<_i451.AudioRepository>()),
     );
     gh.factory<_i665.PauseAudio>(
       () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
@@ -446,9 +472,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i560.JadwalShalatLocalDataSource>(),
       ),
     );
-    gh.lazySingleton<_i553.DoaBookmarkDataSource>(
-      () => _i553.DoaBookmarkDataSourceImpl(
-        gh<_i738.Box<dynamic>>(instanceName: 'doaBookmarkBox'),
+    gh.lazySingleton<_i349.SuratDetailLocalDataSource>(
+      () => _i349.SuratDetailLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'suratBox'),
+      ),
+    );
+    gh.lazySingleton<_i547.DoaLocalDataSource>(
+      () => _i547.DoaLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'doaBox'),
       ),
     );
     gh.lazySingleton<_i1042.GetJadwalShalat>(
@@ -457,11 +488,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i173.GetKabkotaShalat>(
       () => _i173.GetKabkotaShalat(gh<_i414.JadwalShalatRepository>()),
     );
+    gh.lazySingleton<_i88.GetLastLocationShalat>(
+      () => _i88.GetLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
+    );
     gh.lazySingleton<_i598.GetProvinsiShalat>(
       () => _i598.GetProvinsiShalat(gh<_i414.JadwalShalatRepository>()),
     );
-    gh.lazySingleton<_i182.BookmarkRepository>(
-      () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
+    gh.lazySingleton<_i584.SaveLastLocationShalat>(
+      () => _i584.SaveLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
     );
     gh.singleton<_i729.AudioCubit>(
       () => _i729.AudioCubit(
@@ -473,30 +507,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i451.AudioRepository>(),
       ),
     );
-    gh.factory<_i749.AddBookmark>(
-      () => _i749.AddBookmark(gh<_i182.BookmarkRepository>()),
-    );
-    gh.factory<_i1008.GetBookmarks>(
-      () => _i1008.GetBookmarks(gh<_i182.BookmarkRepository>()),
-    );
-    gh.factory<_i994.GetLastRead>(
-      () => _i994.GetLastRead(gh<_i182.BookmarkRepository>()),
-    );
-    gh.factory<_i46.IsBookmarked>(
-      () => _i46.IsBookmarked(gh<_i182.BookmarkRepository>()),
-    );
-    gh.factory<_i778.RemoveBookmark>(
-      () => _i778.RemoveBookmark(gh<_i182.BookmarkRepository>()),
-    );
-    gh.factory<_i187.SaveLastRead>(
-      () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
+    gh.factory<_i330.AudioStorageCubit>(
+      () => _i330.AudioStorageCubit(
+        gh<_i232.GetDownloadedAyats>(),
+        gh<_i380.DeleteAyatAudio>(),
+        gh<_i425.DeleteAllAudio>(),
+      ),
     );
     gh.factory<_i83.JadwalShalatCubit>(
       () => _i83.JadwalShalatCubit(
         gh<_i598.GetProvinsiShalat>(),
         gh<_i173.GetKabkotaShalat>(),
         gh<_i1042.GetJadwalShalat>(),
-        gh<_i560.JadwalShalatLocalDataSource>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
         gh<_i177.LocationService>(),
         gh<_i804.ShalatNotificationScheduler>(),
         gh<_i8.GetShalatNotifPrefs>(),
@@ -508,18 +532,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i575.ImsakiyahRemoteDataSource>(),
         gh<_i555.ImsakiyahLocalDataSource>(),
       ),
-    );
-    gh.factory<_i194.BookmarkCubit>(
-      () => _i194.BookmarkCubit(
-        gh<_i1008.GetBookmarks>(),
-        gh<_i749.AddBookmark>(),
-        gh<_i778.RemoveBookmark>(),
-        gh<_i994.GetLastRead>(),
-        gh<_i187.SaveLastRead>(),
-      ),
-    );
-    gh.factory<_i115.GetSuratDetail>(
-      () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
     );
     gh.factory<_i238.QiblaCubit>(
       () => _i238.QiblaCubit(
@@ -545,16 +557,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i547.DoaLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i246.SuratDetailRepository>(
+      () => _i992.SuratDetailRepositoryImpl(
+        gh<_i959.SuratDetailRemoteDataSource>(),
+        gh<_i349.SuratDetailLocalDataSource>(),
+      ),
+    );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
     );
-    gh.factory<_i254.GetDoaBookmarks>(
-      () => _i254.GetDoaBookmarks(gh<_i553.DoaBookmarkDataSource>()),
-    );
-    gh.factory<_i107.ToggleDoaBookmark>(
-      () => _i107.ToggleDoaBookmark(gh<_i553.DoaBookmarkDataSource>()),
-    );
-    gh.factory<_i1068.TasbihCubit>(
+    gh.lazySingleton<_i1068.TasbihCubit>(
       () => _i1068.TasbihCubit(
         gh<_i998.GetTasbihSessions>(),
         gh<_i259.SaveTasbihSession>(),
@@ -574,17 +586,34 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i815.GetKabkota>(
       () => _i815.GetKabkota(gh<_i36.ImsakiyahRepository>()),
     );
+    gh.lazySingleton<_i387.GetLastLocationImsakiyah>(
+      () => _i387.GetLastLocationImsakiyah(gh<_i36.ImsakiyahRepository>()),
+    );
     gh.lazySingleton<_i410.GetProvinsi>(
       () => _i410.GetProvinsi(gh<_i36.ImsakiyahRepository>()),
     );
-    gh.factory<_i290.DoaDetailCubit>(
-      () => _i290.DoaDetailCubit(gh<_i422.GetDoaDetail>()),
-    );
-    gh.factory<_i438.SuratDetailCubit>(
-      () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),
+    gh.lazySingleton<_i1070.SaveLastLocationImsakiyah>(
+      () => _i1070.SaveLastLocationImsakiyah(gh<_i36.ImsakiyahRepository>()),
     );
     gh.factory<_i160.GetTafsir>(
       () => _i160.GetTafsir(gh<_i485.TafsirRepository>()),
+    );
+    gh.factory<_i290.DoaDetailCubit>(
+      () => _i290.DoaDetailCubit(
+        gh<_i422.GetDoaDetail>(),
+        gh<_i254.GetDoaBookmarks>(),
+        gh<_i107.ToggleDoaBookmark>(),
+      ),
+    );
+    gh.factory<_i165.ImsakiyahCubit>(
+      () => _i165.ImsakiyahCubit(
+        gh<_i410.GetProvinsi>(),
+        gh<_i815.GetKabkota>(),
+        gh<_i28.GetImsakiyah>(),
+        gh<_i387.GetLastLocationImsakiyah>(),
+        gh<_i1070.SaveLastLocationImsakiyah>(),
+        gh<_i177.LocationService>(),
+      ),
     );
     gh.factory<_i345.DoaListCubit>(
       () => _i345.DoaListCubit(gh<_i254.GetDoaList>()),
@@ -595,14 +624,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i334.SuratListCubit>(
       () => _i334.SuratListCubit(gh<_i291.GetSuratList>()),
     );
-    gh.factory<_i165.ImsakiyahCubit>(
-      () => _i165.ImsakiyahCubit(
-        gh<_i410.GetProvinsi>(),
-        gh<_i815.GetKabkota>(),
-        gh<_i28.GetImsakiyah>(),
-        gh<_i555.ImsakiyahLocalDataSource>(),
-        gh<_i177.LocationService>(),
-      ),
+    gh.factory<_i115.GetSuratDetail>(
+      () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
+    );
+    gh.factory<_i438.SuratDetailCubit>(
+      () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),
     );
     return this;
   }

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -56,7 +56,7 @@ void main() {
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn(null);
         when(
-          () => mockBox.put(any<dynamic>(), any<dynamic>()),
+          () => mockBox.put(any<String>(), any<String>()),
         ).thenAnswer((_) async {});
         return ThemeCubit(mockBox);
       },
@@ -78,7 +78,7 @@ void main() {
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn('dark');
         when(
-          () => mockBox.put(any<dynamic>(), any<dynamic>()),
+          () => mockBox.put(any<String>(), any<String>()),
         ).thenAnswer((_) async {});
         return ThemeCubit(mockBox);
       },

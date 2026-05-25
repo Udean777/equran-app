@@ -16,7 +16,7 @@ abstract interface class DoaLocalDataSource {
 class DoaLocalDataSourceImpl implements DoaLocalDataSource {
   const DoaLocalDataSourceImpl(@Named('doaBox') this._box);
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _doaListKey = 'doa_list';
   String _detailKey(int id) => 'doa_detail_$id';

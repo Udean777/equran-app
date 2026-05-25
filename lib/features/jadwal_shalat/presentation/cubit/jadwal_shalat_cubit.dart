@@ -2,14 +2,19 @@ import 'dart:async';
 
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_service.dart';
+import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
-import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
+import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
+import 'package:equran_app/core/utils/string_utils.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +30,8 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     this._getProvinsi,
     this._getKabkota,
     this._getJadwalShalat,
-    this._local,
+    this._getLastLocation,
+    this._saveLastLocation,
     this._locationService,
     this._scheduler,
     this._getNotifPrefs,
@@ -35,7 +41,8 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
   final GetProvinsiShalat _getProvinsi;
   final GetKabkotaShalat _getKabkota;
   final GetJadwalShalat _getJadwalShalat;
-  final JadwalShalatLocalDataSource _local;
+  final GetLastLocationShalat _getLastLocation;
+  final SaveLastLocationShalat _saveLastLocation;
   final LocationService _locationService;
   final ShalatNotificationScheduler _scheduler;
   final GetShalatNotifPrefs _getNotifPrefs;
@@ -54,8 +61,9 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
       (failure) async => emit(JadwalShalatState.failure(failure: failure)),
       (provinsi) async {
         // 1. Coba restore lokasi terakhir
-        final lastProvinsi = await _local.getLastProvinsi();
-        final lastKabkota = await _local.getLastKabkota();
+        final lastLocationResult = await _getLastLocation();
+        final lastProvinsi = lastLocationResult.fold((_) => null, (l) => l.provinsi);
+        final lastKabkota = lastLocationResult.fold((_) => null, (l) => l.kabkota);
 
         if (lastProvinsi != null &&
             provinsi.contains(lastProvinsi) &&
@@ -73,7 +81,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
         final detected = await _locationService.detectCurrentLocation();
 
         if (detected != null) {
-          final matchedProvinsi = _fuzzyMatch(detected.provinsi, provinsi);
+          final matchedProvinsi = fuzzyMatch(detected.provinsi, provinsi);
 
           if (matchedProvinsi != null) {
             final kabkotaResult = await _getKabkota(matchedProvinsi);
@@ -81,11 +89,13 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
               (failure) async =>
                   emit(JadwalShalatState.provinsiLoaded(provinsi: provinsi)),
               (kabkota) async {
-                final matchedKabkota = _fuzzyMatch(detected.kabkota, kabkota);
+                final matchedKabkota = fuzzyMatch(detected.kabkota, kabkota);
 
                 if (matchedKabkota != null) {
-                  await _local.saveLastProvinsi(matchedProvinsi);
-                  await _local.saveLastKabkota(matchedKabkota);
+                  unawaited(_saveLastLocation(
+                    provinsi: matchedProvinsi,
+                    kabkota: matchedKabkota,
+                  ));
                   await _autoLoadJadwal(
                     provinsiList: provinsi,
                     selectedProvinsi: matchedProvinsi,
@@ -123,8 +133,10 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
         final matched = kabkota.contains(_defaultKabkota)
             ? _defaultKabkota
             : kabkota.first;
-        await _local.saveLastProvinsi(_defaultProvinsi);
-        await _local.saveLastKabkota(matched);
+        unawaited(_saveLastLocation(
+          provinsi: _defaultProvinsi,
+          kabkota: matched,
+        ));
         await _autoLoadJadwal(
           provinsiList: provinsiList,
           selectedProvinsi: _defaultProvinsi,
@@ -253,8 +265,10 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
 
     if (selectedProvinsi == null) return;
 
-    await _local.saveLastProvinsi(selectedProvinsi);
-    await _local.saveLastKabkota(kabkota);
+    unawaited(_saveLastLocation(
+      provinsi: selectedProvinsi,
+      kabkota: kabkota,
+    ));
 
     await _autoLoadJadwal(
       provinsiList: provinsiList,
@@ -307,36 +321,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     }
   }
 
-  /// Fuzzy match — sama dengan ImsakiyahCubit
-  String? _fuzzyMatch(String query, List<String> candidates) {
-    final q = query.toUpperCase().trim();
-
-    final exact = candidates.where((c) => c.toUpperCase() == q);
-    if (exact.isNotEmpty) return exact.first;
-
-    final containsQ = candidates.where((c) => c.toUpperCase().contains(q));
-    if (containsQ.isNotEmpty) return containsQ.first;
-
-    final stripped = candidates.where((c) {
-      final upper = c.toUpperCase();
-      final clean = upper
-          .replaceFirst(RegExp(r'^KAB\.\s*'), '')
-          .replaceFirst(RegExp(r'^KABUPATEN\s+'), '')
-          .replaceFirst(RegExp(r'^KOTA\s+'), '')
-          .trim();
-      return clean == q || clean.contains(q) || q.contains(clean);
-    });
-    if (stripped.isNotEmpty) return stripped.first;
-
-    final qTokens = q.split(RegExp(r'\s+'));
-    bool allTokensIn(String c) {
-      final upper = c.toUpperCase();
-      return qTokens.every(upper.contains);
-    }
-
-    return candidates.where(allTokensIn).firstOrNull;
-  }
-
   /// Update preferensi notifikasi + reschedule.
   Future<void> updateNotifPrefs(ShalatNotifPrefs prefs) async {
     await _saveNotifPrefs(prefs);
@@ -356,21 +340,44 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     if (todayEntry == null) return;
 
     unawaited(
-      _getNotifPrefs().then((result) {
-        unawaited(
-          result.fold(
-            (_) => _scheduler.scheduleForToday(
-              todayEntry,
-              const ShalatNotifPrefs(),
-            ),
-            (prefs) => _scheduler.scheduleForToday(todayEntry, prefs),
-          ),
-        );
-      }).catchError((Object e) {
-        debugPrint('JadwalShalatCubit: schedule notification error: $e');
-      }),
+      _getNotifPrefs()
+          .then((result) {
+            final prefs = result.fold(
+              (_) => const ShalatNotifPrefs(),
+              (p) => p,
+            );
+            unawaited(
+              _scheduler.scheduleForToday(
+                _toScheduleEntry(todayEntry),
+                _toNotifConfig(prefs),
+              ),
+            );
+          })
+          .catchError((Object e) {
+            debugPrint('JadwalShalatCubit: schedule notification error: $e');
+          }),
     );
   }
+
+  /// Map [JadwalShalatEntry] ke core [ShalatScheduleEntry].
+  ShalatScheduleEntry _toScheduleEntry(JadwalShalatEntry entry) =>
+      ShalatScheduleEntry(
+        subuh: entry.subuh,
+        dzuhur: entry.dzuhur,
+        ashar: entry.ashar,
+        maghrib: entry.maghrib,
+        isya: entry.isya,
+      );
+
+  /// Map [ShalatNotifPrefs] ke core [ShalatNotifConfig].
+  ShalatNotifConfig _toNotifConfig(ShalatNotifPrefs prefs) => ShalatNotifConfig(
+    subuh: prefs.subuh,
+    dzuhur: prefs.dzuhur,
+    ashar: prefs.ashar,
+    maghrib: prefs.maghrib,
+    isya: prefs.isya,
+    menitSebelum: prefs.menitSebelum,
+  );
 
   // --- helpers ---
 

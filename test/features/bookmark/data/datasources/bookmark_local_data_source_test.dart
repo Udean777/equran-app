@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_bookmark_data.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -62,7 +62,7 @@ void main() {
     test('tambah bookmark baru ke list', () async {
       when(() => mockBox.get('bookmarks')).thenReturn(null);
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       final dto = BookmarkDto(
@@ -76,7 +76,7 @@ void main() {
 
       await dataSource.addBookmark(dto);
 
-      verify(() => mockBox.put('bookmarks', any<dynamic>())).called(1);
+      verify(() => mockBox.put('bookmarks', any<String>())).called(1);
     });
 
     test('tidak duplikat jika bookmark sudah ada', () async {
@@ -92,12 +92,12 @@ void main() {
         () => mockBox.get('bookmarks'),
       ).thenReturn(jsonEncode([dto.toJson()]));
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.addBookmark(dto);
 
-      verifyNever(() => mockBox.put(any<dynamic>(), any<dynamic>()));
+      verifyNever(() => mockBox.put(any<String>(), any<String>()));
     });
   });
 
@@ -115,14 +115,14 @@ void main() {
         () => mockBox.get('bookmarks'),
       ).thenReturn(jsonEncode([dto.toJson()]));
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.removeBookmark(suratNomor: 1, ayatNomor: 1);
 
       final captured =
           verify(
-                () => mockBox.put('bookmarks', captureAny<dynamic>()),
+                () => mockBox.put('bookmarks', captureAny<String>()),
               ).captured.first
               as String;
       final list = jsonDecode(captured) as List;
@@ -187,7 +187,7 @@ void main() {
   group('saveLastRead()', () {
     test('simpan LastReadDto ke Hive', () async {
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       final dto = LastReadDto(
@@ -199,7 +199,7 @@ void main() {
 
       await dataSource.saveLastRead(dto);
 
-      verify(() => mockBox.put('last_read', any<dynamic>())).called(1);
+      verify(() => mockBox.put('last_read', any<String>())).called(1);
     });
   });
 }

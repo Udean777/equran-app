@@ -4,8 +4,12 @@ import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
+import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
+import 'package:equran_app/features/settings/presentation/widgets/language_selector_sheet.dart';
+import 'package:equran_app/features/settings/presentation/widgets/notif_toggle_tile.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,49 +75,39 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceLG),
 
           // ── Notifikasi Waktu Shalat ──────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.spaceMD,
-              vertical: AppDimens.spaceXS,
-            ),
-            child: Text(
-              'Notifikasi Waktu Shalat',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ),
+          const SectionHeader(
+            label: 'Notifikasi Waktu Shalat',
           ),
           BlocBuilder<ShalatNotifCubit, ShalatNotifPrefs>(
             builder: (context, prefs) {
               final cubit = context.read<ShalatNotifCubit>();
               return Column(
                 children: [
-                  _NotifToggleTile(
+                  NotifToggleTile(
                     label: 'Subuh',
                     icon: Icons.wb_twilight_rounded,
                     value: prefs.subuh,
                     onChanged: (_) => cubit.toggleSubuh(),
                   ),
-                  _NotifToggleTile(
+                  NotifToggleTile(
                     label: 'Dzuhur',
                     icon: Icons.wb_sunny_rounded,
                     value: prefs.dzuhur,
                     onChanged: (_) => cubit.toggleDzuhur(),
                   ),
-                  _NotifToggleTile(
+                  NotifToggleTile(
                     label: 'Ashar',
                     icon: Icons.wb_sunny_outlined,
                     value: prefs.ashar,
                     onChanged: (_) => cubit.toggleAshar(),
                   ),
-                  _NotifToggleTile(
+                  NotifToggleTile(
                     label: 'Maghrib',
                     icon: Icons.nights_stay_outlined,
                     value: prefs.maghrib,
                     onChanged: (_) => cubit.toggleMaghrib(),
                   ),
-                  _NotifToggleTile(
+                  NotifToggleTile(
                     label: 'Isya',
                     icon: Icons.nightlight_round,
                     value: prefs.isya,
@@ -280,116 +274,12 @@ class SettingsPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
+      showAppBottomSheet<void>(
+        context,
         builder: (sheetContext) => BlocProvider.value(
           value: context.read<LanguageCubit>(),
-          child: _LanguageSelectorSheet(current: current, l10n: l10n),
+          child: LanguageSelectorSheet(current: current, l10n: l10n),
         ),
-      ),
-    );
-  }
-}
-
-class _NotifToggleTile extends StatelessWidget {
-  const _NotifToggleTile({
-    required this.label,
-    required this.icon,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SwitchListTile(
-      secondary: Icon(icon, color: AppColors.primary),
-      title: Text(label),
-      value: value,
-      activeThumbColor: AppColors.primary,
-      onChanged: onChanged,
-    );
-  }
-}
-
-class _LanguageSelectorSheet extends StatelessWidget {
-  const _LanguageSelectorSheet({
-    required this.current,
-    required this.l10n,
-  });
-
-  final LanguageState current;
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final languages = [
-      (const LanguageState.id(), l10n.indonesia, '🇮🇩'),
-      (const LanguageState.en(), l10n.english, '🇬🇧'),
-      (const LanguageState.ar(), l10n.arabic, '🇸🇦'),
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceMD),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: AppDimens.spaceMD),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceMD),
-            child: Text(
-              l10n.bahasa,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceSM),
-          ...languages.map(
-            (entry) {
-              final (lang, label, flag) = entry;
-              final isSelected = lang.runtimeType == current.runtimeType;
-
-              return ListTile(
-                leading: Text(flag, style: const TextStyle(fontSize: 24)),
-                title: Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                    color: isSelected ? AppColors.primary : null,
-                  ),
-                ),
-                trailing: isSelected
-                    ? const Icon(Icons.check_rounded, color: AppColors.primary)
-                    : null,
-                onTap: () {
-                  unawaited(context.read<LanguageCubit>().changeLanguage(lang));
-                  Navigator.pop(context);
-                },
-              );
-            },
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
-        ],
       ),
     );
   }

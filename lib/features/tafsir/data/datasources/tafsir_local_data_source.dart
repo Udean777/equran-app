@@ -14,7 +14,7 @@ abstract interface class TafsirLocalDataSource {
 class TafsirLocalDataSourceImpl implements TafsirLocalDataSource {
   const TafsirLocalDataSourceImpl(@Named('tafsirBox') this._box);
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   String _key(int nomor) => 'tafsir_$nomor';
 

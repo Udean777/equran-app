@@ -14,7 +14,7 @@ abstract interface class DoaBookmarkDataSource {
 class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   const DoaBookmarkDataSourceImpl(@Named('doaBookmarkBox') this._box);
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _key = 'doa_bookmark_ids';
 
@@ -23,7 +23,7 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
     try {
       final raw = _box.get(_key);
       if (raw == null) return {};
-      final list = jsonDecode(raw as String) as List<dynamic>;
+      final list = jsonDecode(raw) as List<dynamic>;
       return list.map((e) => e as int).toSet();
     } on Object catch (_) {
       return {};

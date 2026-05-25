@@ -1,3 +1,4 @@
+import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_preset.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_session.dart';
 import 'package:equran_app/features/tasbih/domain/usecases/clear_tasbih_sessions.dart';
@@ -15,7 +16,7 @@ part 'tasbih_state.dart';
 /// Abstraksi haptic agar bisa di-mock di unit test.
 typedef HapticCallback = Future<void> Function();
 
-@injectable
+@lazySingleton
 class TasbihCubit extends Cubit<TasbihState> {
   TasbihCubit(
     this._getSessions,
@@ -123,7 +124,7 @@ class TasbihCubit extends Cubit<TasbihState> {
   Future<void> loadSessions() async {
     final result = await _getSessions();
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.toString())),
+      (failure) => emit(state.copyWith(errorMessage: failure.toUserMessage())),
       (sessions) =>
           emit(state.copyWith(sessions: sessions, errorMessage: null)),
     );
@@ -133,7 +134,7 @@ class TasbihCubit extends Cubit<TasbihState> {
   Future<void> deleteSession(String id) async {
     final result = await _deleteSession(id);
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.toString())),
+      (failure) => emit(state.copyWith(errorMessage: failure.toUserMessage())),
       (_) => loadSessions(),
     );
   }
@@ -142,7 +143,7 @@ class TasbihCubit extends Cubit<TasbihState> {
   Future<void> clearAllSessions() async {
     final result = await _clearSessions();
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.toString())),
+      (failure) => emit(state.copyWith(errorMessage: failure.toUserMessage())),
       (_) => emit(state.copyWith(sessions: [], errorMessage: null)),
     );
   }
@@ -165,7 +166,7 @@ class TasbihCubit extends Cubit<TasbihState> {
     final result = await _saveSession(session);
     result.fold(
       (failure) => emit(
-        state.copyWith(isSaving: false, errorMessage: failure.toString()),
+        state.copyWith(isSaving: false, errorMessage: failure.toUserMessage()),
       ),
       (_) {
         final updated = [session, ...state.sessions];

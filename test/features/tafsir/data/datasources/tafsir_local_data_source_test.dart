@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -66,14 +66,14 @@ void main() {
   group('cacheTafsir()', () {
     test('simpan CacheEntry dengan timestamp ke Hive', () async {
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.cacheTafsir(1, tTafsirDataDto);
 
       final captured =
           verify(
-                () => mockBox.put('tafsir_1', captureAny<dynamic>()),
+                () => mockBox.put('tafsir_1', captureAny<String>()),
               ).captured.first
               as String;
 

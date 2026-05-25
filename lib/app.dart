@@ -5,11 +5,14 @@ import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_detail_page.dart';
+import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
+import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
+import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -27,16 +30,22 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/surat/:nomor',
-      builder: (context, state) => SuratDetailPage(
-        nomor: int.parse(state.pathParameters['nomor']!),
-        initialAyat: int.tryParse(state.uri.queryParameters['ayat'] ?? ''),
-      ),
+      builder: (context, state) {
+        final nomor = int.tryParse(state.pathParameters['nomor'] ?? '');
+        if (nomor == null) return const MainPage();
+        return SuratDetailPage(
+          nomor: nomor,
+          initialAyat: int.tryParse(state.uri.queryParameters['ayat'] ?? ''),
+        );
+      },
     ),
     GoRoute(
       path: '/doa/:id',
-      builder: (context, state) => DoaDetailPage(
-        id: int.parse(state.pathParameters['id']!),
-      ),
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        if (id == null) return const MainPage();
+        return DoaDetailPage(id: id);
+      },
     ),
     GoRoute(
       path: '/settings',
@@ -45,6 +54,13 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/tasbih',
       builder: (context, state) => const TasbihPage(),
+    ),
+    GoRoute(
+      path: '/tasbih/history',
+      builder: (context, state) => BlocProvider.value(
+        value: getIt<TasbihCubit>(),
+        child: const TasbihHistoryPage(),
+      ),
     ),
     GoRoute(
       path: '/qibla',
@@ -57,6 +73,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/bookmark',
       builder: (context, state) => const BookmarkPage(),
+    ),
+    GoRoute(
+      path: '/doa-harian',
+      builder: (context, state) => const DoaListPage(),
     ),
     GoRoute(
       path: '/audio/storage',

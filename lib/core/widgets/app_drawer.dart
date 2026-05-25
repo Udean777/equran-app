@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -49,13 +51,6 @@ class AppDrawer extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Arah Baru Selayar',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.onPrimary.withValues(alpha: 0.7),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -69,7 +64,7 @@ class AppDrawer extends StatelessWidget {
               label: l10n.imsakiyahNav,
               onTap: () {
                 Navigator.pop(context);
-                context.go('/imsakiyah');
+                unawaited(context.push('/imsakiyah'));
               },
             ),
             _DrawerItem(
@@ -78,7 +73,7 @@ class AppDrawer extends StatelessWidget {
               label: l10n.bookmarkNav,
               onTap: () {
                 Navigator.pop(context);
-                context.go('/bookmark');
+                unawaited(context.push('/bookmark'));
               },
             ),
             _DrawerItem(
@@ -87,7 +82,7 @@ class AppDrawer extends StatelessWidget {
               label: 'Doa Harian',
               onTap: () {
                 Navigator.pop(context);
-                context.go('/doa-harian');
+                unawaited(context.push('/doa-harian'));
               },
             ),
             _DrawerItem(
@@ -96,7 +91,7 @@ class AppDrawer extends StatelessWidget {
               label: 'Manajemen Audio',
               onTap: () {
                 Navigator.pop(context);
-                context.go('/audio/storage');
+                unawaited(context.push('/audio/storage'));
               },
             ),
 

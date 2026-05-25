@@ -5,38 +5,38 @@ import 'package:injectable/injectable.dart';
 abstract class HiveModule {
   @preResolve
   @Named('suratBox')
-  Future<Box<dynamic>> suratBox() => Hive.openBox<dynamic>('surat_box');
+  Future<Box<String>> suratBox() => Hive.openBox<String>('surat_box');
 
   @preResolve
   @Named('tafsirBox')
-  Future<Box<dynamic>> tafsirBox() => Hive.openBox<dynamic>('tafsir_box');
+  Future<Box<String>> tafsirBox() => Hive.openBox<String>('tafsir_box');
 
   @preResolve
   @Named('settingsBox')
-  Future<Box<dynamic>> settingsBox() => Hive.openBox<dynamic>('settings_box');
+  Future<Box<String>> settingsBox() => Hive.openBox<String>('settings_box');
 
   @preResolve
   @Named('bookmarkBox')
-  Future<Box<dynamic>> bookmarkBox() => Hive.openBox<dynamic>('bookmark_box');
+  Future<Box<String>> bookmarkBox() => Hive.openBox<String>('bookmark_box');
 
   @preResolve
   @Named('doaBox')
-  Future<Box<dynamic>> doaBox() => Hive.openBox<dynamic>('doa_box');
+  Future<Box<String>> doaBox() => Hive.openBox<String>('doa_box');
 
   @preResolve
   @Named('imsakiyahBox')
-  Future<Box<dynamic>> imsakiyahBox() => Hive.openBox<dynamic>('imsakiyah_box');
+  Future<Box<String>> imsakiyahBox() => Hive.openBox<String>('imsakiyah_box');
 
   @preResolve
   @Named('shalatBox')
-  Future<Box<dynamic>> shalatBox() => Hive.openBox<dynamic>('shalat_box');
+  Future<Box<String>> shalatBox() => Hive.openBox<String>('shalat_box');
 
   @preResolve
   @Named('tasbihBox')
-  Future<Box<dynamic>> tasbihBox() => Hive.openBox<dynamic>('tasbih_box');
+  Future<Box<String>> tasbihBox() => Hive.openBox<String>('tasbih_box');
 
   @preResolve
   @Named('doaBookmarkBox')
-  Future<Box<dynamic>> doaBookmarkBox() =>
-      Hive.openBox<dynamic>('doa_bookmark_box');
+  Future<Box<String>> doaBookmarkBox() =>
+      Hive.openBox<String>('doa_bookmark_box');
 }

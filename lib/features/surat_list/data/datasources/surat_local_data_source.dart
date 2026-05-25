@@ -20,7 +20,7 @@ typedef SuratDetailLocalDto = Map<String, dynamic>;
 class SuratLocalDataSourceImpl implements SuratLocalDataSource {
   const SuratLocalDataSourceImpl(@Named('suratBox') this._box);
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _suratListKey = 'surat_list';
   String _detailKey(int nomor) => 'surat_detail_$nomor';

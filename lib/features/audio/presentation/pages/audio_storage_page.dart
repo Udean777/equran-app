@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/utils/dialog_utils.dart';
+import 'package:equran_app/core/utils/format_utils.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart';
+import 'package:equran_app/features/audio/presentation/widgets/audio_surat_group.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,7 +132,7 @@ class _AudioStorageView extends StatelessWidget {
               ),
               const SizedBox(width: AppDimens.spaceSM),
               Text(
-                '${files.length} file • ${_formatBytes(totalBytes)}',
+                '${files.length} file • ${totalBytes.toReadableBytes()}',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -148,7 +151,7 @@ class _AudioStorageView extends StatelessWidget {
               final suratFiles = grouped[suratNomor]!
                 ..sort((a, b) => a.ayatNomor.compareTo(b.ayatNomor));
 
-              return _SuratGroup(
+              return AudioSuratGroup(
                 suratNomor: suratNomor,
                 files: suratFiles,
               );
@@ -162,123 +165,16 @@ class _AudioStorageView extends StatelessWidget {
   void _confirmDeleteAll(BuildContext context) {
     final cubit = context.read<AudioStorageCubit>();
     unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Hapus Semua Audio'),
-          content: const Text(
+      showConfirmDialog(
+        context,
+        title: 'Hapus Semua Audio',
+        content:
             'Semua file audio yang sudah didownload akan dihapus. '
             'Tindakan ini tidak dapat dibatalkan.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                unawaited(cubit.deleteAll());
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Hapus Semua'),
-            ),
-          ],
-        ),
-      ),
+        confirmLabel: 'Hapus Semua',
+      ).then((confirmed) {
+        if (confirmed) unawaited(cubit.deleteAll());
+      }),
     );
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-}
-
-class _SuratGroup extends StatelessWidget {
-  const _SuratGroup({
-    required this.suratNomor,
-    required this.files,
-  });
-
-  final int suratNomor;
-  final List<DownloadedAyatInfo> files;
-
-  @override
-  Widget build(BuildContext context) {
-    final totalBytes = files.fold<int>(0, (sum, f) => sum + f.sizeBytes);
-
-    return ExpansionTile(
-      leading: CircleAvatar(
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-        child: Text(
-          '$suratNomor',
-          style: const TextStyle(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-      ),
-      title: Text('Surat $suratNomor'),
-      subtitle: Text(
-        '${files.length} ayat • ${_formatBytes(totalBytes)}',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: Colors.grey[500],
-        ),
-      ),
-      children: files.map((file) => _FileItem(file: file)).toList(),
-    );
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-}
-
-class _FileItem extends StatelessWidget {
-  const _FileItem({required this.file});
-
-  final DownloadedAyatInfo file;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.only(
-        left: AppDimens.spaceXL + AppDimens.spaceMD,
-        right: AppDimens.spaceSM,
-      ),
-      leading: const Icon(
-        Icons.audio_file_rounded,
-        color: AppColors.primary,
-        size: AppDimens.iconSM + 4,
-      ),
-      title: Text('Ayat ${file.ayatNomor}'),
-      subtitle: Text(
-        '${file.qari.name} • ${_formatBytes(file.sizeBytes)}',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: Colors.grey[500],
-        ),
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline_rounded, size: 20),
-        color: Colors.red[400],
-        tooltip: 'Hapus',
-        onPressed: () => context.read<AudioStorageCubit>().deleteFile(
-          suratNomor: file.suratNomor,
-          ayatNomor: file.ayatNomor,
-          qari: file.qari,
-        ),
-      ),
-    );
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

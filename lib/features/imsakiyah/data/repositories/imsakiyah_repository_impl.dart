@@ -56,4 +56,42 @@ class ImsakiyahRepositoryImpl implements ImsakiyahRepository {
       return dto.data.toEntity();
     });
   }
+
+  @override
+  Future<Either<Failure, String?>> getLastProvinsi() async {
+    try {
+      return right(await _local.getLastProvinsi());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> saveLastProvinsi(String provinsi) async {
+    try {
+      await _local.saveLastProvinsi(provinsi);
+      return right(unit);
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String?>> getLastKabkota() async {
+    try {
+      return right(await _local.getLastKabkota());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> saveLastKabkota(String kabkota) async {
+    try {
+      await _local.saveLastKabkota(kabkota);
+      return right(unit);
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
 }

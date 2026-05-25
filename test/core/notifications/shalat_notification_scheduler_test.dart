@@ -1,7 +1,7 @@
 import 'package:equran_app/core/notifications/notification_service.dart';
+import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
-import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
-import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -121,14 +121,8 @@ void main() {
   });
 
   group('ShalatNotificationScheduler — scheduleForToday', () {
-    const entry = JadwalShalatEntry(
-      tanggal: 25,
-      tanggalLengkap: '25 Mei 2026',
-      hari: 'Senin',
-      imsak: '04:22',
+    const entry = ShalatScheduleEntry(
       subuh: '04:32',
-      terbit: '05:48',
-      dhuha: '06:12',
       dzuhur: '11:52',
       ashar: '15:12',
       maghrib: '17:52',
@@ -151,7 +145,7 @@ void main() {
     test('schedule semua waktu jika semua prefs enabled', () async {
       stubMocks();
 
-      await scheduler.scheduleForToday(entry, const ShalatNotifPrefs());
+      await scheduler.scheduleForToday(entry, const ShalatNotifConfig());
 
       verify(() => mockService.cancelAll()).called(1);
       verify(
@@ -168,7 +162,7 @@ void main() {
     test('skip waktu yang disabled di prefs', () async {
       stubMocks();
 
-      const prefs = ShalatNotifPrefs(
+      const prefs = ShalatNotifConfig(
         subuh: false,
         dzuhur: false,
         isya: false,
@@ -191,7 +185,7 @@ void main() {
     test('subuh menggunakan isSubuh: true', () async {
       stubMocks();
 
-      const prefs = ShalatNotifPrefs(
+      const prefs = ShalatNotifConfig(
         dzuhur: false,
         ashar: false,
         maghrib: false,
@@ -214,7 +208,7 @@ void main() {
     test('cancelAll dipanggil meski semua prefs disabled', () async {
       when(() => mockService.cancelAll()).thenAnswer((_) async {});
 
-      const prefs = ShalatNotifPrefs(
+      const prefs = ShalatNotifConfig(
         subuh: false,
         dzuhur: false,
         ashar: false,

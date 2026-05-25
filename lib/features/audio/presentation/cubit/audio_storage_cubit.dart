@@ -1,7 +1,10 @@
 import 'dart:async';
 
-import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
+import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart'
+    show DownloadedAyatInfo;
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
+import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
 import 'package:flutter/foundation.dart';
@@ -28,18 +31,18 @@ class AudioStorageCubit extends Cubit<AudioStorageState> {
   AudioStorageCubit(
     this._getDownloadedAyats,
     this._deleteAyatAudio,
-    this._downloadDataSource,
+    this._deleteAllAudio,
   ) : super(const AudioStorageState.initial());
 
   final GetDownloadedAyats _getDownloadedAyats;
   final DeleteAyatAudio _deleteAyatAudio;
-  final AudioDownloadDataSource _downloadDataSource;
+  final DeleteAllAudio _deleteAllAudio;
 
   Future<void> load() async {
     emit(const AudioStorageState.loading());
     final result = await _getDownloadedAyats();
     result.fold(
-      (failure) => emit(AudioStorageState.error(message: failure.toString())),
+      (failure) => emit(AudioStorageState.error(message: failure.toUserMessage())),
       (files) {
         final totalBytes = files.fold<int>(0, (sum, f) => sum + f.sizeBytes);
         emit(AudioStorageState.success(files: files, totalBytes: totalBytes));
@@ -64,11 +67,10 @@ class AudioStorageCubit extends Cubit<AudioStorageState> {
   }
 
   Future<void> deleteAll() async {
-    try {
-      await _downloadDataSource.deleteAll();
-      await load();
-    } on Object catch (e) {
-      debugPrint('AudioStorageCubit: deleteAll error: $e');
-    }
+    final result = await _deleteAllAudio();
+    result.fold(
+      (failure) => debugPrint('AudioStorageCubit: deleteAll error: $failure'),
+      (_) => unawaited(load()),
+    );
   }
 }

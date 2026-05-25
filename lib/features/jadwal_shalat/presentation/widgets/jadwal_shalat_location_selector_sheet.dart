@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,16 +40,9 @@ class _JadwalShalatLocationSelectorSheetState
             return Column(
               children: [
                 // Handle
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.outlineVariant,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: BottomSheetHandle(),
                 ),
                 // Title
                 Padding(

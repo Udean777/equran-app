@@ -1,6 +1,6 @@
 import 'package:equran_app/core/notifications/notification_service.dart';
-import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
-import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/core/notifications/shalat_notif_config.dart';
+import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -12,10 +12,10 @@ class ShalatNotificationScheduler {
   final NotificationService _notificationService;
 
   /// Schedule notifikasi untuk semua waktu shalat hari ini
-  /// berdasarkan [entry] dan [prefs].
+  /// berdasarkan [entry] dan [config].
   Future<void> scheduleForToday(
-    JadwalShalatEntry entry,
-    ShalatNotifPrefs prefs,
+    ShalatScheduleEntry entry,
+    ShalatNotifConfig config,
   ) async {
     // Cancel semua notifikasi lama sebelum reschedule
     await _notificationService.cancelAll();
@@ -25,35 +25,35 @@ class ShalatNotificationScheduler {
         id: kNotifIdSubuh,
         nama: 'Subuh',
         waktu: entry.subuh,
-        enabled: prefs.subuh,
+        enabled: config.subuh,
         isSubuh: true,
       ),
       _WaktuShalat(
         id: kNotifIdDzuhur,
         nama: 'Dzuhur',
         waktu: entry.dzuhur,
-        enabled: prefs.dzuhur,
+        enabled: config.dzuhur,
         isSubuh: false,
       ),
       _WaktuShalat(
         id: kNotifIdAshar,
         nama: 'Ashar',
         waktu: entry.ashar,
-        enabled: prefs.ashar,
+        enabled: config.ashar,
         isSubuh: false,
       ),
       _WaktuShalat(
         id: kNotifIdMaghrib,
         nama: 'Maghrib',
         waktu: entry.maghrib,
-        enabled: prefs.maghrib,
+        enabled: config.maghrib,
         isSubuh: false,
       ),
       _WaktuShalat(
         id: kNotifIdIsya,
         nama: 'Isya',
         waktu: entry.isya,
-        enabled: prefs.isya,
+        enabled: config.isya,
         isSubuh: false,
       ),
     ];
@@ -63,7 +63,7 @@ class ShalatNotificationScheduler {
 
       final scheduledTime = _parseWaktu(
         waktuStr: waktu.waktu,
-        menitSebelum: prefs.menitSebelum,
+        menitSebelum: config.menitSebelum,
       );
 
       if (scheduledTime == null) {

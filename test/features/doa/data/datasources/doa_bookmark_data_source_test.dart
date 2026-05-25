@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -50,14 +50,14 @@ void main() {
         () => mockBox.get('doa_bookmark_ids'),
       ).thenReturn(jsonEncode([1, 6]));
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.addBookmark(135);
 
       final captured =
           verify(
-                () => mockBox.put('doa_bookmark_ids', captureAny<dynamic>()),
+                () => mockBox.put('doa_bookmark_ids', captureAny<String>()),
               ).captured.first
               as String;
 
@@ -70,14 +70,14 @@ void main() {
         () => mockBox.get('doa_bookmark_ids'),
       ).thenReturn(jsonEncode([1, 6]));
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.addBookmark(1); // sudah ada
 
       final captured =
           verify(
-                () => mockBox.put('doa_bookmark_ids', captureAny<dynamic>()),
+                () => mockBox.put('doa_bookmark_ids', captureAny<String>()),
               ).captured.first
               as String;
 
@@ -92,14 +92,14 @@ void main() {
         () => mockBox.get('doa_bookmark_ids'),
       ).thenReturn(jsonEncode([1, 6, 135]));
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.removeBookmark(6);
 
       final captured =
           verify(
-                () => mockBox.put('doa_bookmark_ids', captureAny<dynamic>()),
+                () => mockBox.put('doa_bookmark_ids', captureAny<String>()),
               ).captured.first
               as String;
 

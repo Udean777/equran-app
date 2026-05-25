@@ -20,7 +20,7 @@ abstract interface class BookmarkLocalDataSource {
 class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
   const BookmarkLocalDataSourceImpl(@Named('bookmarkBox') this._box);
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _bookmarksKey = 'bookmarks';
   static const _lastReadKey = 'last_read';
@@ -30,7 +30,7 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
     try {
       final raw = _box.get(_bookmarksKey);
       if (raw == null) return [];
-      final list = jsonDecode(raw as String) as List<dynamic>;
+      final list = jsonDecode(raw) as List<dynamic>;
       return list
           .map((e) => BookmarkDto.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -88,7 +88,7 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
       final raw = _box.get(_lastReadKey);
       if (raw == null) return null;
       return LastReadDto.fromJson(
-        jsonDecode(raw as String) as Map<String, dynamic>,
+        jsonDecode(raw) as Map<String, dynamic>,
       );
     } on Object catch (_) {
       return null;

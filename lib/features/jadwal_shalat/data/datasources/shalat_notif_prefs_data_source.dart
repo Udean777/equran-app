@@ -15,14 +15,14 @@ class ShalatNotifPrefsDataSourceImpl implements ShalatNotifPrefsDataSource {
     @Named('settingsBox') this._box,
   );
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _key = 'shalat_notif_prefs';
 
   @override
   Future<ShalatNotifPrefs> getPrefs() async {
     try {
-      final raw = _box.get(_key) as String?;
+      final raw = _box.get(_key);
       if (raw == null) return const ShalatNotifPrefs();
       final map = jsonDecode(raw) as Map<String, dynamic>;
       return ShalatNotifPrefs(

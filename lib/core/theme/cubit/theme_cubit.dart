@@ -15,11 +15,11 @@ const _lightValue = 'light';
 class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit(@Named('settingsBox') this._box) : super(const ThemeState.light());
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   /// Load saved theme preference dari Hive.
   void load() {
-    final saved = _box.get(_themeKey) as String?;
+    final saved = _box.get(_themeKey);
     if (saved == _darkValue) {
       emit(const ThemeState.dark());
     } else {
