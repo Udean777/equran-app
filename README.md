@@ -12,6 +12,9 @@ Aplikasi eQuran dilengkapi dengan berbagai fitur premium untuk memberikan pengal
 - 🎧 **Pemutar Audio Murattal**: Dengarkan lantunan suci Al-Quran per-ayat maupun per-surat dari qori ternama. Didukung oleh pemutar audio latar belakang yang stabil.
 - 📑 **Tafsir Lengkap**: Pelajari makna mendalam dari setiap ayat melalui tafsir terperinci dari Kementerian Agama Republik Indonesia (Kemenag RI).
 - 🤲 **Kumpulan Doa Harian**: Kumpulan doa-doa pilihan dalam Islam lengkap dengan teks Arab, transliterasi latin, terjemahan, dan detail penjelasannya.
+- 🕌 **Jadwal Shalat & Imsakiyah**: Menampilkan waktu shalat fardhu lima waktu secara presisi dan dinamis sesuai titik koordinat geografis pengguna melalui integrasi GPS otomatis.
+- 🧭 **Kompas Arah Kiblat (Qibla Finder)**: Menentukan arah kiblat menuju Ka'bah secara real-time dan akurat menggunakan integrasi sensor kompas fisik perangkat.
+- 📿 **Tasbih Digital**: Penghitung zikir interaktif dengan getaran (haptic feedback) saat tombol ditekan, pengaturan target hitungan (33, 99, atau tanpa batas), serta penyimpanan riwayat sesi zikir.
 - 🔖 **Sistem Bookmark & Favorit**: Simpan dan tandai ayat atau surat penting untuk dibaca kembali secara cepat tanpa perlu mencari ulang.
 - 🌓 **Tema Gelap & Terang (Dark/Light Mode)**: Desain antarmuka modern dengan dukungan mode gelap yang nyaman di mata untuk kenyamanan membaca di malam hari.
 - ⚙️ **Pengaturan Fleksibel**: Atur ukuran font Arab sesuai kenyamanan visual Anda, ubah bahasa aplikasi (lokalisasi), dan sesuaikan preferensi lainnya.
@@ -55,9 +58,14 @@ Berikut adalah daftar package utama yang menopang keandalan aplikasi eQuran:
 | **`hive_ce`** & **`hive_ce_flutter`** |      `^2.7.0`       | Database NoSQL lokal super cepat untuk menyimpan Bookmarks, Tema, dan Cache data.                        |
 | **`go_router`**                       |      `^17.2.3`      | Router deklaratif resmi Flutter untuk navigasi antar-halaman yang fleksibel.                             |
 | **`get_it`** & **`injectable`**       | `^9.2.1` / `^3.0.0` | Service locator & generator untuk Dependency Injection otomatis di seluruh aplikasi.                     |
+| **`geolocator`**                      |      `^13.0.4`      | Layanan penentuan lokasi GPS presisi untuk menentukan koordinat jadwal shalat dan arah kiblat.            |
+| **`geocoding`**                       |      `^3.0.0`       | Mengonversi koordinat lintang/bujur GPS menjadi nama wilayah/kota secara dinamis.                        |
+| **`flutter_compass`**                 |      `^0.8.1`       | Mengakses sensor kompas fisik perangkat untuk penentuan arah kiblat secara real-time.                     |
 | **`fpdart`**                          |      `^1.1.0`       | Menghadirkan paradigma Pemrograman Fungsional (Functional Programming) seperti tipe `Either` & `Option`. |
 | **`freezed_annotation`**              |      `^3.1.0`       | Mempermudah pembuatan class immutable dan union types (digunakan bersama `freezed` generator).           |
 | **`equatable`**                       |      `^2.0.5`       | Membantu perbandingan nilai objek Dart secara instan tanpa menulis override `==` secara manual.          |
+| **`path_provider`**                   |      `^2.1.4`       | Mengakses direktori penyimpanan lokal perangkat untuk database Hive dan file audio.                      |
+| **`url_launcher`**                    |      `^6.3.2`       | Membuka tautan URL eksternal (situs web atau media eksternal) dengan aman dari aplikasi.                 |
 | **`intl`**                            |      `^0.20.1`      | Solusi internasionalisasi teks, format angka, dan tanggal di dalam aplikasi.                             |
 
 ---
