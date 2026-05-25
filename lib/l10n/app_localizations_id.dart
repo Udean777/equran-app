@@ -208,4 +208,16 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get gagalMemuatData => 'Gagal memuat data';
+
+  @override
+  String get jadwalShalatNav => 'Shalat';
+
+  @override
+  String get jadwalShalat => 'Jadwal Shalat';
+
+  @override
+  String get bulanSebelumnya => 'Bulan Sebelumnya';
+
+  @override
+  String get bulanBerikutnya => 'Bulan Berikutnya';
 }

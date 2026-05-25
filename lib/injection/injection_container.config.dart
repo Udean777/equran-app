@@ -84,6 +84,22 @@ import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart'
     as _i410;
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart'
     as _i165;
+import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart'
+    as _i560;
+import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_remote_data_source.dart'
+    as _i264;
+import 'package:equran_app/features/jadwal_shalat/data/repositories/jadwal_shalat_repository_impl.dart'
+    as _i443;
+import 'package:equran_app/features/jadwal_shalat/domain/repositories/jadwal_shalat_repository.dart'
+    as _i414;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart'
+    as _i1042;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart'
+    as _i173;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart'
+    as _i598;
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart'
+    as _i83;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -149,6 +165,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i945.AudioPlayerDataSourceImpl(),
     );
     await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.shalatBox(),
+      instanceName: 'shalatBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.imsakiyahBox(),
       instanceName: 'imsakiyahBox',
       preResolve: true,
@@ -200,6 +221,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i451.AudioRepository>(
       () => _i550.AudioRepositoryImpl(gh<_i945.AudioPlayerDataSource>()),
     );
+    gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
+      () => _i264.JadwalShalatRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
     gh.lazySingleton<_i1071.SuratRemoteDataSource>(
       () => _i1071.SuratRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
@@ -212,6 +236,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i107.SuratLocalDataSource>(
       () => _i107.SuratLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
+      ),
+    );
+    gh.lazySingleton<_i560.JadwalShalatLocalDataSource>(
+      () => _i560.JadwalShalatLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'shalatBox'),
       ),
     );
     gh.lazySingleton<_i547.DoaLocalDataSource>(
@@ -245,6 +274,21 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i710.StopAudio>(
       () => _i710.StopAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.lazySingleton<_i414.JadwalShalatRepository>(
+      () => _i443.JadwalShalatRepositoryImpl(
+        gh<_i264.JadwalShalatRemoteDataSource>(),
+        gh<_i560.JadwalShalatLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i1042.GetJadwalShalat>(
+      () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i173.GetKabkotaShalat>(
+      () => _i173.GetKabkotaShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i598.GetProvinsiShalat>(
+      () => _i598.GetProvinsiShalat(gh<_i414.JadwalShalatRepository>()),
     );
     gh.lazySingleton<_i182.BookmarkRepository>(
       () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
@@ -311,6 +355,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i164.DoaRepositoryImpl(
         gh<_i34.DoaRemoteDataSource>(),
         gh<_i547.DoaLocalDataSource>(),
+      ),
+    );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i560.JadwalShalatLocalDataSource>(),
+        gh<_i177.LocationService>(),
       ),
     );
     gh.factory<_i291.GetSuratList>(

@@ -208,4 +208,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gagalMemuatData => 'Failed to load data';
+
+  @override
+  String get jadwalShalatNav => 'Prayer';
+
+  @override
+  String get jadwalShalat => 'Prayer Times';
+
+  @override
+  String get bulanSebelumnya => 'Previous Month';
+
+  @override
+  String get bulanBerikutnya => 'Next Month';
 }

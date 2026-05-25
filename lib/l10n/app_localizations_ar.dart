@@ -209,4 +209,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gagalMemuatData => 'فشل تحميل البيانات';
+
+  @override
+  String get jadwalShalatNav => 'الصلاة';
+
+  @override
+  String get jadwalShalat => 'مواقيت الصلاة';
+
+  @override
+  String get bulanSebelumnya => 'الشهر السابق';
+
+  @override
+  String get bulanBerikutnya => 'الشهر التالي';
 }

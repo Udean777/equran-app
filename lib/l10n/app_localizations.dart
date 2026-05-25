@@ -489,6 +489,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Gagal memuat data'**
   String get gagalMemuatData;
+
+  /// Label tab navigasi jadwal shalat
+  ///
+  /// In id, this message translates to:
+  /// **'Shalat'**
+  String get jadwalShalatNav;
+
+  /// Label fitur jadwal shalat
+  ///
+  /// In id, this message translates to:
+  /// **'Jadwal Shalat'**
+  String get jadwalShalat;
+
+  /// Tooltip navigasi bulan sebelumnya
+  ///
+  /// In id, this message translates to:
+  /// **'Bulan Sebelumnya'**
+  String get bulanSebelumnya;
+
+  /// Tooltip navigasi bulan berikutnya
+  ///
+  /// In id, this message translates to:
+  /// **'Bulan Berikutnya'**
+  String get bulanBerikutnya;
 }
 
 class _AppLocalizationsDelegate

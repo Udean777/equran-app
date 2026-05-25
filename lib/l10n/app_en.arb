@@ -85,5 +85,9 @@
   "cariKabkota": "Search city/regency...",
   "hariIni": "Today",
   "jadwalBulanIni": "This Month's Schedule",
-  "gagalMemuatData": "Failed to load data"
+  "gagalMemuatData": "Failed to load data",
+  "jadwalShalatNav": "Prayer",
+  "jadwalShalat": "Prayer Times",
+  "bulanSebelumnya": "Previous Month",
+  "bulanBerikutnya": "Next Month"
 }

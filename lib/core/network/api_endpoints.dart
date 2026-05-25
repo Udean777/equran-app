@@ -17,4 +17,9 @@ abstract final class ApiEndpoints {
   static const String imsakiyah = '/imsakiyah';
   static const String imsakiyahProvinsi = '/imsakiyah/provinsi';
   static const String imsakiyahKabkota = '/imsakiyah/kabkota';
+
+  // Jadwal Shalat — uses baseUrl (/api/v2)
+  static const String shalat = '/shalat';
+  static const String shalatProvinsi = '/shalat/provinsi';
+  static const String shalatKabkota = '/shalat/kabkota';
 }

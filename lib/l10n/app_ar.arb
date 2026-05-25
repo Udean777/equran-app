@@ -85,5 +85,9 @@
   "cariKabkota": "ابحث عن مدينة...",
   "hariIni": "اليوم",
   "jadwalBulanIni": "جدول هذا الشهر",
-  "gagalMemuatData": "فشل تحميل البيانات"
+  "gagalMemuatData": "فشل تحميل البيانات",
+  "jadwalShalatNav": "الصلاة",
+  "jadwalShalat": "مواقيت الصلاة",
+  "bulanSebelumnya": "الشهر السابق",
+  "bulanBerikutnya": "الشهر التالي"
 }

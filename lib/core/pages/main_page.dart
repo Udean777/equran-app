@@ -1,6 +1,7 @@
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/pages/jadwal_shalat_page.dart';
 import 'package:equran_app/features/surat_list/presentation/pages/surat_list_page.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class _MainPageState extends State<MainPage> {
     SuratListPage(),
     DoaListPage(),
     ImsakiyahPage(),
+    JadwalShalatPage(),
     BookmarkPage(),
   ];
 
@@ -57,6 +59,11 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.mosque_outlined),
             selectedIcon: const Icon(Icons.mosque_rounded),
             label: l10n.imsakiyahNav,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.access_time_outlined),
+            selectedIcon: const Icon(Icons.access_time_filled),
+            label: l10n.jadwalShalatNav,
           ),
           NavigationDestination(
             icon: const Icon(Icons.bookmark_outline_rounded),

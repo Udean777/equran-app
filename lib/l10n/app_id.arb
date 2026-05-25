@@ -274,5 +274,21 @@
   "gagalMemuatData": "Gagal memuat data",
   "@gagalMemuatData": {
     "description": "Pesan gagal memuat data"
+  },
+  "jadwalShalatNav": "Shalat",
+  "@jadwalShalatNav": {
+    "description": "Label tab navigasi jadwal shalat"
+  },
+  "jadwalShalat": "Jadwal Shalat",
+  "@jadwalShalat": {
+    "description": "Label fitur jadwal shalat"
+  },
+  "bulanSebelumnya": "Bulan Sebelumnya",
+  "@bulanSebelumnya": {
+    "description": "Tooltip navigasi bulan sebelumnya"
+  },
+  "bulanBerikutnya": "Bulan Berikutnya",
+  "@bulanBerikutnya": {
+    "description": "Tooltip navigasi bulan berikutnya"
   }
 }

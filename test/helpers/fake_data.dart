@@ -3,6 +3,9 @@ import 'package:equran_app/features/doa/domain/entities/doa.dart';
 import 'package:equran_app/features/imsakiyah/data/models/imsakiyah_dto.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/surat_detail/data/models/surat_detail_dto.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_list/data/models/surat_dto.dart';
@@ -310,4 +313,100 @@ const tImsakiyah = Imsakiyah(
   hijriah: '1447',
   masehi: '2026',
   imsakiyah: [tImsakiyahEntry1, tImsakiyahEntry2],
+);
+
+// ── Jadwal Shalat ─────────────────────────────────────────────────────────────
+
+const tJadwalShalatEntryDto1 = JadwalShalatEntryDto(
+  tanggal: 25,
+  tanggalLengkap: '2026-05-25',
+  hari: 'Senin',
+  imsak: '04:26',
+  subuh: '04:36',
+  terbit: '05:50',
+  dhuha: '06:18',
+  dzuhur: '11:53',
+  ashar: '15:14',
+  maghrib: '17:50',
+  isya: '19:00',
+);
+
+const tJadwalShalatEntryDto2 = JadwalShalatEntryDto(
+  tanggal: 26,
+  tanggalLengkap: '2026-05-26',
+  hari: 'Selasa',
+  imsak: '04:26',
+  subuh: '04:36',
+  terbit: '05:50',
+  dhuha: '06:18',
+  dzuhur: '11:53',
+  ashar: '15:14',
+  maghrib: '17:50',
+  isya: '19:00',
+);
+
+const tJadwalShalatDto = JadwalShalatDto(
+  provinsi: 'DKI Jakarta',
+  kabkota: 'Kota Jakarta',
+  bulan: 5,
+  tahun: 2026,
+  bulanNama: 'Mei',
+  jadwal: [tJadwalShalatEntryDto1, tJadwalShalatEntryDto2],
+);
+
+const tJadwalShalatResponseDto = JadwalShalatResponseDto(
+  code: 200,
+  message: 'Jadwal shalat berhasil diambil',
+  data: tJadwalShalatDto,
+);
+
+const tProvinsiShalatResponseDto = ProvinsiShalatResponseDto(
+  code: 200,
+  message: 'Daftar provinsi berhasil diambil',
+  data: tProvinsiList,
+);
+
+const tKabkotaShalatResponseDto = KabkotaShalatResponseDto(
+  code: 200,
+  message: 'Daftar kabupaten/kota di DKI Jakarta',
+  data: tKabkotaJakartaList,
+);
+
+const tKabkotaJakartaList = ['Kab. Kepulauan Seribu', 'Kota Jakarta'];
+
+const tJadwalShalatEntry1 = JadwalShalatEntry(
+  tanggal: 25,
+  tanggalLengkap: '2026-05-25',
+  hari: 'Senin',
+  imsak: '04:26',
+  subuh: '04:36',
+  terbit: '05:50',
+  dhuha: '06:18',
+  dzuhur: '11:53',
+  ashar: '15:14',
+  maghrib: '17:50',
+  isya: '19:00',
+);
+
+const tJadwalShalatEntry2 = JadwalShalatEntry(
+  tanggal: 26,
+  tanggalLengkap: '2026-05-26',
+  hari: 'Selasa',
+  imsak: '04:26',
+  subuh: '04:36',
+  terbit: '05:50',
+  dhuha: '06:18',
+  dzuhur: '11:53',
+  ashar: '15:14',
+  maghrib: '17:50',
+  isya: '19:00',
+);
+
+const tJadwalShalat = JadwalShalat(
+  provinsi: 'DKI Jakarta',
+  kabkota: 'Kota Jakarta',
+  bulan: 5,
+  tahun: 2026,
+  bulanNama: 'Mei',
+  jadwal: [tJadwalShalatEntry1, tJadwalShalatEntry2],
 );

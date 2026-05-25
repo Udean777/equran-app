@@ -26,4 +26,8 @@ abstract class HiveModule {
   @preResolve
   @Named('imsakiyahBox')
   Future<Box<dynamic>> imsakiyahBox() => Hive.openBox<dynamic>('imsakiyah_box');
+
+  @preResolve
+  @Named('shalatBox')
+  Future<Box<dynamic>> shalatBox() => Hive.openBox<dynamic>('shalat_box');
 }
