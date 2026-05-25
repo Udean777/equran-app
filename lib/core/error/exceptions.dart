@@ -8,7 +8,8 @@ class ServerException implements Exception {
   final String? message;
 
   @override
-  String toString() => 'ServerException(statusCode: $statusCode, message: $message)';
+  String toString() =>
+      'ServerException(statusCode: $statusCode, message: $message)';
 }
 
 class NetworkException implements Exception {

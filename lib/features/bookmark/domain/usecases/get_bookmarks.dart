@@ -12,6 +12,5 @@ class GetBookmarks implements UseCaseNoParams<List<Bookmark>> {
   final BookmarkRepository _repository;
 
   @override
-  Future<Either<Failure, List<Bookmark>>> call() =>
-      _repository.getBookmarks();
+  Future<Either<Failure, List<Bookmark>>> call() => _repository.getBookmarks();
 }

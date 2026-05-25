@@ -4,8 +4,7 @@ part 'surat_detail_dto.freezed.dart';
 part 'surat_detail_dto.g.dart';
 
 // Edge case: suratSebelumnya & suratSelanjutnya bisa `false` (bool) atau object
-class SuratNavOrFalseConverter
-    implements JsonConverter<SuratNavDto?, Object?> {
+class SuratNavOrFalseConverter implements JsonConverter<SuratNavDto?, Object?> {
   const SuratNavOrFalseConverter();
 
   @override

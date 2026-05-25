@@ -79,18 +79,11 @@ class DoaListCubit extends Cubit<DoaListState> {
 
   List<String> _extractGrupList(List<Doa> doaList) {
     final seen = <String>{};
-    return doaList
-        .map((d) => d.grup)
-        .where(seen.add)
-        .toList();
+    return doaList.map((d) => d.grup).where(seen.add).toList();
   }
 
   List<String> _extractTagList(List<Doa> doaList) {
     final seen = <String>{};
-    return doaList
-        .expand((d) => d.tag)
-        .where(seen.add)
-        .toList()
-      ..sort();
+    return doaList.expand((d) => d.tag).where(seen.add).toList()..sort();
   }
 }

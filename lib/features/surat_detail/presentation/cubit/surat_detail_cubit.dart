@@ -11,7 +11,7 @@ part 'surat_detail_state.dart';
 @injectable
 class SuratDetailCubit extends Cubit<SuratDetailState> {
   SuratDetailCubit(this._getSuratDetail)
-      : super(const SuratDetailState.initial());
+    : super(const SuratDetailState.initial());
 
   final GetSuratDetail _getSuratDetail;
 

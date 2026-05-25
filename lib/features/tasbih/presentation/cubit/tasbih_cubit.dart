@@ -21,17 +21,33 @@ class TasbihCubit extends Cubit<TasbihState> {
     this._getSessions,
     this._saveSession,
     this._deleteSession,
+    this._clearSessions,
+  ) : _lightImpact = HapticFeedback.lightImpact,
+      _heavyImpact = HapticFeedback.heavyImpact,
+      super(
+        TasbihState(
+          selectedPreset: TasbihPreset.defaults.first,
+          target: TasbihPreset.defaults.first.defaultTarget,
+        ),
+      );
+
+  /// Constructor khusus untuk testing — inject haptic callback custom.
+  @visibleForTesting
+  TasbihCubit.withHaptic(
+    this._getSessions,
+    this._saveSession,
+    this._deleteSession,
     this._clearSessions, {
     HapticCallback? lightImpact,
     HapticCallback? heavyImpact,
-  })  : _lightImpact = lightImpact ?? HapticFeedback.lightImpact,
-        _heavyImpact = heavyImpact ?? HapticFeedback.heavyImpact,
-        super(
-          TasbihState(
-            selectedPreset: TasbihPreset.defaults.first,
-            target: TasbihPreset.defaults.first.defaultTarget,
-          ),
-        );
+  }) : _lightImpact = lightImpact ?? HapticFeedback.lightImpact,
+       _heavyImpact = heavyImpact ?? HapticFeedback.heavyImpact,
+       super(
+         TasbihState(
+           selectedPreset: TasbihPreset.defaults.first,
+           target: TasbihPreset.defaults.first.defaultTarget,
+         ),
+       );
 
   final GetTasbihSessions _getSessions;
   final SaveTasbihSession _saveSession;

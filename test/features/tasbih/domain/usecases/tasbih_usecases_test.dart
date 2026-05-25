@@ -22,8 +22,9 @@ void main() {
 
   group('SaveTasbihSession', () {
     test('memanggil repository.saveSession dengan params yang benar', () async {
-      when(() => mockRepo.saveSession(any()))
-          .thenAnswer((_) async => right(unit));
+      when(
+        () => mockRepo.saveSession(any()),
+      ).thenAnswer((_) async => right(unit));
 
       final usecase = SaveTasbihSession(mockRepo);
       final result = await usecase(tSession);
@@ -46,8 +47,9 @@ void main() {
 
   group('GetTasbihSessions', () {
     test('mengembalikan list sesi dari repository', () async {
-      when(() => mockRepo.getSessions())
-          .thenAnswer((_) async => right([tSession, tSession2]));
+      when(
+        () => mockRepo.getSessions(),
+      ).thenAnswer((_) async => right([tSession, tSession2]));
 
       final usecase = GetTasbihSessions(mockRepo);
       final result = await usecase();
@@ -60,8 +62,7 @@ void main() {
     });
 
     test('mengembalikan list kosong jika belum ada sesi', () async {
-      when(() => mockRepo.getSessions())
-          .thenAnswer((_) async => right([]));
+      when(() => mockRepo.getSessions()).thenAnswer((_) async => right([]));
 
       final usecase = GetTasbihSessions(mockRepo);
       final result = await usecase();
@@ -75,8 +76,9 @@ void main() {
 
   group('DeleteTasbihSession', () {
     test('memanggil repository.deleteSession dengan id yang benar', () async {
-      when(() => mockRepo.deleteSession(any()))
-          .thenAnswer((_) async => right(unit));
+      when(
+        () => mockRepo.deleteSession(any()),
+      ).thenAnswer((_) async => right(unit));
 
       final usecase = DeleteTasbihSession(mockRepo);
       final result = await usecase(tSession.id);
@@ -88,8 +90,7 @@ void main() {
 
   group('ClearTasbihSessions', () {
     test('memanggil repository.clearSessions', () async {
-      when(() => mockRepo.clearSessions())
-          .thenAnswer((_) async => right(unit));
+      when(() => mockRepo.clearSessions()).thenAnswer((_) async => right(unit));
 
       final usecase = ClearTasbihSessions(mockRepo);
       final result = await usecase();

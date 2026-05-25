@@ -61,8 +61,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
 
               // Preset list
               ...TasbihPreset.defaults.map((preset) {
-                final isSelected =
-                    state.selectedPreset.id == preset.id;
+                final isSelected = state.selectedPreset.id == preset.id;
                 return ListTile(
                   leading: Container(
                     width: 40,

@@ -7,15 +7,15 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../../helpers/fake_data.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
-    );
+  localizationsDelegates: const [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('DoaCard', () {
@@ -43,8 +43,9 @@ void main() {
       );
     });
 
-    testWidgets('tidak menampilkan preview idn jika kosong (id 42)',
-        (tester) async {
+    testWidgets('tidak menampilkan preview idn jika kosong (id 42)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(DoaCard(doa: tDoa42, onTap: () {})),
       );
@@ -69,8 +70,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('menampilkan overflow chip jika tag lebih dari 3',
-        (tester) async {
+    testWidgets('menampilkan overflow chip jika tag lebih dari 3', (
+      tester,
+    ) async {
       final doaBanyakTag = tDoa1.copyWith(
         tag: ['tidur', 'malam', 'pagi', 'siang', 'sore'],
       );

@@ -1,7 +1,8 @@
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_preset.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_session.dart';
 
-final TasbihPreset tPreset = TasbihPreset.defaults.first; // Subhanallah, target 33
+final TasbihPreset tPreset =
+    TasbihPreset.defaults.first; // Subhanallah, target 33
 
 final tSession = TasbihSession(
   id: '1748166000000',

@@ -7,7 +7,10 @@ import 'package:injectable/injectable.dart';
 abstract interface class BookmarkLocalDataSource {
   Future<List<BookmarkDto>> getBookmarks();
   Future<void> addBookmark(BookmarkDto bookmark);
-  Future<void> removeBookmark({required int suratNomor, required int ayatNomor});
+  Future<void> removeBookmark({
+    required int suratNomor,
+    required int ayatNomor,
+  });
   Future<bool> isBookmarked({required int suratNomor, required int ayatNomor});
   Future<LastReadDto?> getLastRead();
   Future<void> saveLastRead(LastReadDto lastRead);
@@ -41,7 +44,8 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
     final current = await getBookmarks();
     // Hindari duplikat
     final exists = current.any(
-      (b) => b.suratNomor == bookmark.suratNomor &&
+      (b) =>
+          b.suratNomor == bookmark.suratNomor &&
           b.ayatNomor == bookmark.ayatNomor,
     );
     if (exists) return;

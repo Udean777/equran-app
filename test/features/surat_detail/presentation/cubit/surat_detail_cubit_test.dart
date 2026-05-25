@@ -22,8 +22,9 @@ void main() {
     blocTest<SuratDetailCubit, SuratDetailState>(
       'emits [loading, success] saat load() berhasil',
       build: () {
-        when(() => mockGetSuratDetail(any()))
-            .thenAnswer((_) async => right(tSuratDetail));
+        when(
+          () => mockGetSuratDetail(any()),
+        ).thenAnswer((_) async => right(tSuratDetail));
         return SuratDetailCubit(mockGetSuratDetail);
       },
       act: (cubit) => cubit.load(1),
@@ -36,8 +37,9 @@ void main() {
     blocTest<SuratDetailCubit, SuratDetailState>(
       'emits [loading, failure] saat load() network error',
       build: () {
-        when(() => mockGetSuratDetail(any()))
-            .thenAnswer((_) async => left(const Failure.network()));
+        when(
+          () => mockGetSuratDetail(any()),
+        ).thenAnswer((_) async => left(const Failure.network()));
         return SuratDetailCubit(mockGetSuratDetail);
       },
       act: (cubit) => cubit.load(1),
@@ -50,8 +52,9 @@ void main() {
     blocTest<SuratDetailCubit, SuratDetailState>(
       'load() memanggil usecase dengan params yang benar',
       build: () {
-        when(() => mockGetSuratDetail(any()))
-            .thenAnswer((_) async => right(tSuratDetail));
+        when(
+          () => mockGetSuratDetail(any()),
+        ).thenAnswer((_) async => right(tSuratDetail));
         return SuratDetailCubit(mockGetSuratDetail);
       },
       act: (cubit) => cubit.load(5),
@@ -65,8 +68,9 @@ void main() {
     blocTest<SuratDetailCubit, SuratDetailState>(
       'retry() memanggil load() ulang',
       build: () {
-        when(() => mockGetSuratDetail(any()))
-            .thenAnswer((_) async => right(tSuratDetail));
+        when(
+          () => mockGetSuratDetail(any()),
+        ).thenAnswer((_) async => right(tSuratDetail));
         return SuratDetailCubit(mockGetSuratDetail);
       },
       act: (cubit) async {

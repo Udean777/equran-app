@@ -151,9 +151,7 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
 
     final filtered = _query.isEmpty
         ? provinsiList
-        : provinsiList
-            .where((p) => p.toLowerCase().contains(_query))
-            .toList();
+        : provinsiList.where((p) => p.toLowerCase().contains(_query)).toList();
 
     if (filtered.isEmpty) {
       return const Center(child: Text('Provinsi tidak ditemukan'));
@@ -200,9 +198,7 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
 
     final filtered = _query.isEmpty
         ? kabkotaList
-        : kabkotaList
-            .where((k) => k.toLowerCase().contains(_query))
-            .toList();
+        : kabkotaList.where((k) => k.toLowerCase().contains(_query)).toList();
 
     if (filtered.isEmpty) {
       return const Center(child: Text('Kab/Kota tidak ditemukan'));

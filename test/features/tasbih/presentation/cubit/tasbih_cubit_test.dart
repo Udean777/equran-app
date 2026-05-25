@@ -13,8 +13,11 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../helpers/fake_tasbih_data.dart';
 
 class MockGetTasbihSessions extends Mock implements GetTasbihSessions {}
+
 class MockSaveTasbihSession extends Mock implements SaveTasbihSession {}
+
 class MockDeleteTasbihSession extends Mock implements DeleteTasbihSession {}
+
 class MockClearTasbihSessions extends Mock implements ClearTasbihSessions {}
 
 /// No-op haptic untuk unit test — tidak butuh platform channel.
@@ -35,14 +38,14 @@ void main() {
     registerFallbackValue(tSession);
   });
 
-  TasbihCubit buildCubit() => TasbihCubit(
-        mockGetSessions,
-        mockSaveSession,
-        mockDeleteSession,
-        mockClearSessions,
-        lightImpact: _noOpHaptic,
-        heavyImpact: _noOpHaptic,
-      );
+  TasbihCubit buildCubit() => TasbihCubit.withHaptic(
+    mockGetSessions,
+    mockSaveSession,
+    mockDeleteSession,
+    mockClearSessions,
+    lightImpact: _noOpHaptic,
+    heavyImpact: _noOpHaptic,
+  );
 
   final initialPreset = TasbihPreset.defaults.first;
 
@@ -70,8 +73,7 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'increment() tidak menambah count jika sudah completed',
       build: () {
-        when(() => mockSaveSession(any()))
-            .thenAnswer((_) async => right(unit));
+        when(() => mockSaveSession(any())).thenAnswer((_) async => right(unit));
         return buildCubit()..setTarget(1);
       },
       act: (cubit) async {
@@ -87,8 +89,7 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'increment() emit isCompleted=true saat count mencapai target',
       build: () {
-        when(() => mockSaveSession(any()))
-            .thenAnswer((_) async => right(unit));
+        when(() => mockSaveSession(any())).thenAnswer((_) async => right(unit));
         return buildCubit()..setTarget(2);
       },
       act: (cubit) async {
@@ -104,8 +105,7 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'increment() memanggil saveSession saat target tercapai',
       build: () {
-        when(() => mockSaveSession(any()))
-            .thenAnswer((_) async => right(unit));
+        when(() => mockSaveSession(any())).thenAnswer((_) async => right(unit));
         return buildCubit()..setTarget(1);
       },
       act: (cubit) => cubit.increment(),
@@ -119,8 +119,7 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'reset() mengembalikan count ke 0 dan isCompleted ke false',
       build: () {
-        when(() => mockSaveSession(any()))
-            .thenAnswer((_) async => right(unit));
+        when(() => mockSaveSession(any())).thenAnswer((_) async => right(unit));
         return buildCubit()..setTarget(1);
       },
       act: (cubit) async {
@@ -196,8 +195,9 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'loadSessions() mengisi state.sessions dari repository',
       build: () {
-        when(() => mockGetSessions())
-            .thenAnswer((_) async => right([tSession, tSession2]));
+        when(
+          () => mockGetSessions(),
+        ).thenAnswer((_) async => right([tSession, tSession2]));
         return buildCubit();
       },
       act: (cubit) => cubit.loadSessions(),
@@ -226,10 +226,12 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'deleteSession() memanggil usecase dan reload sessions',
       build: () {
-        when(() => mockDeleteSession(any()))
-            .thenAnswer((_) async => right(unit));
-        when(() => mockGetSessions())
-            .thenAnswer((_) async => right([tSession2]));
+        when(
+          () => mockDeleteSession(any()),
+        ).thenAnswer((_) async => right(unit));
+        when(
+          () => mockGetSessions(),
+        ).thenAnswer((_) async => right([tSession2]));
         return buildCubit();
       },
       act: (cubit) => cubit.deleteSession(tSession.id),
@@ -244,8 +246,7 @@ void main() {
     blocTest<TasbihCubit, TasbihState>(
       'clearAllSessions() mengosongkan state.sessions',
       build: () {
-        when(() => mockClearSessions())
-            .thenAnswer((_) async => right(unit));
+        when(() => mockClearSessions()).thenAnswer((_) async => right(unit));
         return buildCubit();
       },
       act: (cubit) => cubit.clearAllSessions(),

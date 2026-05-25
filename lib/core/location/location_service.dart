@@ -71,10 +71,9 @@ class LocationServiceImpl implements LocationService {
 
       // Prioritas: locality → subAdministrativeArea
       // locality lebih sering berisi nama kota/kab yang cocok dengan API
-      final rawKabkota =
-          (place.locality?.isNotEmpty == true)
-              ? place.locality!
-              : (place.subAdministrativeArea ?? '');
+      final rawKabkota = (place.locality?.isNotEmpty == true)
+          ? place.locality!
+          : (place.subAdministrativeArea ?? '');
 
       if (rawProvinsi.isEmpty || rawKabkota.isEmpty) return null;
 

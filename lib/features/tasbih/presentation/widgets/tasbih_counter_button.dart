@@ -51,8 +51,7 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        widget.isCompleted ? AppColors.secondary : AppColors.primary;
+    final color = widget.isCompleted ? AppColors.secondary : AppColors.primary;
 
     return GestureDetector(
       onTap: widget.isCompleted ? null : _handleTap,

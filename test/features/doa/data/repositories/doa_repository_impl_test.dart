@@ -129,12 +129,11 @@ void main() {
     });
 
     test('fetch dari network jika cache detail kosong', () async {
-      when(() => mockLocal.getCachedDoaDetail(1))
-          .thenAnswer((_) async => null);
-      when(() => mockRemote.fetchDoaDetail(1))
-          .thenAnswer((_) async => tDoaDetailResponseDto);
-      when(() => mockLocal.cacheDoaDetail(1, any()))
-          .thenAnswer((_) async {});
+      when(() => mockLocal.getCachedDoaDetail(1)).thenAnswer((_) async => null);
+      when(
+        () => mockRemote.fetchDoaDetail(1),
+      ).thenAnswer((_) async => tDoaDetailResponseDto);
+      when(() => mockLocal.cacheDoaDetail(1, any())).thenAnswer((_) async {});
 
       final result = await repository.getDoaDetail(1);
 
@@ -143,11 +142,13 @@ void main() {
       verify(() => mockLocal.cacheDoaDetail(1, any())).called(1);
     });
 
-    test('return NetworkFailure saat network error pada getDoaDetail',
-        () async {
-      when(() => mockLocal.getCachedDoaDetail(1))
-          .thenAnswer((_) async => null);
-      when(() => mockRemote.fetchDoaDetail(1)).thenThrow(
+    test(
+      'return NetworkFailure saat network error pada getDoaDetail',
+      () async {
+        when(
+          () => mockLocal.getCachedDoaDetail(1),
+        ).thenAnswer((_) async => null);
+        when(() => mockRemote.fetchDoaDetail(1)).thenThrow(
           DioException(
             requestOptions: RequestOptions(),
             type: DioExceptionType.connectionError,

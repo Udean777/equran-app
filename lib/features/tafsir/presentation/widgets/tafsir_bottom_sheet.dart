@@ -54,18 +54,17 @@ class _TafsirBottomSheetContent extends StatelessWidget {
                 TafsirInitial() => const SizedBox.shrink(),
                 TafsirLoading() => const LoadingWidget(),
                 TafsirSuccess(:final tafsir) => ListView.builder(
-                    controller: scrollController,
-                    itemCount: tafsir.tafsirList.length,
-                    itemBuilder: (_, i) => TafsirAyatCard(
-                      key: ValueKey(tafsir.tafsirList[i].nomorAyat),
-                      tafsirAyat: tafsir.tafsirList[i],
-                    ),
+                  controller: scrollController,
+                  itemCount: tafsir.tafsirList.length,
+                  itemBuilder: (_, i) => TafsirAyatCard(
+                    key: ValueKey(tafsir.tafsirList[i].nomorAyat),
+                    tafsirAyat: tafsir.tafsirList[i],
                   ),
+                ),
                 TafsirFailure(:final failure) => ErrorStateWidget(
-                    message: failure.toUserMessage(),
-                    onRetry: () =>
-                        context.read<TafsirCubit>().retry(nomor),
-                  ),
+                  message: failure.toUserMessage(),
+                  onRetry: () => context.read<TafsirCubit>().retry(nomor),
+                ),
               },
             ),
           ),
@@ -120,16 +119,16 @@ class _TafsirHeader extends StatelessWidget {
               Text(
                 'Tafsir',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
               if (namaLatin != null)
                 Text(
                   namaLatin,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                    color: Colors.grey[600],
+                  ),
                 ),
             ],
           ),

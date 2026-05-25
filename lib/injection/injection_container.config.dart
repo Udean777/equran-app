@@ -100,6 +100,18 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_s
     as _i598;
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart'
     as _i83;
+import 'package:equran_app/features/qibla/data/datasources/qibla_data_source.dart'
+    as _i473;
+import 'package:equran_app/features/qibla/data/repositories/qibla_repository_impl.dart'
+    as _i369;
+import 'package:equran_app/features/qibla/domain/repositories/qibla_repository.dart'
+    as _i480;
+import 'package:equran_app/features/qibla/domain/usecases/init_qibla.dart'
+    as _i321;
+import 'package:equran_app/features/qibla/domain/usecases/watch_qibla_direction.dart'
+    as _i247;
+import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart'
+    as _i238;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -166,6 +178,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final hiveModule = _$HiveModule();
     gh.singleton<_i870.DioClient>(() => _i870.DioClient());
+    gh.lazySingleton<_i473.QiblaDataSource>(() => _i473.QiblaDataSource());
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.tafsirBox(),
       instanceName: 'tafsirBox',
@@ -219,6 +232,9 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'doaBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i480.QiblaRepository>(
+      () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
+    );
     gh.lazySingleton<_i701.BookmarkLocalDataSource>(
       () => _i701.BookmarkLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
@@ -271,6 +287,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i560.JadwalShalatLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'shalatBox'),
       ),
+    );
+    gh.factory<_i321.InitQibla>(
+      () => _i321.InitQibla(gh<_i480.QiblaRepository>()),
+    );
+    gh.factory<_i247.WatchQiblaDirection>(
+      () => _i247.WatchQiblaDirection(gh<_i480.QiblaRepository>()),
     );
     gh.lazySingleton<_i547.DoaLocalDataSource>(
       () => _i547.DoaLocalDataSourceImpl(
@@ -362,16 +384,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
     );
-    gh.factory<_i1068.TasbihCubit>(
-      () => _i1068.TasbihCubit(
-        gh<_i998.GetTasbihSessions>(),
-        gh<_i259.SaveTasbihSession>(),
-        gh<_i1029.DeleteTasbihSession>(),
-        gh<_i603.ClearTasbihSessions>(),
-        lightImpact: gh<_i1068.HapticCallback>(),
-        heavyImpact: gh<_i1068.HapticCallback>(),
-      ),
-    );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
         gh<_i575.ImsakiyahRemoteDataSource>(),
@@ -389,6 +401,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i115.GetSuratDetail>(
       () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
+    );
+    gh.factory<_i238.QiblaCubit>(
+      () => _i238.QiblaCubit(
+        initQibla: gh<_i321.InitQibla>(),
+        watchQiblaDirection: gh<_i247.WatchQiblaDirection>(),
+      ),
     );
     gh.lazySingleton<_i647.SuratRepository>(
       () => _i291.SuratRepositoryImpl(
@@ -419,6 +437,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
+    );
+    gh.factory<_i1068.TasbihCubit>(
+      () => _i1068.TasbihCubit(
+        gh<_i998.GetTasbihSessions>(),
+        gh<_i259.SaveTasbihSession>(),
+        gh<_i1029.DeleteTasbihSession>(),
+        gh<_i603.ClearTasbihSessions>(),
+      ),
     );
     gh.factory<_i422.GetDoaDetail>(
       () => _i422.GetDoaDetail(gh<_i420.DoaRepository>()),

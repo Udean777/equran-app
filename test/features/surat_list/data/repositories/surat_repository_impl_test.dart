@@ -9,8 +9,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockSuratRemoteDataSource extends Mock
-    implements SuratRemoteDataSource {}
+class MockSuratRemoteDataSource extends Mock implements SuratRemoteDataSource {}
 
 class MockSuratLocalDataSource extends Mock implements SuratLocalDataSource {}
 
@@ -27,8 +26,9 @@ void main() {
 
   group('getAllSurat()', () {
     test('return cached data jika cache tersedia', () async {
-      when(() => mockLocal.getCachedSuratList())
-          .thenAnswer((_) async => tSuratDtoList);
+      when(
+        () => mockLocal.getCachedSuratList(),
+      ).thenAnswer((_) async => tSuratDtoList);
 
       final result = await repository.getAllSurat();
 
@@ -45,8 +45,9 @@ void main() {
 
     test('fetch dari network jika cache kosong', () async {
       when(() => mockLocal.getCachedSuratList()).thenAnswer((_) async => null);
-      when(() => mockRemote.fetchSuratList())
-          .thenAnswer((_) async => tSuratListResponseDto);
+      when(
+        () => mockRemote.fetchSuratList(),
+      ).thenAnswer((_) async => tSuratListResponseDto);
       when(() => mockLocal.cacheSuratList(any())).thenAnswer((_) async {});
 
       final result = await repository.getAllSurat();

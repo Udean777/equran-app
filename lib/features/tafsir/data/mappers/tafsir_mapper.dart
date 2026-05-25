@@ -5,27 +5,27 @@ import 'package:equran_app/features/tafsir/domain/entities/tafsir_surat.dart';
 
 extension TafsirDataDtoMapper on TafsirDataDto {
   TafsirSurat toEntity() => TafsirSurat(
-        info: Surat(
-          nomor: nomor,
-          nama: nama,
-          namaLatin: namaLatin,
-          jumlahAyat: jumlahAyat,
-          tempatTurun: _parseTempatTurun(tempatTurun),
-          arti: arti,
-        ),
-        tafsirList: tafsir.map((t) => t.toEntity()).toList(),
-      );
+    info: Surat(
+      nomor: nomor,
+      nama: nama,
+      namaLatin: namaLatin,
+      jumlahAyat: jumlahAyat,
+      tempatTurun: _parseTempatTurun(tempatTurun),
+      arti: arti,
+    ),
+    tafsirList: tafsir.map((t) => t.toEntity()).toList(),
+  );
 }
 
 extension TafsirAyatDtoMapper on TafsirAyatDto {
   TafsirAyat toEntity() => TafsirAyat(
-        nomorAyat: ayat,
-        teks: teks.stripHtml(),
-      );
+    nomorAyat: ayat,
+    teks: teks.stripHtml(),
+  );
 }
 
 TempatTurun _parseTempatTurun(String raw) => switch (raw.toLowerCase()) {
-      'mekah' => TempatTurun.mekah,
-      'madinah' => TempatTurun.madinah,
-      _ => TempatTurun.mekah,
-    };
+  'mekah' => TempatTurun.mekah,
+  'madinah' => TempatTurun.madinah,
+  _ => TempatTurun.mekah,
+};
