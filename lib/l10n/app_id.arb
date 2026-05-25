@@ -58,6 +58,14 @@
   "@ayatTersimpan": {
     "description": "Judul section ayat tersimpan"
   },
+  "doaTersimpan": "Doa Tersimpan",
+  "@doaTersimpan": {
+    "description": "Judul section doa tersimpan"
+  },
+  "doaBookmarkEmpty": "Belum ada doa favorit.\nTandai doa favoritmu!",
+  "@doaBookmarkEmpty": {
+    "description": "Pesan kosong halaman bookmark doa"
+  },
   "lastRead": "Terakhir Dibaca",
   "@lastRead": {
     "description": "Label terakhir dibaca"

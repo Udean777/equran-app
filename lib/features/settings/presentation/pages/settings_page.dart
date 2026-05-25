@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
+import 'package:equran_app/features/settings/presentation/widgets/font_settings_sheet.dart';
 import 'package:equran_app/features/settings/presentation/widgets/language_selector_sheet.dart';
 import 'package:equran_app/features/settings/presentation/widgets/notif_toggle_tile.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -44,6 +46,18 @@ class SettingsPage extends StatelessWidget {
               activeThumbColor: AppColors.primary,
               onChanged: (_) => context.read<ThemeCubit>().toggle(),
             ),
+          ),
+          const Divider(height: 1),
+          // Tampilan Teks
+          ListTile(
+            leading: const Icon(
+              Icons.text_fields_rounded,
+              color: AppColors.primary,
+            ),
+            title: const Text('Tampilan Teks'),
+            subtitle: const Text('Ukuran & jenis font Arab'),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+            onTap: () => _showFontSettingsSheet(context),
           ),
           const Divider(height: 1),
           // Language Selector
@@ -266,6 +280,18 @@ class SettingsPage extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.spaceXL),
         ],
+      ),
+    );
+  }
+
+  void _showFontSettingsSheet(BuildContext context) {
+    unawaited(
+      showAppBottomSheet<void>(
+        context,
+        builder: (_) => BlocProvider.value(
+          value: context.read<QuranFontCubit>(),
+          child: const FontSettingsSheet(),
+        ),
       ),
     );
   }

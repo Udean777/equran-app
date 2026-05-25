@@ -1,6 +1,7 @@
 import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/pages/main_page.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
@@ -95,6 +96,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => getIt<ThemeCubit>()..load()),
         BlocProvider(create: (_) => getIt<LanguageCubit>()..load()),
         BlocProvider(create: (_) => getIt<ShalatNotifCubit>()..load()),
+        BlocProvider(create: (_) => getIt<QuranFontCubit>()..load()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) =>

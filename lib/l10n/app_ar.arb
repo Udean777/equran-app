@@ -26,6 +26,8 @@
   "bookmark": "المفضلة",
   "bookmarkEmpty": "لا توجد إشارات مرجعية.\nضع علامة على آياتك المفضلة!",
   "ayatTersimpan": "الآيات المحفوظة",
+  "doaTersimpan": "الأدعية المحفوظة",
+  "doaBookmarkEmpty": "لا توجد أدعية مفضلة بعد.\nضع علامة على أدعيتك المفضلة!",
   "lastRead": "آخر قراءة",
   "continueReading": "متابعة القراءة",
   "ayat": "الآية {nomor}",

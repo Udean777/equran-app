@@ -125,12 +125,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Bookmark> bookmarks,  LastRead? lastRead)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Bookmark> bookmarks,  List<Doa> bookmarkedDoas,  LastRead? lastRead)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case BookmarkInitial() when initial != null:
 return initial();case BookmarkLoading() when loading != null:
 return loading();case BookmarkSuccess() when success != null:
-return success(_that.bookmarks,_that.lastRead);case BookmarkFailure() when failure != null:
+return success(_that.bookmarks,_that.bookmarkedDoas,_that.lastRead);case BookmarkFailure() when failure != null:
 return failure(_that.failure);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Bookmark> bookmarks,  LastRead? lastRead)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Bookmark> bookmarks,  List<Doa> bookmarkedDoas,  LastRead? lastRead)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case BookmarkInitial():
 return initial();case BookmarkLoading():
 return loading();case BookmarkSuccess():
-return success(_that.bookmarks,_that.lastRead);case BookmarkFailure():
+return success(_that.bookmarks,_that.bookmarkedDoas,_that.lastRead);case BookmarkFailure():
 return failure(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Bookmark> bookmarks,  LastRead? lastRead)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Bookmark> bookmarks,  List<Doa> bookmarkedDoas,  LastRead? lastRead)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case BookmarkInitial() when initial != null:
 return initial();case BookmarkLoading() when loading != null:
 return loading();case BookmarkSuccess() when success != null:
-return success(_that.bookmarks,_that.lastRead);case BookmarkFailure() when failure != null:
+return success(_that.bookmarks,_that.bookmarkedDoas,_that.lastRead);case BookmarkFailure() when failure != null:
 return failure(_that.failure);case _:
   return null;
 
@@ -251,7 +251,7 @@ String toString() {
 
 
 class BookmarkSuccess implements BookmarkState {
-  const BookmarkSuccess({required final  List<Bookmark> bookmarks, this.lastRead}): _bookmarks = bookmarks;
+  const BookmarkSuccess({required final  List<Bookmark> bookmarks, final  List<Doa> bookmarkedDoas = const [], this.lastRead}): _bookmarks = bookmarks,_bookmarkedDoas = bookmarkedDoas;
   
 
  final  List<Bookmark> _bookmarks;
@@ -259,6 +259,13 @@ class BookmarkSuccess implements BookmarkState {
   if (_bookmarks is EqualUnmodifiableListView) return _bookmarks;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_bookmarks);
+}
+
+ final  List<Doa> _bookmarkedDoas;
+@JsonKey() List<Doa> get bookmarkedDoas {
+  if (_bookmarkedDoas is EqualUnmodifiableListView) return _bookmarkedDoas;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bookmarkedDoas);
 }
 
  final  LastRead? lastRead;
@@ -273,16 +280,16 @@ $BookmarkSuccessCopyWith<BookmarkSuccess> get copyWith => _$BookmarkSuccessCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookmarkSuccess&&const DeepCollectionEquality().equals(other._bookmarks, _bookmarks)&&(identical(other.lastRead, lastRead) || other.lastRead == lastRead));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookmarkSuccess&&const DeepCollectionEquality().equals(other._bookmarks, _bookmarks)&&const DeepCollectionEquality().equals(other._bookmarkedDoas, _bookmarkedDoas)&&(identical(other.lastRead, lastRead) || other.lastRead == lastRead));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_bookmarks),lastRead);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_bookmarks),const DeepCollectionEquality().hash(_bookmarkedDoas),lastRead);
 
 @override
 String toString() {
-  return 'BookmarkState.success(bookmarks: $bookmarks, lastRead: $lastRead)';
+  return 'BookmarkState.success(bookmarks: $bookmarks, bookmarkedDoas: $bookmarkedDoas, lastRead: $lastRead)';
 }
 
 
@@ -293,7 +300,7 @@ abstract mixin class $BookmarkSuccessCopyWith<$Res> implements $BookmarkStateCop
   factory $BookmarkSuccessCopyWith(BookmarkSuccess value, $Res Function(BookmarkSuccess) _then) = _$BookmarkSuccessCopyWithImpl;
 @useResult
 $Res call({
- List<Bookmark> bookmarks, LastRead? lastRead
+ List<Bookmark> bookmarks, List<Doa> bookmarkedDoas, LastRead? lastRead
 });
 
 
@@ -310,10 +317,11 @@ class _$BookmarkSuccessCopyWithImpl<$Res>
 
 /// Create a copy of BookmarkState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? bookmarks = null,Object? lastRead = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? bookmarks = null,Object? bookmarkedDoas = null,Object? lastRead = freezed,}) {
   return _then(BookmarkSuccess(
 bookmarks: null == bookmarks ? _self._bookmarks : bookmarks // ignore: cast_nullable_to_non_nullable
-as List<Bookmark>,lastRead: freezed == lastRead ? _self.lastRead : lastRead // ignore: cast_nullable_to_non_nullable
+as List<Bookmark>,bookmarkedDoas: null == bookmarkedDoas ? _self._bookmarkedDoas : bookmarkedDoas // ignore: cast_nullable_to_non_nullable
+as List<Doa>,lastRead: freezed == lastRead ? _self.lastRead : lastRead // ignore: cast_nullable_to_non_nullable
 as LastRead?,
   ));
 }

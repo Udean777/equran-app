@@ -50,6 +50,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ayatTersimpan => 'الآيات المحفوظة';
 
   @override
+  String get doaTersimpan => 'الأدعية المحفوظة';
+
+  @override
+  String get doaBookmarkEmpty =>
+      'لا توجد أدعية مفضلة بعد.\nضع علامة على أدعيتك المفضلة!';
+
+  @override
   String get lastRead => 'آخر قراءة';
 
   @override

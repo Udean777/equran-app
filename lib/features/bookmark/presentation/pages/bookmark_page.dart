@@ -11,6 +11,8 @@ import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/bookmark_card.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
+import 'package:equran_app/features/doa/domain/entities/doa.dart';
+import 'package:equran_app/features/doa/presentation/widgets/doa_card.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +50,12 @@ class _BookmarkView extends StatelessWidget {
         builder: (context, state) => switch (state) {
           BookmarkInitial() => const SizedBox.shrink(),
           BookmarkLoading() => const LoadingWidget(),
-          BookmarkSuccess(:final bookmarks, :final lastRead) =>
-            _BookmarkContent(bookmarks: bookmarks, lastRead: lastRead),
+          BookmarkSuccess(:final bookmarks, :final bookmarkedDoas, :final lastRead) =>
+            _BookmarkContent(
+              bookmarks: bookmarks,
+              bookmarkedDoas: bookmarkedDoas,
+              lastRead: lastRead,
+            ),
           BookmarkFailure(:final failure) => ErrorStateWidget(
             message: failure.toUserMessage(),
             onRetry: context.read<BookmarkCubit>().load,
@@ -63,17 +69,19 @@ class _BookmarkView extends StatelessWidget {
 class _BookmarkContent extends StatelessWidget {
   const _BookmarkContent({
     required this.bookmarks,
+    required this.bookmarkedDoas,
     required this.lastRead,
   });
 
   final List<Bookmark> bookmarks;
+  final List<Doa> bookmarkedDoas;
   final LastRead? lastRead;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    if (bookmarks.isEmpty && lastRead == null) {
+    if (bookmarks.isEmpty && bookmarkedDoas.isEmpty && lastRead == null) {
       return EmptyStateWidget(
         message: l10n.bookmarkEmpty,
         icon: Icons.bookmark_border_rounded,
@@ -110,6 +118,31 @@ class _BookmarkContent extends StatelessWidget {
                 suratNomor: b.suratNomor,
                 ayatNomor: b.ayatNomor,
               ),
+            ),
+          ),
+        ],
+        if (bookmarkedDoas.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppDimens.spaceMD,
+              AppDimens.spaceMD,
+              AppDimens.spaceMD,
+              AppDimens.spaceXS,
+            ),
+            child: Text(
+              l10n.doaTersimpan,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          ...bookmarkedDoas.map(
+            (doa) => DoaCard(
+              key: ValueKey(doa.id),
+              doa: doa,
+              onTap: () => context.push('/doa/${doa.id}'),
+              onRemove: () => context.read<BookmarkCubit>().removeDoaBookmark(doa.id),
             ),
           ),
         ],

@@ -26,6 +26,8 @@
   "bookmark": "Bookmark",
   "bookmarkEmpty": "No bookmarks yet.\nMark your favorite verses!",
   "ayatTersimpan": "Saved Verses",
+  "doaTersimpan": "Saved Duas",
+  "doaBookmarkEmpty": "No favorite duas yet.\nMark your favorite duas!",
   "lastRead": "Last Read",
   "continueReading": "Continue Reading",
   "ayat": "Verse {nomor}",

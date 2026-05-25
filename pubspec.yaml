@@ -58,6 +58,11 @@ flutter:
         - asset: assets/fonts/Amiri-Regular.ttf
         - asset: assets/fonts/Amiri-Bold.ttf
           weight: 700
+    # KFGQPC Uthmanic Script HAFS — font mushaf standar Saudi
+    # Kredit: https://arabicfonts.net/fonts/kfgqpc-uthmanic-script-hafs-regular
+    - family: KFGQPC
+      fonts:
+        - asset: assets/fonts/KFGQPC Uthmanic Script HAFS Regular.otf
 
   assets:
     - assets/fonts/

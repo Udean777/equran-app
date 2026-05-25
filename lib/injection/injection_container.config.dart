@@ -19,6 +19,7 @@ import 'package:equran_app/core/notifications/notification_service.dart'
     as _i175;
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart'
     as _i804;
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart' as _i205;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
     as _i813;
@@ -280,6 +281,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'settingsBox'),
       ),
     );
+    gh.singleton<_i205.QuranFontCubit>(
+      () => _i205.QuranFontCubit(
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
+      ),
+    );
     gh.singleton<_i729.ThemeCubit>(
       () =>
           _i729.ThemeCubit(gh<_i738.Box<String>>(instanceName: 'settingsBox')),
@@ -352,15 +358,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i550.AudioRepositoryImpl(
         gh<_i945.AudioPlayerDataSource>(),
         gh<_i503.AudioDownloadDataSource>(),
-      ),
-    );
-    gh.factory<_i194.BookmarkCubit>(
-      () => _i194.BookmarkCubit(
-        gh<_i1008.GetBookmarks>(),
-        gh<_i749.AddBookmark>(),
-        gh<_i778.RemoveBookmark>(),
-        gh<_i994.GetLastRead>(),
-        gh<_i187.SaveLastRead>(),
       ),
     );
     gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
@@ -626,6 +623,18 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i115.GetSuratDetail>(
       () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
+    );
+    gh.factory<_i194.BookmarkCubit>(
+      () => _i194.BookmarkCubit(
+        gh<_i1008.GetBookmarks>(),
+        gh<_i749.AddBookmark>(),
+        gh<_i778.RemoveBookmark>(),
+        gh<_i994.GetLastRead>(),
+        gh<_i187.SaveLastRead>(),
+        gh<_i254.GetDoaBookmarks>(),
+        gh<_i254.GetDoaList>(),
+        gh<_i107.ToggleDoaBookmark>(),
+      ),
     );
     gh.factory<_i438.SuratDetailCubit>(
       () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),
