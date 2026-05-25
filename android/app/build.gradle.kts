@@ -21,10 +21,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "id.ssajudn.equran_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -33,10 +30,28 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+
+            // --- OPTIMASI: Aktifkan R8 code shrinking & obfuscation ---
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
+        debug {
+            // Debug build: matikan minify agar hot-reload tetap cepat
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+
+    // --- OPTIMASI: Hapus resource language yang tidak diperlukan ---
+    // Hanya simpan resource untuk locale yang dipakai app (id, en, ar)
+    androidResources {
+        localeFilters += listOf("id", "en", "ar", "in")
     }
 }
 
@@ -45,5 +60,7 @@ flutter {
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // --- OPTIMASI: Gunakan desugar_jdk_libs_nio yang lebih ringan ---
+    // Hanya tambahkan NIO APIs yang dibutuhkan just_audio, lebih kecil dari versi full
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.4")
 }

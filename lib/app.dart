@@ -112,7 +112,13 @@ class App extends StatelessWidget {
                 darkTheme: AppTheme.dark(),
                 themeMode: themeState.themeMode,
                 locale: langState.locale,
-                supportedLocales: AppLocalizations.supportedLocales,
+                // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
+                // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
+                supportedLocales: const [
+                  Locale('id'), // Indonesia (default)
+                  Locale('en'), // English
+                  Locale('ar'), // Arabic
+                ],
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,
