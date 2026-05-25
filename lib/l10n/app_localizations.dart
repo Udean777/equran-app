@@ -315,6 +315,120 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'العربية'**
   String get arabic;
+
+  /// Label tab navigasi surat
+  ///
+  /// In id, this message translates to:
+  /// **'Surat'**
+  String get suratNav;
+
+  /// Label tab navigasi doa
+  ///
+  /// In id, this message translates to:
+  /// **'Doa'**
+  String get doaNav;
+
+  /// Label tab navigasi bookmark
+  ///
+  /// In id, this message translates to:
+  /// **'Bookmark'**
+  String get bookmarkNav;
+
+  /// Label fitur doa
+  ///
+  /// In id, this message translates to:
+  /// **'Doa'**
+  String get doa;
+
+  /// Judul halaman daftar doa
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar Doa'**
+  String get doaList;
+
+  /// Placeholder search bar doa
+  ///
+  /// In id, this message translates to:
+  /// **'Cari doa...'**
+  String get searchDoa;
+
+  /// Judul sheet filter doa
+  ///
+  /// In id, this message translates to:
+  /// **'Filter Doa'**
+  String get filterDoa;
+
+  /// Label filter by grup
+  ///
+  /// In id, this message translates to:
+  /// **'Filter by Grup'**
+  String get filterByGrup;
+
+  /// Label filter by tag
+  ///
+  /// In id, this message translates to:
+  /// **'Filter by Tag'**
+  String get filterByTag;
+
+  /// Label semua doa
+  ///
+  /// In id, this message translates to:
+  /// **'Semua Doa'**
+  String get allDoa;
+
+  /// Label teks arab
+  ///
+  /// In id, this message translates to:
+  /// **'Arab'**
+  String get arabicText;
+
+  /// Label transliterasi
+  ///
+  /// In id, this message translates to:
+  /// **'Latin'**
+  String get transliteration;
+
+  /// Label terjemahan
+  ///
+  /// In id, this message translates to:
+  /// **'Terjemahan'**
+  String get translation;
+
+  /// Label tentang
+  ///
+  /// In id, this message translates to:
+  /// **'Tentang'**
+  String get about;
+
+  /// Label tag
+  ///
+  /// In id, this message translates to:
+  /// **'Tag'**
+  String get tags;
+
+  /// Pesan kosong hasil pencarian doa
+  ///
+  /// In id, this message translates to:
+  /// **'Doa tidak ditemukan.\nCoba kata kunci lain.'**
+  String get noDoaFound;
+
+  /// Tombol hapus filter
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus Filter'**
+  String get clearFilter;
+
+  /// Label filter aktif
+  ///
+  /// In id, this message translates to:
+  /// **'Filter aktif'**
+  String get activeFilter;
+
+  /// Tombol terapkan filter
+  ///
+  /// In id, this message translates to:
+  /// **'Terapkan'**
+  String get applyFilter;
 }
 
 class _AppLocalizationsDelegate

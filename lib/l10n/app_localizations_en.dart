@@ -121,4 +121,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get arabic => 'العربية';
+
+  @override
+  String get suratNav => 'Surah';
+
+  @override
+  String get doaNav => 'Dua';
+
+  @override
+  String get bookmarkNav => 'Bookmark';
+
+  @override
+  String get doa => 'Dua';
+
+  @override
+  String get doaList => 'Dua List';
+
+  @override
+  String get searchDoa => 'Search dua...';
+
+  @override
+  String get filterDoa => 'Filter Dua';
+
+  @override
+  String get filterByGrup => 'Filter by Group';
+
+  @override
+  String get filterByTag => 'Filter by Tag';
+
+  @override
+  String get allDoa => 'All Dua';
+
+  @override
+  String get arabicText => 'Arabic';
+
+  @override
+  String get transliteration => 'Latin';
+
+  @override
+  String get translation => 'Translation';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get tags => 'Tags';
+
+  @override
+  String get noDoaFound => 'Dua not found.\nTry another keyword.';
+
+  @override
+  String get clearFilter => 'Clear Filter';
+
+  @override
+  String get activeFilter => 'Active filter';
+
+  @override
+  String get applyFilter => 'Apply';
 }

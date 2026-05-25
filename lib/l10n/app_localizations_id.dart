@@ -121,4 +121,61 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get arabic => 'العربية';
+
+  @override
+  String get suratNav => 'Surat';
+
+  @override
+  String get doaNav => 'Doa';
+
+  @override
+  String get bookmarkNav => 'Bookmark';
+
+  @override
+  String get doa => 'Doa';
+
+  @override
+  String get doaList => 'Daftar Doa';
+
+  @override
+  String get searchDoa => 'Cari doa...';
+
+  @override
+  String get filterDoa => 'Filter Doa';
+
+  @override
+  String get filterByGrup => 'Filter by Grup';
+
+  @override
+  String get filterByTag => 'Filter by Tag';
+
+  @override
+  String get allDoa => 'Semua Doa';
+
+  @override
+  String get arabicText => 'Arab';
+
+  @override
+  String get transliteration => 'Latin';
+
+  @override
+  String get translation => 'Terjemahan';
+
+  @override
+  String get about => 'Tentang';
+
+  @override
+  String get tags => 'Tag';
+
+  @override
+  String get noDoaFound => 'Doa tidak ditemukan.\nCoba kata kunci lain.';
+
+  @override
+  String get clearFilter => 'Hapus Filter';
+
+  @override
+  String get activeFilter => 'Filter aktif';
+
+  @override
+  String get applyFilter => 'Terapkan';
 }

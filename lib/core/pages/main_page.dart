@@ -1,0 +1,63 @@
+import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
+import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
+import 'package:equran_app/features/surat_list/presentation/pages/surat_list_page.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  late int _currentIndex;
+
+  static const List<Widget> _pages = [
+    SuratListPage(),
+    DoaListPage(),
+    BookmarkPage(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.menu_book_outlined),
+            selectedIcon: const Icon(Icons.menu_book_rounded),
+            label: l10n.suratNav,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.auto_stories_outlined),
+            selectedIcon: const Icon(Icons.auto_stories_rounded),
+            label: l10n.doaNav,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.bookmark_outline_rounded),
+            selectedIcon: const Icon(Icons.bookmark_rounded),
+            label: l10n.bookmarkNav,
+          ),
+        ],
+      ),
+    );
+  }
+}

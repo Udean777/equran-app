@@ -51,6 +51,22 @@ import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart
     as _i187;
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
     as _i194;
+import 'package:equran_app/features/doa/data/datasources/doa_local_data_source.dart'
+    as _i547;
+import 'package:equran_app/features/doa/data/datasources/doa_remote_data_source.dart'
+    as _i34;
+import 'package:equran_app/features/doa/data/repositories/doa_repository_impl.dart'
+    as _i164;
+import 'package:equran_app/features/doa/domain/repositories/doa_repository.dart'
+    as _i420;
+import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart'
+    as _i422;
+import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart'
+    as _i254;
+import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart'
+    as _i290;
+import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
+    as _i345;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -133,6 +149,11 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'bookmarkBox',
       preResolve: true,
     );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.doaBox(),
+      instanceName: 'doaBox',
+      preResolve: true,
+    );
     gh.lazySingleton<_i701.BookmarkLocalDataSource>(
       () => _i701.BookmarkLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
@@ -162,8 +183,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
       ),
     );
+    gh.lazySingleton<_i547.DoaLocalDataSource>(
+      () => _i547.DoaLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'doaBox'),
+      ),
+    );
     gh.lazySingleton<_i713.TafsirRemoteDataSource>(
       () => _i713.TafsirRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
+    gh.lazySingleton<_i34.DoaRemoteDataSource>(
+      () => _i34.DoaRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
     gh.lazySingleton<_i246.SuratDetailRepository>(
       () => _i992.SuratDetailRepositoryImpl(
@@ -241,14 +270,32 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i398.TafsirLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i420.DoaRepository>(
+      () => _i164.DoaRepositoryImpl(
+        gh<_i34.DoaRemoteDataSource>(),
+        gh<_i547.DoaLocalDataSource>(),
+      ),
+    );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
+    );
+    gh.factory<_i422.GetDoaDetail>(
+      () => _i422.GetDoaDetail(gh<_i420.DoaRepository>()),
+    );
+    gh.factory<_i254.GetDoaList>(
+      () => _i254.GetDoaList(gh<_i420.DoaRepository>()),
+    );
+    gh.factory<_i290.DoaDetailCubit>(
+      () => _i290.DoaDetailCubit(gh<_i422.GetDoaDetail>()),
     );
     gh.factory<_i438.SuratDetailCubit>(
       () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),
     );
     gh.factory<_i160.GetTafsir>(
       () => _i160.GetTafsir(gh<_i485.TafsirRepository>()),
+    );
+    gh.factory<_i345.DoaListCubit>(
+      () => _i345.DoaListCubit(gh<_i254.GetDoaList>()),
     );
     gh.factory<_i974.TafsirCubit>(
       () => _i974.TafsirCubit(gh<_i160.GetTafsir>()),

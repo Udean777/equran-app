@@ -1,3 +1,5 @@
+import 'package:equran_app/features/doa/data/models/doa_dto.dart';
+import 'package:equran_app/features/doa/domain/entities/doa.dart';
 import 'package:equran_app/features/surat_detail/data/models/surat_detail_dto.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_list/data/models/surat_dto.dart';
@@ -136,4 +138,85 @@ const tTafsirResponseDto = TafsirResponseDto(
   code: 200,
   message: 'success',
   data: tTafsirDataDto,
+);
+
+// ── Doa ──────────────────────────────────────────────────────────────────────
+
+const tDoaDto1 = DoaDto(
+  id: 1,
+  grup: 'Doa Sebelum dan Sesudah Tidur',
+  nama: 'Doa Sebelum Tidur 1',
+  ar: 'بِاسْمِكَ رَبِّيْ وَضَعْتُ جَنْبِيْ',
+  tr: "Bismika robbii wa dho'tu janbii.",
+  idn: 'Dengan nama Engkau, wahai Tuhanku, aku meletakkan lambungku.',
+  tentang: 'HR. Al-Bukhari 11/126, Muslim 4/2084.',
+  tag: ['tidur', 'malam'],
+);
+
+const tDoaDto2 = DoaDto(
+  id: 2,
+  grup: 'Doa di Kamar Mandi',
+  nama: 'Doa Masuk Kamar Mandi',
+  ar: 'اَللَّهُمَّ إِنِّيْ أَعُوْذُ بِكَ',
+  tr: "Allaahumma innii a'uudzu bika.",
+  idn: 'Ya Allah, aku berlindung kepada-Mu.',
+  tentang: 'HR. Al-Bukhari 1/45.',
+  tag: ['kamar mandi'],
+);
+
+// Edge case: id 42 — tr dan idn kosong
+const tDoaDto42 = DoaDto(
+  id: 42,
+  grup: 'Doa Saat Mendapat Kabar',
+  nama: 'Bila Ada Sesuatu Yang Menggembirakan',
+  ar: "Nabi Shallallahu'alaihi wasallam apabila ada sesuatu yang menggembirakan.",
+  tentang: 'HR. Ashhabus Sunan.',
+  tag: ['umum'],
+);
+
+const tDoa1 = Doa(
+  id: 1,
+  grup: 'Doa Sebelum dan Sesudah Tidur',
+  nama: 'Doa Sebelum Tidur 1',
+  ar: 'بِاسْمِكَ رَبِّيْ وَضَعْتُ جَنْبِيْ',
+  tr: "Bismika robbii wa dho'tu janbii.",
+  idn: 'Dengan nama Engkau, wahai Tuhanku, aku meletakkan lambungku.',
+  tentang: 'HR. Al-Bukhari 11/126, Muslim 4/2084.',
+  tag: ['tidur', 'malam'],
+);
+
+const tDoa2 = Doa(
+  id: 2,
+  grup: 'Doa di Kamar Mandi',
+  nama: 'Doa Masuk Kamar Mandi',
+  ar: 'اَللَّهُمَّ إِنِّيْ أَعُوْذُ بِكَ',
+  tr: "Allaahumma innii a'uudzu bika.",
+  idn: 'Ya Allah, aku berlindung kepada-Mu.',
+  tentang: 'HR. Al-Bukhari 1/45.',
+  tag: ['kamar mandi'],
+);
+
+const tDoa42 = Doa(
+  id: 42,
+  grup: 'Doa Saat Mendapat Kabar',
+  nama: 'Bila Ada Sesuatu Yang Menggembirakan',
+  ar: "Nabi Shallallahu'alaihi wasallam apabila ada sesuatu yang menggembirakan.",
+  tr: '',
+  idn: '',
+  tentang: 'HR. Ashhabus Sunan.',
+  tag: ['umum'],
+);
+
+final List<Doa> tDoaList = [tDoa1, tDoa2];
+final List<DoaDto> tDoaDtoList = [tDoaDto1, tDoaDto2];
+
+final tDoaListResponseDto = DoaListResponseDto(
+  status: 'success',
+  total: 2,
+  data: tDoaDtoList,
+);
+
+const tDoaDetailResponseDto = DoaDetailResponseDto(
+  status: 'success',
+  data: tDoaDto1,
 );

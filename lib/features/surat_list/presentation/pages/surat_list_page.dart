@@ -54,11 +54,6 @@ class _SuratListView extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
-          IconButton(
-            tooltip: l10n.bookmark,
-            icon: const Icon(Icons.bookmark_rounded),
-            onPressed: () => context.push('/bookmarks'),
-          ),
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) => IconButton(
               tooltip: themeState.isDark ? l10n.lightMode : l10n.darkMode,
