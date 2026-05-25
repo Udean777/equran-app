@@ -5,6 +5,7 @@ import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_detail_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
+import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsPage(),
+    ),
+    GoRoute(
+      path: '/tasbih',
+      builder: (context, state) => const TasbihPage(),
     ),
   ],
 );

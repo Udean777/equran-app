@@ -136,6 +136,22 @@ import 'package:equran_app/features/tafsir/domain/usecases/get_tafsir.dart'
     as _i160;
 import 'package:equran_app/features/tafsir/presentation/cubit/tafsir_cubit.dart'
     as _i974;
+import 'package:equran_app/features/tasbih/data/datasources/tasbih_local_data_source.dart'
+    as _i415;
+import 'package:equran_app/features/tasbih/data/repositories/tasbih_repository_impl.dart'
+    as _i940;
+import 'package:equran_app/features/tasbih/domain/repositories/tasbih_repository.dart'
+    as _i419;
+import 'package:equran_app/features/tasbih/domain/usecases/clear_tasbih_sessions.dart'
+    as _i603;
+import 'package:equran_app/features/tasbih/domain/usecases/delete_tasbih_session.dart'
+    as _i1029;
+import 'package:equran_app/features/tasbih/domain/usecases/get_tasbih_sessions.dart'
+    as _i998;
+import 'package:equran_app/features/tasbih/domain/usecases/save_tasbih_session.dart'
+    as _i259;
+import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart'
+    as _i1068;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:hive_ce/hive.dart' as _i738;
 import 'package:hive_ce_flutter/hive_flutter.dart' as _i919;
@@ -158,6 +174,11 @@ extension GetItInjectableX on _i174.GetIt {
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.settingsBox(),
       instanceName: 'settingsBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.tasbihBox(),
+      instanceName: 'tasbihBox',
       preResolve: true,
     );
     gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
@@ -213,6 +234,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'tafsirBox'),
       ),
     );
+    gh.lazySingleton<_i415.TasbihLocalDataSource>(
+      () => _i415.TasbihLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'tasbihBox'),
+      ),
+    );
     gh.lazySingleton<_i349.SuratDetailLocalDataSource>(
       () => _i349.SuratDetailLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
@@ -238,6 +264,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
       ),
     );
+    gh.lazySingleton<_i419.TasbihRepository>(
+      () => _i940.TasbihRepositoryImpl(gh<_i415.TasbihLocalDataSource>()),
+    );
     gh.lazySingleton<_i560.JadwalShalatLocalDataSource>(
       () => _i560.JadwalShalatLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'shalatBox'),
@@ -259,6 +288,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i959.SuratDetailRemoteDataSource>(),
         gh<_i349.SuratDetailLocalDataSource>(),
       ),
+    );
+    gh.factory<_i603.ClearTasbihSessions>(
+      () => _i603.ClearTasbihSessions(gh<_i419.TasbihRepository>()),
+    );
+    gh.factory<_i1029.DeleteTasbihSession>(
+      () => _i1029.DeleteTasbihSession(gh<_i419.TasbihRepository>()),
+    );
+    gh.factory<_i998.GetTasbihSessions>(
+      () => _i998.GetTasbihSessions(gh<_i419.TasbihRepository>()),
+    );
+    gh.factory<_i259.SaveTasbihSession>(
+      () => _i259.SaveTasbihSession(gh<_i419.TasbihRepository>()),
     );
     gh.factory<_i665.PauseAudio>(
       () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
@@ -320,6 +361,16 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i1068.TasbihCubit>(
+      () => _i1068.TasbihCubit(
+        gh<_i998.GetTasbihSessions>(),
+        gh<_i259.SaveTasbihSession>(),
+        gh<_i1029.DeleteTasbihSession>(),
+        gh<_i603.ClearTasbihSessions>(),
+        lightImpact: gh<_i1068.HapticCallback>(),
+        heavyImpact: gh<_i1068.HapticCallback>(),
+      ),
     );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
