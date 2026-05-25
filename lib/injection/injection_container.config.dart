@@ -11,6 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:equran_app/core/cache/hive_module.dart' as _i815;
 import 'package:equran_app/core/locale/cubit/language_cubit.dart' as _i157;
+import 'package:equran_app/core/location/location_service.dart' as _i177;
 import 'package:equran_app/core/network/dio_client.dart' as _i870;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
 import 'package:equran_app/features/audio/data/datasources/audio_player_data_source.dart'
@@ -51,6 +52,72 @@ import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart
     as _i187;
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
     as _i194;
+import 'package:equran_app/features/doa/data/datasources/doa_bookmark_data_source.dart'
+    as _i553;
+import 'package:equran_app/features/doa/data/datasources/doa_local_data_source.dart'
+    as _i547;
+import 'package:equran_app/features/doa/data/datasources/doa_remote_data_source.dart'
+    as _i34;
+import 'package:equran_app/features/doa/data/repositories/doa_repository_impl.dart'
+    as _i164;
+import 'package:equran_app/features/doa/domain/repositories/doa_repository.dart'
+    as _i420;
+import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart'
+    as _i254;
+import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart'
+    as _i422;
+import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart'
+    as _i254;
+import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart'
+    as _i107;
+import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart'
+    as _i290;
+import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
+    as _i345;
+import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_local_data_source.dart'
+    as _i555;
+import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_remote_data_source.dart'
+    as _i575;
+import 'package:equran_app/features/imsakiyah/data/repositories/imsakiyah_repository_impl.dart'
+    as _i648;
+import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart'
+    as _i36;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart'
+    as _i28;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart'
+    as _i815;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart'
+    as _i410;
+import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart'
+    as _i165;
+import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart'
+    as _i560;
+import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_remote_data_source.dart'
+    as _i264;
+import 'package:equran_app/features/jadwal_shalat/data/repositories/jadwal_shalat_repository_impl.dart'
+    as _i443;
+import 'package:equran_app/features/jadwal_shalat/domain/repositories/jadwal_shalat_repository.dart'
+    as _i414;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart'
+    as _i1042;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart'
+    as _i173;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart'
+    as _i598;
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart'
+    as _i83;
+import 'package:equran_app/features/qibla/data/datasources/qibla_data_source.dart'
+    as _i473;
+import 'package:equran_app/features/qibla/data/repositories/qibla_repository_impl.dart'
+    as _i369;
+import 'package:equran_app/features/qibla/domain/repositories/qibla_repository.dart'
+    as _i480;
+import 'package:equran_app/features/qibla/domain/usecases/init_qibla.dart'
+    as _i321;
+import 'package:equran_app/features/qibla/domain/usecases/watch_qibla_direction.dart'
+    as _i247;
+import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart'
+    as _i238;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -87,6 +154,22 @@ import 'package:equran_app/features/tafsir/domain/usecases/get_tafsir.dart'
     as _i160;
 import 'package:equran_app/features/tafsir/presentation/cubit/tafsir_cubit.dart'
     as _i974;
+import 'package:equran_app/features/tasbih/data/datasources/tasbih_local_data_source.dart'
+    as _i415;
+import 'package:equran_app/features/tasbih/data/repositories/tasbih_repository_impl.dart'
+    as _i940;
+import 'package:equran_app/features/tasbih/domain/repositories/tasbih_repository.dart'
+    as _i419;
+import 'package:equran_app/features/tasbih/domain/usecases/clear_tasbih_sessions.dart'
+    as _i603;
+import 'package:equran_app/features/tasbih/domain/usecases/delete_tasbih_session.dart'
+    as _i1029;
+import 'package:equran_app/features/tasbih/domain/usecases/get_tasbih_sessions.dart'
+    as _i998;
+import 'package:equran_app/features/tasbih/domain/usecases/save_tasbih_session.dart'
+    as _i259;
+import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart'
+    as _i1068;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:hive_ce/hive.dart' as _i738;
 import 'package:hive_ce_flutter/hive_flutter.dart' as _i919;
@@ -101,6 +184,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final hiveModule = _$HiveModule();
     gh.singleton<_i870.DioClient>(() => _i870.DioClient());
+    gh.lazySingleton<_i473.QiblaDataSource>(() => _i473.QiblaDataSource());
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.tafsirBox(),
       instanceName: 'tafsirBox',
@@ -111,8 +195,24 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'settingsBox',
       preResolve: true,
     );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.tasbihBox(),
+      instanceName: 'tasbihBox',
+      preResolve: true,
+    );
+    gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(),
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.shalatBox(),
+      instanceName: 'shalatBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.imsakiyahBox(),
+      instanceName: 'imsakiyahBox',
+      preResolve: true,
     );
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.suratBox(),
@@ -133,14 +233,37 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'bookmarkBox',
       preResolve: true,
     );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.doaBox(),
+      instanceName: 'doaBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.doaBookmarkBox(),
+      instanceName: 'doaBookmarkBox',
+      preResolve: true,
+    );
+    gh.lazySingleton<_i480.QiblaRepository>(
+      () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
+    );
     gh.lazySingleton<_i701.BookmarkLocalDataSource>(
       () => _i701.BookmarkLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
       ),
     );
+    gh.lazySingleton<_i555.ImsakiyahLocalDataSource>(
+      () => _i555.ImsakiyahLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
     gh.lazySingleton<_i398.TafsirLocalDataSource>(
       () => _i398.TafsirLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'tafsirBox'),
+      ),
+    );
+    gh.lazySingleton<_i415.TasbihLocalDataSource>(
+      () => _i415.TasbihLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'tasbihBox'),
       ),
     );
     gh.lazySingleton<_i349.SuratDetailLocalDataSource>(
@@ -151,8 +274,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i451.AudioRepository>(
       () => _i550.AudioRepositoryImpl(gh<_i945.AudioPlayerDataSource>()),
     );
+    gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
+      () => _i264.JadwalShalatRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
     gh.lazySingleton<_i1071.SuratRemoteDataSource>(
       () => _i1071.SuratRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
+    gh.lazySingleton<_i575.ImsakiyahRemoteDataSource>(
+      () => _i575.ImsakiyahRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
     gh.lazySingleton<_i959.SuratDetailRemoteDataSource>(
       () => _i959.SuratDetailRemoteDataSourceImpl(gh<_i870.DioClient>()),
@@ -162,14 +291,48 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
       ),
     );
+    gh.lazySingleton<_i419.TasbihRepository>(
+      () => _i940.TasbihRepositoryImpl(gh<_i415.TasbihLocalDataSource>()),
+    );
+    gh.lazySingleton<_i560.JadwalShalatLocalDataSource>(
+      () => _i560.JadwalShalatLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'shalatBox'),
+      ),
+    );
+    gh.factory<_i321.InitQibla>(
+      () => _i321.InitQibla(gh<_i480.QiblaRepository>()),
+    );
+    gh.factory<_i247.WatchQiblaDirection>(
+      () => _i247.WatchQiblaDirection(gh<_i480.QiblaRepository>()),
+    );
+    gh.lazySingleton<_i547.DoaLocalDataSource>(
+      () => _i547.DoaLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'doaBox'),
+      ),
+    );
     gh.lazySingleton<_i713.TafsirRemoteDataSource>(
       () => _i713.TafsirRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
+    gh.lazySingleton<_i34.DoaRemoteDataSource>(
+      () => _i34.DoaRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
     gh.lazySingleton<_i246.SuratDetailRepository>(
       () => _i992.SuratDetailRepositoryImpl(
         gh<_i959.SuratDetailRemoteDataSource>(),
         gh<_i349.SuratDetailLocalDataSource>(),
       ),
+    );
+    gh.factory<_i603.ClearTasbihSessions>(
+      () => _i603.ClearTasbihSessions(gh<_i419.TasbihRepository>()),
+    );
+    gh.factory<_i1029.DeleteTasbihSession>(
+      () => _i1029.DeleteTasbihSession(gh<_i419.TasbihRepository>()),
+    );
+    gh.factory<_i998.GetTasbihSessions>(
+      () => _i998.GetTasbihSessions(gh<_i419.TasbihRepository>()),
+    );
+    gh.factory<_i259.SaveTasbihSession>(
+      () => _i259.SaveTasbihSession(gh<_i419.TasbihRepository>()),
     );
     gh.factory<_i665.PauseAudio>(
       () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
@@ -185,6 +348,26 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i710.StopAudio>(
       () => _i710.StopAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.lazySingleton<_i414.JadwalShalatRepository>(
+      () => _i443.JadwalShalatRepositoryImpl(
+        gh<_i264.JadwalShalatRemoteDataSource>(),
+        gh<_i560.JadwalShalatLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i553.DoaBookmarkDataSource>(
+      () => _i553.DoaBookmarkDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'doaBookmarkBox'),
+      ),
+    );
+    gh.lazySingleton<_i1042.GetJadwalShalat>(
+      () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i173.GetKabkotaShalat>(
+      () => _i173.GetKabkotaShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i598.GetProvinsiShalat>(
+      () => _i598.GetProvinsiShalat(gh<_i414.JadwalShalatRepository>()),
     );
     gh.lazySingleton<_i182.BookmarkRepository>(
       () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
@@ -217,6 +400,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
     );
+    gh.lazySingleton<_i36.ImsakiyahRepository>(
+      () => _i648.ImsakiyahRepositoryImpl(
+        gh<_i575.ImsakiyahRemoteDataSource>(),
+        gh<_i555.ImsakiyahLocalDataSource>(),
+      ),
+    );
     gh.factory<_i194.BookmarkCubit>(
       () => _i194.BookmarkCubit(
         gh<_i1008.GetBookmarks>(),
@@ -228,6 +417,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i115.GetSuratDetail>(
       () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
+    );
+    gh.factory<_i238.QiblaCubit>(
+      () => _i238.QiblaCubit(
+        initQibla: gh<_i321.InitQibla>(),
+        watchQiblaDirection: gh<_i247.WatchQiblaDirection>(),
+      ),
     );
     gh.lazySingleton<_i647.SuratRepository>(
       () => _i291.SuratRepositoryImpl(
@@ -241,8 +436,55 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i398.TafsirLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i420.DoaRepository>(
+      () => _i164.DoaRepositoryImpl(
+        gh<_i34.DoaRemoteDataSource>(),
+        gh<_i547.DoaLocalDataSource>(),
+      ),
+    );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i560.JadwalShalatLocalDataSource>(),
+        gh<_i177.LocationService>(),
+      ),
+    );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
+    );
+    gh.factory<_i254.GetDoaBookmarks>(
+      () => _i254.GetDoaBookmarks(gh<_i553.DoaBookmarkDataSource>()),
+    );
+    gh.factory<_i107.ToggleDoaBookmark>(
+      () => _i107.ToggleDoaBookmark(gh<_i553.DoaBookmarkDataSource>()),
+    );
+    gh.factory<_i1068.TasbihCubit>(
+      () => _i1068.TasbihCubit(
+        gh<_i998.GetTasbihSessions>(),
+        gh<_i259.SaveTasbihSession>(),
+        gh<_i1029.DeleteTasbihSession>(),
+        gh<_i603.ClearTasbihSessions>(),
+      ),
+    );
+    gh.factory<_i422.GetDoaDetail>(
+      () => _i422.GetDoaDetail(gh<_i420.DoaRepository>()),
+    );
+    gh.factory<_i254.GetDoaList>(
+      () => _i254.GetDoaList(gh<_i420.DoaRepository>()),
+    );
+    gh.lazySingleton<_i28.GetImsakiyah>(
+      () => _i28.GetImsakiyah(gh<_i36.ImsakiyahRepository>()),
+    );
+    gh.lazySingleton<_i815.GetKabkota>(
+      () => _i815.GetKabkota(gh<_i36.ImsakiyahRepository>()),
+    );
+    gh.lazySingleton<_i410.GetProvinsi>(
+      () => _i410.GetProvinsi(gh<_i36.ImsakiyahRepository>()),
+    );
+    gh.factory<_i290.DoaDetailCubit>(
+      () => _i290.DoaDetailCubit(gh<_i422.GetDoaDetail>()),
     );
     gh.factory<_i438.SuratDetailCubit>(
       () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),
@@ -250,11 +492,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i160.GetTafsir>(
       () => _i160.GetTafsir(gh<_i485.TafsirRepository>()),
     );
+    gh.factory<_i345.DoaListCubit>(
+      () => _i345.DoaListCubit(gh<_i254.GetDoaList>()),
+    );
     gh.factory<_i974.TafsirCubit>(
       () => _i974.TafsirCubit(gh<_i160.GetTafsir>()),
     );
     gh.factory<_i334.SuratListCubit>(
       () => _i334.SuratListCubit(gh<_i291.GetSuratList>()),
+    );
+    gh.factory<_i165.ImsakiyahCubit>(
+      () => _i165.ImsakiyahCubit(
+        gh<_i410.GetProvinsi>(),
+        gh<_i815.GetKabkota>(),
+        gh<_i28.GetImsakiyah>(),
+        gh<_i555.ImsakiyahLocalDataSource>(),
+        gh<_i177.LocationService>(),
+      ),
     );
     return this;
   }

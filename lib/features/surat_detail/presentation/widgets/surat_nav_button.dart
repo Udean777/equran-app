@@ -34,8 +34,7 @@ class SuratNavButton extends StatelessWidget {
                 namaLatin: suratSebelumnya!.namaLatin,
                 icon: Icons.arrow_back_ios_rounded,
                 isLeft: true,
-                onTap: () =>
-                    context.push('/surat/${suratSebelumnya!.nomor}'),
+                onTap: () => context.push('/surat/${suratSebelumnya!.nomor}'),
               ),
             ),
           if (suratSebelumnya != null && suratSelanjutnya != null)
@@ -47,8 +46,7 @@ class SuratNavButton extends StatelessWidget {
                 namaLatin: suratSelanjutnya!.namaLatin,
                 icon: Icons.arrow_forward_ios_rounded,
                 isLeft: false,
-                onTap: () =>
-                    context.push('/surat/${suratSelanjutnya!.nomor}'),
+                onTap: () => context.push('/surat/${suratSelanjutnya!.nomor}'),
               ),
             ),
         ],
@@ -86,8 +84,9 @@ class _NavButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppDimens.radiusMD),
         ),
         child: Row(
-          mainAxisAlignment:
-              isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
+          mainAxisAlignment: isLeft
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.end,
           children: [
             if (isLeft) ...[
               Icon(icon, size: AppDimens.iconSM, color: AppColors.primary),

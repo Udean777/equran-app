@@ -58,7 +58,9 @@ class AudioCubit extends Cubit<AudioPlayerState> {
     }
 
     // Play ayat baru
-    await _playAudio(PlayAudioParams(url: url, ayatNomor: ayatNomor, qari: qari));
+    await _playAudio(
+      PlayAudioParams(url: url, ayatNomor: ayatNomor, qari: qari),
+    );
   }
 
   Future<void> pause() => _pauseAudio();

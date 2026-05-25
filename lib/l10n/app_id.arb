@@ -158,5 +158,137 @@
   "arabic": "العربية",
   "@arabic": {
     "description": "Nama bahasa Arab"
+  },
+  "suratNav": "Surat",
+  "@suratNav": {
+    "description": "Label tab navigasi surat"
+  },
+  "doaNav": "Doa",
+  "@doaNav": {
+    "description": "Label tab navigasi doa"
+  },
+  "bookmarkNav": "Bookmark",
+  "@bookmarkNav": {
+    "description": "Label tab navigasi bookmark"
+  },
+  "doa": "Doa",
+  "@doa": {
+    "description": "Label fitur doa"
+  },
+  "doaList": "Daftar Doa",
+  "@doaList": {
+    "description": "Judul halaman daftar doa"
+  },
+  "searchDoa": "Cari doa...",
+  "@searchDoa": {
+    "description": "Placeholder search bar doa"
+  },
+  "filterDoa": "Filter Doa",
+  "@filterDoa": {
+    "description": "Judul sheet filter doa"
+  },
+  "filterByGrup": "Filter by Grup",
+  "@filterByGrup": {
+    "description": "Label filter by grup"
+  },
+  "filterByTag": "Filter by Tag",
+  "@filterByTag": {
+    "description": "Label filter by tag"
+  },
+  "allDoa": "Semua Doa",
+  "@allDoa": {
+    "description": "Label semua doa"
+  },
+  "arabicText": "Arab",
+  "@arabicText": {
+    "description": "Label teks arab"
+  },
+  "transliteration": "Latin",
+  "@transliteration": {
+    "description": "Label transliterasi"
+  },
+  "translation": "Terjemahan",
+  "@translation": {
+    "description": "Label terjemahan"
+  },
+  "about": "Tentang",
+  "@about": {
+    "description": "Label tentang"
+  },
+  "tags": "Tag",
+  "@tags": {
+    "description": "Label tag"
+  },
+  "noDoaFound": "Doa tidak ditemukan.\nCoba kata kunci lain.",
+  "@noDoaFound": {
+    "description": "Pesan kosong hasil pencarian doa"
+  },
+  "clearFilter": "Hapus Filter",
+  "@clearFilter": {
+    "description": "Tombol hapus filter"
+  },
+  "activeFilter": "Filter aktif",
+  "@activeFilter": {
+    "description": "Label filter aktif"
+  },
+  "applyFilter": "Terapkan",
+  "@applyFilter": {
+    "description": "Tombol terapkan filter"
+  },
+  "imsakiyahNav": "Imsakiyah",
+  "@imsakiyahNav": {
+    "description": "Label tab navigasi imsakiyah"
+  },
+  "imsakiyah": "Imsakiyah",
+  "@imsakiyah": {
+    "description": "Label fitur imsakiyah"
+  },
+  "pilihLokasi": "Pilih Lokasi",
+  "@pilihLokasi": {
+    "description": "Tombol pilih lokasi"
+  },
+  "ubahLokasi": "Ubah",
+  "@ubahLokasi": {
+    "description": "Tombol ubah lokasi"
+  },
+  "pilihProvinsi": "Pilih Provinsi",
+  "@pilihProvinsi": {
+    "description": "Judul sheet pilih provinsi"
+  },
+  "cariProvinsi": "Cari provinsi...",
+  "@cariProvinsi": {
+    "description": "Placeholder cari provinsi"
+  },
+  "cariKabkota": "Cari kab/kota...",
+  "@cariKabkota": {
+    "description": "Placeholder cari kab/kota"
+  },
+  "hariIni": "Hari Ini",
+  "@hariIni": {
+    "description": "Label hari ini"
+  },
+  "jadwalBulanIni": "Jadwal Bulan Ini",
+  "@jadwalBulanIni": {
+    "description": "Label jadwal bulan ini"
+  },
+  "gagalMemuatData": "Gagal memuat data",
+  "@gagalMemuatData": {
+    "description": "Pesan gagal memuat data"
+  },
+  "jadwalShalatNav": "Shalat",
+  "@jadwalShalatNav": {
+    "description": "Label tab navigasi jadwal shalat"
+  },
+  "jadwalShalat": "Jadwal Shalat",
+  "@jadwalShalat": {
+    "description": "Label fitur jadwal shalat"
+  },
+  "bulanSebelumnya": "Bulan Sebelumnya",
+  "@bulanSebelumnya": {
+    "description": "Tooltip navigasi bulan sebelumnya"
+  },
+  "bulanBerikutnya": "Bulan Berikutnya",
+  "@bulanBerikutnya": {
+    "description": "Tooltip navigasi bulan berikutnya"
   }
 }

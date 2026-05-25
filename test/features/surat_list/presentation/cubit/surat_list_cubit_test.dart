@@ -21,8 +21,9 @@ void main() {
     blocTest<SuratListCubit, SuratListState>(
       'emits [loading, success] saat load() berhasil',
       build: () {
-        when(() => mockGetSuratList())
-            .thenAnswer((_) async => right(tSuratList));
+        when(
+          () => mockGetSuratList(),
+        ).thenAnswer((_) async => right(tSuratList));
         return SuratListCubit(mockGetSuratList);
       },
       act: (cubit) => cubit.load(),
@@ -35,8 +36,9 @@ void main() {
     blocTest<SuratListCubit, SuratListState>(
       'emits [loading, failure] saat load() network error',
       build: () {
-        when(() => mockGetSuratList())
-            .thenAnswer((_) async => left(const Failure.network()));
+        when(
+          () => mockGetSuratList(),
+        ).thenAnswer((_) async => left(const Failure.network()));
         return SuratListCubit(mockGetSuratList);
       },
       act: (cubit) => cubit.load(),
@@ -66,8 +68,9 @@ void main() {
     blocTest<SuratListCubit, SuratListState>(
       'onQueryChanged() update query di success state',
       build: () {
-        when(() => mockGetSuratList())
-            .thenAnswer((_) async => right(tSuratList));
+        when(
+          () => mockGetSuratList(),
+        ).thenAnswer((_) async => right(tSuratList));
         return SuratListCubit(mockGetSuratList);
       },
       act: (cubit) async {
@@ -91,8 +94,9 @@ void main() {
     blocTest<SuratListCubit, SuratListState>(
       'filtered getter return semua surat jika query kosong',
       build: () {
-        when(() => mockGetSuratList())
-            .thenAnswer((_) async => right(tSuratList));
+        when(
+          () => mockGetSuratList(),
+        ).thenAnswer((_) async => right(tSuratList));
         return SuratListCubit(mockGetSuratList);
       },
       act: (cubit) => cubit.load(),
@@ -105,8 +109,9 @@ void main() {
     blocTest<SuratListCubit, SuratListState>(
       'filtered getter filter berdasarkan namaLatin',
       build: () {
-        when(() => mockGetSuratList())
-            .thenAnswer((_) async => right(tSuratList));
+        when(
+          () => mockGetSuratList(),
+        ).thenAnswer((_) async => right(tSuratList));
         return SuratListCubit(mockGetSuratList);
       },
       act: (cubit) async {
@@ -123,8 +128,9 @@ void main() {
     blocTest<SuratListCubit, SuratListState>(
       'retry() memanggil load() ulang',
       build: () {
-        when(() => mockGetSuratList())
-            .thenAnswer((_) async => right(tSuratList));
+        when(
+          () => mockGetSuratList(),
+        ).thenAnswer((_) async => right(tSuratList));
         return SuratListCubit(mockGetSuratList);
       },
       act: (cubit) async {

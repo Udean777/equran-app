@@ -13,9 +13,13 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../helpers/fake_bookmark_data.dart';
 
 class MockGetBookmarks extends Mock implements GetBookmarks {}
+
 class MockAddBookmark extends Mock implements AddBookmark {}
+
 class MockRemoveBookmark extends Mock implements RemoveBookmark {}
+
 class MockGetLastRead extends Mock implements GetLastRead {}
+
 class MockSaveLastRead extends Mock implements SaveLastRead {}
 
 void main() {
@@ -40,21 +44,21 @@ void main() {
   });
 
   BookmarkCubit buildCubit() => BookmarkCubit(
-        mockGetBookmarks,
-        mockAddBookmark,
-        mockRemoveBookmark,
-        mockGetLastRead,
-        mockSaveLastRead,
-      );
+    mockGetBookmarks,
+    mockAddBookmark,
+    mockRemoveBookmark,
+    mockGetLastRead,
+    mockSaveLastRead,
+  );
 
   group('BookmarkCubit', () {
     blocTest<BookmarkCubit, BookmarkState>(
       'emits [loading, success] saat load() berhasil',
       build: () {
-        when(() => mockGetBookmarks())
-            .thenAnswer((_) async => right([tBookmark]));
-        when(() => mockGetLastRead())
-            .thenAnswer((_) async => right(tLastRead));
+        when(
+          () => mockGetBookmarks(),
+        ).thenAnswer((_) async => right([tBookmark]));
+        when(() => mockGetLastRead()).thenAnswer((_) async => right(tLastRead));
         return buildCubit();
       },
       act: (cubit) => cubit.load(),
@@ -70,10 +74,8 @@ void main() {
     blocTest<BookmarkCubit, BookmarkState>(
       'emits [loading, success] dengan lastRead null jika belum ada',
       build: () {
-        when(() => mockGetBookmarks())
-            .thenAnswer((_) async => right([]));
-        when(() => mockGetLastRead())
-            .thenAnswer((_) async => right(null));
+        when(() => mockGetBookmarks()).thenAnswer((_) async => right([]));
+        when(() => mockGetLastRead()).thenAnswer((_) async => right(null));
         return buildCubit();
       },
       act: (cubit) => cubit.load(),
@@ -86,10 +88,10 @@ void main() {
     blocTest<BookmarkCubit, BookmarkState>(
       'emits [loading, failure] saat load() gagal',
       build: () {
-        when(() => mockGetBookmarks())
-            .thenAnswer((_) async => left(const Failure.network()));
-        when(() => mockGetLastRead())
-            .thenAnswer((_) async => right(null));
+        when(
+          () => mockGetBookmarks(),
+        ).thenAnswer((_) async => left(const Failure.network()));
+        when(() => mockGetLastRead()).thenAnswer((_) async => right(null));
         return buildCubit();
       },
       act: (cubit) => cubit.load(),
@@ -102,12 +104,11 @@ void main() {
     blocTest<BookmarkCubit, BookmarkState>(
       'addBookmark() memanggil usecase dan reload',
       build: () {
-        when(() => mockAddBookmark(any()))
-            .thenAnswer((_) async => right(unit));
-        when(() => mockGetBookmarks())
-            .thenAnswer((_) async => right([tBookmark]));
-        when(() => mockGetLastRead())
-            .thenAnswer((_) async => right(null));
+        when(() => mockAddBookmark(any())).thenAnswer((_) async => right(unit));
+        when(
+          () => mockGetBookmarks(),
+        ).thenAnswer((_) async => right([tBookmark]));
+        when(() => mockGetLastRead()).thenAnswer((_) async => right(null));
         return buildCubit();
       },
       act: (cubit) => cubit.addBookmark(tBookmark),
@@ -123,12 +124,11 @@ void main() {
     blocTest<BookmarkCubit, BookmarkState>(
       'removeBookmark() memanggil usecase dan reload',
       build: () {
-        when(() => mockRemoveBookmark(any()))
-            .thenAnswer((_) async => right(unit));
-        when(() => mockGetBookmarks())
-            .thenAnswer((_) async => right([]));
-        when(() => mockGetLastRead())
-            .thenAnswer((_) async => right(null));
+        when(
+          () => mockRemoveBookmark(any()),
+        ).thenAnswer((_) async => right(unit));
+        when(() => mockGetBookmarks()).thenAnswer((_) async => right([]));
+        when(() => mockGetLastRead()).thenAnswer((_) async => right(null));
         return buildCubit();
       },
       act: (cubit) => cubit.removeBookmark(suratNomor: 1, ayatNomor: 1),
@@ -148,8 +148,9 @@ void main() {
     blocTest<BookmarkCubit, BookmarkState>(
       'saveLastRead() memanggil usecase tanpa emit state',
       build: () {
-        when(() => mockSaveLastRead(any()))
-            .thenAnswer((_) async => right(unit));
+        when(
+          () => mockSaveLastRead(any()),
+        ).thenAnswer((_) async => right(unit));
         return buildCubit();
       },
       act: (cubit) => cubit.saveLastRead(tLastRead),

@@ -122,4 +122,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get arabic => 'العربية';
+
+  @override
+  String get suratNav => 'السور';
+
+  @override
+  String get doaNav => 'الأدعية';
+
+  @override
+  String get bookmarkNav => 'المفضلة';
+
+  @override
+  String get doa => 'الأدعية';
+
+  @override
+  String get doaList => 'قائمة الأدعية';
+
+  @override
+  String get searchDoa => 'ابحث عن دعاء...';
+
+  @override
+  String get filterDoa => 'تصفية الأدعية';
+
+  @override
+  String get filterByGrup => 'تصفية حسب المجموعة';
+
+  @override
+  String get filterByTag => 'تصفية حسب الوسم';
+
+  @override
+  String get allDoa => 'جميع الأدعية';
+
+  @override
+  String get arabicText => 'عربي';
+
+  @override
+  String get transliteration => 'لاتيني';
+
+  @override
+  String get translation => 'الترجمة';
+
+  @override
+  String get about => 'حول';
+
+  @override
+  String get tags => 'الوسوم';
+
+  @override
+  String get noDoaFound => 'لم يتم العثور على الدعاء.\nجرب كلمة أخرى.';
+
+  @override
+  String get clearFilter => 'مسح التصفية';
+
+  @override
+  String get activeFilter => 'تصفية نشطة';
+
+  @override
+  String get applyFilter => 'تطبيق';
+
+  @override
+  String get imsakiyahNav => 'الإمساكية';
+
+  @override
+  String get imsakiyah => 'الإمساكية';
+
+  @override
+  String get pilihLokasi => 'اختر الموقع';
+
+  @override
+  String get ubahLokasi => 'تغيير';
+
+  @override
+  String get pilihProvinsi => 'اختر المحافظة';
+
+  @override
+  String get cariProvinsi => 'ابحث عن محافظة...';
+
+  @override
+  String get cariKabkota => 'ابحث عن مدينة...';
+
+  @override
+  String get hariIni => 'اليوم';
+
+  @override
+  String get jadwalBulanIni => 'جدول هذا الشهر';
+
+  @override
+  String get gagalMemuatData => 'فشل تحميل البيانات';
+
+  @override
+  String get jadwalShalatNav => 'الصلاة';
+
+  @override
+  String get jadwalShalat => 'مواقيت الصلاة';
+
+  @override
+  String get bulanSebelumnya => 'الشهر السابق';
+
+  @override
+  String get bulanBerikutnya => 'الشهر التالي';
 }

@@ -1,0 +1,141 @@
+import 'dart:convert';
+
+import 'package:equran_app/core/cache/cache_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:injectable/injectable.dart';
+
+abstract interface class JadwalShalatLocalDataSource {
+  Future<List<String>?> getCachedProvinsi();
+  Future<void> cacheProvinsi(List<String> provinsi);
+
+  Future<List<String>?> getCachedKabkota(String provinsi);
+  Future<void> cacheKabkota(String provinsi, List<String> kabkota);
+
+  Future<JadwalShalatDto?> getCachedJadwalShalat(
+    String provinsi,
+    String kabkota,
+    int bulan,
+    int tahun,
+  );
+  Future<void> cacheJadwalShalat(JadwalShalatDto dto);
+
+  Future<String?> getLastProvinsi();
+  Future<void> saveLastProvinsi(String provinsi);
+  Future<String?> getLastKabkota();
+  Future<void> saveLastKabkota(String kabkota);
+}
+
+@LazySingleton(as: JadwalShalatLocalDataSource)
+class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
+  const JadwalShalatLocalDataSourceImpl(
+    @Named('shalatBox') this._box,
+  );
+
+  final Box<dynamic> _box;
+
+  static const _provinsiKey = 'provinsi_list';
+  static const _lastProvinsiKey = 'last_provinsi';
+  static const _lastKabkotaKey = 'last_kabkota';
+
+  // Cache TTL: 30 hari untuk provinsi/kabkota, 1 hari untuk jadwal
+  static const _longTtl = Duration(days: 30);
+  static const _shortTtl = Duration(days: 1);
+
+  String _kabkotaKey(String provinsi) =>
+      'kabkota_${provinsi.replaceAll(' ', '_')}';
+
+  String _jadwalKey(String provinsi, String kabkota, int bulan, int tahun) =>
+      'shalat_${provinsi.replaceAll(' ', '_')}_${kabkota.replaceAll(' ', '_')}_${bulan}_$tahun';
+
+  @override
+  Future<List<String>?> getCachedProvinsi() async {
+    try {
+      final entry = CacheEntry.decode(_box.get(_provinsiKey));
+      if (entry == null) return null;
+      if (DateTime.now().difference(entry.cachedAt) > _longTtl) return null;
+      return (jsonDecode(entry.data) as List<dynamic>).cast<String>();
+    } on Object catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> cacheProvinsi(List<String> provinsi) async {
+    final entry = CacheEntry(
+      data: jsonEncode(provinsi),
+      cachedAt: DateTime.now(),
+    );
+    await _box.put(_provinsiKey, entry.encode());
+  }
+
+  @override
+  Future<List<String>?> getCachedKabkota(String provinsi) async {
+    try {
+      final entry = CacheEntry.decode(_box.get(_kabkotaKey(provinsi)));
+      if (entry == null) return null;
+      if (DateTime.now().difference(entry.cachedAt) > _longTtl) return null;
+      return (jsonDecode(entry.data) as List<dynamic>).cast<String>();
+    } on Object catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> cacheKabkota(String provinsi, List<String> kabkota) async {
+    final entry = CacheEntry(
+      data: jsonEncode(kabkota),
+      cachedAt: DateTime.now(),
+    );
+    await _box.put(_kabkotaKey(provinsi), entry.encode());
+  }
+
+  @override
+  Future<JadwalShalatDto?> getCachedJadwalShalat(
+    String provinsi,
+    String kabkota,
+    int bulan,
+    int tahun,
+  ) async {
+    try {
+      final entry = CacheEntry.decode(
+        _box.get(_jadwalKey(provinsi, kabkota, bulan, tahun)),
+      );
+      if (entry == null) return null;
+      if (DateTime.now().difference(entry.cachedAt) > _shortTtl) return null;
+      return JadwalShalatDto.fromJson(
+        jsonDecode(entry.data) as Map<String, dynamic>,
+      );
+    } on Object catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> cacheJadwalShalat(JadwalShalatDto dto) async {
+    final entry = CacheEntry(
+      data: jsonEncode(dto.toJson()),
+      cachedAt: DateTime.now(),
+    );
+    await _box.put(
+      _jadwalKey(dto.provinsi, dto.kabkota, dto.bulan, dto.tahun),
+      entry.encode(),
+    );
+  }
+
+  @override
+  Future<String?> getLastProvinsi() async =>
+      _box.get(_lastProvinsiKey) as String?;
+
+  @override
+  Future<void> saveLastProvinsi(String provinsi) async =>
+      _box.put(_lastProvinsiKey, provinsi);
+
+  @override
+  Future<String?> getLastKabkota() async =>
+      _box.get(_lastKabkotaKey) as String?;
+
+  @override
+  Future<void> saveLastKabkota(String kabkota) async =>
+      _box.put(_lastKabkotaKey, kabkota);
+}

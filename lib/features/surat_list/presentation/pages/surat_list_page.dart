@@ -7,6 +7,7 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
+import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_widget.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
@@ -54,11 +55,6 @@ class _SuratListView extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
-          IconButton(
-            tooltip: l10n.bookmark,
-            icon: const Icon(Icons.bookmark_rounded),
-            onPressed: () => context.push('/bookmarks'),
-          ),
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) => IconButton(
               tooltip: themeState.isDark ? l10n.lightMode : l10n.darkMode,
@@ -87,6 +83,8 @@ class _SuratListView extends StatelessWidget {
               return LastReadCard(lastRead: lastRead);
             },
           ),
+          // Doa Quick Actions — 2 doa relevan berdasarkan waktu
+          const DoaQuickActionsWidget(),
           SearchBarWidget(
             onChanged: context.read<SuratListCubit>().onQueryChanged,
           ),
