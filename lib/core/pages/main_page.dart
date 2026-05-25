@@ -1,5 +1,6 @@
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
+import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
 import 'package:equran_app/features/surat_list/presentation/pages/surat_list_page.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class _MainPageState extends State<MainPage> {
   static const List<Widget> _pages = [
     SuratListPage(),
     DoaListPage(),
+    ImsakiyahPage(),
     BookmarkPage(),
   ];
 
@@ -50,6 +52,11 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.auto_stories_outlined),
             selectedIcon: const Icon(Icons.auto_stories_rounded),
             label: l10n.doaNav,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.mosque_outlined),
+            selectedIcon: const Icon(Icons.mosque_rounded),
+            label: l10n.imsakiyahNav,
           ),
           NavigationDestination(
             icon: const Icon(Icons.bookmark_outline_rounded),

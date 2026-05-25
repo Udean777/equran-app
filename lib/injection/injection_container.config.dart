@@ -67,6 +67,22 @@ import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart
     as _i290;
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
     as _i345;
+import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_local_data_source.dart'
+    as _i555;
+import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_remote_data_source.dart'
+    as _i575;
+import 'package:equran_app/features/imsakiyah/data/repositories/imsakiyah_repository_impl.dart'
+    as _i648;
+import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart'
+    as _i36;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart'
+    as _i28;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart'
+    as _i815;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart'
+    as _i410;
+import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart'
+    as _i165;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -131,6 +147,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i945.AudioPlayerDataSourceImpl(),
     );
     await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.imsakiyahBox(),
+      instanceName: 'imsakiyahBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.suratBox(),
       instanceName: 'suratBox',
       preResolve: true,
@@ -159,6 +180,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
       ),
     );
+    gh.lazySingleton<_i555.ImsakiyahLocalDataSource>(
+      () => _i555.ImsakiyahLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
     gh.lazySingleton<_i398.TafsirLocalDataSource>(
       () => _i398.TafsirLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'tafsirBox'),
@@ -174,6 +200,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1071.SuratRemoteDataSource>(
       () => _i1071.SuratRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
+    gh.lazySingleton<_i575.ImsakiyahRemoteDataSource>(
+      () => _i575.ImsakiyahRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
     gh.lazySingleton<_i959.SuratDetailRemoteDataSource>(
       () => _i959.SuratDetailRemoteDataSourceImpl(gh<_i870.DioClient>()),
@@ -246,6 +275,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
     );
+    gh.lazySingleton<_i36.ImsakiyahRepository>(
+      () => _i648.ImsakiyahRepositoryImpl(
+        gh<_i575.ImsakiyahRemoteDataSource>(),
+        gh<_i555.ImsakiyahLocalDataSource>(),
+      ),
+    );
     gh.factory<_i194.BookmarkCubit>(
       () => _i194.BookmarkCubit(
         gh<_i1008.GetBookmarks>(),
@@ -285,6 +320,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i254.GetDoaList>(
       () => _i254.GetDoaList(gh<_i420.DoaRepository>()),
     );
+    gh.lazySingleton<_i28.GetImsakiyah>(
+      () => _i28.GetImsakiyah(gh<_i36.ImsakiyahRepository>()),
+    );
+    gh.lazySingleton<_i815.GetKabkota>(
+      () => _i815.GetKabkota(gh<_i36.ImsakiyahRepository>()),
+    );
+    gh.lazySingleton<_i410.GetProvinsi>(
+      () => _i410.GetProvinsi(gh<_i36.ImsakiyahRepository>()),
+    );
     gh.factory<_i290.DoaDetailCubit>(
       () => _i290.DoaDetailCubit(gh<_i422.GetDoaDetail>()),
     );
@@ -302,6 +346,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i334.SuratListCubit>(
       () => _i334.SuratListCubit(gh<_i291.GetSuratList>()),
+    );
+    gh.factory<_i165.ImsakiyahCubit>(
+      () => _i165.ImsakiyahCubit(
+        gh<_i410.GetProvinsi>(),
+        gh<_i815.GetKabkota>(),
+        gh<_i28.GetImsakiyah>(),
+        gh<_i555.ImsakiyahLocalDataSource>(),
+      ),
     );
     return this;
   }

@@ -75,5 +75,15 @@
   "noDoaFound": "Dua not found.\nTry another keyword.",
   "clearFilter": "Clear Filter",
   "activeFilter": "Active filter",
-  "applyFilter": "Apply"
+  "applyFilter": "Apply",
+  "imsakiyahNav": "Imsakiyah",
+  "imsakiyah": "Imsakiyah",
+  "pilihLokasi": "Select Location",
+  "ubahLokasi": "Change",
+  "pilihProvinsi": "Select Province",
+  "cariProvinsi": "Search province...",
+  "cariKabkota": "Search city/regency...",
+  "hariIni": "Today",
+  "jadwalBulanIni": "This Month's Schedule",
+  "gagalMemuatData": "Failed to load data"
 }

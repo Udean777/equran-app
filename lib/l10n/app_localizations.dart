@@ -429,6 +429,66 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Terapkan'**
   String get applyFilter;
+
+  /// Label tab navigasi imsakiyah
+  ///
+  /// In id, this message translates to:
+  /// **'Imsakiyah'**
+  String get imsakiyahNav;
+
+  /// Label fitur imsakiyah
+  ///
+  /// In id, this message translates to:
+  /// **'Imsakiyah'**
+  String get imsakiyah;
+
+  /// Tombol pilih lokasi
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih Lokasi'**
+  String get pilihLokasi;
+
+  /// Tombol ubah lokasi
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah'**
+  String get ubahLokasi;
+
+  /// Judul sheet pilih provinsi
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih Provinsi'**
+  String get pilihProvinsi;
+
+  /// Placeholder cari provinsi
+  ///
+  /// In id, this message translates to:
+  /// **'Cari provinsi...'**
+  String get cariProvinsi;
+
+  /// Placeholder cari kab/kota
+  ///
+  /// In id, this message translates to:
+  /// **'Cari kab/kota...'**
+  String get cariKabkota;
+
+  /// Label hari ini
+  ///
+  /// In id, this message translates to:
+  /// **'Hari Ini'**
+  String get hariIni;
+
+  /// Label jadwal bulan ini
+  ///
+  /// In id, this message translates to:
+  /// **'Jadwal Bulan Ini'**
+  String get jadwalBulanIni;
+
+  /// Pesan gagal memuat data
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat data'**
+  String get gagalMemuatData;
 }
 
 class _AppLocalizationsDelegate

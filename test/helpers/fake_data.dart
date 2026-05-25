@@ -1,5 +1,8 @@
 import 'package:equran_app/features/doa/data/models/doa_dto.dart';
 import 'package:equran_app/features/doa/domain/entities/doa.dart';
+import 'package:equran_app/features/imsakiyah/data/models/imsakiyah_dto.dart';
+import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
+import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:equran_app/features/surat_detail/data/models/surat_detail_dto.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_list/data/models/surat_dto.dart';
@@ -219,4 +222,92 @@ final tDoaListResponseDto = DoaListResponseDto(
 const tDoaDetailResponseDto = DoaDetailResponseDto(
   status: 'success',
   data: tDoaDto1,
+);
+
+// ── Imsakiyah ────────────────────────────────────────────────────────────────
+
+const tProvinsiList = ['Sumatera Utara', 'Jawa Barat', 'DKI Jakarta'];
+
+const tKabkotaList = ['Kab. Deli Serdang', 'Kota Medan', 'Kota Binjai'];
+
+const tImsakiyahEntryDto1 = ImsakiyahEntryDto(
+  tanggal: 1,
+  imsak: '05:12',
+  subuh: '05:22',
+  terbit: '06:35',
+  dhuha: '07:02',
+  dzuhur: '12:42',
+  ashar: '16:00',
+  maghrib: '18:42',
+  isya: '19:51',
+);
+
+const tImsakiyahEntryDto2 = ImsakiyahEntryDto(
+  tanggal: 2,
+  imsak: '05:12',
+  subuh: '05:22',
+  terbit: '06:34',
+  dhuha: '07:02',
+  dzuhur: '12:42',
+  ashar: '16:00',
+  maghrib: '18:42',
+  isya: '19:51',
+);
+
+const tImsakiyahDto = ImsakiyahDto(
+  provinsi: 'Sumatera Utara',
+  kabkota: 'Kab. Deli Serdang',
+  hijriah: '1447',
+  masehi: '2026',
+  imsakiyah: [tImsakiyahEntryDto1, tImsakiyahEntryDto2],
+);
+
+const tImsakiyahResponseDto = ImsakiyahResponseDto(
+  code: 200,
+  message: 'Jadwal imsakiyah berhasil diambil',
+  data: tImsakiyahDto,
+);
+
+const tProvinsiResponseDto = ProvinsiResponseDto(
+  code: 200,
+  message: 'Data retrieved successfully',
+  data: tProvinsiList,
+);
+
+const tKabkotaResponseDto = KabkotaResponseDto(
+  code: 200,
+  message: 'Data retrieved successfully',
+  data: tKabkotaList,
+);
+
+const tImsakiyahEntry1 = ImsakiyahEntry(
+  tanggal: 1,
+  imsak: '05:12',
+  subuh: '05:22',
+  terbit: '06:35',
+  dhuha: '07:02',
+  dzuhur: '12:42',
+  ashar: '16:00',
+  maghrib: '18:42',
+  isya: '19:51',
+);
+
+const tImsakiyahEntry2 = ImsakiyahEntry(
+  tanggal: 2,
+  imsak: '05:12',
+  subuh: '05:22',
+  terbit: '06:34',
+  dhuha: '07:02',
+  dzuhur: '12:42',
+  ashar: '16:00',
+  maghrib: '18:42',
+  isya: '19:51',
+);
+
+const tImsakiyah = Imsakiyah(
+  provinsi: 'Sumatera Utara',
+  kabkota: 'Kab. Deli Serdang',
+  hijriah: '1447',
+  masehi: '2026',
+  imsakiyah: [tImsakiyahEntry1, tImsakiyahEntry2],
 );

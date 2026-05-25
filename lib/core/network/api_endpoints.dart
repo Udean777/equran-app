@@ -12,4 +12,9 @@ abstract final class ApiEndpoints {
 
   static String doaListUrl() => '$doaBaseUrl$doaList';
   static String doaDetailUrl(int id) => '$doaBaseUrl${doaDetail(id)}';
+
+  // Imsakiyah — uses baseUrl (/api/v2)
+  static const String imsakiyah = '/imsakiyah';
+  static const String imsakiyahProvinsi = '/imsakiyah/provinsi';
+  static const String imsakiyahKabkota = '/imsakiyah/kabkota';
 }

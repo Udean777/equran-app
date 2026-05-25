@@ -179,4 +179,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get applyFilter => 'تطبيق';
+
+  @override
+  String get imsakiyahNav => 'الإمساكية';
+
+  @override
+  String get imsakiyah => 'الإمساكية';
+
+  @override
+  String get pilihLokasi => 'اختر الموقع';
+
+  @override
+  String get ubahLokasi => 'تغيير';
+
+  @override
+  String get pilihProvinsi => 'اختر المحافظة';
+
+  @override
+  String get cariProvinsi => 'ابحث عن محافظة...';
+
+  @override
+  String get cariKabkota => 'ابحث عن مدينة...';
+
+  @override
+  String get hariIni => 'اليوم';
+
+  @override
+  String get jadwalBulanIni => 'جدول هذا الشهر';
+
+  @override
+  String get gagalMemuatData => 'فشل تحميل البيانات';
 }

@@ -178,4 +178,34 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get applyFilter => 'Terapkan';
+
+  @override
+  String get imsakiyahNav => 'Imsakiyah';
+
+  @override
+  String get imsakiyah => 'Imsakiyah';
+
+  @override
+  String get pilihLokasi => 'Pilih Lokasi';
+
+  @override
+  String get ubahLokasi => 'Ubah';
+
+  @override
+  String get pilihProvinsi => 'Pilih Provinsi';
+
+  @override
+  String get cariProvinsi => 'Cari provinsi...';
+
+  @override
+  String get cariKabkota => 'Cari kab/kota...';
+
+  @override
+  String get hariIni => 'Hari Ini';
+
+  @override
+  String get jadwalBulanIni => 'Jadwal Bulan Ini';
+
+  @override
+  String get gagalMemuatData => 'Gagal memuat data';
 }

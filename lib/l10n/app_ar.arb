@@ -75,5 +75,15 @@
   "noDoaFound": "لم يتم العثور على الدعاء.\nجرب كلمة أخرى.",
   "clearFilter": "مسح التصفية",
   "activeFilter": "تصفية نشطة",
-  "applyFilter": "تطبيق"
+  "applyFilter": "تطبيق",
+  "imsakiyahNav": "الإمساكية",
+  "imsakiyah": "الإمساكية",
+  "pilihLokasi": "اختر الموقع",
+  "ubahLokasi": "تغيير",
+  "pilihProvinsi": "اختر المحافظة",
+  "cariProvinsi": "ابحث عن محافظة...",
+  "cariKabkota": "ابحث عن مدينة...",
+  "hariIni": "اليوم",
+  "jadwalBulanIni": "جدول هذا الشهر",
+  "gagalMemuatData": "فشل تحميل البيانات"
 }

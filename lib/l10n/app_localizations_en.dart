@@ -178,4 +178,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get applyFilter => 'Apply';
+
+  @override
+  String get imsakiyahNav => 'Imsakiyah';
+
+  @override
+  String get imsakiyah => 'Imsakiyah';
+
+  @override
+  String get pilihLokasi => 'Select Location';
+
+  @override
+  String get ubahLokasi => 'Change';
+
+  @override
+  String get pilihProvinsi => 'Select Province';
+
+  @override
+  String get cariProvinsi => 'Search province...';
+
+  @override
+  String get cariKabkota => 'Search city/regency...';
+
+  @override
+  String get hariIni => 'Today';
+
+  @override
+  String get jadwalBulanIni => 'This Month\'s Schedule';
+
+  @override
+  String get gagalMemuatData => 'Failed to load data';
 }
