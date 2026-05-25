@@ -52,6 +52,8 @@ import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart
     as _i187;
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
     as _i194;
+import 'package:equran_app/features/doa/data/datasources/doa_bookmark_data_source.dart'
+    as _i553;
 import 'package:equran_app/features/doa/data/datasources/doa_local_data_source.dart'
     as _i547;
 import 'package:equran_app/features/doa/data/datasources/doa_remote_data_source.dart'
@@ -60,10 +62,14 @@ import 'package:equran_app/features/doa/data/repositories/doa_repository_impl.da
     as _i164;
 import 'package:equran_app/features/doa/domain/repositories/doa_repository.dart'
     as _i420;
+import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart'
+    as _i254;
 import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart'
     as _i422;
 import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart'
     as _i254;
+import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart'
+    as _i107;
 import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart'
     as _i290;
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
@@ -232,6 +238,11 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'doaBox',
       preResolve: true,
     );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.doaBookmarkBox(),
+      instanceName: 'doaBookmarkBox',
+      preResolve: true,
+    );
     gh.lazySingleton<_i480.QiblaRepository>(
       () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
     );
@@ -344,6 +355,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i560.JadwalShalatLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i553.DoaBookmarkDataSource>(
+      () => _i553.DoaBookmarkDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'doaBookmarkBox'),
+      ),
+    );
     gh.lazySingleton<_i1042.GetJadwalShalat>(
       () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
     );
@@ -437,6 +453,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
+    );
+    gh.factory<_i254.GetDoaBookmarks>(
+      () => _i254.GetDoaBookmarks(gh<_i553.DoaBookmarkDataSource>()),
+    );
+    gh.factory<_i107.ToggleDoaBookmark>(
+      () => _i107.ToggleDoaBookmark(gh<_i553.DoaBookmarkDataSource>()),
     );
     gh.factory<_i1068.TasbihCubit>(
       () => _i1068.TasbihCubit(
