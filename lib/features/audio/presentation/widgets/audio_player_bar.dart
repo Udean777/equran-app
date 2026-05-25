@@ -1,0 +1,241 @@
+import 'dart:async';
+
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
+import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/widgets/qari_selector_sheet.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class AudioPlayerBar extends StatelessWidget {
+  const AudioPlayerBar({
+    required this.audioMap,
+    super.key,
+  });
+
+  /// Map qari id → audio URL dari response API
+  final Map<String, String> audioMap;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AudioCubit, AudioPlayerState>(
+      builder: (context, state) {
+        if (state.isIdle) return const SizedBox.shrink();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.fromLTRB(
+            AppDimens.spaceMD,
+            AppDimens.spaceSM,
+            AppDimens.spaceMD,
+            AppDimens.spaceMD,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Qari + Ayat info
+              Row(
+                children: [
+                  // Qari selector
+                  GestureDetector(
+                    onTap: () => _showQariSelector(context, state, audioMap),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.currentQari.name,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const Icon(
+                          Icons.arrow_drop_down_rounded,
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  // Ayat info
+                  if (state.currentAyat != null)
+                    Text(
+                      'Ayat ${state.currentAyat}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppDimens.spaceXS),
+              // Progress bar
+              _ProgressBar(state: state),
+              // Controls
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Stop
+                  IconButton(
+                    icon: const Icon(Icons.stop_rounded),
+                    color: Colors.grey[600],
+                    onPressed: () {
+                      unawaited(context.read<AudioCubit>().stop());
+                    },
+                    tooltip: 'Stop',
+                  ),
+                  // Play/Pause
+                  _PlayPauseButton(state: state),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showQariSelector(
+    BuildContext context,
+    AudioPlayerState state,
+    Map<String, String> audioMap,
+  ) {
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (_) => QariSelectorSheet(
+          selectedQari: state.currentQari,
+          audioMap: audioMap,
+          onQariSelected: (qari) {
+            unawaited(
+              context.read<AudioCubit>().changeQari(
+                qari: qari,
+                audioMap: audioMap,
+              ),
+            );
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  const _ProgressBar({required this.state});
+
+  final AudioPlayerState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final position = state.position;
+    final duration = state.duration;
+    final progress = duration.inMilliseconds > 0
+        ? position.inMilliseconds / duration.inMilliseconds
+        : 0.0;
+
+    return Column(
+      children: [
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 3,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+            activeTrackColor: AppColors.primary,
+            inactiveTrackColor: AppColors.primary.withValues(alpha: 0.2),
+            thumbColor: AppColors.primary,
+          ),
+          child: Slider(
+            value: progress.clamp(0.0, 1.0),
+            onChanged: (value) {
+              final seekTo = Duration(
+                milliseconds: (value * duration.inMilliseconds).round(),
+              );
+              unawaited(context.read<AudioCubit>().seek(seekTo));
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceSM),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _formatDuration(position),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Colors.grey[500],
+                ),
+              ),
+              Text(
+                _formatDuration(duration),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+}
+
+class _PlayPauseButton extends StatelessWidget {
+  const _PlayPauseButton({required this.state});
+
+  final AudioPlayerState state;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.isLoading) {
+      return const SizedBox(
+        width: 48,
+        height: 48,
+        child: Padding(
+          padding: EdgeInsets.all(12),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.primary,
+          ),
+        ),
+      );
+    }
+
+    return IconButton(
+      iconSize: 40,
+      icon: Icon(
+        state.isPlaying
+            ? Icons.pause_circle_filled_rounded
+            : Icons.play_circle_filled_rounded,
+        color: AppColors.primary,
+      ),
+      onPressed: () {
+        if (state.isPlaying) {
+          unawaited(context.read<AudioCubit>().pause());
+        } else {
+          unawaited(context.read<AudioCubit>().resume());
+        }
+      },
+    );
+  }
+}

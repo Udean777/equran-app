@@ -1,7 +1,15 @@
+import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
+import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
+import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
 import 'package:equran_app/features/surat_list/presentation/pages/surat_list_page.dart';
+import 'package:equran_app/injection/injection_container.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter _router = GoRouter(
@@ -15,16 +23,16 @@ final GoRouter _router = GoRouter(
       path: '/surat/:nomor',
       builder: (context, state) => SuratDetailPage(
         nomor: int.parse(state.pathParameters['nomor']!),
+        initialAyat: int.tryParse(state.uri.queryParameters['ayat'] ?? ''),
       ),
     ),
     GoRoute(
-      path: '/tafsir/:nomor',
-      builder: (context, state) => Scaffold(
-        appBar: AppBar(title: const Text('Tafsir')),
-        body: Center(
-          child: Text('Tafsir ${state.pathParameters['nomor']}'),
-        ),
-      ),
+      path: '/bookmarks',
+      builder: (context, state) => const BookmarkPage(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsPage(),
     ),
   ],
 );
@@ -34,12 +42,32 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'eQuran',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      routerConfig: _router,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<ThemeCubit>()..load()),
+        BlocProvider(create: (_) => getIt<LanguageCubit>()..load()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) =>
+            BlocBuilder<LanguageCubit, LanguageState>(
+              builder: (context, langState) => MaterialApp.router(
+                title: 'eQuran',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light(),
+                darkTheme: AppTheme.dark(),
+                themeMode: themeState.themeMode,
+                locale: langState.locale,
+                supportedLocales: AppLocalizations.supportedLocales,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                routerConfig: _router,
+              ),
+            ),
+      ),
     );
   }
 }

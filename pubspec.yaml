@@ -1,19 +1,22 @@
 name: equran_app
 description: Aplikasi eQuran - Arah Baru Selayar
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
-  flutter: '>=3.22.0'
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.22.0"
 
 dependencies:
+  audio_session: ^0.1.21
   cupertino_icons: ^1.0.8
   dio: ^5.5.0
   equatable: ^2.0.5
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
+  flutter_localizations:
+    sdk: flutter
   fpdart: ^1.1.0
   freezed_annotation: ^3.1.0
   get_it: ^9.2.1
@@ -21,7 +24,9 @@ dependencies:
   hive_ce: ^2.7.0
   hive_ce_flutter: ^2.2.0
   injectable: ^3.0.0
+  intl: ^0.20.1
   json_annotation: ^4.12.0
+  just_audio: ^0.9.40
   path_provider: ^2.1.4
 
 dev_dependencies:
@@ -38,6 +43,7 @@ dev_dependencies:
   very_good_analysis: ^10.2.0
 
 flutter:
+  generate: true
   uses-material-design: true
   fonts:
     - family: Amiri

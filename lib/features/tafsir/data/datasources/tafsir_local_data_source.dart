@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/tafsir/data/models/tafsir_dto.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
@@ -20,10 +21,10 @@ class TafsirLocalDataSourceImpl implements TafsirLocalDataSource {
   @override
   Future<TafsirDataDto?> getCachedTafsir(int nomor) async {
     try {
-      final raw = _box.get(_key(nomor));
-      if (raw == null) return null;
+      final entry = CacheEntry.decode(_box.get(_key(nomor)));
+      if (entry == null || entry.isExpired) return null;
       return TafsirDataDto.fromJson(
-        jsonDecode(raw as String) as Map<String, dynamic>,
+        jsonDecode(entry.data) as Map<String, dynamic>,
       );
     } on Object catch (_) {
       return null;
@@ -32,6 +33,10 @@ class TafsirLocalDataSourceImpl implements TafsirLocalDataSource {
 
   @override
   Future<void> cacheTafsir(int nomor, TafsirDataDto tafsir) async {
-    await _box.put(_key(nomor), jsonEncode(tafsir.toJson()));
+    final entry = CacheEntry(
+      data: jsonEncode(tafsir.toJson()),
+      cachedAt: DateTime.now(),
+    );
+    await _box.put(_key(nomor), entry.encode());
   }
 }

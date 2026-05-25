@@ -1,0 +1,60 @@
+{
+  "@@locale": "en",
+  "appTitle": "eQuran",
+  "suratList": "Surah List",
+  "searchHint": "Search surah...",
+  "ayatCount": "{count} Verses",
+  "@ayatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratNumber": "Surah {nomor}",
+  "@suratNumber": {
+    "placeholders": {
+      "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "mekah": "Makkah",
+  "madinah": "Madinah",
+  "tafsir": "Tafsir",
+  "lihatTafsir": "View Tafsir",
+  "bookmark": "Bookmark",
+  "bookmarkEmpty": "No bookmarks yet.\nMark your favorite verses!",
+  "ayatTersimpan": "Saved Verses",
+  "lastRead": "Last Read",
+  "continueReading": "Continue Reading",
+  "ayat": "Verse {nomor}",
+  "@ayat": {
+    "placeholders": {
+      "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNoInternet": "No internet connection.",
+  "errorServer": "A server error occurred.",
+  "errorUnknown": "An unknown error occurred.",
+  "retry": "Try Again",
+  "emptySearch": "Surah not found.\nTry another keyword.",
+  "settings": "Settings",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "language": "Language",
+  "pilihQari": "Select Qari",
+  "play": "Play",
+  "pause": "Pause",
+  "stop": "Stop",
+  "tambahBookmark": "Add Bookmark",
+  "hapusBookmark": "Remove Bookmark",
+  "sebelumnya": "Previous",
+  "selanjutnya": "Next",
+  "bahasa": "Language",
+  "indonesia": "Indonesia",
+  "english": "English",
+  "arabic": "العربية"
+}

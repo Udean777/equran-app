@@ -1,0 +1,60 @@
+{
+  "@@locale": "ar",
+  "appTitle": "القرآن الكريم",
+  "suratList": "قائمة السور",
+  "searchHint": "ابحث عن سورة...",
+  "ayatCount": "{count} آيات",
+  "@ayatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratNumber": "سورة {nomor}",
+  "@suratNumber": {
+    "placeholders": {
+      "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "mekah": "مكة المكرمة",
+  "madinah": "المدينة المنورة",
+  "tafsir": "التفسير",
+  "lihatTafsir": "عرض التفسير",
+  "bookmark": "المفضلة",
+  "bookmarkEmpty": "لا توجد إشارات مرجعية.\nضع علامة على آياتك المفضلة!",
+  "ayatTersimpan": "الآيات المحفوظة",
+  "lastRead": "آخر قراءة",
+  "continueReading": "متابعة القراءة",
+  "ayat": "الآية {nomor}",
+  "@ayat": {
+    "placeholders": {
+      "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNoInternet": "لا يوجد اتصال بالإنترنت.",
+  "errorServer": "حدث خطأ في الخادم.",
+  "errorUnknown": "حدث خطأ غير معروف.",
+  "retry": "حاول مجدداً",
+  "emptySearch": "لم يتم العثور على السورة.\nجرب كلمة أخرى.",
+  "settings": "الإعدادات",
+  "darkMode": "الوضع الداكن",
+  "lightMode": "الوضع الفاتح",
+  "language": "اللغة",
+  "pilihQari": "اختر القارئ",
+  "play": "تشغيل",
+  "pause": "إيقاف مؤقت",
+  "stop": "إيقاف",
+  "tambahBookmark": "إضافة إشارة مرجعية",
+  "hapusBookmark": "حذف الإشارة المرجعية",
+  "sebelumnya": "السابق",
+  "selanjutnya": "التالي",
+  "bahasa": "اللغة",
+  "indonesia": "Indonesia",
+  "english": "English",
+  "arabic": "العربية"
+}

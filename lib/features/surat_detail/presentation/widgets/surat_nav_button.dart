@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,6 +21,8 @@ class SuratNavButton extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(AppDimens.spaceMD),
       child: Row(
@@ -27,7 +30,7 @@ class SuratNavButton extends StatelessWidget {
           if (suratSebelumnya != null)
             Expanded(
               child: _NavButton(
-                label: 'Sebelumnya',
+                label: l10n.sebelumnya,
                 namaLatin: suratSebelumnya!.namaLatin,
                 icon: Icons.arrow_back_ios_rounded,
                 isLeft: true,
@@ -40,7 +43,7 @@ class SuratNavButton extends StatelessWidget {
           if (suratSelanjutnya != null)
             Expanded(
               child: _NavButton(
-                label: 'Selanjutnya',
+                label: l10n.selanjutnya,
                 namaLatin: suratSelanjutnya!.namaLatin,
                 icon: Icons.arrow_forward_ios_rounded,
                 isLeft: false,

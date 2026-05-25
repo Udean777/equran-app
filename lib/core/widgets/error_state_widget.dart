@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ErrorStateWidget extends StatelessWidget {
@@ -14,6 +15,8 @@ class ErrorStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppDimens.spaceLG),
@@ -29,22 +32,22 @@ class ErrorStateWidget extends StatelessWidget {
             Text(
               'Oops!',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: AppDimens.spaceSM),
             Text(
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                color: Colors.grey[600],
+              ),
             ),
             const SizedBox(height: AppDimens.spaceLG),
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Coba Lagi'),
+              label: Text(l10n.retry),
             ),
           ],
         ),

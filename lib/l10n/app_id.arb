@@ -1,0 +1,162 @@
+{
+  "@@locale": "id",
+  "appTitle": "eQuran",
+  "@appTitle": {
+    "description": "Judul aplikasi"
+  },
+  "suratList": "Daftar Surat",
+  "@suratList": {
+    "description": "Judul halaman daftar surat"
+  },
+  "searchHint": "Cari surat...",
+  "@searchHint": {
+    "description": "Placeholder search bar"
+  },
+  "ayatCount": "{count} Ayat",
+  "@ayatCount": {
+    "description": "Jumlah ayat",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratNumber": "Surat {nomor}",
+  "@suratNumber": {
+    "description": "Nomor surat",
+    "placeholders": {
+      "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "mekah": "Mekah",
+  "@mekah": {
+    "description": "Label tempat turun Mekah"
+  },
+  "madinah": "Madinah",
+  "@madinah": {
+    "description": "Label tempat turun Madinah"
+  },
+  "tafsir": "Tafsir",
+  "@tafsir": {
+    "description": "Label tafsir"
+  },
+  "lihatTafsir": "Lihat Tafsir",
+  "@lihatTafsir": {
+    "description": "Tombol lihat tafsir"
+  },
+  "bookmark": "Bookmark",
+  "@bookmark": {
+    "description": "Label bookmark"
+  },
+  "bookmarkEmpty": "Belum ada bookmark.\nTandai ayat favoritmu!",
+  "@bookmarkEmpty": {
+    "description": "Pesan kosong halaman bookmark"
+  },
+  "ayatTersimpan": "Ayat Tersimpan",
+  "@ayatTersimpan": {
+    "description": "Judul section ayat tersimpan"
+  },
+  "lastRead": "Terakhir Dibaca",
+  "@lastRead": {
+    "description": "Label terakhir dibaca"
+  },
+  "continueReading": "Lanjutkan Membaca",
+  "@continueReading": {
+    "description": "Label lanjutkan membaca"
+  },
+  "ayat": "Ayat {nomor}",
+  "@ayat": {
+    "description": "Label nomor ayat",
+    "placeholders": {
+      "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNoInternet": "Tidak ada koneksi internet.",
+  "@errorNoInternet": {
+    "description": "Pesan error tidak ada internet"
+  },
+  "errorServer": "Terjadi kesalahan pada server.",
+  "@errorServer": {
+    "description": "Pesan error server"
+  },
+  "errorUnknown": "Terjadi kesalahan yang tidak diketahui.",
+  "@errorUnknown": {
+    "description": "Pesan error tidak diketahui"
+  },
+  "retry": "Coba Lagi",
+  "@retry": {
+    "description": "Tombol coba lagi"
+  },
+  "emptySearch": "Surat tidak ditemukan.\nCoba kata kunci lain.",
+  "@emptySearch": {
+    "description": "Pesan kosong hasil pencarian"
+  },
+  "settings": "Pengaturan",
+  "@settings": {
+    "description": "Label pengaturan"
+  },
+  "darkMode": "Mode Gelap",
+  "@darkMode": {
+    "description": "Label mode gelap"
+  },
+  "lightMode": "Mode Terang",
+  "@lightMode": {
+    "description": "Label mode terang"
+  },
+  "language": "Bahasa",
+  "@language": {
+    "description": "Label bahasa"
+  },
+  "pilihQari": "Pilih Qari",
+  "@pilihQari": {
+    "description": "Judul sheet pilih qari"
+  },
+  "play": "Play",
+  "@play": {
+    "description": "Tombol play audio"
+  },
+  "pause": "Pause",
+  "@pause": {
+    "description": "Tombol pause audio"
+  },
+  "stop": "Stop",
+  "@stop": {
+    "description": "Tombol stop audio"
+  },
+  "tambahBookmark": "Tambah Bookmark",
+  "@tambahBookmark": {
+    "description": "Tooltip tambah bookmark"
+  },
+  "hapusBookmark": "Hapus Bookmark",
+  "@hapusBookmark": {
+    "description": "Tooltip hapus bookmark"
+  },
+  "sebelumnya": "Sebelumnya",
+  "@sebelumnya": {
+    "description": "Label navigasi surat sebelumnya"
+  },
+  "selanjutnya": "Selanjutnya",
+  "@selanjutnya": {
+    "description": "Label navigasi surat selanjutnya"
+  },
+  "bahasa": "Bahasa",
+  "@bahasa": {
+    "description": "Label pilih bahasa"
+  },
+  "indonesia": "Indonesia",
+  "@indonesia": {
+    "description": "Nama bahasa Indonesia"
+  },
+  "english": "English",
+  "@english": {
+    "description": "Nama bahasa Inggris"
+  },
+  "arabic": "العربية",
+  "@arabic": {
+    "description": "Nama bahasa Arab"
+  }
+}

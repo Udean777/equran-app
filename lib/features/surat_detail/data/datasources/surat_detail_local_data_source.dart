@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/surat_detail/data/models/surat_detail_dto.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
@@ -20,10 +21,10 @@ class SuratDetailLocalDataSourceImpl implements SuratDetailLocalDataSource {
   @override
   Future<SuratDetailDto?> getCachedSuratDetail(int nomor) async {
     try {
-      final raw = _box.get(_key(nomor));
-      if (raw == null) return null;
+      final entry = CacheEntry.decode(_box.get(_key(nomor)));
+      if (entry == null || entry.isExpired) return null;
       return SuratDetailDto.fromJson(
-        jsonDecode(raw as String) as Map<String, dynamic>,
+        jsonDecode(entry.data) as Map<String, dynamic>,
       );
     } on Object catch (_) {
       return null;
@@ -32,6 +33,10 @@ class SuratDetailLocalDataSourceImpl implements SuratDetailLocalDataSource {
 
   @override
   Future<void> cacheSuratDetail(int nomor, SuratDetailDto detail) async {
-    await _box.put(_key(nomor), jsonEncode(detail.toJson()));
+    final entry = CacheEntry(
+      data: jsonEncode(detail.toJson()),
+      cachedAt: DateTime.now(),
+    );
+    await _box.put(_key(nomor), entry.encode());
   }
 }

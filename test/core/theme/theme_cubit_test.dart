@@ -1,0 +1,118 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockBox extends Mock implements Box<dynamic> {}
+
+void main() {
+  late MockBox mockBox;
+
+  setUp(() {
+    mockBox = MockBox();
+  });
+
+  group('ThemeCubit', () {
+    test('initial state adalah light', () {
+      when(() => mockBox.get(any<dynamic>())).thenReturn(null);
+      final cubit = ThemeCubit(mockBox);
+      expect(cubit.state, const ThemeState.light());
+    });
+
+    blocTest<ThemeCubit, ThemeState>(
+      'load() emit dark jika tersimpan dark di Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn('dark');
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) => cubit.load(),
+      expect: () => [const ThemeState.dark()],
+    );
+
+    blocTest<ThemeCubit, ThemeState>(
+      'load() emit light jika tersimpan light di Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn('light');
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) => cubit.load(),
+      expect: () => [const ThemeState.light()],
+    );
+
+    blocTest<ThemeCubit, ThemeState>(
+      'load() emit light jika tidak ada data di Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn(null);
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) => cubit.load(),
+      expect: () => [const ThemeState.light()],
+    );
+
+    blocTest<ThemeCubit, ThemeState>(
+      'toggle() dari light emit dark dan simpan ke Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn(null);
+        when(
+          () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        ).thenAnswer((_) async {});
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) async {
+        cubit.load();
+        await cubit.toggle();
+      },
+      expect: () => [
+        const ThemeState.light(),
+        const ThemeState.dark(),
+      ],
+      verify: (_) {
+        verify(() => mockBox.put('theme_mode', 'dark')).called(1);
+      },
+    );
+
+    blocTest<ThemeCubit, ThemeState>(
+      'toggle() dari dark emit light dan simpan ke Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn('dark');
+        when(
+          () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        ).thenAnswer((_) async {});
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) async {
+        cubit.load();
+        await cubit.toggle();
+      },
+      expect: () => [
+        const ThemeState.dark(),
+        const ThemeState.light(),
+      ],
+      verify: (_) {
+        verify(() => mockBox.put('theme_mode', 'light')).called(1);
+      },
+    );
+
+    test('ThemeStateX.themeMode return ThemeMode.light untuk light state', () {
+      const state = ThemeState.light();
+      expect(state.themeMode, ThemeMode.light);
+    });
+
+    test('ThemeStateX.themeMode return ThemeMode.dark untuk dark state', () {
+      const state = ThemeState.dark();
+      expect(state.themeMode, ThemeMode.dark);
+    });
+
+    test('ThemeStateX.isDark return false untuk light state', () {
+      const state = ThemeState.light();
+      expect(state.isDark, isFalse);
+    });
+
+    test('ThemeStateX.isDark return true untuk dark state', () {
+      const state = ThemeState.dark();
+      expect(state.isDark, isTrue);
+    });
+  });
+}

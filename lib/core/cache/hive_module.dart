@@ -10,4 +10,12 @@ abstract class HiveModule {
   @preResolve
   @Named('tafsirBox')
   Future<Box<dynamic>> tafsirBox() => Hive.openBox<dynamic>('tafsir_box');
+
+  @preResolve
+  @Named('settingsBox')
+  Future<Box<dynamic>> settingsBox() => Hive.openBox<dynamic>('settings_box');
+
+  @preResolve
+  @Named('bookmarkBox')
+  Future<Box<dynamic>> bookmarkBox() => Hive.openBox<dynamic>('bookmark_box');
 }

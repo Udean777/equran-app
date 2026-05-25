@@ -10,7 +10,47 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:equran_app/core/cache/hive_module.dart' as _i815;
+import 'package:equran_app/core/locale/cubit/language_cubit.dart' as _i157;
 import 'package:equran_app/core/network/dio_client.dart' as _i870;
+import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
+import 'package:equran_app/features/audio/data/datasources/audio_player_data_source.dart'
+    as _i945;
+import 'package:equran_app/features/audio/data/repositories/audio_repository_impl.dart'
+    as _i550;
+import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart'
+    as _i451;
+import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart'
+    as _i665;
+import 'package:equran_app/features/audio/domain/usecases/play_audio.dart'
+    as _i556;
+import 'package:equran_app/features/audio/domain/usecases/resume_audio.dart'
+    as _i748;
+import 'package:equran_app/features/audio/domain/usecases/seek_audio.dart'
+    as _i637;
+import 'package:equran_app/features/audio/domain/usecases/stop_audio.dart'
+    as _i710;
+import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart'
+    as _i729;
+import 'package:equran_app/features/bookmark/data/datasources/bookmark_local_data_source.dart'
+    as _i701;
+import 'package:equran_app/features/bookmark/data/repositories/bookmark_repository_impl.dart'
+    as _i720;
+import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart'
+    as _i182;
+import 'package:equran_app/features/bookmark/domain/usecases/add_bookmark.dart'
+    as _i749;
+import 'package:equran_app/features/bookmark/domain/usecases/get_bookmarks.dart'
+    as _i1008;
+import 'package:equran_app/features/bookmark/domain/usecases/get_last_read.dart'
+    as _i994;
+import 'package:equran_app/features/bookmark/domain/usecases/is_bookmarked.dart'
+    as _i46;
+import 'package:equran_app/features/bookmark/domain/usecases/remove_bookmark.dart'
+    as _i778;
+import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart'
+    as _i187;
+import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
+    as _i194;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -67,9 +107,36 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.settingsBox(),
+      instanceName: 'settingsBox',
+      preResolve: true,
+    );
+    gh.singleton<_i945.AudioPlayerDataSource>(
+      () => _i945.AudioPlayerDataSourceImpl(),
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.suratBox(),
       instanceName: 'suratBox',
       preResolve: true,
+    );
+    gh.singleton<_i157.LanguageCubit>(
+      () => _i157.LanguageCubit(
+        gh<_i738.Box<dynamic>>(instanceName: 'settingsBox'),
+      ),
+    );
+    gh.singleton<_i729.ThemeCubit>(
+      () =>
+          _i729.ThemeCubit(gh<_i738.Box<dynamic>>(instanceName: 'settingsBox')),
+    );
+    await gh.factoryAsync<_i919.Box<dynamic>>(
+      () => hiveModule.bookmarkBox(),
+      instanceName: 'bookmarkBox',
+      preResolve: true,
+    );
+    gh.lazySingleton<_i701.BookmarkLocalDataSource>(
+      () => _i701.BookmarkLocalDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
+      ),
     );
     gh.lazySingleton<_i398.TafsirLocalDataSource>(
       () => _i398.TafsirLocalDataSourceImpl(
@@ -80,6 +147,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i349.SuratDetailLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
       ),
+    );
+    gh.singleton<_i451.AudioRepository>(
+      () => _i550.AudioRepositoryImpl(gh<_i945.AudioPlayerDataSource>()),
     );
     gh.lazySingleton<_i1071.SuratRemoteDataSource>(
       () => _i1071.SuratRemoteDataSourceImpl(gh<_i870.DioClient>()),
@@ -99,6 +169,61 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i992.SuratDetailRepositoryImpl(
         gh<_i959.SuratDetailRemoteDataSource>(),
         gh<_i349.SuratDetailLocalDataSource>(),
+      ),
+    );
+    gh.factory<_i665.PauseAudio>(
+      () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i556.PlayAudio>(
+      () => _i556.PlayAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i748.ResumeAudio>(
+      () => _i748.ResumeAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i637.SeekAudio>(
+      () => _i637.SeekAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i710.StopAudio>(
+      () => _i710.StopAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.lazySingleton<_i182.BookmarkRepository>(
+      () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
+    );
+    gh.singleton<_i729.AudioCubit>(
+      () => _i729.AudioCubit(
+        gh<_i556.PlayAudio>(),
+        gh<_i665.PauseAudio>(),
+        gh<_i748.ResumeAudio>(),
+        gh<_i710.StopAudio>(),
+        gh<_i637.SeekAudio>(),
+        gh<_i451.AudioRepository>(),
+      ),
+    );
+    gh.factory<_i749.AddBookmark>(
+      () => _i749.AddBookmark(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i1008.GetBookmarks>(
+      () => _i1008.GetBookmarks(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i994.GetLastRead>(
+      () => _i994.GetLastRead(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i46.IsBookmarked>(
+      () => _i46.IsBookmarked(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i778.RemoveBookmark>(
+      () => _i778.RemoveBookmark(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i187.SaveLastRead>(
+      () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
+    );
+    gh.factory<_i194.BookmarkCubit>(
+      () => _i194.BookmarkCubit(
+        gh<_i1008.GetBookmarks>(),
+        gh<_i749.AddBookmark>(),
+        gh<_i778.RemoveBookmark>(),
+        gh<_i994.GetLastRead>(),
+        gh<_i187.SaveLastRead>(),
       ),
     );
     gh.factory<_i115.GetSuratDetail>(

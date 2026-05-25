@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class SuratCard extends StatelessWidget {
@@ -16,6 +17,8 @@ class SuratCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
     return Card(
       margin: const EdgeInsets.symmetric(
         horizontal: AppDimens.spaceMD,
@@ -28,10 +31,8 @@ class SuratCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppDimens.cardPadding),
           child: Row(
             children: [
-              // Nomor surat
               _AyatNumberBadge(nomor: surat.nomor),
               const SizedBox(width: AppDimens.spaceMD),
-              // Info surat
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,31 +48,26 @@ class SuratCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          '${surat.jumlahAyat} Ayat',
+                          l10n.ayatCount(surat.jumlahAyat),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
                         ),
                         const SizedBox(width: AppDimens.spaceSM),
-                        _TempatTurunBadge(tempatTurun: surat.tempatTurun),
+                        _TempatTurunBadge(
+                          tempatTurun: surat.tempatTurun,
+                          l10n: l10n,
+                        ),
                       ],
-                    ),
-                    const SizedBox(height: AppDimens.spaceXS),
-                    Text(
-                      surat.arti,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[500],
-                      ),
                     ),
                   ],
                 ),
               ),
-              // Nama Arab
               Text(
                 surat.nama,
                 style: const TextStyle(
                   fontFamily: 'Amiri',
-                  fontSize: 22,
+                  fontSize: 20,
                   color: AppColors.primary,
                 ),
               ),
@@ -91,8 +87,8 @@ class _AyatNumberBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 40,
-      height: 40,
+      width: 36,
+      height: 36,
       decoration: const BoxDecoration(
         color: AppColors.ayatNumberBg,
         shape: BoxShape.circle,
@@ -103,7 +99,7 @@ class _AyatNumberBadge extends StatelessWidget {
         style: const TextStyle(
           color: AppColors.ayatNumberText,
           fontWeight: FontWeight.bold,
-          fontSize: 13,
+          fontSize: 12,
         ),
       ),
     );
@@ -111,9 +107,13 @@ class _AyatNumberBadge extends StatelessWidget {
 }
 
 class _TempatTurunBadge extends StatelessWidget {
-  const _TempatTurunBadge({required this.tempatTurun});
+  const _TempatTurunBadge({
+    required this.tempatTurun,
+    required this.l10n,
+  });
 
   final TempatTurun tempatTurun;
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
@@ -128,11 +128,13 @@ class _TempatTurunBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimens.radiusFull),
       ),
       child: Text(
-        isMekah ? 'Mekah' : 'Madinah',
+        isMekah ? l10n.mekah : l10n.madinah,
         style: TextStyle(
+          color: isMekah
+              ? AppColors.mekahBadgeText
+              : AppColors.madinahBadgeText,
           fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: isMekah ? AppColors.mekahBadgeText : AppColors.madinahBadgeText,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
