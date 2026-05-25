@@ -55,12 +55,13 @@ extension ImsakiyahStatePatterns on ImsakiyahState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ImsakiyahInitial value)?  initial,TResult Function( ImsakiyahLoadingProvinsi value)?  loadingProvinsi,TResult Function( ImsakiyahProvinsiLoaded value)?  provinsiLoaded,TResult Function( ImsakiyahLoadingKabkota value)?  loadingKabkota,TResult Function( ImsakiyahKabkotaLoaded value)?  kabkotaLoaded,TResult Function( ImsakiyahLoadingJadwal value)?  loadingJadwal,TResult Function( ImsakiyahSuccess value)?  success,TResult Function( ImsakiyahFailure value)?  failure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ImsakiyahInitial value)?  initial,TResult Function( ImsakiyahLoadingProvinsi value)?  loadingProvinsi,TResult Function( ImsakiyahDetectingLocation value)?  detectingLocation,TResult Function( ImsakiyahProvinsiLoaded value)?  provinsiLoaded,TResult Function( ImsakiyahLoadingKabkota value)?  loadingKabkota,TResult Function( ImsakiyahKabkotaLoaded value)?  kabkotaLoaded,TResult Function( ImsakiyahLoadingJadwal value)?  loadingJadwal,TResult Function( ImsakiyahSuccess value)?  success,TResult Function( ImsakiyahFailure value)?  failure,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ImsakiyahInitial() when initial != null:
 return initial(_that);case ImsakiyahLoadingProvinsi() when loadingProvinsi != null:
-return loadingProvinsi(_that);case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
+return loadingProvinsi(_that);case ImsakiyahDetectingLocation() when detectingLocation != null:
+return detectingLocation(_that);case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
 return provinsiLoaded(_that);case ImsakiyahLoadingKabkota() when loadingKabkota != null:
 return loadingKabkota(_that);case ImsakiyahKabkotaLoaded() when kabkotaLoaded != null:
 return kabkotaLoaded(_that);case ImsakiyahLoadingJadwal() when loadingJadwal != null:
@@ -84,12 +85,13 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ImsakiyahInitial value)  initial,required TResult Function( ImsakiyahLoadingProvinsi value)  loadingProvinsi,required TResult Function( ImsakiyahProvinsiLoaded value)  provinsiLoaded,required TResult Function( ImsakiyahLoadingKabkota value)  loadingKabkota,required TResult Function( ImsakiyahKabkotaLoaded value)  kabkotaLoaded,required TResult Function( ImsakiyahLoadingJadwal value)  loadingJadwal,required TResult Function( ImsakiyahSuccess value)  success,required TResult Function( ImsakiyahFailure value)  failure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ImsakiyahInitial value)  initial,required TResult Function( ImsakiyahLoadingProvinsi value)  loadingProvinsi,required TResult Function( ImsakiyahDetectingLocation value)  detectingLocation,required TResult Function( ImsakiyahProvinsiLoaded value)  provinsiLoaded,required TResult Function( ImsakiyahLoadingKabkota value)  loadingKabkota,required TResult Function( ImsakiyahKabkotaLoaded value)  kabkotaLoaded,required TResult Function( ImsakiyahLoadingJadwal value)  loadingJadwal,required TResult Function( ImsakiyahSuccess value)  success,required TResult Function( ImsakiyahFailure value)  failure,}){
 final _that = this;
 switch (_that) {
 case ImsakiyahInitial():
 return initial(_that);case ImsakiyahLoadingProvinsi():
-return loadingProvinsi(_that);case ImsakiyahProvinsiLoaded():
+return loadingProvinsi(_that);case ImsakiyahDetectingLocation():
+return detectingLocation(_that);case ImsakiyahProvinsiLoaded():
 return provinsiLoaded(_that);case ImsakiyahLoadingKabkota():
 return loadingKabkota(_that);case ImsakiyahKabkotaLoaded():
 return kabkotaLoaded(_that);case ImsakiyahLoadingJadwal():
@@ -109,12 +111,13 @@ return failure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ImsakiyahInitial value)?  initial,TResult? Function( ImsakiyahLoadingProvinsi value)?  loadingProvinsi,TResult? Function( ImsakiyahProvinsiLoaded value)?  provinsiLoaded,TResult? Function( ImsakiyahLoadingKabkota value)?  loadingKabkota,TResult? Function( ImsakiyahKabkotaLoaded value)?  kabkotaLoaded,TResult? Function( ImsakiyahLoadingJadwal value)?  loadingJadwal,TResult? Function( ImsakiyahSuccess value)?  success,TResult? Function( ImsakiyahFailure value)?  failure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ImsakiyahInitial value)?  initial,TResult? Function( ImsakiyahLoadingProvinsi value)?  loadingProvinsi,TResult? Function( ImsakiyahDetectingLocation value)?  detectingLocation,TResult? Function( ImsakiyahProvinsiLoaded value)?  provinsiLoaded,TResult? Function( ImsakiyahLoadingKabkota value)?  loadingKabkota,TResult? Function( ImsakiyahKabkotaLoaded value)?  kabkotaLoaded,TResult? Function( ImsakiyahLoadingJadwal value)?  loadingJadwal,TResult? Function( ImsakiyahSuccess value)?  success,TResult? Function( ImsakiyahFailure value)?  failure,}){
 final _that = this;
 switch (_that) {
 case ImsakiyahInitial() when initial != null:
 return initial(_that);case ImsakiyahLoadingProvinsi() when loadingProvinsi != null:
-return loadingProvinsi(_that);case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
+return loadingProvinsi(_that);case ImsakiyahDetectingLocation() when detectingLocation != null:
+return detectingLocation(_that);case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
 return provinsiLoaded(_that);case ImsakiyahLoadingKabkota() when loadingKabkota != null:
 return loadingKabkota(_that);case ImsakiyahKabkotaLoaded() when kabkotaLoaded != null:
 return kabkotaLoaded(_that);case ImsakiyahLoadingJadwal() when loadingJadwal != null:
@@ -137,11 +140,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loadingProvinsi,TResult Function( List<String> provinsi)?  provinsiLoaded,TResult Function( List<String> provinsi,  String selectedProvinsi)?  loadingKabkota,TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota)?  kabkotaLoaded,TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota)?  loadingJadwal,TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota,  Imsakiyah jadwal)?  success,TResult Function( Failure failure,  List<String>? provinsi,  String? selectedProvinsi,  List<String>? kabkota,  String? selectedKabkota)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loadingProvinsi,TResult Function()?  detectingLocation,TResult Function( List<String> provinsi)?  provinsiLoaded,TResult Function( List<String> provinsi,  String selectedProvinsi)?  loadingKabkota,TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota)?  kabkotaLoaded,TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota)?  loadingJadwal,TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota,  Imsakiyah jadwal)?  success,TResult Function( Failure failure,  List<String>? provinsi,  String? selectedProvinsi,  List<String>? kabkota,  String? selectedKabkota)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ImsakiyahInitial() when initial != null:
 return initial();case ImsakiyahLoadingProvinsi() when loadingProvinsi != null:
-return loadingProvinsi();case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
+return loadingProvinsi();case ImsakiyahDetectingLocation() when detectingLocation != null:
+return detectingLocation();case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
 return provinsiLoaded(_that.provinsi);case ImsakiyahLoadingKabkota() when loadingKabkota != null:
 return loadingKabkota(_that.provinsi,_that.selectedProvinsi);case ImsakiyahKabkotaLoaded() when kabkotaLoaded != null:
 return kabkotaLoaded(_that.provinsi,_that.selectedProvinsi,_that.kabkota);case ImsakiyahLoadingJadwal() when loadingJadwal != null:
@@ -165,11 +169,12 @@ return failure(_that.failure,_that.provinsi,_that.selectedProvinsi,_that.kabkota
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loadingProvinsi,required TResult Function( List<String> provinsi)  provinsiLoaded,required TResult Function( List<String> provinsi,  String selectedProvinsi)  loadingKabkota,required TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota)  kabkotaLoaded,required TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota)  loadingJadwal,required TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota,  Imsakiyah jadwal)  success,required TResult Function( Failure failure,  List<String>? provinsi,  String? selectedProvinsi,  List<String>? kabkota,  String? selectedKabkota)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loadingProvinsi,required TResult Function()  detectingLocation,required TResult Function( List<String> provinsi)  provinsiLoaded,required TResult Function( List<String> provinsi,  String selectedProvinsi)  loadingKabkota,required TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota)  kabkotaLoaded,required TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota)  loadingJadwal,required TResult Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota,  Imsakiyah jadwal)  success,required TResult Function( Failure failure,  List<String>? provinsi,  String? selectedProvinsi,  List<String>? kabkota,  String? selectedKabkota)  failure,}) {final _that = this;
 switch (_that) {
 case ImsakiyahInitial():
 return initial();case ImsakiyahLoadingProvinsi():
-return loadingProvinsi();case ImsakiyahProvinsiLoaded():
+return loadingProvinsi();case ImsakiyahDetectingLocation():
+return detectingLocation();case ImsakiyahProvinsiLoaded():
 return provinsiLoaded(_that.provinsi);case ImsakiyahLoadingKabkota():
 return loadingKabkota(_that.provinsi,_that.selectedProvinsi);case ImsakiyahKabkotaLoaded():
 return kabkotaLoaded(_that.provinsi,_that.selectedProvinsi,_that.kabkota);case ImsakiyahLoadingJadwal():
@@ -189,11 +194,12 @@ return failure(_that.failure,_that.provinsi,_that.selectedProvinsi,_that.kabkota
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loadingProvinsi,TResult? Function( List<String> provinsi)?  provinsiLoaded,TResult? Function( List<String> provinsi,  String selectedProvinsi)?  loadingKabkota,TResult? Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota)?  kabkotaLoaded,TResult? Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota)?  loadingJadwal,TResult? Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota,  Imsakiyah jadwal)?  success,TResult? Function( Failure failure,  List<String>? provinsi,  String? selectedProvinsi,  List<String>? kabkota,  String? selectedKabkota)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loadingProvinsi,TResult? Function()?  detectingLocation,TResult? Function( List<String> provinsi)?  provinsiLoaded,TResult? Function( List<String> provinsi,  String selectedProvinsi)?  loadingKabkota,TResult? Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota)?  kabkotaLoaded,TResult? Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota)?  loadingJadwal,TResult? Function( List<String> provinsi,  String selectedProvinsi,  List<String> kabkota,  String selectedKabkota,  Imsakiyah jadwal)?  success,TResult? Function( Failure failure,  List<String>? provinsi,  String? selectedProvinsi,  List<String>? kabkota,  String? selectedKabkota)?  failure,}) {final _that = this;
 switch (_that) {
 case ImsakiyahInitial() when initial != null:
 return initial();case ImsakiyahLoadingProvinsi() when loadingProvinsi != null:
-return loadingProvinsi();case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
+return loadingProvinsi();case ImsakiyahDetectingLocation() when detectingLocation != null:
+return detectingLocation();case ImsakiyahProvinsiLoaded() when provinsiLoaded != null:
 return provinsiLoaded(_that.provinsi);case ImsakiyahLoadingKabkota() when loadingKabkota != null:
 return loadingKabkota(_that.provinsi,_that.selectedProvinsi);case ImsakiyahKabkotaLoaded() when kabkotaLoaded != null:
 return kabkotaLoaded(_that.provinsi,_that.selectedProvinsi,_that.kabkota);case ImsakiyahLoadingJadwal() when loadingJadwal != null:
@@ -263,6 +269,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'ImsakiyahState.loadingProvinsi()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ImsakiyahDetectingLocation implements ImsakiyahState {
+  const ImsakiyahDetectingLocation();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImsakiyahDetectingLocation);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ImsakiyahState.detectingLocation()';
 }
 
 

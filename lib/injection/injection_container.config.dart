@@ -11,6 +11,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:equran_app/core/cache/hive_module.dart' as _i815;
 import 'package:equran_app/core/locale/cubit/language_cubit.dart' as _i157;
+import 'package:equran_app/core/location/location_service.dart' as _i177;
 import 'package:equran_app/core/network/dio_client.dart' as _i870;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
 import 'package:equran_app/features/audio/data/datasources/audio_player_data_source.dart'
@@ -143,6 +144,7 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'settingsBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(),
     );
@@ -353,6 +355,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i815.GetKabkota>(),
         gh<_i28.GetImsakiyah>(),
         gh<_i555.ImsakiyahLocalDataSource>(),
+        gh<_i177.LocationService>(),
       ),
     );
     return this;

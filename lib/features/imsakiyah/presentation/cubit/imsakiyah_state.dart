@@ -8,6 +8,9 @@ sealed class ImsakiyahState with _$ImsakiyahState {
   /// Loading provinsi list
   const factory ImsakiyahState.loadingProvinsi() = ImsakiyahLoadingProvinsi;
 
+  /// Sedang mendeteksi lokasi GPS user secara otomatis
+  const factory ImsakiyahState.detectingLocation() = ImsakiyahDetectingLocation;
+
   /// Provinsi loaded, menunggu user pilih provinsi
   const factory ImsakiyahState.provinsiLoaded({
     required List<String> provinsi,

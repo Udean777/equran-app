@@ -50,9 +50,9 @@ void main() {
   group('fetchKabkota', () {
     test('mengembalikan KabkotaResponseDto saat sukses', () async {
       when(
-        () => mockDio.get<Map<String, dynamic>>(
+        () => mockDio.post<Map<String, dynamic>>(
           ApiEndpoints.imsakiyahKabkota,
-          queryParameters: {'provinsi': 'Sumatera Utara'},
+          data: {'provinsi': 'Sumatera Utara'},
         ),
       ).thenAnswer(
         (_) async => Response(
@@ -75,9 +75,9 @@ void main() {
   group('fetchImsakiyah', () {
     test('mengembalikan ImsakiyahResponseDto saat sukses', () async {
       when(
-        () => mockDio.get<Map<String, dynamic>>(
+        () => mockDio.post<Map<String, dynamic>>(
           ApiEndpoints.imsakiyah,
-          queryParameters: {
+          data: {
             'provinsi': 'Sumatera Utara',
             'kabkota': 'Kab. Deli Serdang',
           },

@@ -28,9 +28,9 @@ class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
 
   @override
   Future<KabkotaResponseDto> fetchKabkota(String provinsi) async {
-    final response = await _dioClient.dio.get<Map<String, dynamic>>(
+    final response = await _dioClient.dio.post<Map<String, dynamic>>(
       ApiEndpoints.imsakiyahKabkota,
-      queryParameters: {'provinsi': provinsi},
+      data: {'provinsi': provinsi},
     );
     return KabkotaResponseDto.fromJson(response.data!);
   }
@@ -40,9 +40,9 @@ class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
     required String provinsi,
     required String kabkota,
   }) async {
-    final response = await _dioClient.dio.get<Map<String, dynamic>>(
+    final response = await _dioClient.dio.post<Map<String, dynamic>>(
       ApiEndpoints.imsakiyah,
-      queryParameters: {'provinsi': provinsi, 'kabkota': kabkota},
+      data: {'provinsi': provinsi, 'kabkota': kabkota},
     );
     return ImsakiyahResponseDto.fromJson(response.data!);
   }

@@ -59,6 +59,7 @@ class _ImsakiyahView extends StatelessWidget {
             ImsakiyahLoadingProvinsi() => const Center(
               child: CircularProgressIndicator(),
             ),
+            ImsakiyahDetectingLocation() => _buildDetectingLocation(),
             ImsakiyahProvinsiLoaded() => _buildLocationPrompt(context),
             ImsakiyahLoadingKabkota() => _buildLocationPrompt(context),
             ImsakiyahKabkotaLoaded() => _buildLocationPrompt(context),
@@ -69,6 +70,29 @@ class _ImsakiyahView extends StatelessWidget {
             ImsakiyahFailure() => _buildFailure(context, state),
           };
         },
+      ),
+    );
+  }
+
+  Widget _buildDetectingLocation() {
+    return const Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Icon(Icons.gps_fixed_rounded, size: 40),
+          SizedBox(height: 12),
+          Text(
+            'Mendeteksi lokasi Anda...',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Jadwal akan dimuat secara otomatis',
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }
