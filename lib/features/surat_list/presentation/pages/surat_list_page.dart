@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -52,8 +53,16 @@ class _SuratListView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: Text(l10n.appTitle),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         actions: [
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) => IconButton(

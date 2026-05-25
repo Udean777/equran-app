@@ -12,11 +12,17 @@ part of 'jadwal_shalat_cubit.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$JadwalShalatState {
+mixin _$JadwalShalatState implements DiagnosticableTreeMixin {
 
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -28,7 +34,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState()';
 }
 
@@ -216,7 +222,7 @@ return failure(_that.failure,_that.provinsi,_that.selectedProvinsi,_that.kabkota
 /// @nodoc
 
 
-class JadwalShalatInitial implements JadwalShalatState {
+class JadwalShalatInitial with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatInitial();
   
 
@@ -224,6 +230,12 @@ class JadwalShalatInitial implements JadwalShalatState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.initial'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -235,7 +247,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.initial()';
 }
 
@@ -248,7 +260,7 @@ String toString() {
 /// @nodoc
 
 
-class JadwalShalatLoadingProvinsi implements JadwalShalatState {
+class JadwalShalatLoadingProvinsi with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatLoadingProvinsi();
   
 
@@ -256,6 +268,12 @@ class JadwalShalatLoadingProvinsi implements JadwalShalatState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.loadingProvinsi'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -267,7 +285,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.loadingProvinsi()';
 }
 
@@ -280,7 +298,7 @@ String toString() {
 /// @nodoc
 
 
-class JadwalShalatDetectingLocation implements JadwalShalatState {
+class JadwalShalatDetectingLocation with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatDetectingLocation();
   
 
@@ -288,6 +306,12 @@ class JadwalShalatDetectingLocation implements JadwalShalatState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.detectingLocation'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -299,7 +323,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.detectingLocation()';
 }
 
@@ -312,7 +336,7 @@ String toString() {
 /// @nodoc
 
 
-class JadwalShalatProvinsiLoaded implements JadwalShalatState {
+class JadwalShalatProvinsiLoaded with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatProvinsiLoaded({required final  List<String> provinsi}): _provinsi = provinsi;
   
 
@@ -331,6 +355,12 @@ class JadwalShalatProvinsiLoaded implements JadwalShalatState {
 $JadwalShalatProvinsiLoadedCopyWith<JadwalShalatProvinsiLoaded> get copyWith => _$JadwalShalatProvinsiLoadedCopyWithImpl<JadwalShalatProvinsiLoaded>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.provinsiLoaded'))
+    ..add(DiagnosticsProperty('provinsi', provinsi));
+}
 
 @override
 bool operator ==(Object other) {
@@ -342,7 +372,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_provinsi));
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.provinsiLoaded(provinsi: $provinsi)';
 }
 
@@ -384,7 +414,7 @@ as List<String>,
 /// @nodoc
 
 
-class JadwalShalatLoadingKabkota implements JadwalShalatState {
+class JadwalShalatLoadingKabkota with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatLoadingKabkota({required final  List<String> provinsi, required this.selectedProvinsi}): _provinsi = provinsi;
   
 
@@ -404,6 +434,12 @@ class JadwalShalatLoadingKabkota implements JadwalShalatState {
 $JadwalShalatLoadingKabkotaCopyWith<JadwalShalatLoadingKabkota> get copyWith => _$JadwalShalatLoadingKabkotaCopyWithImpl<JadwalShalatLoadingKabkota>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.loadingKabkota'))
+    ..add(DiagnosticsProperty('provinsi', provinsi))..add(DiagnosticsProperty('selectedProvinsi', selectedProvinsi));
+}
 
 @override
 bool operator ==(Object other) {
@@ -415,7 +451,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_provinsi),selectedProvinsi);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.loadingKabkota(provinsi: $provinsi, selectedProvinsi: $selectedProvinsi)';
 }
 
@@ -458,7 +494,7 @@ as String,
 /// @nodoc
 
 
-class JadwalShalatKabkotaLoaded implements JadwalShalatState {
+class JadwalShalatKabkotaLoaded with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatKabkotaLoaded({required final  List<String> provinsi, required this.selectedProvinsi, required final  List<String> kabkota}): _provinsi = provinsi,_kabkota = kabkota;
   
 
@@ -485,6 +521,12 @@ class JadwalShalatKabkotaLoaded implements JadwalShalatState {
 $JadwalShalatKabkotaLoadedCopyWith<JadwalShalatKabkotaLoaded> get copyWith => _$JadwalShalatKabkotaLoadedCopyWithImpl<JadwalShalatKabkotaLoaded>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.kabkotaLoaded'))
+    ..add(DiagnosticsProperty('provinsi', provinsi))..add(DiagnosticsProperty('selectedProvinsi', selectedProvinsi))..add(DiagnosticsProperty('kabkota', kabkota));
+}
 
 @override
 bool operator ==(Object other) {
@@ -496,7 +538,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_provinsi),selectedProvinsi,const DeepCollectionEquality().hash(_kabkota));
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.kabkotaLoaded(provinsi: $provinsi, selectedProvinsi: $selectedProvinsi, kabkota: $kabkota)';
 }
 
@@ -540,7 +582,7 @@ as List<String>,
 /// @nodoc
 
 
-class JadwalShalatLoadingJadwal implements JadwalShalatState {
+class JadwalShalatLoadingJadwal with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatLoadingJadwal({required final  List<String> provinsi, required this.selectedProvinsi, required final  List<String> kabkota, required this.selectedKabkota, required this.bulan, required this.tahun}): _provinsi = provinsi,_kabkota = kabkota;
   
 
@@ -570,6 +612,12 @@ class JadwalShalatLoadingJadwal implements JadwalShalatState {
 $JadwalShalatLoadingJadwalCopyWith<JadwalShalatLoadingJadwal> get copyWith => _$JadwalShalatLoadingJadwalCopyWithImpl<JadwalShalatLoadingJadwal>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.loadingJadwal'))
+    ..add(DiagnosticsProperty('provinsi', provinsi))..add(DiagnosticsProperty('selectedProvinsi', selectedProvinsi))..add(DiagnosticsProperty('kabkota', kabkota))..add(DiagnosticsProperty('selectedKabkota', selectedKabkota))..add(DiagnosticsProperty('bulan', bulan))..add(DiagnosticsProperty('tahun', tahun));
+}
 
 @override
 bool operator ==(Object other) {
@@ -581,7 +629,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_provinsi),selectedProvinsi,const DeepCollectionEquality().hash(_kabkota),selectedKabkota,bulan,tahun);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.loadingJadwal(provinsi: $provinsi, selectedProvinsi: $selectedProvinsi, kabkota: $kabkota, selectedKabkota: $selectedKabkota, bulan: $bulan, tahun: $tahun)';
 }
 
@@ -628,7 +676,7 @@ as int,
 /// @nodoc
 
 
-class JadwalShalatSuccess implements JadwalShalatState {
+class JadwalShalatSuccess with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatSuccess({required final  List<String> provinsi, required this.selectedProvinsi, required final  List<String> kabkota, required this.selectedKabkota, required this.jadwal, required this.bulan, required this.tahun}): _provinsi = provinsi,_kabkota = kabkota;
   
 
@@ -659,6 +707,12 @@ class JadwalShalatSuccess implements JadwalShalatState {
 $JadwalShalatSuccessCopyWith<JadwalShalatSuccess> get copyWith => _$JadwalShalatSuccessCopyWithImpl<JadwalShalatSuccess>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.success'))
+    ..add(DiagnosticsProperty('provinsi', provinsi))..add(DiagnosticsProperty('selectedProvinsi', selectedProvinsi))..add(DiagnosticsProperty('kabkota', kabkota))..add(DiagnosticsProperty('selectedKabkota', selectedKabkota))..add(DiagnosticsProperty('jadwal', jadwal))..add(DiagnosticsProperty('bulan', bulan))..add(DiagnosticsProperty('tahun', tahun));
+}
 
 @override
 bool operator ==(Object other) {
@@ -670,7 +724,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_provinsi),selectedProvinsi,const DeepCollectionEquality().hash(_kabkota),selectedKabkota,jadwal,bulan,tahun);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.success(provinsi: $provinsi, selectedProvinsi: $selectedProvinsi, kabkota: $kabkota, selectedKabkota: $selectedKabkota, jadwal: $jadwal, bulan: $bulan, tahun: $tahun)';
 }
 
@@ -727,7 +781,7 @@ $JadwalShalatCopyWith<$Res> get jadwal {
 /// @nodoc
 
 
-class JadwalShalatFailure implements JadwalShalatState {
+class JadwalShalatFailure with DiagnosticableTreeMixin implements JadwalShalatState {
   const JadwalShalatFailure({required this.failure, final  List<String>? provinsi, this.selectedProvinsi, final  List<String>? kabkota, this.selectedKabkota, this.bulan, this.tahun}): _provinsi = provinsi,_kabkota = kabkota;
   
 
@@ -762,6 +816,12 @@ class JadwalShalatFailure implements JadwalShalatState {
 $JadwalShalatFailureCopyWith<JadwalShalatFailure> get copyWith => _$JadwalShalatFailureCopyWithImpl<JadwalShalatFailure>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'JadwalShalatState.failure'))
+    ..add(DiagnosticsProperty('failure', failure))..add(DiagnosticsProperty('provinsi', provinsi))..add(DiagnosticsProperty('selectedProvinsi', selectedProvinsi))..add(DiagnosticsProperty('kabkota', kabkota))..add(DiagnosticsProperty('selectedKabkota', selectedKabkota))..add(DiagnosticsProperty('bulan', bulan))..add(DiagnosticsProperty('tahun', tahun));
+}
 
 @override
 bool operator ==(Object other) {
@@ -773,7 +833,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,failure,const DeepCollectionEquality().hash(_provinsi),selectedProvinsi,const DeepCollectionEquality().hash(_kabkota),selectedKabkota,bulan,tahun);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'JadwalShalatState.failure(failure: $failure, provinsi: $provinsi, selectedProvinsi: $selectedProvinsi, kabkota: $kabkota, selectedKabkota: $selectedKabkota, bulan: $bulan, tahun: $tahun)';
 }
 

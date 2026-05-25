@@ -58,8 +58,8 @@ class _MainPageState extends State<MainPage> {
             label: l10n.doaNav,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.access_time_outlined),
-            selectedIcon: const Icon(Icons.access_time_filled),
+            icon: const Icon(Icons.mosque_outlined),
+            selectedIcon: const Icon(Icons.mosque_rounded),
             label: l10n.jadwalShalatNav,
           ),
           const NavigationDestination(

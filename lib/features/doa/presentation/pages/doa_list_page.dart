@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -82,8 +83,16 @@ class _DoaListViewState extends State<_DoaListView> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: Text(l10n.doaList),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         actions: [
           IconButton(
             tooltip: 'Cari',

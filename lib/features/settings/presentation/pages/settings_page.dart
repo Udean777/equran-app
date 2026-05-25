@@ -4,6 +4,8 @@ import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,6 +69,94 @@ class SettingsPage extends StatelessWidget {
           ),
           const Divider(height: 1),
           const SizedBox(height: AppDimens.spaceLG),
+
+          // ── Notifikasi Waktu Shalat ──────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.spaceMD,
+              vertical: AppDimens.spaceXS,
+            ),
+            child: Text(
+              'Notifikasi Waktu Shalat',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          BlocBuilder<ShalatNotifCubit, ShalatNotifPrefs>(
+            builder: (context, prefs) {
+              final cubit = context.read<ShalatNotifCubit>();
+              return Column(
+                children: [
+                  _NotifToggleTile(
+                    label: 'Subuh',
+                    icon: Icons.wb_twilight_rounded,
+                    value: prefs.subuh,
+                    onChanged: (_) => cubit.toggleSubuh(),
+                  ),
+                  _NotifToggleTile(
+                    label: 'Dzuhur',
+                    icon: Icons.wb_sunny_rounded,
+                    value: prefs.dzuhur,
+                    onChanged: (_) => cubit.toggleDzuhur(),
+                  ),
+                  _NotifToggleTile(
+                    label: 'Ashar',
+                    icon: Icons.wb_sunny_outlined,
+                    value: prefs.ashar,
+                    onChanged: (_) => cubit.toggleAshar(),
+                  ),
+                  _NotifToggleTile(
+                    label: 'Maghrib',
+                    icon: Icons.nights_stay_outlined,
+                    value: prefs.maghrib,
+                    onChanged: (_) => cubit.toggleMaghrib(),
+                  ),
+                  _NotifToggleTile(
+                    label: 'Isya',
+                    icon: Icons.nightlight_round,
+                    value: prefs.isya,
+                    onChanged: (_) => cubit.toggleIsya(),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.timer_outlined,
+                      color: AppColors.primary,
+                    ),
+                    title: const Text('Ingatkan sebelum'),
+                    trailing: DropdownButton<int>(
+                      value: prefs.menitSebelum,
+                      underline: const SizedBox.shrink(),
+                      items: const [
+                        DropdownMenuItem(value: 0, child: Text('Tepat waktu')),
+                        DropdownMenuItem(
+                          value: 5,
+                          child: Text('5 menit sebelum'),
+                        ),
+                        DropdownMenuItem(
+                          value: 10,
+                          child: Text('10 menit sebelum'),
+                        ),
+                        DropdownMenuItem(
+                          value: 15,
+                          child: Text('15 menit sebelum'),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) unawaited(cubit.setMenitSebelum(val));
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const Divider(height: 1),
+          const SizedBox(height: AppDimens.spaceLG),
+
+          // ── Sumber Data ──────────────────────────────────────────────
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -200,6 +290,31 @@ class SettingsPage extends StatelessWidget {
           child: _LanguageSelectorSheet(current: current, l10n: l10n),
         ),
       ),
+    );
+  }
+}
+
+class _NotifToggleTile extends StatelessWidget {
+  const _NotifToggleTile({
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      secondary: Icon(icon, color: AppColors.primary),
+      title: Text(label),
+      value: value,
+      activeThumbColor: AppColors.primary,
+      onChanged: onChanged,
     );
   }
 }

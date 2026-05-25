@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_header_card.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_location_selector_sheet.dart';
@@ -48,9 +49,17 @@ class _JadwalShalatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Jadwal Shalat'),
         centerTitle: false,
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
       ),
       body: BlocBuilder<JadwalShalatCubit, JadwalShalatState>(
         builder: (context, state) {

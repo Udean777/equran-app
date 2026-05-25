@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/preset_selector_sheet.dart';
@@ -28,8 +29,16 @@ class _TasbihView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Tasbih Digital'),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         actions: [
           // Toggle haptic
           BlocBuilder<TasbihCubit, TasbihState>(

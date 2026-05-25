@@ -23,6 +23,10 @@ class AudioPlayerBar extends StatelessWidget {
       builder: (context, state) {
         if (state.isIdle) return const SizedBox.shrink();
 
+        final cubit = context.read<AudioCubit>();
+        final isPlaylist = cubit.isPlaylistMode;
+        final suratName = cubit.playlistSuratName;
+
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
@@ -43,6 +47,19 @@ class AudioPlayerBar extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Surat name (playlist mode only)
+              if (isPlaylist && suratName != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppDimens.spaceXS),
+                  child: Text(
+                    suratName,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
               // Qari + Ayat info
               Row(
                 children: [
@@ -80,23 +97,51 @@ class AudioPlayerBar extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppDimens.spaceXS),
+
               // Progress bar
               _ProgressBar(state: state),
+
               // Controls
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Previous (playlist mode only)
+                  if (isPlaylist)
+                    IconButton(
+                      icon: const Icon(Icons.skip_previous_rounded),
+                      color: cubit.playlistIndex > 0
+                          ? AppColors.primary
+                          : Colors.grey[400],
+                      onPressed: cubit.playlistIndex > 0
+                          ? () => unawaited(cubit.previousAyat())
+                          : null,
+                      tooltip: 'Ayat sebelumnya',
+                    ),
+
                   // Stop
                   IconButton(
                     icon: const Icon(Icons.stop_rounded),
                     color: Colors.grey[600],
-                    onPressed: () {
-                      unawaited(context.read<AudioCubit>().stop());
-                    },
+                    onPressed: () => unawaited(cubit.stop()),
                     tooltip: 'Stop',
                   ),
+
                   // Play/Pause
                   _PlayPauseButton(state: state),
+
+                  // Next (playlist mode only)
+                  if (isPlaylist)
+                    IconButton(
+                      icon: const Icon(Icons.skip_next_rounded),
+                      color: cubit.playlistIndex < cubit.playlist.length - 1
+                          ? AppColors.primary
+                          : Colors.grey[400],
+                      onPressed:
+                          cubit.playlistIndex < cubit.playlist.length - 1
+                          ? () => unawaited(cubit.nextAyat())
+                          : null,
+                      tooltip: 'Ayat berikutnya',
+                    ),
                 ],
               ),
             ],
@@ -222,18 +267,17 @@ class _PlayPauseButton extends StatelessWidget {
     }
 
     return IconButton(
-      iconSize: 40,
       icon: Icon(
-        state.isPlaying
-            ? Icons.pause_circle_filled_rounded
-            : Icons.play_circle_filled_rounded,
-        color: AppColors.primary,
+        state.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
       ),
+      color: AppColors.primary,
+      iconSize: 32,
       onPressed: () {
+        final cubit = context.read<AudioCubit>();
         if (state.isPlaying) {
-          unawaited(context.read<AudioCubit>().pause());
-        } else {
-          unawaited(context.read<AudioCubit>().resume());
+          unawaited(cubit.pause());
+        } else if (state.isPaused) {
+          unawaited(cubit.resume());
         }
       },
     );

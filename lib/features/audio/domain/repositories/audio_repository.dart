@@ -7,6 +7,7 @@ abstract interface class AudioRepository {
     required String url,
     required int ayatNomor,
     required Qari qari,
+    int? suratNomor,
   });
   Future<Either<Failure, Unit>> pause();
   Future<Either<Failure, Unit>> resume();

@@ -1,10 +1,17 @@
+import 'dart:async';
+
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_service.dart';
+import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -20,6 +27,9 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     this._getJadwalShalat,
     this._local,
     this._locationService,
+    this._scheduler,
+    this._getNotifPrefs,
+    this._saveNotifPrefs,
   ) : super(const JadwalShalatState.initial());
 
   final GetProvinsiShalat _getProvinsi;
@@ -27,6 +37,9 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
   final GetJadwalShalat _getJadwalShalat;
   final JadwalShalatLocalDataSource _local;
   final LocationService _locationService;
+  final ShalatNotificationScheduler _scheduler;
+  final GetShalatNotifPrefs _getNotifPrefs;
+  final SaveShalatNotifPrefs _saveNotifPrefs;
 
   static const _defaultProvinsi = 'DKI Jakarta';
   static const _defaultKabkota = 'Kota Jakarta';
@@ -176,17 +189,24 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
           tahun: targetTahun,
         ),
       ),
-      (jadwal) => emit(
-        JadwalShalatState.success(
-          provinsi: provinsiList,
-          selectedProvinsi: selectedProvinsi,
-          kabkota: kabkota,
-          selectedKabkota: selectedKabkota,
-          jadwal: jadwal,
-          bulan: targetBulan,
-          tahun: targetTahun,
-        ),
-      ),
+      (jadwal) {
+        emit(
+          JadwalShalatState.success(
+            provinsi: provinsiList,
+            selectedProvinsi: selectedProvinsi,
+            kabkota: kabkota,
+            selectedKabkota: selectedKabkota,
+            jadwal: jadwal,
+            bulan: targetBulan,
+            tahun: targetTahun,
+          ),
+        );
+        // Schedule notifikasi untuk hari ini jika bulan = bulan ini
+        final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+        if (targetBulan == now.month && targetTahun == now.year) {
+          _scheduleNotifications(jadwal);
+        }
+      },
     );
   }
 
@@ -315,6 +335,41 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     }
 
     return candidates.where(allTokensIn).firstOrNull;
+  }
+
+  /// Update preferensi notifikasi + reschedule.
+  Future<void> updateNotifPrefs(ShalatNotifPrefs prefs) async {
+    await _saveNotifPrefs(prefs);
+    final s = state;
+    if (s is JadwalShalatSuccess) {
+      _scheduleNotifications(s.jadwal);
+    }
+  }
+
+  /// Schedule notifikasi untuk entry hari ini dari [jadwal].
+  void _scheduleNotifications(JadwalShalat jadwal) {
+    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+    final todayEntry = jadwal.jadwal
+        .where((e) => e.tanggal == now.day)
+        .firstOrNull;
+
+    if (todayEntry == null) return;
+
+    unawaited(
+      _getNotifPrefs().then((result) {
+        unawaited(
+          result.fold(
+            (_) => _scheduler.scheduleForToday(
+              todayEntry,
+              const ShalatNotifPrefs(),
+            ),
+            (prefs) => _scheduler.scheduleForToday(todayEntry, prefs),
+          ),
+        );
+      }).catchError((Object e) {
+        debugPrint('JadwalShalatCubit: schedule notification error: $e');
+      }),
+    );
   }
 
   // --- helpers ---

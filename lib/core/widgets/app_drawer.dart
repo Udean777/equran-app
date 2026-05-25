@@ -90,6 +90,15 @@ class AppDrawer extends StatelessWidget {
                 context.go('/doa-harian');
               },
             ),
+            _DrawerItem(
+              icon: Icons.audio_file_outlined,
+              selectedIcon: Icons.audio_file_rounded,
+              label: 'Manajemen Audio',
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/audio/storage');
+              },
+            ),
 
             const Divider(height: AppDimens.spaceLG),
 

@@ -2,9 +2,11 @@ import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/pages/main_page.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_detail_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
@@ -56,7 +58,10 @@ final GoRouter _router = GoRouter(
       path: '/bookmark',
       builder: (context, state) => const BookmarkPage(),
     ),
-    // Route /doa-harian dan /doa-harian/:id akan ditambah di Fase 9
+    GoRoute(
+      path: '/audio/storage',
+      builder: (context, state) => const AudioStoragePage(),
+    ),
   ],
 );
 
@@ -69,6 +74,7 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => getIt<ThemeCubit>()..load()),
         BlocProvider(create: (_) => getIt<LanguageCubit>()..load()),
+        BlocProvider(create: (_) => getIt<ShalatNotifCubit>()..load()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) =>

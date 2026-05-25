@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -83,6 +84,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
           key!.currentContext!,
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeInOut,
+          alignment: 0.1,
         ),
       );
     }
@@ -131,11 +133,52 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
         final bookmarks =
             bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
 
-        return BlocBuilder<AudioCubit, AudioPlayerState>(
+        return BlocConsumer<AudioCubit, AudioPlayerState>(
+          // Auto-scroll ke ayat yang sedang diputar saat playlist mode
+          listener: (context, audioState) {
+            final cubit = context.read<AudioCubit>();
+            if (cubit.isPlaylistMode && audioState.currentAyat != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _scrollToAyat(audioState.currentAyat!);
+              });
+            }
+          },
           builder: (context, audioState) {
+            final cubit = context.read<AudioCubit>();
+
             return Scaffold(
               appBar: AppBar(
                 title: Text(detail.info.namaLatin),
+                actions: [
+                  // Tombol Play Surat
+                  IconButton(
+                    icon: Icon(
+                      cubit.isPlaylistMode &&
+                              audioState.isPlaying
+                          ? Icons.pause_circle_outline_rounded
+                          : Icons.play_circle_outline_rounded,
+                    ),
+                    color: AppColors.primary,
+                    tooltip: 'Play Surat',
+                    onPressed: () {
+                      if (cubit.isPlaylistMode && audioState.isPlaying) {
+                        unawaited(cubit.pause());
+                      } else if (cubit.isPlaylistMode && audioState.isPaused) {
+                        unawaited(cubit.resume());
+                      } else {
+                        unawaited(
+                          cubit.playFullSurat(
+                            ayatList: detail.ayatList,
+                            startIndex: 0,
+                            qari: audioState.currentQari,
+                            suratNomor: detail.info.nomor,
+                            suratName: detail.info.namaLatin,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
               floatingActionButton: FloatingActionButton.extended(
                 onPressed: () => _showTafsirBottomSheet(context, widget.nomor),
@@ -167,12 +210,11 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
                               b.ayatNomor == ayat.nomorAyat,
                         );
 
-                        final isPlaying =
-                            audioState.currentAyat == ayat.nomorAyat &&
-                            audioState.isPlaying;
+                        final isCurrentAyat =
+                            audioState.currentAyat == ayat.nomorAyat;
+                        final isPlaying = isCurrentAyat && audioState.isPlaying;
                         final isAudioLoading =
-                            audioState.currentAyat == ayat.nomorAyat &&
-                            audioState.isLoading;
+                            isCurrentAyat && audioState.isLoading;
 
                         // Ambil URL audio dari qari yang sedang aktif
                         final qari = audioState.currentQari;
@@ -180,47 +222,63 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
                             ayat.audio[qari.id] ??
                             ayat.audio.values.firstOrNull;
 
-                        return AyatCard(
+                        return Container(
                           key: _itemKeys[ayat.nomorAyat],
-                          ayat: ayat,
-                          isBookmarked: isBookmarked,
-                          isPlaying: isPlaying,
-                          isAudioLoading: isAudioLoading,
-                          onBookmarkToggle: () {
-                            _saveLastRead(context, detail, ayat.nomorAyat);
-                            if (isBookmarked) {
-                              unawaited(
-                                context.read<BookmarkCubit>().removeBookmark(
-                                  suratNomor: detail.info.nomor,
-                                  ayatNomor: ayat.nomorAyat,
-                                ),
-                              );
-                            } else {
-                              unawaited(
-                                context.read<BookmarkCubit>().addBookmark(
-                                  Bookmark(
+                          decoration: isCurrentAyat
+                              ? BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.05,
+                                  ),
+                                  border: const Border(
+                                    left: BorderSide(
+                                      color: AppColors.primary,
+                                      width: 3,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                          child: AyatCard(
+                            ayat: ayat,
+                            isBookmarked: isBookmarked,
+                            isPlaying: isPlaying,
+                            isAudioLoading: isAudioLoading,
+                            onBookmarkToggle: () {
+                              _saveLastRead(context, detail, ayat.nomorAyat);
+                              if (isBookmarked) {
+                                unawaited(
+                                  context.read<BookmarkCubit>().removeBookmark(
                                     suratNomor: detail.info.nomor,
                                     ayatNomor: ayat.nomorAyat,
-                                    namaLatin: detail.info.namaLatin,
-                                    teksArab: ayat.teksArab,
-                                    teksIndonesia: ayat.teksIndonesia,
-                                    savedAt: DateTime.now(),
                                   ),
-                                ),
-                              );
-                            }
-                          },
-                          onPlayTap: audioUrl == null
-                              ? null
-                              : () {
-                                  unawaited(
-                                    context.read<AudioCubit>().playOrToggle(
-                                      url: audioUrl,
+                                );
+                              } else {
+                                unawaited(
+                                  context.read<BookmarkCubit>().addBookmark(
+                                    Bookmark(
+                                      suratNomor: detail.info.nomor,
                                       ayatNomor: ayat.nomorAyat,
-                                      qari: qari,
+                                      namaLatin: detail.info.namaLatin,
+                                      teksArab: ayat.teksArab,
+                                      teksIndonesia: ayat.teksIndonesia,
+                                      savedAt: DateTime.now(),
                                     ),
-                                  );
-                                },
+                                  ),
+                                );
+                              }
+                            },
+                            onPlayTap: audioUrl == null
+                                ? null
+                                : () {
+                                    unawaited(
+                                      cubit.playOrToggle(
+                                        url: audioUrl,
+                                        ayatNomor: ayat.nomorAyat,
+                                        qari: qari,
+                                        suratNomor: detail.info.nomor,
+                                      ),
+                                    );
+                                  },
+                          ),
                         );
                       },
                     ),

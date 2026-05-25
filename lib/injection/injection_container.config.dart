@@ -13,13 +13,33 @@ import 'package:equran_app/core/cache/hive_module.dart' as _i815;
 import 'package:equran_app/core/locale/cubit/language_cubit.dart' as _i157;
 import 'package:equran_app/core/location/location_service.dart' as _i177;
 import 'package:equran_app/core/network/dio_client.dart' as _i870;
+import 'package:equran_app/core/notifications/notification_module.dart'
+    as _i1066;
+import 'package:equran_app/core/notifications/notification_service.dart'
+    as _i175;
+import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart'
+    as _i804;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
+import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
+    as _i813;
+import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart'
+    as _i503;
 import 'package:equran_app/features/audio/data/datasources/audio_player_data_source.dart'
     as _i945;
+import 'package:equran_app/features/audio/data/datasources/audio_service_module.dart'
+    as _i718;
 import 'package:equran_app/features/audio/data/repositories/audio_repository_impl.dart'
     as _i550;
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart'
     as _i451;
+import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart'
+    as _i380;
+import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart'
+    as _i434;
+import 'package:equran_app/features/audio/domain/usecases/get_available_qari.dart'
+    as _i372;
+import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart'
+    as _i232;
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart'
     as _i665;
 import 'package:equran_app/features/audio/domain/usecases/play_audio.dart'
@@ -32,6 +52,8 @@ import 'package:equran_app/features/audio/domain/usecases/stop_audio.dart'
     as _i710;
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart'
     as _i729;
+import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart'
+    as _i330;
 import 'package:equran_app/features/bookmark/data/datasources/bookmark_local_data_source.dart'
     as _i701;
 import 'package:equran_app/features/bookmark/data/repositories/bookmark_repository_impl.dart'
@@ -94,6 +116,8 @@ import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat
     as _i560;
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_remote_data_source.dart'
     as _i264;
+import 'package:equran_app/features/jadwal_shalat/data/datasources/shalat_notif_prefs_data_source.dart'
+    as _i185;
 import 'package:equran_app/features/jadwal_shalat/data/repositories/jadwal_shalat_repository_impl.dart'
     as _i443;
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/jadwal_shalat_repository.dart'
@@ -104,8 +128,14 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_sh
     as _i173;
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart'
     as _i598;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart'
+    as _i8;
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart'
+    as _i69;
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart'
     as _i83;
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart'
+    as _i615;
 import 'package:equran_app/features/qibla/data/datasources/qibla_data_source.dart'
     as _i473;
 import 'package:equran_app/features/qibla/data/repositories/qibla_repository_impl.dart'
@@ -170,6 +200,8 @@ import 'package:equran_app/features/tasbih/domain/usecases/save_tasbih_session.d
     as _i259;
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart'
     as _i1068;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as _i163;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:hive_ce/hive.dart' as _i738;
 import 'package:hive_ce_flutter/hive_flutter.dart' as _i919;
@@ -182,9 +214,24 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final audioServiceModule = _$AudioServiceModule();
+    final notificationModule = _$NotificationModule();
     final hiveModule = _$HiveModule();
     gh.singleton<_i870.DioClient>(() => _i870.DioClient());
+    await gh.singletonAsync<_i813.AudioBackgroundHandler>(
+      () => audioServiceModule.audioBackgroundHandler(),
+      preResolve: true,
+    );
+    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
+      () => notificationModule.flutterLocalNotificationsPlugin,
+    );
+    gh.lazySingleton<_i372.GetAvailableQari>(
+      () => const _i372.GetAvailableQari(),
+    );
     gh.lazySingleton<_i473.QiblaDataSource>(() => _i473.QiblaDataSource());
+    gh.lazySingleton<_i503.AudioDownloadDataSource>(
+      () => _i503.AudioDownloadDataSourceImpl(gh<_i870.DioClient>()),
+    );
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.tafsirBox(),
       instanceName: 'tafsirBox',
@@ -201,8 +248,22 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
+    gh.lazySingleton<_i380.DeleteAyatAudio>(
+      () => _i380.DeleteAyatAudio(gh<_i503.AudioDownloadDataSource>()),
+    );
+    gh.lazySingleton<_i434.DownloadAyatAudio>(
+      () => _i434.DownloadAyatAudio(gh<_i503.AudioDownloadDataSource>()),
+    );
+    gh.lazySingleton<_i232.GetDownloadedAyats>(
+      () => _i232.GetDownloadedAyats(gh<_i503.AudioDownloadDataSource>()),
+    );
     gh.singleton<_i945.AudioPlayerDataSource>(
-      () => _i945.AudioPlayerDataSourceImpl(),
+      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
+    );
+    gh.lazySingleton<_i185.ShalatNotifPrefsDataSource>(
+      () => _i185.ShalatNotifPrefsDataSourceImpl(
+        gh<_i738.Box<dynamic>>(instanceName: 'settingsBox'),
+      ),
     );
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.shalatBox(),
@@ -213,6 +274,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => hiveModule.imsakiyahBox(),
       instanceName: 'imsakiyahBox',
       preResolve: true,
+    );
+    gh.factory<_i330.AudioStorageCubit>(
+      () => _i330.AudioStorageCubit(
+        gh<_i232.GetDownloadedAyats>(),
+        gh<_i380.DeleteAyatAudio>(),
+        gh<_i503.AudioDownloadDataSource>(),
+      ),
     );
     await gh.factoryAsync<_i919.Box<dynamic>>(
       () => hiveModule.suratBox(),
@@ -251,6 +319,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'bookmarkBox'),
       ),
     );
+    gh.singleton<_i451.AudioRepository>(
+      () => _i550.AudioRepositoryImpl(
+        gh<_i945.AudioPlayerDataSource>(),
+        gh<_i503.AudioDownloadDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i555.ImsakiyahLocalDataSource>(
       () => _i555.ImsakiyahLocalDataSourceImpl(
         gh<_i738.Box<dynamic>>(instanceName: 'imsakiyahBox'),
@@ -271,14 +345,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'suratBox'),
       ),
     );
-    gh.singleton<_i451.AudioRepository>(
-      () => _i550.AudioRepositoryImpl(gh<_i945.AudioPlayerDataSource>()),
-    );
     gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
       () => _i264.JadwalShalatRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
     gh.lazySingleton<_i1071.SuratRemoteDataSource>(
       () => _i1071.SuratRemoteDataSourceImpl(gh<_i870.DioClient>()),
+    );
+    gh.lazySingleton<_i175.NotificationService>(
+      () => _i175.NotificationService(
+        gh<_i163.FlutterLocalNotificationsPlugin>(),
+      ),
     );
     gh.lazySingleton<_i575.ImsakiyahRemoteDataSource>(
       () => _i575.ImsakiyahRemoteDataSourceImpl(gh<_i870.DioClient>()),
@@ -299,11 +375,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<dynamic>>(instanceName: 'shalatBox'),
       ),
     );
+    gh.lazySingleton<_i8.GetShalatNotifPrefs>(
+      () => _i8.GetShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
+    );
+    gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
+      () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
+    );
+    gh.lazySingleton<_i804.ShalatNotificationScheduler>(
+      () => _i804.ShalatNotificationScheduler(gh<_i175.NotificationService>()),
+    );
     gh.factory<_i321.InitQibla>(
       () => _i321.InitQibla(gh<_i480.QiblaRepository>()),
     );
     gh.factory<_i247.WatchQiblaDirection>(
       () => _i247.WatchQiblaDirection(gh<_i480.QiblaRepository>()),
+    );
+    gh.singleton<_i615.ShalatNotifCubit>(
+      () => _i615.ShalatNotifCubit(
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+      ),
     );
     gh.lazySingleton<_i547.DoaLocalDataSource>(
       () => _i547.DoaLocalDataSourceImpl(
@@ -400,6 +491,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
     );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i560.JadwalShalatLocalDataSource>(),
+        gh<_i177.LocationService>(),
+        gh<_i804.ShalatNotificationScheduler>(),
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+      ),
+    );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
         gh<_i575.ImsakiyahRemoteDataSource>(),
@@ -440,15 +543,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i164.DoaRepositoryImpl(
         gh<_i34.DoaRemoteDataSource>(),
         gh<_i547.DoaLocalDataSource>(),
-      ),
-    );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
-        gh<_i1042.GetJadwalShalat>(),
-        gh<_i560.JadwalShalatLocalDataSource>(),
-        gh<_i177.LocationService>(),
       ),
     );
     gh.factory<_i291.GetSuratList>(
@@ -513,5 +607,9 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$AudioServiceModule extends _i718.AudioServiceModule {}
+
+class _$NotificationModule extends _i1066.NotificationModule {}
 
 class _$HiveModule extends _i815.HiveModule {}

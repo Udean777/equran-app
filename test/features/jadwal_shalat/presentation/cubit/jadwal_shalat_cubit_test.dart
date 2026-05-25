@@ -1,10 +1,15 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_service.dart';
+import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -22,12 +27,31 @@ class MockLocalDataSource extends Mock implements JadwalShalatLocalDataSource {}
 
 class MockLocationService extends Mock implements LocationService {}
 
+class MockShalatNotificationScheduler extends Mock
+    implements ShalatNotificationScheduler {}
+
+class MockGetShalatNotifPrefs extends Mock implements GetShalatNotifPrefs {}
+
+class MockSaveShalatNotifPrefs extends Mock implements SaveShalatNotifPrefs {}
+
+class FakeJadwalShalatEntry extends Fake implements JadwalShalatEntry {}
+
+class FakeShalatNotifPrefs extends Fake implements ShalatNotifPrefs {}
+
 void main() {
   late MockGetProvinsiShalat mockGetProvinsi;
   late MockGetKabkotaShalat mockGetKabkota;
   late MockGetJadwalShalat mockGetJadwalShalat;
   late MockLocalDataSource mockLocal;
   late MockLocationService mockLocationService;
+  late MockShalatNotificationScheduler mockScheduler;
+  late MockGetShalatNotifPrefs mockGetNotifPrefs;
+  late MockSaveShalatNotifPrefs mockSaveNotifPrefs;
+
+  setUpAll(() {
+    registerFallbackValue(FakeJadwalShalatEntry());
+    registerFallbackValue(FakeShalatNotifPrefs());
+  });
 
   setUp(() {
     mockGetProvinsi = MockGetProvinsiShalat();
@@ -35,6 +59,16 @@ void main() {
     mockGetJadwalShalat = MockGetJadwalShalat();
     mockLocal = MockLocalDataSource();
     mockLocationService = MockLocationService();
+    mockScheduler = MockShalatNotificationScheduler();
+    mockGetNotifPrefs = MockGetShalatNotifPrefs();
+    mockSaveNotifPrefs = MockSaveShalatNotifPrefs();
+
+    // Default stubs untuk notification mocks
+    when(() => mockGetNotifPrefs())
+        .thenAnswer((_) async => right(const ShalatNotifPrefs()));
+    when(
+      () => mockScheduler.scheduleForToday(any(), any()),
+    ).thenAnswer((_) async {});
   });
 
   JadwalShalatCubit buildCubit() => JadwalShalatCubit(
@@ -43,6 +77,9 @@ void main() {
     mockGetJadwalShalat,
     mockLocal,
     mockLocationService,
+    mockScheduler,
+    mockGetNotifPrefs,
+    mockSaveNotifPrefs,
   );
 
   const tFailure = NetworkFailure();
