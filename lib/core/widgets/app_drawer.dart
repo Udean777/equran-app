@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -50,6 +52,33 @@ class AppDrawer extends StatelessWidget {
                       color: AppColors.onPrimary,
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(height: AppDimens.spaceXS),
+                  // Streak chip
+                  BlocBuilder<QuranStreakCubit, int>(
+                    builder: (context, streak) {
+                      if (streak == 0) return const SizedBox.shrink();
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppDimens.spaceSM,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.onPrimary.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.radiusFull,
+                          ),
+                        ),
+                        child: Text(
+                          '🔥 $streak hari berturut-turut',
+                          style: const TextStyle(
+                            color: AppColors.onPrimary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

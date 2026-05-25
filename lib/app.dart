@@ -10,6 +10,8 @@ import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
@@ -97,6 +99,8 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => getIt<LanguageCubit>()..load()),
         BlocProvider(create: (_) => getIt<ShalatNotifCubit>()..load()),
         BlocProvider(create: (_) => getIt<QuranFontCubit>()..load()),
+        BlocProvider(create: (_) => getIt<QuranReminderCubit>()..load()),
+        BlocProvider(create: (_) => getIt<QuranStreakCubit>()..load()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) =>

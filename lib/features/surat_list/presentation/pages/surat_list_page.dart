@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
@@ -9,6 +11,7 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_widget.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
@@ -90,6 +93,45 @@ class _SuratListView extends StatelessWidget {
               final lastRead = state.mapOrNull(success: (s) => s.lastRead);
               if (lastRead == null) return const SizedBox.shrink();
               return LastReadCard(lastRead: lastRead);
+            },
+          ),
+          // Streak chip
+          BlocBuilder<QuranStreakCubit, int>(
+            builder: (context, streak) {
+              if (streak == 0) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceMD,
+                  vertical: AppDimens.spaceXS,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimens.spaceSM,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppDimens.radiusFull,
+                        ),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        '🔥 $streak hari berturut-turut',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
           // Doa Quick Actions — 2 doa relevan berdasarkan waktu

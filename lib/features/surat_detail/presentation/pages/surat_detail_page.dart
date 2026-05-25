@@ -11,6 +11,7 @@ import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_card.dart';
@@ -75,6 +76,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   @override
   void initState() {
     super.initState();
+    // Record streak — user membuka surat berarti baca Quran hari ini
+    unawaited(context.read<QuranStreakCubit>().recordRead());
     // Scroll ke initialAyat hanya sekali setelah frame pertama
     if (widget.initialAyat != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

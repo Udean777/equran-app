@@ -17,6 +17,8 @@ import 'package:equran_app/core/notifications/notification_module.dart'
     as _i1066;
 import 'package:equran_app/core/notifications/notification_service.dart'
     as _i175;
+import 'package:equran_app/core/notifications/quran_reminder_scheduler.dart'
+    as _i745;
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart'
     as _i804;
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart' as _i205;
@@ -157,6 +159,20 @@ import 'package:equran_app/features/qibla/domain/usecases/watch_qibla_direction.
     as _i247;
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart'
     as _i238;
+import 'package:equran_app/features/quran_reminder/data/datasources/quran_reminder_prefs_data_source.dart'
+    as _i843;
+import 'package:equran_app/features/quran_reminder/data/repositories/quran_reminder_repository_impl.dart'
+    as _i258;
+import 'package:equran_app/features/quran_reminder/domain/repositories/quran_reminder_repository.dart'
+    as _i698;
+import 'package:equran_app/features/quran_reminder/domain/usecases/get_quran_reminder_prefs.dart'
+    as _i23;
+import 'package:equran_app/features/quran_reminder/domain/usecases/save_quran_reminder_prefs.dart'
+    as _i0;
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart'
+    as _i443;
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart'
+    as _i69;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart'
     as _i349;
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart'
@@ -266,6 +282,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'tasbihBox'),
       ),
     );
+    gh.lazySingleton<_i843.QuranReminderPrefsDataSource>(
+      () => _i843.QuranReminderPrefsDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
+      ),
+    );
     gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
     gh.lazySingleton<_i380.DeleteAyatAudio>(
       () => _i380.DeleteAyatAudio(gh<_i503.AudioDownloadDataSource>()),
@@ -289,6 +310,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i729.ThemeCubit>(
       () =>
           _i729.ThemeCubit(gh<_i738.Box<String>>(instanceName: 'settingsBox')),
+    );
+    gh.singleton<_i69.QuranStreakCubit>(
+      () => _i69.QuranStreakCubit(
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
+      ),
     );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
@@ -374,6 +400,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i575.ImsakiyahRemoteDataSource>(
       () => _i575.ImsakiyahRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
+    gh.lazySingleton<_i698.QuranReminderRepository>(
+      () => _i258.QuranReminderRepositoryImpl(
+        gh<_i843.QuranReminderPrefsDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i959.SuratDetailRemoteDataSource>(
       () => _i959.SuratDetailRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
@@ -395,6 +426,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
       () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
+    );
+    gh.lazySingleton<_i745.QuranReminderScheduler>(
+      () => _i745.QuranReminderScheduler(gh<_i175.NotificationService>()),
     );
     gh.lazySingleton<_i804.ShalatNotificationScheduler>(
       () => _i804.ShalatNotificationScheduler(gh<_i175.NotificationService>()),
@@ -444,6 +478,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i259.SaveTasbihSession>(
       () => _i259.SaveTasbihSession(gh<_i419.TasbihRepository>()),
+    );
+    gh.lazySingleton<_i23.GetQuranReminderPrefs>(
+      () => _i23.GetQuranReminderPrefs(gh<_i698.QuranReminderRepository>()),
+    );
+    gh.lazySingleton<_i0.SaveQuranReminderPrefs>(
+      () => _i0.SaveQuranReminderPrefs(gh<_i698.QuranReminderRepository>()),
     );
     gh.lazySingleton<_i425.DeleteAllAudio>(
       () => _i425.DeleteAllAudio(gh<_i451.AudioRepository>()),
@@ -528,6 +568,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i648.ImsakiyahRepositoryImpl(
         gh<_i575.ImsakiyahRemoteDataSource>(),
         gh<_i555.ImsakiyahLocalDataSource>(),
+      ),
+    );
+    gh.singleton<_i443.QuranReminderCubit>(
+      () => _i443.QuranReminderCubit(
+        gh<_i23.GetQuranReminderPrefs>(),
+        gh<_i0.SaveQuranReminderPrefs>(),
+        gh<_i745.QuranReminderScheduler>(),
       ),
     );
     gh.factory<_i238.QiblaCubit>(

@@ -7,6 +7,7 @@ import 'package:timezone/timezone.dart' as tz;
 /// Channel IDs
 const String kAdzanChannelId = 'adzan_channel';
 const String kAdzanSubuhChannelId = 'adzan_subuh_channel';
+const String kQuranReminderChannelId = 'quran_reminder_channel';
 
 /// Notification IDs per waktu shalat
 const int kNotifIdSubuh = 1;
@@ -14,6 +15,9 @@ const int kNotifIdDzuhur = 2;
 const int kNotifIdAshar = 3;
 const int kNotifIdMaghrib = 4;
 const int kNotifIdIsya = 5;
+
+/// Notification ID untuk reminder baca Quran
+const int kNotifIdQuranReminder = 10;
 
 @lazySingleton
 class NotificationService {
@@ -132,6 +136,60 @@ class NotificationService {
     );
   }
 
+  /// Schedule notifikasi harian pada [hour]:[minute].
+  /// Menggunakan [DateTimeComponents.time] agar repeat otomatis setiap hari.
+  Future<void> scheduleDaily({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+
+    // Jika waktu sudah lewat hari ini, schedule untuk besok
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+
+    const androidDetails = AndroidNotificationDetails(
+      kQuranReminderChannelId,
+      'Reminder Baca Quran',
+      channelDescription: 'Pengingat harian untuk membaca Al-Quran',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduled,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
   /// Cancel notifikasi berdasarkan [id].
   Future<void> cancelById(int id) => _plugin.cancel(id);
 
@@ -168,6 +226,15 @@ class NotificationService {
         description: 'Notifikasi adzan waktu Subuh',
         importance: Importance.max,
         sound: RawResourceAndroidNotificationSound('adzan_subuh'),
+      ),
+    );
+
+    // Channel reminder baca Quran
+    await androidPlugin.createNotificationChannel(
+      const AndroidNotificationChannel(
+        kQuranReminderChannelId,
+        'Reminder Baca Quran',
+        description: 'Pengingat harian untuk membaca Al-Quran',
       ),
     );
   }
