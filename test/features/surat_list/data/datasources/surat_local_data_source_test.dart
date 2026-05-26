@@ -8,14 +8,14 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockBox extends Mock implements Box<String> {}
+class MockLazyBox extends Mock implements LazyBox<String> {}
 
 void main() {
-  late MockBox mockBox;
+  late MockLazyBox mockBox;
   late SuratLocalDataSourceImpl dataSource;
 
   setUp(() {
-    mockBox = MockBox();
+    mockBox = MockLazyBox();
     dataSource = SuratLocalDataSourceImpl(mockBox);
   });
 
@@ -25,7 +25,7 @@ void main() {
         data: jsonEncode(tSuratDtoList.map((e) => e.toJson()).toList()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('surat_list')).thenReturn(entry.encode());
+      when(() => mockBox.get('surat_list')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedSuratList();
 
@@ -39,7 +39,7 @@ void main() {
         data: jsonEncode(tSuratDtoList.map((e) => e.toJson()).toList()),
         cachedAt: DateTime.now().subtract(const Duration(days: 8)),
       );
-      when(() => mockBox.get('surat_list')).thenReturn(entry.encode());
+      when(() => mockBox.get('surat_list')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedSuratList();
 
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('return null jika tidak ada cache', () async {
-      when(() => mockBox.get('surat_list')).thenReturn(null);
+      when(() => mockBox.get('surat_list')).thenAnswer((_) async => null);
 
       final result = await dataSource.getCachedSuratList();
 
@@ -55,7 +55,7 @@ void main() {
     });
 
     test('return null jika data corrupt', () async {
-      when(() => mockBox.get('surat_list')).thenReturn('corrupt_data');
+      when(() => mockBox.get('surat_list')).thenAnswer((_) async => 'corrupt_data');
 
       final result = await dataSource.getCachedSuratList();
 
@@ -92,7 +92,7 @@ void main() {
         data: jsonEncode(tSuratDetailDto.toJson()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('surat_detail_1')).thenReturn(entry.encode());
+      when(() => mockBox.get('surat_detail_1')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedSuratDetail(1);
 
@@ -105,7 +105,7 @@ void main() {
         data: jsonEncode(tSuratDetailDto.toJson()),
         cachedAt: DateTime.now().subtract(const Duration(days: 8)),
       );
-      when(() => mockBox.get('surat_detail_1')).thenReturn(entry.encode());
+      when(() => mockBox.get('surat_detail_1')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedSuratDetail(1);
 

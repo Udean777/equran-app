@@ -8,7 +8,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 1,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
       );
       expect(lastRead.scrollPercent, 0.0);
     });
@@ -18,7 +18,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 1,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
       );
       expect(lastRead.totalAyat, 0);
     });
@@ -28,7 +28,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 3,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
         scrollPercent: 3 / 7,
         totalAyat: 7,
       );
@@ -41,7 +41,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 1,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
       );
       final updated = lastRead.copyWith(scrollPercent: 0.5, totalAyat: 7);
       expect(updated.scrollPercent, 0.5);
@@ -56,7 +56,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 7,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
         scrollPercent: 7 / 7,
         totalAyat: 7,
       );
@@ -68,7 +68,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 3,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
         scrollPercent: 0.5,
         totalAyat: 7,
       );
@@ -76,7 +76,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 3,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1),
+        readAt: DateTime(2025),
         scrollPercent: 0.5,
         totalAyat: 7,
       );

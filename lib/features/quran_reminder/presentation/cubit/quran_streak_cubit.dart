@@ -1,47 +1,29 @@
-import 'dart:async';
-
+import 'package:equran_app/features/quran_reminder/domain/usecases/get_streak_count.dart';
+import 'package:equran_app/features/quran_reminder/domain/usecases/record_quran_read.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
-
-const _streakLastDateKey = 'quran_streak_last_date';
-const _streakCountKey = 'quran_streak_count';
 
 @singleton
 class QuranStreakCubit extends Cubit<int> {
-  QuranStreakCubit(@Named('settingsBox') this._box) : super(0);
+  QuranStreakCubit(
+    this._getStreakCount,
+    this._recordQuranRead,
+  ) : super(0);
 
-  final Box<String> _box;
+  final GetStreakCount _getStreakCount;
+  final RecordQuranRead _recordQuranRead;
 
-  static final _dateFormat = DateFormat('yyyy-MM-dd');
-
-  /// Load streak count dari Hive.
-  void load() {
-    final count = int.tryParse(_box.get(_streakCountKey) ?? '') ?? 0;
+  /// Load streak count dari storage.
+  Future<void> load() async {
+    final count = await _getStreakCount();
     emit(count);
   }
 
   /// Dipanggil saat user membuka SuratDetailPage.
   ///
-  /// Logic:
-  /// - Hari ini → tidak ada perubahan
-  /// - Kemarin → streak++
-  /// - Lebih dari kemarin / null → reset ke 1
+  /// Tidak emit jika streak tidak berubah (sudah baca hari ini).
   Future<void> recordRead() async {
-    final today = _dateFormat.format(DateTime.now());
-    final lastDate = _box.get(_streakLastDateKey);
-
-    if (lastDate == today) return; // sudah baca hari ini
-
-    final yesterday = _dateFormat.format(
-      DateTime.now().subtract(const Duration(days: 1)),
-    );
-
-    final newCount = lastDate == yesterday ? state + 1 : 1;
-
-    await _box.put(_streakLastDateKey, today);
-    await _box.put(_streakCountKey, newCount.toString());
-    emit(newCount);
+    final newCount = await _recordQuranRead(state);
+    if (newCount != state) emit(newCount);
   }
 }

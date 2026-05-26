@@ -5,8 +5,11 @@ import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class CatatanAyatLocalDatasource {
-  List<CatatanAyat> getAll();
-  CatatanAyat? getByAyat({required int suratNomor, required int ayatNomor});
+  Future<List<CatatanAyat>> getAll();
+  Future<CatatanAyat?> getByAyat({
+    required int suratNomor,
+    required int ayatNomor,
+  });
   Future<void> save(CatatanAyat catatan);
   Future<void> delete({required int suratNomor, required int ayatNomor});
 }
@@ -21,31 +24,38 @@ class CatatanAyatLocalDatasourceImpl implements CatatanAyatLocalDatasource {
   String _key(int suratNomor, int ayatNomor) => '$suratNomor:$ayatNomor';
 
   @override
-  List<CatatanAyat> getAll() {
+  Future<List<CatatanAyat>> getAll() async {
     try {
-      return _box.values
-          .map((raw) {
-            try {
-              return CatatanAyat.fromJson(
-                jsonDecode(raw) as Map<String, dynamic>,
-              );
-            } on Object catch (_) {
-              return null;
-            }
-          })
-          .whereType<CatatanAyat>()
-          .toList()
-        ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+      // Iterasi berbasis key (lebih efisien dari box.values yang load semua)
+      final keys = _box.keys
+          .whereType<String>()
+          .where((k) => k.contains(':'))
+          .toList();
+
+      final results = <CatatanAyat>[];
+      for (final key in keys) {
+        final raw = _box.get(key);
+        if (raw == null) continue;
+        try {
+          results.add(
+            CatatanAyat.fromJson(jsonDecode(raw) as Map<String, dynamic>),
+          );
+        } on Object catch (_) {
+          continue;
+        }
+      }
+      results.sort((a, b) => b.savedAt.compareTo(a.savedAt));
+      return results;
     } on Object catch (_) {
       return [];
     }
   }
 
   @override
-  CatatanAyat? getByAyat({
+  Future<CatatanAyat?> getByAyat({
     required int suratNomor,
     required int ayatNomor,
-  }) {
+  }) async {
     try {
       final raw = _box.get(_key(suratNomor, ayatNomor));
       if (raw == null) return null;

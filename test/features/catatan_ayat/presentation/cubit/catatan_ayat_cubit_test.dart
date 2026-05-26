@@ -40,7 +40,9 @@ void main() {
 
   group('CatatanAyatCubit', () {
     test('initial state adalah CatatanAyatInitial', () {
-      when(() => mockGetAll()).thenReturn(const Right([]));
+      when(
+        () => mockGetAll(),
+      ).thenAnswer((_) async => const Right(<CatatanAyat>[]));
       expect(buildCubit().state, const CatatanAyatState.initial());
     });
 
@@ -48,7 +50,9 @@ void main() {
     blocTest<CatatanAyatCubit, CatatanAyatState>(
       'load() emit [loading, success] saat getAll berhasil',
       build: () {
-        when(() => mockGetAll()).thenReturn(Right([tCatatan]));
+        when(
+          () => mockGetAll(),
+        ).thenAnswer((_) async => Right<Failure, List<CatatanAyat>>([tCatatan]));
         return buildCubit();
       },
       act: (cubit) => cubit.load(),
@@ -61,7 +65,11 @@ void main() {
     blocTest<CatatanAyatCubit, CatatanAyatState>(
       'load() emit [loading, success([])] saat list kosong',
       build: () {
-        when(() => mockGetAll()).thenReturn(const Right([]));
+        when(
+          () => mockGetAll(),
+        ).thenAnswer(
+          (_) async => const Right<Failure, List<CatatanAyat>>([]),
+        );
         return buildCubit();
       },
       act: (cubit) => cubit.load(),
@@ -74,8 +82,11 @@ void main() {
     blocTest<CatatanAyatCubit, CatatanAyatState>(
       'load() emit [loading, failure] saat getAll gagal',
       build: () {
-        when(() => mockGetAll()).thenReturn(
-          const Left(Failure.unknown(message: 'error')),
+        when(() => mockGetAll()).thenAnswer(
+          (_) async =>
+              const Left<Failure, List<CatatanAyat>>(
+                Failure.unknown(message: 'error'),
+              ),
         );
         return buildCubit();
       },
@@ -93,7 +104,11 @@ void main() {
         when(
           () => mockSave(tCatatan),
         ).thenAnswer((_) async => const Right(unit));
-        when(() => mockGetAll()).thenReturn(Right([tCatatan]));
+        when(
+          () => mockGetAll(),
+        ).thenAnswer(
+          (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
+        );
         return buildCubit();
       },
       act: (cubit) => cubit.save(tCatatan),
@@ -127,7 +142,11 @@ void main() {
         when(
           () => mockDelete(suratNomor: 1, ayatNomor: 1),
         ).thenAnswer((_) async => const Right(unit));
-        when(() => mockGetAll()).thenReturn(const Right([]));
+        when(
+          () => mockGetAll(),
+        ).thenAnswer(
+          (_) async => const Right<Failure, List<CatatanAyat>>([]),
+        );
         return buildCubit();
       },
       act: (cubit) => cubit.delete(suratNomor: 1, ayatNomor: 1),
@@ -157,45 +176,60 @@ void main() {
     );
 
     // ── hasCatatan() ─────────────────────────────────────────────────────────
-    test('hasCatatan() return true jika catatan ada di state success', () {
-      when(() => mockGetAll()).thenReturn(Right([tCatatan]));
-      final cubit = buildCubit()..load();
-      expect(
-        cubit.hasCatatan(suratNomor: 1, ayatNomor: 1),
-        isTrue,
+    test('hasCatatan() return true jika catatan ada di state success', () async {
+      when(
+        () => mockGetAll(),
+      ).thenAnswer(
+        (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
       );
+      final cubit = buildCubit();
+      await cubit.load();
+      expect(cubit.hasCatatan(suratNomor: 1, ayatNomor: 1), isTrue);
     });
 
-    test('hasCatatan() return false jika catatan tidak ada', () {
-      when(() => mockGetAll()).thenReturn(Right([tCatatan]));
-      final cubit = buildCubit()..load();
-      expect(
-        cubit.hasCatatan(suratNomor: 2, ayatNomor: 5),
-        isFalse,
+    test('hasCatatan() return false jika catatan tidak ada', () async {
+      when(
+        () => mockGetAll(),
+      ).thenAnswer(
+        (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
       );
+      final cubit = buildCubit();
+      await cubit.load();
+      expect(cubit.hasCatatan(suratNomor: 2, ayatNomor: 5), isFalse);
     });
 
     test('hasCatatan() return false jika state bukan success', () {
-      when(() => mockGetAll()).thenReturn(const Right([]));
+      when(
+        () => mockGetAll(),
+      ).thenAnswer(
+        (_) async => const Right<Failure, List<CatatanAyat>>([]),
+      );
       final cubit = buildCubit();
       // state masih initial
-      expect(
-        cubit.hasCatatan(suratNomor: 1, ayatNomor: 1),
-        isFalse,
-      );
+      expect(cubit.hasCatatan(suratNomor: 1, ayatNomor: 1), isFalse);
     });
 
     // ── getCatatan() ──────────────────────────────────────────────────────────
-    test('getCatatan() return catatan yang benar', () {
-      when(() => mockGetAll()).thenReturn(Right([tCatatan]));
-      final cubit = buildCubit()..load();
+    test('getCatatan() return catatan yang benar', () async {
+      when(
+        () => mockGetAll(),
+      ).thenAnswer(
+        (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
+      );
+      final cubit = buildCubit();
+      await cubit.load();
       final result = cubit.getCatatan(suratNomor: 1, ayatNomor: 1);
       expect(result, tCatatan);
     });
 
-    test('getCatatan() return null jika tidak ada', () {
-      when(() => mockGetAll()).thenReturn(Right([tCatatan]));
-      final cubit = buildCubit()..load();
+    test('getCatatan() return null jika tidak ada', () async {
+      when(
+        () => mockGetAll(),
+      ).thenAnswer(
+        (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
+      );
+      final cubit = buildCubit();
+      await cubit.load();
       final result = cubit.getCatatan(suratNomor: 2, ayatNomor: 5);
       expect(result, isNull);
     });

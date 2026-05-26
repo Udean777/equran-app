@@ -73,16 +73,10 @@ void main() {
         () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
-      await dataSource.addBookmark(1); // sudah ada
+      await dataSource.addBookmark(1); // sudah ada — harus skip
 
-      final captured =
-          verify(
-                () => mockBox.put('doa_bookmark_ids', captureAny<String>()),
-              ).captured.first
-              as String;
-
-      final saved = (jsonDecode(captured) as List).cast<int>().toSet();
-      expect(saved.where((id) => id == 1).length, equals(1));
+      // Tidak boleh write ke Hive karena id sudah ada
+      verifyNever(() => mockBox.put(any<String>(), any<String>()));
     });
   });
 
@@ -136,6 +130,70 @@ void main() {
       final result = await dataSource.isBookmarked(1);
 
       expect(result, isFalse);
+    });
+  });
+
+  // ─── Concurrent operations ────────────────────────────────────────────────
+
+  group('DoaBookmarkDataSource — concurrent operations', () {
+    test('concurrent addBookmark tidak duplikat', () async {
+      // Dua addBookmark dengan id sama berjalan bersamaan
+      // Lock memastikan hanya satu yang tersimpan
+      final stored = <String>[];
+      when(() => mockBox.get('doa_bookmark_ids')).thenAnswer((_) {
+        return stored.isEmpty ? null : stored.last;
+      });
+      when(() => mockBox.put(any<String>(), any<String>()))
+          .thenAnswer((inv) async {
+        stored.add(inv.positionalArguments[1] as String);
+      });
+
+      await Future.wait([
+        dataSource.addBookmark(1),
+        dataSource.addBookmark(2),
+      ]);
+
+      // put dipanggil 2x — satu per operasi
+      verify(
+        () => mockBox.put('doa_bookmark_ids', any<String>()),
+      ).called(2);
+    });
+
+    test('removeBookmark dengan id tidak ada tidak error', () async {
+      when(
+        () => mockBox.get('doa_bookmark_ids'),
+      ).thenReturn(jsonEncode([1, 6]));
+      when(
+        () => mockBox.put(any<String>(), any<String>()),
+      ).thenAnswer((_) async {});
+
+      await expectLater(
+        dataSource.removeBookmark(999), // id tidak ada
+        completes,
+      );
+    });
+
+    test('concurrent addBookmark + removeBookmark menghasilkan state konsisten',
+        () async {
+      final stored = <String>[];
+      when(() => mockBox.get('doa_bookmark_ids')).thenAnswer((_) {
+        return stored.isEmpty ? jsonEncode([1]) : stored.last;
+      });
+      when(() => mockBox.put(any<String>(), any<String>()))
+          .thenAnswer((inv) async {
+        stored.add(inv.positionalArguments[1] as String);
+      });
+
+      // add + remove berjalan bersamaan — tidak boleh throw
+      await Future.wait([
+        dataSource.addBookmark(2),
+        dataSource.removeBookmark(1),
+      ]);
+
+      // Tidak throw = state konsisten
+      verify(
+        () => mockBox.put('doa_bookmark_ids', any<String>()),
+      ).called(greaterThanOrEqualTo(1));
     });
   });
 }

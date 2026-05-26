@@ -52,6 +52,10 @@ class AudioBackgroundHandler extends BaseAudioHandler {
         AudioPlayerState.loading(ayatNomor: ayat, qari: _currentQari),
       );
       _updatePlaybackState(playing: false, position: position);
+    } else if (playerState.processingState == ProcessingState.completed) {
+      _stateController.add(const AudioPlayerState.idle());
+      _currentAyat = null;
+      _updatePlaybackState(playing: false, position: Duration.zero);
     } else if (playerState.playing) {
       _stateController.add(
         AudioPlayerState.playing(
@@ -62,12 +66,7 @@ class AudioBackgroundHandler extends BaseAudioHandler {
         ),
       );
       _updatePlaybackState(playing: true, position: position);
-    } else if (playerState.processingState == ProcessingState.completed) {
-      _stateController.add(const AudioPlayerState.idle());
-      _currentAyat = null;
-      _updatePlaybackState(playing: false, position: Duration.zero);
-    } else if (!playerState.playing &&
-        playerState.processingState == ProcessingState.ready) {
+    } else {
       _stateController.add(
         AudioPlayerState.paused(
           ayatNomor: ayat,

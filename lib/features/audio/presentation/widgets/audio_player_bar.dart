@@ -11,20 +11,32 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AudioPlayerBar extends StatelessWidget {
   const AudioPlayerBar({
-    required this.audioMap,
+    this.audioMap = const {},
     super.key,
   });
 
-  /// Map qari id → audio URL dari response API
+  /// Map qari id → audio URL dari response API.
+  /// Jika kosong, fallback ke [AudioCubit.lastAudioMap].
   final Map<String, String> audioMap;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AudioCubit, AudioPlayerState>(
+      // Hanya rebuild jika idle/aktif berubah, ayat berubah, atau qari berubah
+      // Position update (~200ms) tidak trigger rebuild di sini
+      buildWhen: (prev, curr) =>
+          prev.isIdle != curr.isIdle ||
+          prev.currentAyat != curr.currentAyat ||
+          prev.currentQari != curr.currentQari ||
+          prev.isPlaying != curr.isPlaying ||
+          prev.isPaused != curr.isPaused ||
+          prev.isLoading != curr.isLoading,
       builder: (context, state) {
         if (state.isIdle) return const SizedBox.shrink();
 
         final cubit = context.read<AudioCubit>();
+        final effectiveAudioMap =
+            audioMap.isNotEmpty ? audioMap : cubit.lastAudioMap;
         final isPlaylist = cubit.isPlaylistMode;
         final suratName = cubit.playlistSuratName;
 
@@ -66,7 +78,7 @@ class AudioPlayerBar extends StatelessWidget {
                 children: [
                   // Qari selector
                   GestureDetector(
-                    onTap: () => _showQariSelector(context, state, audioMap),
+                    onTap: () => _showQariSelector(context, state, effectiveAudioMap),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -99,8 +111,8 @@ class AudioPlayerBar extends StatelessWidget {
               ),
               const SizedBox(height: AppDimens.spaceXS),
 
-              // Progress bar
-              _ProgressBar(state: state),
+              // Progress bar — punya BlocBuilder sendiri, hanya rebuild saat position update
+              const _ProgressBar(),
 
               // Controls
               Row(
@@ -178,60 +190,68 @@ class AudioPlayerBar extends StatelessWidget {
 }
 
 class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.state});
-
-  final AudioPlayerState state;
+  const _ProgressBar();
 
   @override
   Widget build(BuildContext context) {
-    final position = state.position;
-    final duration = state.duration;
-    final progress = duration.inMilliseconds > 0
-        ? position.inMilliseconds / duration.inMilliseconds
-        : 0.0;
+    // BlocBuilder sendiri untuk position — hanya bagian ini rebuild setiap ~200ms
+    return BlocBuilder<AudioCubit, AudioPlayerState>(
+      buildWhen: (prev, curr) =>
+          prev.position != curr.position ||
+          prev.duration != curr.duration,
+      builder: (context, posState) {
+        final position = posState.position;
+        final duration = posState.duration;
+        final progress = duration.inMilliseconds > 0
+            ? position.inMilliseconds / duration.inMilliseconds
+            : 0.0;
 
-    return Column(
-      children: [
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-            activeTrackColor: AppColors.primary,
-            inactiveTrackColor: AppColors.primary.withValues(alpha: 0.2),
-            thumbColor: AppColors.primary,
-          ),
-          child: Slider(
-            value: progress.clamp(0.0, 1.0),
-            onChanged: (value) {
-              final seekTo = Duration(
-                milliseconds: (value * duration.inMilliseconds).round(),
-              );
-              unawaited(context.read<AudioCubit>().seek(seekTo));
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceSM),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _formatDuration(position),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey[500],
-                ),
+        return Column(
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 3,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                overlayShape:
+                    const RoundSliderOverlayShape(overlayRadius: 12),
+                activeTrackColor: AppColors.primary,
+                inactiveTrackColor: AppColors.primary.withValues(alpha: 0.2),
+                thumbColor: AppColors.primary,
               ),
-              Text(
-                _formatDuration(duration),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.grey[500],
-                ),
+              child: Slider(
+                value: progress.clamp(0.0, 1.0),
+                onChanged: (value) {
+                  final seekTo = Duration(
+                    milliseconds: (value * duration.inMilliseconds).round(),
+                  );
+                  unawaited(context.read<AudioCubit>().seek(seekTo));
+                },
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppDimens.spaceSM),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _formatDuration(position),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  Text(
+                    _formatDuration(duration),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

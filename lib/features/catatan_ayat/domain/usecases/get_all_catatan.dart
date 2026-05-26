@@ -10,5 +10,5 @@ class GetAllCatatan {
 
   final CatatanAyatRepository _repository;
 
-  Either<Failure, List<CatatanAyat>> call() => _repository.getAll();
+  Future<Either<Failure, List<CatatanAyat>>> call() => _repository.getAll();
 }

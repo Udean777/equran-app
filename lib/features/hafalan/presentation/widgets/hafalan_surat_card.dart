@@ -1,0 +1,142 @@
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_badge.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+class HafalanSuratCard extends StatelessWidget {
+  const HafalanSuratCard({
+    required this.hafalan,
+    super.key,
+  });
+
+  final HafalanSurat hafalan;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final persen = (hafalan.progressAyat * 100).toStringAsFixed(0);
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: InkWell(
+        onTap: () => context.push('/hafalan/${hafalan.suratNomor}'),
+        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimens.cardPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  // Nomor surat
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${hafalan.suratNomor}',
+                      style: const TextStyle(
+                        color: AppColors.onPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppDimens.spaceMD),
+
+                  // Nama surat
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          hafalan.namaLatin,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '${hafalan.ayatHafal.length}/${hafalan.jumlahAyat} ayat · $persen%',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Status badge + arrow
+                  HafalanStatusBadge(status: hafalan.status),
+                  const SizedBox(width: AppDimens.spaceXS),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: Colors.grey[400],
+                    size: AppDimens.iconMD,
+                  ),
+                ],
+              ),
+
+              // Progress bar — hanya tampil jika sudah ada progress
+              if (hafalan.ayatHafal.isNotEmpty) ...[
+                const SizedBox(height: AppDimens.spaceSM),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                  child: LinearProgressIndicator(
+                    value: hafalan.progressAyat,
+                    minHeight: 4,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _progressColor(hafalan.status),
+                    ),
+                  ),
+                ),
+              ],
+
+              // Muraja'ah jatuh tempo — warning kecil
+              if (hafalan.status == HafalanStatus.perluMurajaah &&
+                  hafalan.tanggalMurajaahBerikutnya != null) ...[
+                const SizedBox(height: AppDimens.spaceXS),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      size: 12,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(width: AppDimens.spaceXS),
+                    Text(
+                      'Murajaah sudah jatuh tempo',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: AppColors.error,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _progressColor(HafalanStatus status) {
+    switch (status) {
+      case HafalanStatus.sudahHafal:
+        return AppColors.success;
+      case HafalanStatus.perluMurajaah:
+        return AppColors.error;
+      case HafalanStatus.sedangDihafal:
+        return AppColors.warning;
+      case HafalanStatus.belum:
+        return Colors.grey;
+    }
+  }
+}

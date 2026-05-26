@@ -20,7 +20,7 @@ typedef SuratDetailLocalDto = Map<String, dynamic>;
 class SuratLocalDataSourceImpl implements SuratLocalDataSource {
   const SuratLocalDataSourceImpl(@Named('suratBox') this._box);
 
-  final Box<String> _box;
+  final LazyBox<String> _box;
 
   static const _suratListKey = 'surat_list';
   String _detailKey(int nomor) => 'surat_detail_$nomor';
@@ -28,7 +28,7 @@ class SuratLocalDataSourceImpl implements SuratLocalDataSource {
   @override
   Future<List<SuratDto>?> getCachedSuratList() async {
     try {
-      final entry = CacheEntry.decode(_box.get(_suratListKey));
+      final entry = CacheEntry.decode(await _box.get(_suratListKey));
       if (entry == null || entry.isExpired) return null;
       final list = jsonDecode(entry.data) as List<dynamic>;
       return list
@@ -51,7 +51,7 @@ class SuratLocalDataSourceImpl implements SuratLocalDataSource {
   @override
   Future<SuratDetailLocalDto?> getCachedSuratDetail(int nomor) async {
     try {
-      final entry = CacheEntry.decode(_box.get(_detailKey(nomor)));
+      final entry = CacheEntry.decode(await _box.get(_detailKey(nomor)));
       if (entry == null || entry.isExpired) return null;
       return jsonDecode(entry.data) as Map<String, dynamic>;
     } on Object catch (_) {

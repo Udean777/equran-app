@@ -28,62 +28,78 @@ void main() {
 
   group('CatatanAyatLocalDatasource', () {
     group('getAll()', () {
-      test('return list catatan dari Hive', () {
-        when(() => mockBox.values).thenReturn([
+      test('return list catatan dari Hive', () async {
+        // getAll() sekarang iterasi keys dengan pattern 'suratNomor:ayatNomor'
+        when(() => mockBox.keys).thenReturn(['1:1']);
+        when(() => mockBox.get('1:1')).thenReturn(
           jsonEncode(tCatatan.toJson()),
-        ]);
+        );
 
-        final result = datasource.getAll();
+        final result = await datasource.getAll();
 
         expect(result.length, 1);
         expect(result.first.suratNomor, 1);
         expect(result.first.isi, 'Catatan test');
       });
 
-      test('return list kosong jika box kosong', () {
-        when(() => mockBox.values).thenReturn([]);
+      test('return list kosong jika box kosong', () async {
+        when(() => mockBox.keys).thenReturn([]);
 
-        final result = datasource.getAll();
+        final result = await datasource.getAll();
 
         expect(result, isEmpty);
       });
 
-      test('skip entry corrupt dan return sisanya', () {
-        when(() => mockBox.values).thenReturn([
-          'invalid_json',
-          jsonEncode(tCatatan.toJson()),
-        ]);
+      test('skip entry corrupt dan return sisanya', () async {
+        when(() => mockBox.keys).thenReturn(['1:1', '2:1']);
+        when(() => mockBox.get('1:1')).thenReturn('invalid_json');
+        when(() => mockBox.get('2:1')).thenReturn(
+          jsonEncode(
+            tCatatan
+                .copyWith(suratNomor: 2, ayatNomor: 1)
+                .toJson(),
+          ),
+        );
 
-        final result = datasource.getAll();
+        final result = await datasource.getAll();
 
         expect(result.length, 1);
       });
     });
 
     group('getByAyat()', () {
-      test('return catatan jika key ada di Hive', () {
+      test('return catatan jika key ada di Hive', () async {
         when(() => mockBox.get('1:1')).thenReturn(
           jsonEncode(tCatatan.toJson()),
         );
 
-        final result = datasource.getByAyat(suratNomor: 1, ayatNomor: 1);
+        final result = await datasource.getByAyat(
+          suratNomor: 1,
+          ayatNomor: 1,
+        );
 
         expect(result, isNotNull);
         expect(result!.isi, 'Catatan test');
       });
 
-      test('return null jika key tidak ada', () {
+      test('return null jika key tidak ada', () async {
         when(() => mockBox.get('1:1')).thenReturn(null);
 
-        final result = datasource.getByAyat(suratNomor: 1, ayatNomor: 1);
+        final result = await datasource.getByAyat(
+          suratNomor: 1,
+          ayatNomor: 1,
+        );
 
         expect(result, isNull);
       });
 
-      test('return null jika data corrupt', () {
+      test('return null jika data corrupt', () async {
         when(() => mockBox.get('1:1')).thenReturn('invalid_json');
 
-        final result = datasource.getByAyat(suratNomor: 1, ayatNomor: 1);
+        final result = await datasource.getByAyat(
+          suratNomor: 1,
+          ayatNomor: 1,
+        );
 
         expect(result, isNull);
       });

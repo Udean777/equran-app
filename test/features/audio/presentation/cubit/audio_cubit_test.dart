@@ -9,6 +9,7 @@ import 'package:equran_app/features/audio/domain/usecases/resume_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/seek_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/stop_audio.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -178,6 +179,77 @@ void main() {
       act: (cubit) => cubit.seek(const Duration(seconds: 15)),
       verify: (_) {
         verify(() => mockSeek(const Duration(seconds: 15))).called(1);
+      },
+    );
+
+    blocTest<AudioCubit, AudioPlayerState>(
+      'playOrToggle() menyimpan audioMap ke lastAudioMap',
+      build: () {
+        when(() => mockPlay(any())).thenAnswer((_) async => right(unit));
+        return buildCubit();
+      },
+      act: (cubit) => cubit.playOrToggle(
+        url: 'https://test.com/audio.mp3',
+        ayatNomor: 1,
+        qari: Qari.misyariRasyidAlAfasi,
+        audioMap: {'05': 'https://test.com/audio.mp3'},
+      ),
+      verify: (cubit) {
+        expect(cubit.lastAudioMap, {'05': 'https://test.com/audio.mp3'});
+      },
+    );
+
+    blocTest<AudioCubit, AudioPlayerState>(
+      'playOrToggle() tidak mengubah lastAudioMap jika audioMap kosong',
+      build: () {
+        when(() => mockPlay(any())).thenAnswer((_) async => right(unit));
+        return buildCubit();
+      },
+      act: (cubit) async {
+        // Set audioMap pertama
+        await cubit.playOrToggle(
+          url: 'https://test.com/audio.mp3',
+          ayatNomor: 1,
+          qari: Qari.misyariRasyidAlAfasi,
+          audioMap: {'05': 'https://test.com/audio.mp3'},
+        );
+        // Play lagi tanpa audioMap
+        await cubit.playOrToggle(
+          url: 'https://test.com/audio2.mp3',
+          ayatNomor: 2,
+          qari: Qari.misyariRasyidAlAfasi,
+        );
+      },
+      verify: (cubit) {
+        // lastAudioMap tetap dari call pertama
+        expect(cubit.lastAudioMap, {'05': 'https://test.com/audio.mp3'});
+      },
+    );
+
+    blocTest<AudioCubit, AudioPlayerState>(
+      'playFullSurat() menyimpan audioMap ke lastAudioMap',
+      build: () {
+        when(() => mockPlay(any())).thenAnswer((_) async => right(unit));
+        return buildCubit();
+      },
+      act: (cubit) => cubit.playFullSurat(
+        ayatList: [
+          const Ayat(
+            nomorAyat: 1,
+            teksArab: 'arab',
+            teksLatin: 'latin',
+            teksIndonesia: 'indonesia',
+            audio: {'05': 'https://test.com/1.mp3'},
+          ),
+        ],
+        startIndex: 0,
+        qari: Qari.misyariRasyidAlAfasi,
+        suratNomor: 1,
+        suratName: 'Al-Fatihah',
+        audioMap: {'05': 'https://test.com/full.mp3'},
+      ),
+      verify: (cubit) {
+        expect(cubit.lastAudioMap, {'05': 'https://test.com/full.mp3'});
       },
     );
 

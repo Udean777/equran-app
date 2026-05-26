@@ -10,7 +10,7 @@ class GetCatatanByAyat {
 
   final CatatanAyatRepository _repository;
 
-  Either<Failure, CatatanAyat?> call({
+  Future<Either<Failure, CatatanAyat?>> call({
     required int suratNomor,
     required int ayatNomor,
   }) => _repository.getByAyat(suratNomor: suratNomor, ayatNomor: ayatNomor);

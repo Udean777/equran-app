@@ -12,22 +12,25 @@ class CatatanAyatRepositoryImpl implements CatatanAyatRepository {
   final CatatanAyatLocalDatasource _datasource;
 
   @override
-  Either<Failure, List<CatatanAyat>> getAll() {
+  Future<Either<Failure, List<CatatanAyat>>> getAll() async {
     try {
-      return Right(_datasource.getAll());
+      return Right(await _datasource.getAll());
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));
     }
   }
 
   @override
-  Either<Failure, CatatanAyat?> getByAyat({
+  Future<Either<Failure, CatatanAyat?>> getByAyat({
     required int suratNomor,
     required int ayatNomor,
-  }) {
+  }) async {
     try {
       return Right(
-        _datasource.getByAyat(suratNomor: suratNomor, ayatNomor: ayatNomor),
+        await _datasource.getByAyat(
+          suratNomor: suratNomor,
+          ayatNomor: ayatNomor,
+        ),
       );
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));

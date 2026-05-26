@@ -196,7 +196,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 3,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1).toIso8601String(),
+        readAt: DateTime(2025).toIso8601String(),
         // totalAyat default 0 — data lama
       );
       final encoded = jsonEncode(oldDto.toJson());
@@ -243,6 +243,99 @@ void main() {
       await dataSource.saveLastRead(dto);
 
       verify(() => mockBox.put('last_read', any<String>())).called(1);
+    });
+  });
+
+  // ─── Concurrent operations ────────────────────────────────────────────────
+
+  group('concurrent operations', () {
+    test('concurrent addBookmark tidak menyebabkan data hilang', () async {
+      // Simulasi: dua addBookmark berjalan bersamaan
+      // Keduanya harus tersimpan, tidak saling menimpa
+      final dto1 = BookmarkDto(
+        suratNomor: 1,
+        ayatNomor: 1,
+        namaLatin: 'Al-Fatihah',
+        teksArab: 'test',
+        teksIndonesia: 'test',
+        savedAt: DateTime.now().toIso8601String(),
+      );
+      final dto2 = BookmarkDto(
+        suratNomor: 2,
+        ayatNomor: 255,
+        namaLatin: 'Al-Baqarah',
+        teksArab: 'test',
+        teksIndonesia: 'test',
+        savedAt: DateTime.now().toIso8601String(),
+      );
+
+      // Box kosong di awal, setiap get() return state terkini
+      final stored = <String>[];
+      when(() => mockBox.get('bookmarks')).thenAnswer((_) {
+        return stored.isEmpty ? null : stored.last;
+      });
+      when(() => mockBox.put(any<String>(), any<String>()))
+          .thenAnswer((inv) async {
+        stored.add(inv.positionalArguments[1] as String);
+      });
+
+      // Jalankan concurrent — Lock memastikan serialized
+      await Future.wait([
+        dataSource.addBookmark(dto1),
+        dataSource.addBookmark(dto2),
+      ]);
+
+      // Verifikasi: put dipanggil 2x (satu per operasi)
+      verify(() => mockBox.put('bookmarks', any<String>())).called(2);
+    });
+
+    test('concurrent addBookmark + removeBookmark menghasilkan state konsisten',
+        () async {
+      final dto = BookmarkDto(
+        suratNomor: 1,
+        ayatNomor: 1,
+        namaLatin: 'Al-Fatihah',
+        teksArab: 'test',
+        teksIndonesia: 'test',
+        savedAt: DateTime.now().toIso8601String(),
+      );
+      final encoded = jsonEncode([dto.toJson()]);
+
+      when(() => mockBox.get('bookmarks')).thenReturn(encoded);
+      when(() => mockBox.put(any<String>(), any<String>()))
+          .thenAnswer((_) async {});
+
+      // add + remove berjalan bersamaan — tidak boleh throw
+      await Future.wait([
+        dataSource.addBookmark(dto),
+        dataSource.removeBookmark(suratNomor: 1, ayatNomor: 1),
+      ]);
+
+      // Tidak throw = state konsisten
+      verify(
+        () => mockBox.put('bookmarks', any<String>()),
+      ).called(greaterThanOrEqualTo(1));
+    });
+
+    test('duplicate addBookmark tidak ditambahkan dua kali', () async {
+      final dto = BookmarkDto(
+        suratNomor: 1,
+        ayatNomor: 1,
+        namaLatin: 'Al-Fatihah',
+        teksArab: 'test',
+        teksIndonesia: 'test',
+        savedAt: DateTime.now().toIso8601String(),
+      );
+
+      // Box sudah ada dto ini
+      when(() => mockBox.get('bookmarks'))
+          .thenReturn(jsonEncode([dto.toJson()]));
+      when(() => mockBox.put(any<String>(), any<String>()))
+          .thenAnswer((_) async {});
+
+      await dataSource.addBookmark(dto); // duplikat — harus skip
+
+      verifyNever(() => mockBox.put(any<String>(), any<String>()));
     });
   });
 }

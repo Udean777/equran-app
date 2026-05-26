@@ -14,14 +14,14 @@ abstract interface class SuratDetailLocalDataSource {
 class SuratDetailLocalDataSourceImpl implements SuratDetailLocalDataSource {
   const SuratDetailLocalDataSourceImpl(@Named('suratBox') this._box);
 
-  final Box<String> _box;
+  final LazyBox<String> _box;
 
   String _key(int nomor) => 'surat_detail_$nomor';
 
   @override
   Future<SuratDetailDto?> getCachedSuratDetail(int nomor) async {
     try {
-      final entry = CacheEntry.decode(_box.get(_key(nomor)));
+      final entry = CacheEntry.decode(await _box.get(_key(nomor)));
       if (entry == null || entry.isExpired) return null;
       return SuratDetailDto.fromJson(
         jsonDecode(entry.data) as Map<String, dynamic>,

@@ -14,14 +14,14 @@ abstract interface class TafsirLocalDataSource {
 class TafsirLocalDataSourceImpl implements TafsirLocalDataSource {
   const TafsirLocalDataSourceImpl(@Named('tafsirBox') this._box);
 
-  final Box<String> _box;
+  final LazyBox<String> _box;
 
   String _key(int nomor) => 'tafsir_$nomor';
 
   @override
   Future<TafsirDataDto?> getCachedTafsir(int nomor) async {
     try {
-      final entry = CacheEntry.decode(_box.get(_key(nomor)));
+      final entry = CacheEntry.decode(await _box.get(_key(nomor)));
       if (entry == null || entry.isExpired) return null;
       return TafsirDataDto.fromJson(
         jsonDecode(entry.data) as Map<String, dynamic>,

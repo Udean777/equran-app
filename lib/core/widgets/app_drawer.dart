@@ -20,145 +20,183 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.spaceMD,
-                vertical: AppDimens.spaceLG,
-              ),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // Scrollable area
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
                 children: [
+                  // Header
                   Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.onPrimary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.spaceMD,
+                      vertical: AppDimens.spaceLG,
                     ),
-                    child: const Icon(
-                      Icons.menu_book_rounded,
-                      color: AppColors.onPrimary,
-                      size: 28,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
                     ),
-                  ),
-                  const SizedBox(height: AppDimens.spaceMD),
-                  Text(
-                    'eQuran',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: AppDimens.spaceXS),
-                  // Streak chip
-                  BlocBuilder<QuranStreakCubit, int>(
-                    builder: (context, streak) {
-                      if (streak == 0) return const SizedBox.shrink();
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppDimens.spaceSM,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.onPrimary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(
-                            AppDimens.radiusFull,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.onPrimary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.radiusMD,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.menu_book_rounded,
+                            color: AppColors.onPrimary,
+                            size: 28,
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.local_fire_department_rounded,
-                              color: Colors.orange,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '$streak hari berturut-turut',
-                              style: const TextStyle(
+                        const SizedBox(height: AppDimens.spaceMD),
+                        Text(
+                          'eQuran',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
                                 color: AppColors.onPrimary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ),
-                          ],
                         ),
-                      );
+                        const SizedBox(height: AppDimens.spaceXS),
+                        // Streak chip
+                        BlocBuilder<QuranStreakCubit, int>(
+                          builder: (context, streak) {
+                            if (streak == 0) return const SizedBox.shrink();
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppDimens.spaceSM,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.onPrimary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  AppDimens.radiusFull,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.local_fire_department_rounded,
+                                    color: Colors.orange,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$streak hari berturut-turut',
+                                    style: const TextStyle(
+                                      color: AppColors.onPrimary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: AppDimens.spaceSM),
+
+                  // Menu items
+                  _DrawerItem(
+                    icon: Icons.mosque_outlined,
+                    selectedIcon: Icons.mosque_rounded,
+                    label: l10n.imsakiyahNav,
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/imsakiyah'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.bookmark_outline_rounded,
+                    selectedIcon: Icons.bookmark_rounded,
+                    label: l10n.bookmarkNav,
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/bookmark'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.auto_stories_outlined,
+                    selectedIcon: Icons.auto_stories_rounded,
+                    label: 'Doa Harian',
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/doa-harian'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.edit_note_outlined,
+                    selectedIcon: Icons.edit_note_rounded,
+                    label: 'Catatan Saya',
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/catatan'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.auto_stories_outlined,
+                    selectedIcon: Icons.auto_stories_rounded,
+                    label: 'Hafalan Quran',
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/hafalan'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.audio_file_outlined,
+                    selectedIcon: Icons.audio_file_rounded,
+                    label: 'Manajemen Audio',
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/audio/storage'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.mosque_outlined,
+                    selectedIcon: Icons.mosque_rounded,
+                    label: 'Statistik Shalat',
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/statistik-shalat'));
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.bar_chart_outlined,
+                    selectedIcon: Icons.bar_chart_rounded,
+                    label: 'Statistik Baca',
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push('/reading-stats'));
+                    },
+                  ),
+
+                  const Divider(height: AppDimens.spaceLG),
+
+                  _DrawerItem(
+                    icon: Icons.settings_outlined,
+                    selectedIcon: Icons.settings_rounded,
+                    label: 'Pengaturan',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await context.push('/settings');
                     },
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: AppDimens.spaceSM),
-
-            // Menu items
-            _DrawerItem(
-              icon: Icons.mosque_outlined,
-              selectedIcon: Icons.mosque_rounded,
-              label: l10n.imsakiyahNav,
-              onTap: () {
-                Navigator.pop(context);
-                unawaited(context.push('/imsakiyah'));
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.bookmark_outline_rounded,
-              selectedIcon: Icons.bookmark_rounded,
-              label: l10n.bookmarkNav,
-              onTap: () {
-                Navigator.pop(context);
-                unawaited(context.push('/bookmark'));
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.auto_stories_outlined,
-              selectedIcon: Icons.auto_stories_rounded,
-              label: 'Doa Harian',
-              onTap: () {
-                Navigator.pop(context);
-                unawaited(context.push('/doa-harian'));
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.edit_note_outlined,
-              selectedIcon: Icons.edit_note_rounded,
-              label: 'Catatan Saya',
-              onTap: () {
-                Navigator.pop(context);
-                unawaited(context.push('/catatan'));
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.audio_file_outlined,
-              selectedIcon: Icons.audio_file_rounded,
-              label: 'Manajemen Audio',
-              onTap: () {
-                Navigator.pop(context);
-                unawaited(context.push('/audio/storage'));
-              },
-            ),
-
-            const Divider(height: AppDimens.spaceLG),
-
-            _DrawerItem(
-              icon: Icons.settings_outlined,
-              selectedIcon: Icons.settings_rounded,
-              label: 'Pengaturan',
-              onTap: () async {
-                Navigator.pop(context);
-                await context.push('/settings');
-              },
-            ),
-
-            const Spacer(),
-
-            // Footer
+            // Footer — tetap di bawah, tidak ikut scroll
             Padding(
               padding: const EdgeInsets.all(AppDimens.spaceMD),
               child: Text(

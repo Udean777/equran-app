@@ -9,6 +9,7 @@ const String kAdzanChannelId = 'adzan_channel';
 const String kAdzanSubuhChannelId = 'adzan_subuh_channel';
 const String kQuranReminderChannelId = 'quran_reminder_channel';
 const String kImsakChannelId = 'imsak_channel';
+const String kHafalanChannelId = 'hafalan_channel';
 
 /// Notification IDs per waktu shalat
 const int kNotifIdSubuh = 1;
@@ -23,6 +24,10 @@ const int kNotifIdSahur = 7;
 
 /// Notification ID untuk reminder baca Quran
 const int kNotifIdQuranReminder = 10;
+
+/// Notification ID base untuk hafalan muraja'ah.
+/// ID range: 20–133 (satu per surat, suratNomor 1–114).
+const int kNotifIdHafalanBase = 20;
 
 @lazySingleton
 class NotificationService {
@@ -272,6 +277,16 @@ class NotificationService {
         'Alarm Imsak & Sahur',
         description: 'Alarm pengingat waktu imsak dan sahur Ramadan',
         importance: Importance.max,
+      ),
+    );
+
+    // Channel reminder hafalan muraja'ah
+    await androidPlugin.createNotificationChannel(
+      const AndroidNotificationChannel(
+        kHafalanChannelId,
+        'Pengingat Hafalan',
+        description: 'Pengingat jadwal murajaah hafalan Al-Quran',
+        importance: Importance.high,
       ),
     );
   }

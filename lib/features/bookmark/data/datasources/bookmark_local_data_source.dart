@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:equran_app/features/bookmark/data/models/bookmark_dto.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
+import 'package:synchronized/synchronized.dart';
 
 abstract interface class BookmarkLocalDataSource {
   Future<List<BookmarkDto>> getBookmarks();
@@ -18,9 +19,10 @@ abstract interface class BookmarkLocalDataSource {
 
 @LazySingleton(as: BookmarkLocalDataSource)
 class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
-  const BookmarkLocalDataSourceImpl(@Named('bookmarkBox') this._box);
+  BookmarkLocalDataSourceImpl(@Named('bookmarkBox') this._box);
 
   final Box<String> _box;
+  final _lock = Lock();
 
   static const _bookmarksKey = 'bookmarks';
   static const _lastReadKey = 'last_read';
@@ -43,19 +45,21 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
 
   @override
   Future<void> addBookmark(BookmarkDto bookmark) async {
-    final current = await getBookmarks();
-    // Hindari duplikat
-    final exists = current.any(
-      (b) =>
-          b.suratNomor == bookmark.suratNomor &&
-          b.ayatNomor == bookmark.ayatNomor,
-    );
-    if (exists) return;
-    current.add(bookmark);
-    await _box.put(
-      _bookmarksKey,
-      jsonEncode(current.map((e) => e.toJson()).toList()),
-    );
+    await _lock.synchronized(() async {
+      final current = await _getBookmarksRaw();
+      // Hindari duplikat
+      final exists = current.any(
+        (b) =>
+            b.suratNomor == bookmark.suratNomor &&
+            b.ayatNomor == bookmark.ayatNomor,
+      );
+      if (exists) return;
+      current.add(bookmark);
+      await _box.put(
+        _bookmarksKey,
+        jsonEncode(current.map((e) => e.toJson()).toList()),
+      );
+    });
   }
 
   @override
@@ -63,14 +67,30 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
     required int suratNomor,
     required int ayatNomor,
   }) async {
-    final current = await getBookmarks();
-    current.removeWhere(
-      (b) => b.suratNomor == suratNomor && b.ayatNomor == ayatNomor,
-    );
-    await _box.put(
-      _bookmarksKey,
-      jsonEncode(current.map((e) => e.toJson()).toList()),
-    );
+    await _lock.synchronized(() async {
+      final current = await _getBookmarksRaw();
+      current.removeWhere(
+        (b) => b.suratNomor == suratNomor && b.ayatNomor == ayatNomor,
+      );
+      await _box.put(
+        _bookmarksKey,
+        jsonEncode(current.map((e) => e.toJson()).toList()),
+      );
+    });
+  }
+
+  // Private helper — dipanggil hanya dari dalam lock
+  Future<List<BookmarkDto>> _getBookmarksRaw() async {
+    try {
+      final raw = _box.get(_bookmarksKey);
+      if (raw == null) return [];
+      final list = jsonDecode(raw) as List<dynamic>;
+      return list
+          .map((e) => BookmarkDto.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on Object catch (_) {
+      return [];
+    }
   }
 
   @override

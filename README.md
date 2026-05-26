@@ -10,9 +10,10 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 
 - **Daftar & Detail Surat** — 114 surat dengan pencarian instan. Teks Arab menggunakan font premium **Amiri**, lengkap dengan transliterasi latin dan terjemahan.
 - **Tafsir Lengkap** — Pelajari makna mendalam setiap ayat melalui tafsir Kementerian Agama RI (Kemenag RI).
-- **Pemutar Audio Murattal** — Dengarkan lantunan Al-Quran per-ayat maupun per-surat dari qori ternama. Dilengkapi manajemen storage untuk file audio lokal.
-- **Catatan Ayat** — Tulis catatan pribadi yang terikat langsung ke ayat tertentu. Tersimpan lokal, bisa diedit dan dihapus.
+- **Pemutar Audio Murattal** — Dengarkan lantunan Al-Quran per-ayat maupun per-surat dari qori ternama. Dilengkapi fitur download per-ayat dan per-surat untuk didengar secara offline, serta manajemen storage untuk file audio lokal.
+- **Catatan Ayat** — Tulis catatan pribadi yang terikat langsung ke ayat tertentu. Tersimpan lokal, bisa diedit, dihapus, dan dibagikan.
 - **Berbagi Ayat** — Generate gambar indah dari ayat pilihan untuk dibagikan ke media sosial via WhatsApp, Instagram, dan lainnya.
+- **Hafalan Tracker** — Lacak progress hafalan Al-Quran per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test), spaced repetition muraja'ah otomatis (interval 1→3→7→30→90 hari), dan notifikasi pengingat muraja'ah.
 
 ### 🕌 Ibadah & Spiritual
 
@@ -22,9 +23,11 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 - **Tasbih Digital** — Penghitung zikir dengan haptic feedback, target hitungan (33, 99, atau custom), dan riwayat sesi zikir.
 - **Kumpulan Doa Harian** — Doa-doa pilihan dengan rekomendasi cerdas sesuai waktu (pagi, siang, malam).
 
-### 📊 Progres & Gamifikasi
+### 📊 Progres & Statistik
 
-- **Reading Progress** — Lacak progres membaca per surat secara otomatis saat scroll. Progress bar muncul di halaman utama dan daftar surat.
+- **Statistik Shalat** — Log manual shalat 5 waktu per hari dengan status (Tepat Waktu / Qadha / Tidak Shalat). Dilengkapi kalender bulanan, streak shalat, grafik mingguan (bar chart), reminder checklist otomatis, dan export data ke CSV.
+- **Statistik Baca (Reading Progress)** — Lacak ayat yang dibaca secara otomatis via viewport detection saat scroll. Menampilkan heatmap aktivitas 90 hari (GitHub-style), progress per juz (30 progress bar), top surat terbanyak dibaca, dan statistik harian.
+- **Hafalan Tracker** — Lacak progress hafalan Al-Quran per ayat, per surat, dan per juz dengan spaced repetition muraja'ah.
 - **Quran Daily Streak** — Pantau konsistensi membaca Al-Quran dengan streak harian.
 - **Sistem Bookmark & Terakhir Dibaca** — Simpan ayat penting dan lanjutkan tilawah dari posisi terakhir dengan satu ketukan.
 
@@ -52,33 +55,34 @@ graph TD
 - **State Management** — **BLoC / Cubit** (`flutter_bloc`) untuk unidirectional data flow yang mudah diuji.
 - **Dependency Injection** — **GetIt** & **Injectable** untuk loose coupling dan inisialisasi dependensi otomatis.
 - **Declarative Routing** — **GoRouter** untuk navigasi berbasis rute yang aman dan modular.
-- **Local Caching** — **Hive CE** untuk penyimpanan data lokal super cepat (bookmarks, cache, settings, catatan, alarm prefs).
+- **Local Caching** — **Hive CE** untuk penyimpanan data lokal super cepat (bookmarks, cache, settings, catatan, alarm prefs, statistik shalat, reading history).
 
 ---
 
 ## 📦 Paket & Dependensi Utama
 
-| Nama Package                          |        Versi        | Kegunaan                                     |
-| :------------------------------------ | :-----------------: | :------------------------------------------- |
-| **`flutter_bloc`**                    |      `^9.1.1`       | State management BLoC/Cubit                  |
-| **`just_audio`**                      |      `^0.9.40`      | Pemutar audio murattal                       |
-| **`audio_session`**                   |      `^0.1.21`      | Manajemen sesi audio perangkat               |
-| **`dio`**                             |      `^5.5.0`       | HTTP Client dengan Interceptor               |
-| **`hive_ce`** & **`hive_ce_flutter`** |      `^2.7.0`       | Database NoSQL lokal                         |
-| **`go_router`**                       |      `^17.2.3`      | Declarative routing                          |
-| **`get_it`** & **`injectable`**       | `^9.2.1` / `^3.0.0` | Dependency Injection                         |
-| **`flutter_local_notifications`**     |      `^18.0.0`      | Notifikasi lokal (adzan, alarm, reminder)    |
-| **`timezone`**                        |      `^0.9.4`       | Timezone support untuk scheduling notifikasi |
-| **`geolocator`**                      |      `^13.0.4`      | Lokasi GPS untuk jadwal shalat & kiblat      |
-| **`geocoding`**                       |      `^3.0.0`       | Konversi koordinat ke nama wilayah           |
-| **`flutter_compass`**                 |      `^0.8.1`       | Sensor kompas untuk Qibla Finder             |
-| **`share_plus`**                      |      `^10.1.4`      | Berbagi konten (teks & gambar ayat)          |
-| **`fpdart`**                          |      `^1.1.0`       | Functional Programming (`Either`, `Option`)  |
-| **`freezed_annotation`**              |      `^3.1.0`       | Immutable class & union types                |
-| **`equatable`**                       |      `^2.0.5`       | Perbandingan nilai objek                     |
-| **`path_provider`**                   |      `^2.1.4`       | Akses direktori penyimpanan lokal            |
-| **`intl`**                            |      `^0.20.1`      | Internasionalisasi & format tanggal          |
-| **`url_launcher`**                    |      `^6.3.2`       | Membuka URL eksternal                        |
+| Nama Package                          |        Versi        | Kegunaan                                                             |
+| :------------------------------------ | :-----------------: | :------------------------------------------------------------------- |
+| **`flutter_bloc`**                    |      `^9.1.1`       | State management BLoC/Cubit                                          |
+| **`just_audio`**                      |      `^0.9.40`      | Pemutar audio murattal                                               |
+| **`audio_session`**                   |      `^0.1.21`      | Manajemen sesi audio perangkat                                       |
+| **`dio`**                             |      `^5.5.0`       | HTTP Client dengan Interceptor                                       |
+| **`hive_ce`** & **`hive_ce_flutter`** |      `^2.7.0`       | Database NoSQL lokal                                                 |
+| **`go_router`**                       |      `^17.2.3`      | Declarative routing                                                  |
+| **`get_it`** & **`injectable`**       | `^9.2.1` / `^3.0.0` | Dependency Injection                                                 |
+| **`flutter_local_notifications`**     |      `^18.0.0`      | Notifikasi lokal (adzan, alarm, reminder, hafalan, shalat checklist) |
+| **`timezone`**                        |      `^0.9.4`       | Timezone support untuk scheduling notifikasi                         |
+| **`geolocator`**                      |      `^13.0.4`      | Lokasi GPS untuk jadwal shalat & kiblat                              |
+| **`geocoding`**                       |      `^3.0.0`       | Konversi koordinat ke nama wilayah                                   |
+| **`flutter_compass`**                 |      `^0.8.1`       | Sensor kompas untuk Qibla Finder                                     |
+| **`share_plus`**                      |      `^10.1.4`      | Berbagi konten (teks & gambar ayat)                                  |
+| **`table_calendar`**                  |      `^3.1.2`       | Kalender bulanan untuk Statistik Shalat                              |
+| **`fpdart`**                          |      `^1.1.0`       | Functional Programming (`Either`, `Option`)                          |
+| **`freezed_annotation`**              |      `^3.1.0`       | Immutable class & union types                                        |
+| **`equatable`**                       |      `^2.0.5`       | Perbandingan nilai objek                                             |
+| **`path_provider`**                   |      `^2.1.4`       | Akses direktori penyimpanan lokal                                    |
+| **`intl`**                            |      `^0.20.1`      | Internasionalisasi & format tanggal                                  |
+| **`url_launcher`**                    |      `^6.3.2`       | Membuka URL eksternal                                                |
 
 ---
 
@@ -133,7 +137,7 @@ flutter run
 flutter test
 ```
 
-> 393 test — semua passed ✅
+> 510 test — semua passed ✅
 
 ---
 
