@@ -44,10 +44,17 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   String? _playlistSuratName;
   Qari _playlistQari = Qari.misyariRasyidAlAfasi;
 
+  /// audioMap terakhir yang dipakai saat play — disimpan agar global
+  /// AudioPlayerBar bisa ganti qari tanpa perlu data dari API response.
+  Map<String, String> _lastAudioMap = {};
+
   bool get isPlaylistMode => _playlist.isNotEmpty;
   int get playlistIndex => _playlistIndex;
   List<Ayat> get playlist => List.unmodifiable(_playlist);
   String? get playlistSuratName => _playlistSuratName;
+
+  /// audioMap terakhir yang dipakai — untuk global AudioPlayerBar.
+  Map<String, String> get lastAudioMap => Map.unmodifiable(_lastAudioMap);
 
   void _listenToStream() {
     _subscription = _repository.stateStream.listen((audioState) {
@@ -66,8 +73,12 @@ class AudioCubit extends Cubit<AudioPlayerState> {
     required int ayatNomor,
     required Qari qari,
     int? suratNomor,
+    Map<String, String> audioMap = const {},
   }) async {
     final current = state;
+
+    // Simpan audioMap untuk global bar
+    if (audioMap.isNotEmpty) _lastAudioMap = audioMap;
 
     // Toggle pause/resume jika ayat sama
     if (current.currentAyat == ayatNomor) {
@@ -134,8 +145,12 @@ class AudioCubit extends Cubit<AudioPlayerState> {
     required Qari qari,
     required int suratNomor,
     required String suratName,
+    Map<String, String> audioMap = const {},
   }) async {
     if (ayatList.isEmpty || startIndex >= ayatList.length) return;
+
+    // Simpan audioMap untuk global bar
+    if (audioMap.isNotEmpty) _lastAudioMap = audioMap;
 
     _playlist = List.of(ayatList);
     _playlistIndex = startIndex;

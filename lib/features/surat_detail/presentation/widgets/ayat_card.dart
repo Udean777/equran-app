@@ -13,10 +13,14 @@ class AyatCard extends StatelessWidget {
     this.isPlaying = false,
     this.isAudioLoading = false,
     this.hasCatatan = false,
+    this.isDownloaded = false,
+    this.isDownloading = false,
+    this.downloadProgress = 0.0,
     this.onBookmarkToggle,
     this.onPlayTap,
     this.onShareTap,
     this.onCatatanTap,
+    this.onDownloadTap,
     super.key,
   });
 
@@ -25,10 +29,14 @@ class AyatCard extends StatelessWidget {
   final bool isPlaying;
   final bool isAudioLoading;
   final bool hasCatatan;
+  final bool isDownloaded;
+  final bool isDownloading;
+  final double downloadProgress;
   final VoidCallback? onBookmarkToggle;
   final VoidCallback? onPlayTap;
   final VoidCallback? onShareTap;
   final VoidCallback? onCatatanTap;
+  final VoidCallback? onDownloadTap;
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +130,37 @@ class AyatCard extends StatelessWidget {
                       onPressed: onCatatanTap,
                       tooltip: hasCatatan ? 'Edit Catatan' : 'Tambah Catatan',
                     ),
+                  // Download button
+                  if (onDownloadTap != null)
+                    isDownloading
+                        ? SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                value: downloadProgress > 0
+                                    ? downloadProgress
+                                    : null,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          )
+                        : IconButton(
+                            icon: Icon(
+                              isDownloaded
+                                  ? Icons.download_done_rounded
+                                  : Icons.download_outlined,
+                              color: isDownloaded
+                                  ? Colors.green[600]
+                                  : Colors.grey[400],
+                            ),
+                            onPressed: isDownloaded ? null : onDownloadTap,
+                            tooltip: isDownloaded
+                                ? 'Sudah didownload'
+                                : 'Download ayat',
+                          ),
                 ],
               ),
               const SizedBox(height: AppDimens.spaceMD),

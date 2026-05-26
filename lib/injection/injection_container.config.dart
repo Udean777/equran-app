@@ -61,6 +61,8 @@ import 'package:equran_app/features/audio/domain/usecases/stop_audio.dart'
     as _i710;
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart'
     as _i729;
+import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart'
+    as _i146;
 import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart'
     as _i330;
 import 'package:equran_app/features/bookmark/data/datasources/bookmark_local_data_source.dart'
@@ -529,6 +531,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i560.JadwalShalatLocalDataSource>(
       () => _i560.JadwalShalatLocalDataSourceImpl(
         gh<_i738.Box<String>>(instanceName: 'shalatBox'),
+      ),
+    );
+    gh.factory<_i146.AudioDownloadCubit>(
+      () => _i146.AudioDownloadCubit(
+        gh<_i434.DownloadAyatAudio>(),
+        gh<_i232.GetDownloadedAyats>(),
       ),
     );
     gh.lazySingleton<_i107.SuratLocalDataSource>(

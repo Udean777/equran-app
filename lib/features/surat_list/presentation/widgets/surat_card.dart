@@ -8,12 +8,14 @@ class SuratCard extends StatelessWidget {
   const SuratCard({
     required this.surat,
     required this.onTap,
+    this.onPlayTap,
     this.scrollPercent,
     super.key,
   });
 
   final Surat surat;
   final VoidCallback onTap;
+  final VoidCallback? onPlayTap;
 
   /// Progress membaca surat ini (0.0–1.0).
   /// Jika null, progress bar tidak ditampilkan.
@@ -70,13 +72,50 @@ class SuratCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Text(
-                    surat.nama,
-                    style: const TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 20,
-                      color: AppColors.primary,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        surat.nama,
+                        style: const TextStyle(
+                          fontFamily: 'Amiri',
+                          fontSize: 20,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      if (onPlayTap != null) ...[
+                        const SizedBox(height: 4),
+                        InkWell(
+                          onTap: onPlayTap,
+                          borderRadius: BorderRadius.circular(4),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.play_circle_outline_rounded,
+                                  size: 16,
+                                  color: AppColors.primary,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Play',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
@@ -91,8 +130,7 @@ class SuratCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: scrollPercent,
                   minHeight: 3,
-                  backgroundColor:
-                      AppColors.primary.withValues(alpha: 0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   valueColor: const AlwaysStoppedAnimation<Color>(
                     AppColors.primary,
                   ),

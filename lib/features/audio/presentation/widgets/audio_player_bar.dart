@@ -11,11 +11,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AudioPlayerBar extends StatelessWidget {
   const AudioPlayerBar({
-    required this.audioMap,
+    this.audioMap = const {},
     super.key,
   });
 
-  /// Map qari id → audio URL dari response API
+  /// Map qari id → audio URL dari response API.
+  /// Jika kosong, fallback ke [AudioCubit.lastAudioMap].
   final Map<String, String> audioMap;
 
   @override
@@ -25,6 +26,8 @@ class AudioPlayerBar extends StatelessWidget {
         if (state.isIdle) return const SizedBox.shrink();
 
         final cubit = context.read<AudioCubit>();
+        final effectiveAudioMap =
+            audioMap.isNotEmpty ? audioMap : cubit.lastAudioMap;
         final isPlaylist = cubit.isPlaylistMode;
         final suratName = cubit.playlistSuratName;
 
@@ -66,7 +69,7 @@ class AudioPlayerBar extends StatelessWidget {
                 children: [
                   // Qari selector
                   GestureDetector(
-                    onTap: () => _showQariSelector(context, state, audioMap),
+                    onTap: () => _showQariSelector(context, state, effectiveAudioMap),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
