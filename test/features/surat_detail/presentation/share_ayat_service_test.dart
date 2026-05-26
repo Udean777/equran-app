@@ -19,9 +19,8 @@ void main() {
   const ayat = Ayat(
     nomorAyat: 1,
     teksArab: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ',
-    teksLatin: "Bismillaahir rahmaanir rahiim",
-    teksIndonesia:
-        'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
+    teksLatin: 'Bismillaahir rahmaanir rahiim',
+    teksIndonesia: 'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
     audio: {},
   );
 

@@ -8,16 +8,18 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 
 Aplikasi eQuran dilengkapi dengan berbagai fitur premium untuk memberikan pengalaman ibadah digital terbaik:
 
-- 📖 **Daftar & Detail Surat**: Menampilkan 114 surat Al-Quran dengan pencarian instan. Teks Arab disajikan menggunakan font premium **Amiri** yang indah, lengkap dengan transliterasi latin dan terjemahan Bahasa Indonesia.
-- 🎧 **Pemutar Audio Murattal**: Dengarkan lantunan suci Al-Quran per-ayat maupun per-surat dari qori ternama. Didukung oleh pemutar audio latar belakang yang stabil.
+- 📖 **Daftar & Detail Surat**: Menampilkan 114 surat Al-Quran dengan pencarian instan. Teks Arab disajikan menggunakan font premium **Amiri** yang indah, lengkap dengan transliterasi latin dan terjemahan.
+- 🎧 **Pemutar Audio Murattal & Manajemen Unduhan**: Dengarkan lantunan suci Al-Quran per-ayat maupun per-surat dari qori ternama. Dilengkapi dengan manajemen storage untuk menyimpan dan menghapus file audio lokal.
 - 📑 **Tafsir Lengkap**: Pelajari makna mendalam dari setiap ayat melalui tafsir terperinci dari Kementerian Agama Republik Indonesia (Kemenag RI).
-- 🤲 **Kumpulan Doa Harian**: Kumpulan doa-doa pilihan dalam Islam lengkap dengan teks Arab, transliterasi latin, terjemahan, dan detail penjelasannya.
+- 🤲 **Kumpulan Doa Harian & Rekomendasi Pintar**: Kumpulan doa-doa pilihan dalam Islam, ditambah fitur cerdas yang merekomendasikan doa sesuai waktu saat ini (pagi, siang, atau malam).
 - 🕌 **Jadwal Shalat & Imsakiyah**: Menampilkan waktu shalat fardhu lima waktu secara presisi dan dinamis sesuai titik koordinat geografis pengguna melalui integrasi GPS otomatis.
 - 🧭 **Kompas Arah Kiblat (Qibla Finder)**: Menentukan arah kiblat menuju Ka'bah secara real-time dan akurat menggunakan integrasi sensor kompas fisik perangkat.
 - 📿 **Tasbih Digital**: Penghitung zikir interaktif dengan getaran (haptic feedback) saat tombol ditekan, pengaturan target hitungan (33, 99, atau tanpa batas), serta penyimpanan riwayat sesi zikir.
-- 🔖 **Sistem Bookmark & Favorit**: Simpan dan tandai ayat atau surat penting untuk dibaca kembali secara cepat tanpa perlu mencari ulang.
-- 🌓 **Tema Gelap & Terang (Dark/Light Mode)**: Desain antarmuka modern dengan dukungan mode gelap yang nyaman di mata untuk kenyamanan membaca di malam hari.
-- ⚙️ **Pengaturan Fleksibel**: Atur ukuran font Arab sesuai kenyamanan visual Anda, ubah bahasa aplikasi (lokalisasi), dan sesuaikan preferensi lainnya.
+- 🔖 **Sistem Bookmark & Terakhir Dibaca**: Simpan dan tandai ayat atau surat penting, serta lacak posisi "Terakhir Dibaca" (Last Read) untuk melanjutkan tilawah dengan cepat.
+- 🔥 **Quran Daily Streak Tracker**: Lacak konsistensi ibadah Anda dengan fitur pemantau rutinitas (streak) harian membaca Al-Quran.
+- 🌗 **Tema Terang, Gelap, & Sepia**: Desain antarmuka modern dengan dukungan mode Gelap untuk malam hari, serta mode Sepia yang nyaman bagaikan membaca di atas kertas.
+- 🌍 **Lokalisasi 3 Bahasa**: Dukungan pengaturan multi-bahasa, meliputi Bahasa Indonesia, Bahasa Inggris (English), dan Bahasa Arab (العربية).
+- ⚙️ **Pengaturan Fleksibel**: Atur ukuran font Arab sesuai kenyamanan visual Anda dan sesuaikan preferensi aplikasi secara menyeluruh.
 
 ---
 
@@ -67,6 +69,8 @@ Berikut adalah daftar package utama yang menopang keandalan aplikasi eQuran:
 | **`path_provider`**                   |      `^2.1.4`       | Mengakses direktori penyimpanan lokal perangkat untuk database Hive dan file audio.                      |
 | **`url_launcher`**                    |      `^6.3.2`       | Membuka tautan URL eksternal (situs web atau media eksternal) dengan aman dari aplikasi.                 |
 | **`intl`**                            |      `^0.20.1`      | Solusi internasionalisasi teks, format angka, dan tanggal di dalam aplikasi.                             |
+| **`flutter_launcher_icons`**          |      `^0.14.4`      | Pembuat ikon peluncur aplikasi (App Icon) secara otomatis untuk Android dan iOS.                         |
+| **`flutter_native_splash`**           |      `^2.4.4`       | Pembuat *splash screen* bawaan (native) sistem operasi yang cepat saat aplikasi pertama kali dibuka.     |
 
 ---
 

@@ -22,9 +22,9 @@ class LanguageSelectorSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final languages = [
-      (const LanguageState.id(), l10n.indonesia, '🇮🇩'),
-      (const LanguageState.en(), l10n.english, '🇬🇧'),
-      (const LanguageState.ar(), l10n.arabic, '🇸🇦'),
+      (const LanguageState.id(), l10n.indonesia),
+      (const LanguageState.en(), l10n.english),
+      (const LanguageState.ar(), l10n.arabic),
     ];
 
     return Padding(
@@ -50,11 +50,15 @@ class LanguageSelectorSheet extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceSM),
           ...languages.map(
             (entry) {
-              final (lang, label, flag) = entry;
+              final (lang, label) = entry;
               final isSelected = lang.runtimeType == current.runtimeType;
 
               return ListTile(
-                leading: Text(flag, style: const TextStyle(fontSize: 24)),
+                leading: Icon(
+                  Icons.language_rounded,
+                  size: 24,
+                  color: isSelected ? AppColors.primary : null,
+                ),
                 title: Text(
                   label,
                   style: TextStyle(

@@ -69,13 +69,24 @@ class AppDrawer extends StatelessWidget {
                             AppDimens.radiusFull,
                           ),
                         ),
-                        child: Text(
-                          '🔥 $streak hari berturut-turut',
-                          style: const TextStyle(
-                            color: AppColors.onPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.local_fire_department_rounded,
+                              color: Colors.orange,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$streak hari berturut-turut',
+                              style: const TextStyle(
+                                color: AppColors.onPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },

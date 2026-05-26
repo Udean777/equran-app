@@ -14,9 +14,9 @@
         android:name="android.hardware.sensor.compass"
         android:required="false" />
     <application
-        android:label="equran_app"
+        android:label="eQuran"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
