@@ -50,17 +50,6 @@ abstract final class AppColors {
   static const Color outlineDarkVariant = Color(0xFF223328);
 
   // ---------------------------------------------------------------------------
-  // Background & Surface — Sepia
-  // ---------------------------------------------------------------------------
-  static const Color backgroundSepia = Color(0xFFF5ECD7);
-  static const Color surfaceSepia = Color(0xFFFDF6E3);
-  static const Color surfaceSepiaVariant = Color(0xFFF7EDD0);
-  static const Color onSurfaceSepia = Color(0xFF3E2723);
-  static const Color onSurfaceSepiaVariant = Color(0xFF6D4C41);
-  static const Color outlineSepia = Color(0xFFD7C4A0);
-  static const Color outlineSepiaVariant = Color(0xFFE8D9B8);
-
-  // ---------------------------------------------------------------------------
   // Text Hierarchy — Light
   // ---------------------------------------------------------------------------
   static const Color textPrimary = Color(0xFF0D1F16);

@@ -223,14 +223,12 @@ class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
           builder: (context, themeState) => IconButton(
             tooltip: themeState.map(
               light: (_) => l10n.darkMode,
-              dark: (_) => 'Mode Sepia',
-              sepia: (_) => l10n.lightMode,
+              dark: (_) => l10n.lightMode,
             ),
             icon: Icon(
               themeState.map(
                 light: (_) => Icons.dark_mode_outlined,
-                dark: (_) => Icons.auto_stories_outlined,
-                sepia: (_) => Icons.light_mode_outlined,
+                dark: (_) => Icons.light_mode_outlined,
               ),
               color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
             ),

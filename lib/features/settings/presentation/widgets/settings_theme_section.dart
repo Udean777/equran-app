@@ -6,7 +6,7 @@ import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Section tema tampilan — segmented button light/dark/sepia.
+/// Section tema tampilan — segmented button light/dark.
 class SettingsThemeSection extends StatelessWidget {
   const SettingsThemeSection({super.key});
 
@@ -16,11 +16,7 @@ class SettingsThemeSection extends StatelessWidget {
 
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, themeState) {
-        final selected = themeState.isSepia
-            ? 'sepia'
-            : themeState.isDark
-            ? 'dark'
-            : 'light';
+        final selected = themeState.isDark ? 'dark' : 'light';
 
         return Padding(
           padding: const EdgeInsets.all(AppDimens.cardPadding),
@@ -101,19 +97,6 @@ class SettingsThemeSection extends StatelessWidget {
                       }
                     },
                   ),
-                  const SizedBox(width: AppDimens.spaceSM),
-                  _ThemeChip(
-                    value: 'sepia',
-                    label: 'Sepia',
-                    icon: Icons.auto_stories_rounded,
-                    isSelected: selected == 'sepia',
-                    isDark: isDark,
-                    onTap: () {
-                      if (selected != 'sepia') {
-                        unawaited(context.read<ThemeCubit>().cycle());
-                      }
-                    },
-                  ),
                 ],
               ),
             ],
@@ -125,7 +108,6 @@ class SettingsThemeSection extends StatelessWidget {
 
   String _themeLabel(String value) => switch (value) {
     'dark' => 'Mode Gelap aktif',
-    'sepia' => 'Mode Sepia aktif',
     _ => 'Mode Terang aktif',
   };
 }

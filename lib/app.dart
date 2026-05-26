@@ -165,7 +165,7 @@ class App extends StatelessWidget {
           builder: (context, langState) => MaterialApp.router(
             title: 'eQuran',
             debugShowCheckedModeBanner: false,
-            theme: themeState.isSepia ? AppTheme.sepia() : AppTheme.light(),
+            theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             themeMode: themeState.themeMode,
             locale: langState.locale,

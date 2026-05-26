@@ -35,14 +35,18 @@ class TasbihBottomControls extends StatelessWidget {
                 Icons.swap_horiz_rounded,
                 color: isDark ? AppColors.primaryLighter : AppColors.primary,
               ),
-              label: Text(
-                'Ganti Dzikir',
-                style: TextStyle(
-                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              label: const Text('Ganti Dzikir'),
               style: OutlinedButton.styleFrom(
+                foregroundColor:
+                    isDark ? AppColors.primaryLighter : AppColors.primary,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  inherit: false,
+                  fontSize: 14,
+                  letterSpacing: 0.1,
+                  height: 1.4,
+                  decoration: TextDecoration.none,
+                ),
                 side: BorderSide(
                   color: isDark ? AppColors.primaryLighter : AppColors.primary,
                 ),
