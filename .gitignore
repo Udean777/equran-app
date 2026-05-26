@@ -48,4 +48,9 @@ build/debug-info/
 /android/app/profile
 /android/app/release
 
+# documentation
 docs/
+
+# Android release keystore dan key properties
+android/app/release.keystore
+android/key.properties
