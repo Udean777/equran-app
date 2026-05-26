@@ -24,6 +24,7 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 
 ### 📊 Progres & Gamifikasi
 
+- **Hafalan Tracker** — Lacak progress hafalan Al-Quran per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test), spaced repetition muraja'ah otomatis (interval 1→3→7→30→90 hari), dan notifikasi pengingat muraja'ah.
 - **Reading Progress** — Lacak progres membaca per surat secara otomatis saat scroll. Progress bar muncul di halaman utama dan daftar surat.
 - **Quran Daily Streak** — Pantau konsistensi membaca Al-Quran dengan streak harian.
 - **Sistem Bookmark & Terakhir Dibaca** — Simpan ayat penting dan lanjutkan tilawah dari posisi terakhir dengan satu ketukan.
@@ -67,7 +68,7 @@ graph TD
 | **`hive_ce`** & **`hive_ce_flutter`** |      `^2.7.0`       | Database NoSQL lokal                         |
 | **`go_router`**                       |      `^17.2.3`      | Declarative routing                          |
 | **`get_it`** & **`injectable`**       | `^9.2.1` / `^3.0.0` | Dependency Injection                         |
-| **`flutter_local_notifications`**     |      `^18.0.0`      | Notifikasi lokal (adzan, alarm, reminder)    |
+| **`flutter_local_notifications`** | `^18.0.0` | Notifikasi lokal (adzan, alarm, reminder, hafalan) |
 | **`timezone`**                        |      `^0.9.4`       | Timezone support untuk scheduling notifikasi |
 | **`geolocator`**                      |      `^13.0.4`      | Lokasi GPS untuk jadwal shalat & kiblat      |
 | **`geocoding`**                       |      `^3.0.0`       | Konversi koordinat ke nama wilayah           |
@@ -133,7 +134,7 @@ flutter run
 flutter test
 ```
 
-> 393 test — semua passed ✅
+> 424 test — semua passed ✅
 
 ---
 

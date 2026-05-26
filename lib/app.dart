@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/pages/main_page.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
@@ -8,6 +10,10 @@ import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.da
 import 'package:equran_app/features/catatan_ayat/presentation/pages/catatan_ayat_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_detail_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/pages/hafalan_detail_page.dart';
+import 'package:equran_app/features/hafalan/presentation/pages/hafalan_page.dart';
+import 'package:equran_app/features/hafalan/presentation/pages/hafalan_setoran_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
@@ -90,6 +96,28 @@ final GoRouter _router = GoRouter(
       path: '/catatan',
       builder: (context, state) => const CatatanAyatPage(),
     ),
+    GoRoute(
+      path: '/hafalan',
+      builder: (context, state) => const HafalanPage(),
+    ),
+    GoRoute(
+      path: '/hafalan/:suratNomor',
+      builder: (context, state) {
+        final nomor =
+            int.tryParse(state.pathParameters['suratNomor'] ?? '');
+        if (nomor == null) return const HafalanPage();
+        return HafalanDetailPage(suratNomor: nomor);
+      },
+    ),
+    GoRoute(
+      path: '/hafalan/:suratNomor/setoran',
+      builder: (context, state) {
+        final nomor =
+            int.tryParse(state.pathParameters['suratNomor'] ?? '');
+        if (nomor == null) return const HafalanPage();
+        return HafalanSetoranPage(suratNomor: nomor);
+      },
+    ),
   ],
 );
 
@@ -106,6 +134,13 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => getIt<QuranFontCubit>()..load()),
         BlocProvider(create: (_) => getIt<QuranReminderCubit>()..load()),
         BlocProvider(create: (_) => getIt<QuranStreakCubit>()..load()),
+        BlocProvider(
+          create: (_) {
+            final cubit = getIt<HafalanCubit>();
+            unawaited(cubit.load());
+            return cubit;
+          },
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) =>

@@ -196,7 +196,7 @@ void main() {
         suratNomor: 1,
         ayatNomor: 3,
         namaLatin: 'Al-Fatihah',
-        readAt: DateTime(2025, 1, 1).toIso8601String(),
+        readAt: DateTime(2025).toIso8601String(),
         // totalAyat default 0 — data lama
       );
       final encoded = jsonEncode(oldDto.toJson());

@@ -11,6 +11,8 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_widget.dart';
@@ -99,6 +101,15 @@ class _SuratListView extends StatelessWidget {
               final lastRead = state.mapOrNull(success: (s) => s.lastRead);
               if (lastRead == null) return const SizedBox.shrink();
               return LastReadCard(lastRead: lastRead);
+            },
+          ),
+          // Muraja'ah reminder card
+          BlocBuilder<HafalanCubit, HafalanState>(
+            builder: (context, state) {
+              if (state is! HafalanSuccess) return const SizedBox.shrink();
+              final murajaahList = state.suratMurajaahHariIni;
+              if (murajaahList.isEmpty) return const SizedBox.shrink();
+              return _MurajaahReminderCard(suratList: murajaahList);
             },
           ),
           // Streak chip
@@ -211,6 +222,87 @@ class _SuratListContent extends StatelessWidget {
             scrollPercent: isLastRead ? lastRead.scrollPercent : null,
           );
         },
+      ),
+    );
+  }
+}
+
+// ─── Muraja'ah Reminder Card ──────────────────────────────────────────────────
+
+class _MurajaahReminderCard extends StatelessWidget {
+  const _MurajaahReminderCard({required this.suratList});
+
+  final List<HafalanSurat> suratList;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final names = suratList.take(3).map((s) => s.namaLatin).join(', ');
+    final extra = suratList.length > 3 ? ' +${suratList.length - 3}' : '';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.spaceMD,
+        AppDimens.spaceXS,
+        AppDimens.spaceMD,
+        AppDimens.spaceXS,
+      ),
+      child: InkWell(
+        onTap: () => context.push('/hafalan'),
+        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+        child: Container(
+          padding: const EdgeInsets.all(AppDimens.spaceMD),
+          decoration: BoxDecoration(
+            color: AppColors.error.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+            border: Border.all(
+              color: AppColors.error.withValues(alpha: 0.25),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppDimens.spaceSM),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                ),
+                child: const Icon(
+                  Icons.refresh_rounded,
+                  color: AppColors.error,
+                  size: AppDimens.iconMD,
+                ),
+              ),
+              const SizedBox(width: AppDimens.spaceMD),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Muraja'ah Hari Ini",
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '$names$extra',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.error.withValues(alpha: 0.8),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.error.withValues(alpha: 0.6),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

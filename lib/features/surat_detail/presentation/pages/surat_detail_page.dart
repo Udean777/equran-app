@@ -24,6 +24,7 @@ import 'package:equran_app/features/tafsir/presentation/widgets/tafsir_bottom_sh
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class SuratDetailPage extends StatelessWidget {
   const SuratDetailPage({
@@ -260,6 +261,15 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
               appBar: AppBar(
                 title: Text(detail.info.namaLatin),
                 actions: [
+                  // Tombol Hafalan
+                  IconButton(
+                    icon: const Icon(Icons.auto_stories_outlined),
+                    color: AppColors.primary,
+                    tooltip: 'Hafalan',
+                    onPressed: () => unawaited(
+                      context.push('/hafalan/${detail.info.nomor}'),
+                    ),
+                  ),
                   // Tombol Play Surat
                   IconButton(
                     icon: Icon(

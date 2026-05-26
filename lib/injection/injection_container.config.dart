@@ -13,6 +13,8 @@ import 'package:equran_app/core/cache/hive_module.dart' as _i815;
 import 'package:equran_app/core/locale/cubit/language_cubit.dart' as _i157;
 import 'package:equran_app/core/location/location_service.dart' as _i177;
 import 'package:equran_app/core/network/dio_client.dart' as _i870;
+import 'package:equran_app/core/notifications/hafalan_reminder_scheduler.dart'
+    as _i480;
 import 'package:equran_app/core/notifications/imsak_alarm_scheduler.dart'
     as _i98;
 import 'package:equran_app/core/notifications/notification_module.dart'
@@ -117,6 +119,24 @@ import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart
     as _i290;
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
     as _i345;
+import 'package:equran_app/features/hafalan/data/datasources/hafalan_local_datasource.dart'
+    as _i445;
+import 'package:equran_app/features/hafalan/data/repositories/hafalan_repository_impl.dart'
+    as _i804;
+import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart'
+    as _i663;
+import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart'
+    as _i29;
+import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart'
+    as _i7;
+import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_by_surat.dart'
+    as _i539;
+import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart'
+    as _i868;
+import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart'
+    as _i702;
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart'
+    as _i538;
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_local_data_source.dart'
     as _i555;
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_remote_data_source.dart'
@@ -391,6 +411,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i182.BookmarkRepository>(
       () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
     );
+    await gh.factoryAsync<_i919.Box<String>>(
+      () => hiveModule.hafalanBox(),
+      instanceName: 'hafalanBox',
+      preResolve: true,
+    );
     gh.lazySingleton<_i480.QiblaRepository>(
       () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
     );
@@ -470,6 +495,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
       () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
+    );
+    gh.lazySingleton<_i480.HafalanReminderScheduler>(
+      () => _i480.HafalanReminderScheduler(gh<_i175.NotificationService>()),
     );
     gh.lazySingleton<_i98.ImsakAlarmScheduler>(
       () => _i98.ImsakAlarmScheduler(gh<_i175.NotificationService>()),
@@ -587,6 +615,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i584.SaveLastLocationShalat>(
       () => _i584.SaveLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i445.HafalanLocalDatasource>(
+      () => _i445.HafalanLocalDatasourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'hafalanBox'),
+      ),
     );
     gh.singleton<_i729.AudioCubit>(
       () => _i729.AudioCubit(
@@ -727,6 +760,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i107.ToggleDoaBookmark>(),
       ),
     );
+    gh.lazySingleton<_i663.HafalanRepository>(
+      () => _i804.HafalanRepositoryImpl(gh<_i445.HafalanLocalDatasource>()),
+    );
     gh.factory<_i165.ImsakiyahCubit>(
       () => _i165.ImsakiyahCubit(
         gh<_i410.GetProvinsi>(),
@@ -761,8 +797,32 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i107.ToggleDoaBookmark>(),
       ),
     );
+    gh.factory<_i29.DeleteHafalanSurat>(
+      () => _i29.DeleteHafalanSurat(gh<_i663.HafalanRepository>()),
+    );
+    gh.factory<_i7.GetAllHafalan>(
+      () => _i7.GetAllHafalan(gh<_i663.HafalanRepository>()),
+    );
+    gh.factory<_i539.GetHafalanBySurat>(
+      () => _i539.GetHafalanBySurat(gh<_i663.HafalanRepository>()),
+    );
+    gh.factory<_i868.GetHafalanStats>(
+      () => _i868.GetHafalanStats(gh<_i663.HafalanRepository>()),
+    );
+    gh.factory<_i702.SaveHafalanSurat>(
+      () => _i702.SaveHafalanSurat(gh<_i663.HafalanRepository>()),
+    );
     gh.factory<_i438.SuratDetailCubit>(
       () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),
+    );
+    gh.lazySingleton<_i538.HafalanCubit>(
+      () => _i538.HafalanCubit(
+        gh<_i7.GetAllHafalan>(),
+        gh<_i702.SaveHafalanSurat>(),
+        gh<_i29.DeleteHafalanSurat>(),
+        gh<_i868.GetHafalanStats>(),
+        gh<_i480.HafalanReminderScheduler>(),
+      ),
     );
     return this;
   }

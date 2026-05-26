@@ -135,6 +135,15 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             _DrawerItem(
+              icon: Icons.auto_stories_outlined,
+              selectedIcon: Icons.auto_stories_rounded,
+              label: 'Hafalan Quran',
+              onTap: () {
+                Navigator.pop(context);
+                unawaited(context.push('/hafalan'));
+              },
+            ),
+            _DrawerItem(
               icon: Icons.audio_file_outlined,
               selectedIcon: Icons.audio_file_rounded,
               label: 'Manajemen Audio',

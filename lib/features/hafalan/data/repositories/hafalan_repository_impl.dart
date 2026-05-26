@@ -1,0 +1,134 @@
+import 'package:equran_app/core/constants/juz_mapping.dart';
+import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/features/hafalan/data/datasources/hafalan_local_datasource.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
+
+@LazySingleton(as: HafalanRepository)
+class HafalanRepositoryImpl implements HafalanRepository {
+  const HafalanRepositoryImpl(this._datasource);
+
+  final HafalanLocalDatasource _datasource;
+
+  @override
+  Either<Failure, List<HafalanSurat>> getAllHafalan() {
+    try {
+      final list = _datasource.getAll();
+      // Compute perluMurajaah status saat load
+      final resolved = list.map(_resolveStatus).toList();
+      return Right(resolved);
+    } on Object catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Either<Failure, HafalanSurat?> getHafalanBySurat(int suratNomor) {
+    try {
+      final hafalan = _datasource.getBySurat(suratNomor);
+      if (hafalan == null) return const Right(null);
+      return Right(_resolveStatus(hafalan));
+    } on Object catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> saveHafalanSurat(HafalanSurat hafalan) async {
+    try {
+      await _datasource.save(hafalan);
+      return const Right(unit);
+    } on Object catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteHafalanSurat(int suratNomor) async {
+    try {
+      await _datasource.delete(suratNomor);
+      return const Right(unit);
+    } on Object catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Either<Failure, HafalanStats> getHafalanStats() {
+    try {
+      final list = _datasource.getAll().map(_resolveStatus).toList();
+      return Right(_computeStats(list));
+    } on Object catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /// Compute status perluMurajaah dari data yang tersimpan.
+  /// Status ini tidak disimpan di Hive — selalu di-derive saat load.
+  HafalanSurat _resolveStatus(HafalanSurat hafalan) {
+    if (hafalan.status == HafalanStatus.sudahHafal &&
+        hafalan.isMurajaahJatuhTempo) {
+      return hafalan.copyWith(status: HafalanStatus.perluMurajaah);
+    }
+    return hafalan;
+  }
+
+  /// Hitung statistik global dari list hafalan.
+  HafalanStats _computeStats(List<HafalanSurat> list) {
+    const totalAyatQuran = 6236;
+
+    final totalAyatHafal = list.fold<int>(
+      0,
+      (sum, h) => sum + h.ayatHafal.length,
+    );
+
+    final totalSuratSelesai = list.where((h) => h.isSelesai).length;
+
+    final persentaseQuran = (totalAyatHafal / totalAyatQuran).clamp(0.0, 1.0);
+
+    final suratSedangDihafal = list
+        .where((h) => h.status == HafalanStatus.sedangDihafal)
+        .length;
+
+    final suratPerluMurajaah = list
+        .where((h) => h.status == HafalanStatus.perluMurajaah)
+        .length;
+
+    // Progress per juz: hitung ayat hafal per juz dibagi total ayat juz
+    final progressPerJuz = <int, double>{};
+    for (var juz = 1; juz <= 30; juz++) {
+      final totalAyatJuz = kTotalAyatPerJuz[juz] ?? 0;
+      if (totalAyatJuz == 0) {
+        progressPerJuz[juz] = 0;
+        continue;
+      }
+      // Surat yang masuk juz ini (berdasarkan juz pertama surat)
+      final suratDiJuz = kJuzMapping.entries
+          .where((e) => e.value == juz)
+          .map((e) => e.key)
+          .toSet();
+
+      final ayatHafalJuz = list
+          .where((h) => suratDiJuz.contains(h.suratNomor))
+          .fold<int>(0, (sum, h) => sum + h.ayatHafal.length);
+
+      progressPerJuz[juz] = (ayatHafalJuz / totalAyatJuz).clamp(0.0, 1.0);
+    }
+
+    return HafalanStats(
+      totalAyatHafal: totalAyatHafal,
+      totalSuratSelesai: totalSuratSelesai,
+      persentaseQuran: persentaseQuran,
+      progressPerJuz: progressPerJuz,
+      suratSedangDihafal: suratSedangDihafal,
+      suratPerluMurajaah: suratPerluMurajaah,
+    );
+  }
+}
