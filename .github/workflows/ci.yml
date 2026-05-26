@@ -1,0 +1,72 @@
+name: CI
+
+# ─── Trigger ────────────────────────────────────────────────────────────────
+# PR ke main        → analyze + lint + test (wajib pass sebelum merge)
+# Push/merge ke main → analyze + lint + test (validasi ulang setelah merge)
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+# ─── Concurrency ────────────────────────────────────────────────────────────
+# Batalkan run lama jika ada push baru di PR yang sama
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# ─── Env global ─────────────────────────────────────────────────────────────
+env:
+  FLUTTER_VERSION: "3.32.0"
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # JOB — Analyze, Lint & Test
+  # ═══════════════════════════════════════════════════════════════════════════
+  check:
+    name: Analyze, Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Flutter ─────────────────────────────────────────────────────────────
+      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # ── Dependencies ────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ── Code generation ─────────────────────────────────────────────────────
+      # Wajib sebelum analyze agar file .g.dart & .freezed.dart up-to-date
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      # ── Format check ────────────────────────────────────────────────────────
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib/ test/
+
+      # ── Analyze (very_good_analysis) ────────────────────────────────────────
+      - name: Dart analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      # ── Test ────────────────────────────────────────────────────────────────
+      - name: Run tests
+        run: flutter test --coverage
+
+      # ── Coverage report (opsional, tampil di PR summary) ────────────────────
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          retention-days: 7
