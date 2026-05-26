@@ -13,6 +13,8 @@ import 'package:equran_app/core/cache/hive_module.dart' as _i815;
 import 'package:equran_app/core/locale/cubit/language_cubit.dart' as _i157;
 import 'package:equran_app/core/location/location_service.dart' as _i177;
 import 'package:equran_app/core/network/dio_client.dart' as _i870;
+import 'package:equran_app/core/notifications/imsak_alarm_scheduler.dart'
+    as _i98;
 import 'package:equran_app/core/notifications/notification_module.dart'
     as _i1066;
 import 'package:equran_app/core/notifications/notification_service.dart'
@@ -123,6 +125,8 @@ import 'package:equran_app/features/imsakiyah/data/repositories/imsakiyah_reposi
     as _i648;
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart'
     as _i36;
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart'
+    as _i395;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart'
     as _i28;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart'
@@ -131,8 +135,12 @@ import 'package:equran_app/features/imsakiyah/domain/usecases/get_last_location_
     as _i387;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart'
     as _i410;
+import 'package:equran_app/features/imsakiyah/domain/usecases/save_imsak_alarm_prefs.dart'
+    as _i578;
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_last_location_imsakiyah.dart'
     as _i1070;
+import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart'
+    as _i12;
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart'
     as _i165;
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart'
@@ -423,6 +431,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i163.FlutterLocalNotificationsPlugin>(),
       ),
     );
+    gh.lazySingleton<_i395.GetImsakAlarmPrefs>(
+      () => _i395.GetImsakAlarmPrefs(
+        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
+    gh.lazySingleton<_i578.SaveImsakAlarmPrefs>(
+      () => _i578.SaveImsakAlarmPrefs(
+        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
     gh.lazySingleton<_i575.ImsakiyahRemoteDataSource>(
       () => _i575.ImsakiyahRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
@@ -452,6 +470,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
       () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
+    );
+    gh.lazySingleton<_i98.ImsakAlarmScheduler>(
+      () => _i98.ImsakAlarmScheduler(gh<_i175.NotificationService>()),
     );
     gh.lazySingleton<_i745.QuranReminderScheduler>(
       () => _i745.QuranReminderScheduler(gh<_i175.NotificationService>()),
@@ -492,6 +513,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i107.ToggleDoaBookmark>(
       () => _i107.ToggleDoaBookmark(gh<_i553.DoaBookmarkDataSource>()),
+    );
+    gh.factory<_i12.ImsakAlarmCubit>(
+      () => _i12.ImsakAlarmCubit(
+        gh<_i395.GetImsakAlarmPrefs>(),
+        gh<_i578.SaveImsakAlarmPrefs>(),
+        gh<_i98.ImsakAlarmScheduler>(),
+      ),
     );
     gh.factory<_i603.ClearTasbihSessions>(
       () => _i603.ClearTasbihSessions(gh<_i419.TasbihRepository>()),

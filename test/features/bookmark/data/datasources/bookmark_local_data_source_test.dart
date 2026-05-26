@@ -165,7 +165,12 @@ void main() {
         ayatNomor: tLastRead.ayatNomor,
         namaLatin: tLastRead.namaLatin,
         readAt: tLastRead.readAt.toIso8601String(),
+        totalAyat: 7, // totalAyat > 0 agar tidak dihapus migration
       );
+      // Migration sudah dijalankan sebelumnya
+      when(
+        () => mockBox.get('last_read_v2_migrated'),
+      ).thenReturn('true');
       when(() => mockBox.get('last_read')).thenReturn(jsonEncode(dto.toJson()));
 
       final result = await dataSource.getLastRead();
@@ -176,11 +181,49 @@ void main() {
     });
 
     test('return null jika tidak ada data', () async {
+      when(
+        () => mockBox.get('last_read_v2_migrated'),
+      ).thenReturn('true');
       when(() => mockBox.get('last_read')).thenReturn(null);
 
       final result = await dataSource.getLastRead();
 
       expect(result, isNull);
+    });
+
+    test('migration hapus data lama yang totalAyat == 0', () async {
+      final oldDto = LastReadDto(
+        suratNomor: 1,
+        ayatNomor: 3,
+        namaLatin: 'Al-Fatihah',
+        readAt: DateTime(2025, 1, 1).toIso8601String(),
+        // totalAyat default 0 — data lama
+      );
+      final encoded = jsonEncode(oldDto.toJson());
+
+      // Belum migrasi
+      when(
+        () => mockBox.get('last_read_v2_migrated'),
+      ).thenReturn(null);
+      // Panggilan pertama: cek isi data lama → ada
+      // Panggilan kedua: setelah delete → null
+      var callCount = 0;
+      when(() => mockBox.get('last_read')).thenAnswer((_) {
+        callCount++;
+        return callCount == 1 ? encoded : null;
+      });
+      when(
+        () => mockBox.delete('last_read'),
+      ).thenAnswer((_) async {});
+      when(
+        () => mockBox.put('last_read_v2_migrated', 'true'),
+      ).thenAnswer((_) async {});
+
+      final result = await dataSource.getLastRead();
+
+      expect(result, isNull);
+      verify(() => mockBox.delete('last_read')).called(1);
+      verify(() => mockBox.put('last_read_v2_migrated', 'true')).called(1);
     });
   });
 

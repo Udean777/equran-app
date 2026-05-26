@@ -78,12 +78,17 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   final _scrollController = ScrollController();
   final _itemKeys = <int, GlobalKey>{};
   bool _hasScrolled = false;
+  Timer? _saveDebouncer;
+  SuratDetail? _currentDetail;
+  BookmarkCubit? _bookmarkCubit;
 
   @override
   void initState() {
     super.initState();
     // Record streak — user membuka surat berarti baca Quran hari ini
     unawaited(context.read<QuranStreakCubit>().recordRead());
+    // Simpan referensi BookmarkCubit sebelum widget mungkin unmount
+    _bookmarkCubit = context.read<BookmarkCubit>();
     // Scroll ke initialAyat hanya sekali setelah frame pertama
     if (widget.initialAyat != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,12 +98,74 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
         }
       });
     }
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _saveDebouncer?.cancel();
+    // Fallback save saat user tutup halaman tanpa scroll
+    // Gunakan referensi cubit yang sudah disimpan — context sudah tidak valid
+    final detail = _currentDetail;
+    final cubit = _bookmarkCubit;
+    if (detail != null && cubit != null) {
+      final totalAyat = detail.ayatList.length;
+      // Ambil ayat pertama yang visible dari _itemKeys, fallback ke ayat 1
+      final ayatNomor = _itemKeys.keys.isNotEmpty
+          ? _itemKeys.keys.first
+          : (widget.initialAyat ?? 1);
+      final scrollPercent =
+          totalAyat > 0 ? (ayatNomor / totalAyat).clamp(0.0, 1.0) : 0.0;
+      unawaited(
+        cubit.saveLastRead(
+          LastRead(
+            suratNomor: detail.info.nomor,
+            ayatNomor: ayatNomor,
+            namaLatin: detail.info.namaLatin,
+            readAt: DateTime.now(),
+            scrollPercent: scrollPercent,
+            totalAyat: totalAyat,
+          ),
+        ),
+      );
+    }
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    _saveDebouncer?.cancel();
+    _saveDebouncer = Timer(const Duration(seconds: 1), _detectVisibleAyat);
+  }
+
+  void _detectVisibleAyat() {
+    if (!mounted) return;
+    final detail = _currentDetail;
+    if (detail == null) return;
+
+    final screenH = MediaQuery.of(context).size.height;
+
+    // Cari ayat dengan posisi dy terbesar yang masih <= 50% layar
+    // Ini adalah ayat paling bawah yang sedang terlihat di viewport atas
+    int? bestAyat;
+    var bestDy = double.negativeInfinity;
+
+    for (final entry in _itemKeys.entries) {
+      final ctx = entry.value.currentContext;
+      if (ctx == null) continue;
+      final box = ctx.findRenderObject();
+      if (box == null || box is! RenderBox) continue;
+      final pos = box.localToGlobal(Offset.zero);
+      // Ayat yang posisinya di atas 50% layar (termasuk yang sudah di-scroll ke atas)
+      if (pos.dy <= screenH * 0.5 && pos.dy > bestDy) {
+        bestDy = pos.dy;
+        bestAyat = entry.key;
+      }
+    }
+
+    if (bestAyat != null) {
+      _saveLastRead(context, detail, bestAyat);
+    }
   }
 
   void _scrollToAyat(int ayatNomor) {
@@ -116,6 +183,9 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   }
 
   void _saveLastRead(BuildContext context, SuratDetail detail, int ayatNomor) {
+    final totalAyat = detail.ayatList.length;
+    final scrollPercent =
+        totalAyat > 0 ? (ayatNomor / totalAyat).clamp(0.0, 1.0) : 0.0;
     unawaited(
       context.read<BookmarkCubit>().saveLastRead(
         LastRead(
@@ -123,6 +193,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
           ayatNomor: ayatNomor,
           namaLatin: detail.info.namaLatin,
           readAt: DateTime.now(),
+          scrollPercent: scrollPercent,
+          totalAyat: totalAyat,
         ),
       ),
     );
@@ -147,6 +219,17 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   }
 
   Widget _buildSuccess(BuildContext context, SuratDetail detail) {
+    // Simpan referensi detail untuk digunakan oleh scroll detector
+    final isFirstLoad = _currentDetail == null;
+    _currentDetail = detail;
+
+    // Trigger save saat halaman pertama load — tanpa perlu scroll
+    if (isFirstLoad) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _detectVisibleAyat(),
+      );
+    }
+
     return BlocBuilder<BookmarkCubit, BookmarkState>(
       builder: (context, bookmarkState) {
         final bookmarks =

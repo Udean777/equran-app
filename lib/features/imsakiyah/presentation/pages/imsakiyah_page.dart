@@ -7,7 +7,9 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/location/location_change_prompt_widget.dart';
 import 'package:equran_app/core/widgets/location/location_initial_prompt_widget.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
+import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart';
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart';
+import 'package:equran_app/features/imsakiyah/presentation/widgets/imsak_alarm_toggle_card.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsakiyah_header_card.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsakiyah_table.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsakiyah_today_card.dart';
@@ -21,12 +23,23 @@ class ImsakiyahPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<ImsakiyahCubit>();
-        unawaited(cubit.init());
-        return cubit;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) {
+            final cubit = getIt<ImsakiyahCubit>();
+            unawaited(cubit.init());
+            return cubit;
+          },
+        ),
+        BlocProvider(
+          create: (_) {
+            final cubit = getIt<ImsakAlarmCubit>();
+            unawaited(cubit.load());
+            return cubit;
+          },
+        ),
+      ],
       child: const _ImsakiyahView(),
     );
   }
@@ -127,6 +140,7 @@ class _ImsakiyahView extends StatelessWidget {
             entry: todayEntry,
             tanggal: todayEntry.tanggal,
           ),
+          ImsakAlarmToggleCard(todayEntry: todayEntry),
           const SectionHeader(label: 'Jadwal Bulan Ini'),
           ImsakiyahTable(
             entries: state.jadwal.imsakiyah,
@@ -137,5 +151,4 @@ class _ImsakiyahView extends StatelessWidget {
       ),
     );
   }
-
 }

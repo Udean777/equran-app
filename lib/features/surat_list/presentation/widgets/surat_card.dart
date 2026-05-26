@@ -8,11 +8,16 @@ class SuratCard extends StatelessWidget {
   const SuratCard({
     required this.surat,
     required this.onTap,
+    this.scrollPercent,
     super.key,
   });
 
   final Surat surat;
   final VoidCallback onTap;
+
+  /// Progress membaca surat ini (0.0–1.0).
+  /// Jika null, progress bar tidak ditampilkan.
+  final double? scrollPercent;
 
   @override
   Widget build(BuildContext context) {
@@ -27,52 +32,73 @@ class SuratCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimens.cardPadding),
-          child: Row(
-            children: [
-              _AyatNumberBadge(nomor: surat.nomor),
-              const SizedBox(width: AppDimens.spaceMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      surat.namaLatin,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: AppDimens.spaceXS),
-                    Row(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppDimens.cardPadding),
+              child: Row(
+                children: [
+                  _AyatNumberBadge(nomor: surat.nomor),
+                  const SizedBox(width: AppDimens.spaceMD),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.ayatCount(surat.jumlahAyat),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
+                          surat.namaLatin,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(width: AppDimens.spaceSM),
-                        _TempatTurunBadge(
-                          tempatTurun: surat.tempatTurun,
-                          l10n: l10n,
+                        const SizedBox(height: AppDimens.spaceXS),
+                        Row(
+                          children: [
+                            Text(
+                              l10n.ayatCount(surat.jumlahAyat),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(width: AppDimens.spaceSM),
+                            _TempatTurunBadge(
+                              tempatTurun: surat.tempatTurun,
+                              l10n: l10n,
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                  Text(
+                    surat.nama,
+                    style: const TextStyle(
+                      fontFamily: 'Amiri',
+                      fontSize: 20,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Progress bar tipis — hanya tampil jika scrollPercent != null
+            if (scrollPercent != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(AppDimens.radiusMD),
+                  bottomRight: Radius.circular(AppDimens.radiusMD),
+                ),
+                child: LinearProgressIndicator(
+                  value: scrollPercent,
+                  minHeight: 3,
+                  backgroundColor:
+                      AppColors.primary.withValues(alpha: 0.1),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.primary,
+                  ),
                 ),
               ),
-              Text(
-                surat.nama,
-                style: const TextStyle(
-                  fontFamily: 'Amiri',
-                  fontSize: 20,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

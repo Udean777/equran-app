@@ -30,6 +30,8 @@ extension LastReadDtoMapper on LastReadDto {
     ayatNomor: ayatNomor,
     namaLatin: namaLatin,
     readAt: DateTime.parse(readAt),
+    scrollPercent: scrollPercent,
+    totalAyat: totalAyat,
   );
 }
 
@@ -39,5 +41,7 @@ extension LastReadMapper on LastRead {
     ayatNomor: ayatNomor,
     namaLatin: namaLatin,
     readAt: readAt.toIso8601String(),
+    scrollPercent: scrollPercent,
+    totalAyat: totalAyat,
   );
 }

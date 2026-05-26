@@ -49,6 +49,10 @@ build-android-aab: ## Build Android App Bundle (AAB) untuk Google Play
 	@echo "📦 Ukuran AAB:"
 	@ls -lh build/app/outputs/bundle/release/*.aab | awk '{print "  " $$5 "  " $$9}'
 	@echo ""
+	@echo "💡 Info: Ukuran AAB adalah gabungan seluruh arsitektur (Universal)."
+	@echo "   Saat di-download pengguna dari Play Store, ukurannya akan jauh lebih kecil"
+	@echo "   (estimasi ~30-38 MB, mirip dengan ukuran APK per ABI)."
+	@echo ""
 	@echo "✅ AAB tersimpan di: build/app/outputs/bundle/release/"
 
 build-ios: ## Build iOS IPA (perlu Mac + Xcode)

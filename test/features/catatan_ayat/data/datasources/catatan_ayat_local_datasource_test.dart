@@ -18,7 +18,7 @@ void main() {
     namaLatin: 'Al-Fatihah',
     teksArab: 'بِسْمِ اللّٰهِ',
     isi: 'Catatan test',
-    savedAt: DateTime(2024, 1, 1),
+    savedAt: DateTime(2024),
   );
 
   setUp(() {

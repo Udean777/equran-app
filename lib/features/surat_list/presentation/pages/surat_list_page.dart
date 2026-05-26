@@ -189,16 +189,28 @@ class _SuratListContent extends StatelessWidget {
       return EmptyStateWidget(message: l10n.emptySearch);
     }
 
+    // Ambil lastRead untuk tampilkan progress bar di surat yang sedang dibaca
+    final lastRead = context
+        .watch<BookmarkCubit>()
+        .state
+        .mapOrNull(success: (s) => s.lastRead);
+
     return RefreshIndicator(
       onRefresh: context.read<SuratListCubit>().refresh,
       child: ListView.builder(
         padding: const EdgeInsets.only(bottom: 16),
         itemCount: surats.length,
-        itemBuilder: (_, i) => SuratCard(
-          key: ValueKey(surats[i].nomor),
-          surat: surats[i],
-          onTap: () => context.push('/surat/${surats[i].nomor}'),
-        ),
+        itemBuilder: (_, i) {
+          final surat = surats[i];
+          final isLastRead =
+              lastRead != null && lastRead.suratNomor == surat.nomor;
+          return SuratCard(
+            key: ValueKey(surat.nomor),
+            surat: surat,
+            onTap: () => context.push('/surat/${surat.nomor}'),
+            scrollPercent: isLastRead ? lastRead.scrollPercent : null,
+          );
+        },
       ),
     );
   }

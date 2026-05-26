@@ -8,6 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 const String kAdzanChannelId = 'adzan_channel';
 const String kAdzanSubuhChannelId = 'adzan_subuh_channel';
 const String kQuranReminderChannelId = 'quran_reminder_channel';
+const String kImsakChannelId = 'imsak_channel';
 
 /// Notification IDs per waktu shalat
 const int kNotifIdSubuh = 1;
@@ -15,6 +16,10 @@ const int kNotifIdDzuhur = 2;
 const int kNotifIdAshar = 3;
 const int kNotifIdMaghrib = 4;
 const int kNotifIdIsya = 5;
+
+/// Notification ID untuk alarm imsak & sahur
+const int kNotifIdImsak = 6;
+const int kNotifIdSahur = 7;
 
 /// Notification ID untuk reminder baca Quran
 const int kNotifIdQuranReminder = 10;
@@ -190,6 +195,28 @@ class NotificationService {
     );
   }
 
+  /// Schedule notifikasi dengan [NotificationDetails] custom.
+  /// Digunakan oleh scheduler yang butuh channel spesifik (misal imsak).
+  Future<void> scheduleNotificationRaw({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledTime,
+    required NotificationDetails details,
+  }) async {
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledTime,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
   /// Cancel notifikasi berdasarkan [id].
   Future<void> cancelById(int id) => _plugin.cancel(id);
 
@@ -235,6 +262,16 @@ class NotificationService {
         kQuranReminderChannelId,
         'Reminder Baca Quran',
         description: 'Pengingat harian untuk membaca Al-Quran',
+      ),
+    );
+
+    // Channel alarm imsak & sahur
+    await androidPlugin.createNotificationChannel(
+      const AndroidNotificationChannel(
+        kImsakChannelId,
+        'Alarm Imsak & Sahur',
+        description: 'Alarm pengingat waktu imsak dan sahur Ramadan',
+        importance: Importance.max,
       ),
     );
   }

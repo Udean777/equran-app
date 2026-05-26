@@ -25,6 +25,8 @@ abstract class LastReadDto with _$LastReadDto {
     required int ayatNomor,
     required String namaLatin,
     required String readAt,
+    @Default(0.0) double scrollPercent,
+    @Default(0) int totalAyat,
   }) = _LastReadDto;
 
   factory LastReadDto.fromJson(Map<String, dynamic> json) =>

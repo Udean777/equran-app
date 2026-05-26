@@ -25,3 +25,12 @@ final tLastRead = LastRead(
   namaLatin: 'Al-Fatihah',
   readAt: DateTime(2025, 1, 1, 15),
 );
+
+final tLastReadWithProgress = LastRead(
+  suratNomor: 1,
+  ayatNomor: 3,
+  namaLatin: 'Al-Fatihah',
+  readAt: DateTime(2025, 1, 1, 15),
+  scrollPercent: 3 / 7,
+  totalAyat: 7,
+);

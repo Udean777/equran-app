@@ -24,6 +24,8 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
 
   static const _bookmarksKey = 'bookmarks';
   static const _lastReadKey = 'last_read';
+  // Migration key — data lama tidak punya totalAyat, perlu di-reset sekali
+  static const _lastReadMigrationKey = 'last_read_v2_migrated';
 
   @override
   Future<List<BookmarkDto>> getBookmarks() async {
@@ -85,6 +87,20 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
   @override
   Future<LastReadDto?> getLastRead() async {
     try {
+      // One-time migration: hapus data lama yang tidak punya totalAyat
+      if (_box.get(_lastReadMigrationKey) == null) {
+        final raw = _box.get(_lastReadKey);
+        if (raw != null) {
+          final json = jsonDecode(raw) as Map<String, dynamic>;
+          // Data lama tidak punya 'totalAyat' atau nilainya 0
+          final totalAyat = json['totalAyat'] as int? ?? 0;
+          if (totalAyat == 0) {
+            await _box.delete(_lastReadKey);
+          }
+        }
+        await _box.put(_lastReadMigrationKey, 'true');
+      }
+
       final raw = _box.get(_lastReadKey);
       if (raw == null) return null;
       return LastReadDto.fromJson(
