@@ -67,13 +67,22 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       # ── Flutter ─────────────────────────────────────────────────────────────
-      - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+      - name: Cache Flutter SDK
         if: steps.tag_check.outputs.exists == 'false'
-        uses: subosito/flutter-action@v2
+        uses: actions/cache@v4
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-          cache: true
+          path: ~/flutter
+          key: flutter-${{ env.FLUTTER_VERSION }}-stable-linux
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          if [ ! -d "$HOME/flutter" ]; then
+            curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${{ env.FLUTTER_VERSION }}-stable.tar.xz" \
+              | tar xJ -C "$HOME"
+          fi
+          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
+          flutter --version
 
       # ── Dependencies ────────────────────────────────────────────────────────
       - name: Install dependencies
