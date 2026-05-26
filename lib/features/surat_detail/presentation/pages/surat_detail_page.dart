@@ -16,6 +16,7 @@ import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.d
 import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/widgets/catatan_editor_sheet.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
+import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_card.dart';
@@ -65,6 +66,8 @@ class SuratDetailPage extends StatelessWidget {
         BlocProvider.value(value: context.read<AudioCubit>()),
         // AudioDownloadCubit — per halaman surat
         BlocProvider(create: (_) => getIt<AudioDownloadCubit>()),
+        // ReadingProgressCubit — factory, per halaman surat
+        BlocProvider(create: (_) => getIt<ReadingProgressCubit>()),
       ],
       child: _SuratDetailView(
         nomor: nomor,
@@ -96,16 +99,24 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   bool _hasScrolled = false;
   bool _autoScrollEnabled = true;
   Timer? _saveDebouncer;
+  Timer? _viewportDebouncer;
   SuratDetail? _currentDetail;
   BookmarkCubit? _bookmarkCubit;
+  ReadingProgressCubit? _readingProgressCubit;
+
+  // Ayat yang sudah >50% visible selama >2 detik
+  final _visibleAyatBuffer = <int>{};
+  // Timestamp pertama kali ayat masuk viewport
+  final _ayatVisibleSince = <int, DateTime>{};
 
   @override
   void initState() {
     super.initState();
     // Record streak — user membuka surat berarti baca Quran hari ini
     unawaited(context.read<QuranStreakCubit>().recordRead());
-    // Simpan referensi BookmarkCubit sebelum widget mungkin unmount
+    // Simpan referensi cubit sebelum widget mungkin unmount
     _bookmarkCubit = context.read<BookmarkCubit>();
+    _readingProgressCubit = context.read<ReadingProgressCubit>();
     // Scroll ke initialAyat hanya sekali setelah frame pertama
     if (widget.initialAyat != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -121,6 +132,12 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   @override
   void dispose() {
     _saveDebouncer?.cancel();
+    _viewportDebouncer?.cancel();
+    // Flush reading progress buffer ke Hive
+    final readingCubit = _readingProgressCubit;
+    if (readingCubit != null) {
+      unawaited(readingCubit.flushBuffer());
+    }
     // Fallback save saat user tutup halaman tanpa scroll
     // Gunakan referensi cubit yang sudah disimpan — context sudah tidak valid
     final detail = _currentDetail;
@@ -154,6 +171,61 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   void _onScroll() {
     _saveDebouncer?.cancel();
     _saveDebouncer = Timer(const Duration(seconds: 1), _detectVisibleAyat);
+
+    // Viewport detection untuk reading progress — throttle 1 detik
+    _viewportDebouncer?.cancel();
+    _viewportDebouncer = Timer(
+      const Duration(seconds: 1),
+      _checkViewportAyat,
+    );
+  }
+
+  /// Cek ayat yang >50% visible di viewport.
+  /// Ayat yang sudah visible >2 detik di-buffer ke ReadingProgressCubit.
+  void _checkViewportAyat() {
+    if (!mounted) return;
+    final detail = _currentDetail;
+    if (detail == null) return;
+
+    final screenH = MediaQuery.of(context).size.height;
+    final now = DateTime.now();
+    final currentlyVisible = <int>{};
+
+    for (final entry in _itemKeys.entries) {
+      final ctx = entry.value.currentContext;
+      if (ctx == null) continue;
+      final box = ctx.findRenderObject();
+      if (box == null || box is! RenderBox) continue;
+
+      final pos = box.localToGlobal(Offset.zero);
+      final height = box.size.height;
+
+      // Hitung berapa persen ayat yang visible
+      final visibleTop = pos.dy.clamp(0.0, screenH);
+      final visibleBottom = (pos.dy + height).clamp(0.0, screenH);
+      final visibleHeight = visibleBottom - visibleTop;
+      final visibleRatio = height > 0 ? visibleHeight / height : 0.0;
+
+      if (visibleRatio >= 0.5) {
+        currentlyVisible.add(entry.key);
+        _ayatVisibleSince.putIfAbsent(entry.key, () => now);
+
+        // Cek apakah sudah visible >= 2 detik
+        final since = _ayatVisibleSince[entry.key]!;
+        if (now.difference(since).inSeconds >= 2) {
+          _visibleAyatBuffer.add(entry.key);
+          _readingProgressCubit?.bufferAyat(
+            detail.info.nomor,
+            entry.key,
+          );
+        }
+      }
+    }
+
+    // Hapus ayat yang sudah tidak visible dari tracking
+    _ayatVisibleSince.removeWhere(
+      (ayatNomor, _) => !currentlyVisible.contains(ayatNomor),
+    );
   }
 
   void _detectVisibleAyat() {

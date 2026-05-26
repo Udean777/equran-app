@@ -20,6 +20,7 @@ import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_noti
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
+import 'package:equran_app/features/reading_progress/presentation/pages/reading_stats_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/pages/statistik_shalat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
@@ -122,6 +123,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/statistik-shalat',
       builder: (context, state) => const StatistikShalatPage(),
+    ),
+    GoRoute(
+      path: '/reading-stats',
+      builder: (context, state) => const ReadingStatsPage(),
     ),
   ],
 );

@@ -221,6 +221,22 @@ import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_remi
     as _i443;
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart'
     as _i69;
+import 'package:equran_app/features/reading_progress/data/datasources/reading_history_local_data_source.dart'
+    as _i607;
+import 'package:equran_app/features/reading_progress/data/repositories/reading_progress_repository_impl.dart'
+    as _i403;
+import 'package:equran_app/features/reading_progress/domain/repositories/reading_progress_repository.dart'
+    as _i203;
+import 'package:equran_app/features/reading_progress/domain/usecases/cleanup_old_reading_data.dart'
+    as _i230;
+import 'package:equran_app/features/reading_progress/domain/usecases/get_reading_history_by_date.dart'
+    as _i251;
+import 'package:equran_app/features/reading_progress/domain/usecases/get_reading_stats.dart'
+    as _i821;
+import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read.dart'
+    as _i91;
+import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart'
+    as _i924;
 import 'package:equran_app/features/statistik_shalat/data/datasources/shalat_log_local_data_source.dart'
     as _i815;
 import 'package:equran_app/features/statistik_shalat/data/repositories/statistik_shalat_repository_impl.dart'
@@ -361,6 +377,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i232.GetDownloadedAyats>(
       () => _i232.GetDownloadedAyats(gh<_i503.AudioDownloadDataSource>()),
     );
+    await gh.factoryAsync<_i919.Box<String>>(
+      () => hiveModule.readingHistoryBox(),
+      instanceName: 'readingHistoryBox',
+      preResolve: true,
+    );
     gh.singleton<_i157.LanguageCubit>(
       () => _i157.LanguageCubit(
         gh<_i738.Box<String>>(instanceName: 'settingsBox'),
@@ -443,6 +464,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i480.QiblaRepository>(
       () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
+    );
+    gh.lazySingleton<_i607.ReadingHistoryLocalDataSource>(
+      () => _i607.ReadingHistoryLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'readingHistoryBox'),
+      ),
     );
     gh.factory<_i749.AddBookmark>(
       () => _i749.AddBookmark(gh<_i182.BookmarkRepository>()),
@@ -662,6 +688,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'hafalanBox'),
       ),
     );
+    gh.lazySingleton<_i203.ReadingProgressRepository>(
+      () => _i403.ReadingProgressRepositoryImpl(
+        gh<_i607.ReadingHistoryLocalDataSource>(),
+      ),
+    );
     gh.singleton<_i729.AudioCubit>(
       () => _i729.AudioCubit(
         gh<_i556.PlayAudio>(),
@@ -780,6 +811,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
     );
+    gh.lazySingleton<_i230.CleanupOldReadingData>(
+      () => _i230.CleanupOldReadingData(gh<_i203.ReadingProgressRepository>()),
+    );
+    gh.lazySingleton<_i251.GetReadingHistoryByDate>(
+      () =>
+          _i251.GetReadingHistoryByDate(gh<_i203.ReadingProgressRepository>()),
+    );
+    gh.lazySingleton<_i821.GetReadingStats>(
+      () => _i821.GetReadingStats(gh<_i203.ReadingProgressRepository>()),
+    );
+    gh.lazySingleton<_i91.SaveAyatRead>(
+      () => _i91.SaveAyatRead(gh<_i203.ReadingProgressRepository>()),
+    );
+    gh.lazySingleton<_i91.SaveAyatReadBatch>(
+      () => _i91.SaveAyatReadBatch(gh<_i203.ReadingProgressRepository>()),
+    );
     gh.factory<_i265.StatistikShalatCubit>(
       () => _i265.StatistikShalatCubit(
         gh<_i696.GetShalatByDate>(),
@@ -850,6 +897,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i115.GetSuratDetail>(
       () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
+    );
+    gh.factory<_i924.ReadingProgressCubit>(
+      () => _i924.ReadingProgressCubit(
+        gh<_i821.GetReadingStats>(),
+        gh<_i91.SaveAyatReadBatch>(),
+        gh<_i230.CleanupOldReadingData>(),
+      ),
     );
     gh.factory<_i194.BookmarkCubit>(
       () => _i194.BookmarkCubit(
