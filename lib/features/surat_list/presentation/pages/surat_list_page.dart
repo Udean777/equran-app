@@ -41,13 +41,8 @@ class SuratListPage extends StatelessWidget {
             return cubit;
           },
         ),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<BookmarkCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
+        // BookmarkCubit dari root — pakai BlocProvider.value agar realtime
+        BlocProvider.value(value: context.read<BookmarkCubit>()),
       ],
       child: const _SuratListView(),
     );
@@ -279,9 +274,10 @@ class _SuratListContent extends StatelessWidget {
       );
     }
 
-    final lastRead = context.watch<BookmarkCubit>().state.mapOrNull(
-      success: (s) => s.lastRead,
-    );
+    final suratProgressMap = context.watch<BookmarkCubit>().state.mapOrNull(
+          success: (s) => s.suratProgressMap,
+        ) ??
+        const <int, double>{};
 
     return SliverPadding(
       padding: const EdgeInsets.only(
@@ -293,15 +289,14 @@ class _SuratListContent extends StatelessWidget {
         itemCount: surats.length,
         itemBuilder: (_, i) {
           final surat = surats[i];
-          final isLastRead =
-              lastRead != null && lastRead.suratNomor == surat.nomor;
+          final progress = suratProgressMap[surat.nomor];
           return SuratCard(
             key: ValueKey(surat.nomor),
             surat: surat,
             onTap: () => context.push('/surat/${surat.nomor}'),
             onPlayTap: () =>
                 context.push('/surat/${surat.nomor}?autoPlay=true'),
-            scrollPercent: isLastRead ? lastRead.scrollPercent : null,
+            scrollPercent: progress,
           );
         },
       ),

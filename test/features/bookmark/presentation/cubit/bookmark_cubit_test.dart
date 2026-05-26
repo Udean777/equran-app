@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/add_bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/get_bookmarks.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/get_last_read.dart';
@@ -32,6 +33,8 @@ class MockGetDoaList extends Mock implements GetDoaList {}
 
 class MockToggleDoaBookmark extends Mock implements ToggleDoaBookmark {}
 
+class MockBookmarkRepository extends Mock implements BookmarkRepository {}
+
 const tDoa = Doa(
   id: 1,
   grup: 'Pagi & Petang',
@@ -52,6 +55,7 @@ void main() {
   late MockGetDoaBookmarks mockGetDoaBookmarks;
   late MockGetDoaList mockGetDoaList;
   late MockToggleDoaBookmark mockToggleDoaBookmark;
+  late MockBookmarkRepository mockRepository;
 
   setUp(() {
     mockGetBookmarks = MockGetBookmarks();
@@ -62,6 +66,7 @@ void main() {
     mockGetDoaBookmarks = MockGetDoaBookmarks();
     mockGetDoaList = MockGetDoaList();
     mockToggleDoaBookmark = MockToggleDoaBookmark();
+    mockRepository = MockBookmarkRepository();
 
     registerFallbackValue(tBookmark);
     registerFallbackValue(tLastRead);
@@ -72,6 +77,12 @@ void main() {
     // Stubs default agar test eksisting tidak rusak
     when(() => mockGetDoaBookmarks()).thenAnswer((_) async => right(<int>{}));
     when(() => mockGetDoaList()).thenAnswer((_) async => right(<Doa>[]));
+    when(
+      () => mockRepository.getAllSuratProgress(),
+    ).thenReturn(right(<int, double>{}));
+    when(
+      () => mockRepository.saveSuratProgress(any(), any()),
+    ).thenAnswer((_) async => right(unit));
   });
 
   BookmarkCubit buildCubit() => BookmarkCubit(
@@ -83,6 +94,7 @@ void main() {
     mockGetDoaBookmarks,
     mockGetDoaList,
     mockToggleDoaBookmark,
+    mockRepository,
   );
 
   group('BookmarkCubit', () {

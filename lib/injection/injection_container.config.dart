@@ -805,20 +805,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i8.GetShalatNotifPrefs>(),
         gh<_i69.SaveShalatNotifPrefs>(),
         gh<_i804.ShalatNotificationScheduler>(),
-      ),
-    );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
         gh<_i1042.GetJadwalShalat>(),
         gh<_i88.GetLastLocationShalat>(),
-        gh<_i584.SaveLastLocationShalat>(),
-        gh<_i177.LocationService>(),
-        gh<_i804.ShalatNotificationScheduler>(),
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-        gh<_i615.ShalatNotifCubit>(),
       ),
     );
     gh.lazySingleton<_i420.DoaRepository>(
@@ -937,16 +925,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i230.CleanupOldReadingData>(),
       ),
     );
-    gh.factory<_i194.BookmarkCubit>(
-      () => _i194.BookmarkCubit(
-        gh<_i1008.GetBookmarks>(),
-        gh<_i749.AddBookmark>(),
-        gh<_i778.RemoveBookmark>(),
-        gh<_i994.GetLastRead>(),
-        gh<_i187.SaveLastRead>(),
-        gh<_i254.GetDoaBookmarks>(),
-        gh<_i254.GetDoaList>(),
-        gh<_i107.ToggleDoaBookmark>(),
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
+        gh<_i177.LocationService>(),
+        gh<_i804.ShalatNotificationScheduler>(),
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i615.ShalatNotifCubit>(),
       ),
     );
     gh.factory<_i29.DeleteHafalanSurat>(
@@ -963,6 +953,19 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i702.SaveHafalanSurat>(
       () => _i702.SaveHafalanSurat(gh<_i663.HafalanRepository>()),
+    );
+    gh.factory<_i194.BookmarkCubit>(
+      () => _i194.BookmarkCubit(
+        gh<_i1008.GetBookmarks>(),
+        gh<_i749.AddBookmark>(),
+        gh<_i778.RemoveBookmark>(),
+        gh<_i994.GetLastRead>(),
+        gh<_i187.SaveLastRead>(),
+        gh<_i254.GetDoaBookmarks>(),
+        gh<_i254.GetDoaList>(),
+        gh<_i107.ToggleDoaBookmark>(),
+        gh<_i182.BookmarkRepository>(),
+      ),
     );
     gh.lazySingleton<_i538.HafalanCubit>(
       () => _i538.HafalanCubit(

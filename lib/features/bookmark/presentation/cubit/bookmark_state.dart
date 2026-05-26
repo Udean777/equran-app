@@ -8,6 +8,8 @@ sealed class BookmarkState with _$BookmarkState {
     required List<Bookmark> bookmarks,
     @Default([]) List<Doa> bookmarkedDoas,
     LastRead? lastRead,
+    /// Progress per surat — key: suratNomor, value: maxScrollPercent (0.0–1.0)
+    @Default(<int, double>{}) Map<int, double> suratProgressMap,
   }) = BookmarkSuccess;
   const factory BookmarkState.failure({
     required Failure failure,

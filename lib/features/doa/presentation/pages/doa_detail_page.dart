@@ -89,6 +89,7 @@ class _DoaDetailScaffold extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 32),
         children: [
           DoaArabicCard(ar: doa.ar),
+          DoaTranslationCard(label: 'Latin', text: doa.tr),
           DoaTranslationCard(label: 'Terjemahan', text: doa.idn),
           DoaAboutCard(tentang: doa.tentang),
         ],

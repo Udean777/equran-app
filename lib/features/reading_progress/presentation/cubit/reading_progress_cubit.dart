@@ -85,11 +85,14 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState>
   /// auto-flush timer, atau app masuk background.
   Future<void> flushBuffer() async {
     if (_pendingAyat.isEmpty) return;
-    for (final entry in _pendingAyat.entries) {
+    // Salin dulu agar tidak terjadi ConcurrentModificationError
+    // jika bufferAyat dipanggil saat iterasi berlangsung.
+    final snapshot = Map<String, Set<String>>.from(_pendingAyat);
+    _pendingAyat.clear();
+    for (final entry in snapshot.entries) {
       if (entry.value.isEmpty) continue;
       await _saveAyatReadBatch(entry.key, entry.value);
     }
-    _pendingAyat.clear();
   }
 
   @override

@@ -4,6 +4,8 @@
 	<dict>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Digunakan untuk menyimpan gambar ayat Al-Quran ke galeri foto Anda.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Digunakan untuk mendeteksi lokasi Anda secara otomatis agar jadwal imsakiyah dapat ditampilkan tanpa perlu memilih lokasi secara manual.</string>
 		<key>CFBundleDevelopmentRegion</key>

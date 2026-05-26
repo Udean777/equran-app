@@ -31,6 +31,7 @@ _LastReadDto _$LastReadDtoFromJson(Map<String, dynamic> json) => _LastReadDto(
   namaLatin: json['namaLatin'] as String,
   readAt: json['readAt'] as String,
   scrollPercent: (json['scrollPercent'] as num?)?.toDouble() ?? 0.0,
+  maxScrollPercent: (json['maxScrollPercent'] as num?)?.toDouble() ?? 0.0,
   totalAyat: (json['totalAyat'] as num?)?.toInt() ?? 0,
 );
 
@@ -41,5 +42,6 @@ Map<String, dynamic> _$LastReadDtoToJson(_LastReadDto instance) =>
       'namaLatin': instance.namaLatin,
       'readAt': instance.readAt,
       'scrollPercent': instance.scrollPercent,
+      'maxScrollPercent': instance.maxScrollPercent,
       'totalAyat': instance.totalAyat,
     };

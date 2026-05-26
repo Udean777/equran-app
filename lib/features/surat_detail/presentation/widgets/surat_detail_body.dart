@@ -31,6 +31,7 @@ class SuratDetailBody extends StatelessWidget {
     required this.onToggleAutoScroll,
     required this.onSaveLastRead,
     required this.suratNomor,
+    this.scrollProgress = 0.0,
     super.key,
   });
 
@@ -41,6 +42,9 @@ class SuratDetailBody extends StatelessWidget {
   final VoidCallback onToggleAutoScroll;
   final void Function(SuratDetail, int) onSaveLastRead;
   final int suratNomor;
+
+  /// Progress scroll saat ini (0.0–1.0) — untuk progress bar di AppBar.
+  final double scrollProgress;
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +69,15 @@ class SuratDetailBody extends StatelessWidget {
       builder: (context, audioState) {
         final qari = audioState.currentQari;
 
-        return Scaffold(
-          appBar: SuratDetailAppBar(
-            detail: detail,
-            autoScrollEnabled: autoScrollEnabled,
-            onToggleAutoScroll: onToggleAutoScroll,
-            onDownloadTap: () =>
-                _showDownloadSuratSheet(context, detail, qari),
-          ),
+          return Scaffold(
+            appBar: SuratDetailAppBar(
+              detail: detail,
+              autoScrollEnabled: autoScrollEnabled,
+              onToggleAutoScroll: onToggleAutoScroll,
+              onDownloadTap: () =>
+                  _showDownloadSuratSheet(context, detail, qari),
+              scrollProgress: scrollProgress,
+            ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _showTafsirBottomSheet(context, suratNomor),
             icon: const Icon(Icons.menu_book_rounded),

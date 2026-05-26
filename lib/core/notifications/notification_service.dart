@@ -237,13 +237,23 @@ class NotificationService {
   /// Cancel notifikasi berdasarkan [id].
   Future<void> cancelById(int id) => _plugin.cancel(id);
 
-  /// Cancel semua notifikasi shalat.
+  /// Cancel semua notifikasi (shalat, imsak, quran reminder, hafalan).
   Future<void> cancelAll() async {
+    // Shalat
     await _plugin.cancel(kNotifIdSubuh);
     await _plugin.cancel(kNotifIdDzuhur);
     await _plugin.cancel(kNotifIdAshar);
     await _plugin.cancel(kNotifIdMaghrib);
     await _plugin.cancel(kNotifIdIsya);
+    // Imsak & sahur
+    await _plugin.cancel(kNotifIdImsak);
+    await _plugin.cancel(kNotifIdSahur);
+    // Quran reminder
+    await _plugin.cancel(kNotifIdQuranReminder);
+    // Hafalan muraja'ah (ID range 20–133, satu per surat 1–114)
+    for (var i = 0; i < 114; i++) {
+      await _plugin.cancel(kNotifIdHafalanBase + i);
+    }
   }
 
   // ---------------------------------------------------------------------------
