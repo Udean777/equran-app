@@ -69,7 +69,7 @@ jobs:
       # ── Flutter ─────────────────────────────────────────────────────────────
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         if: steps.tag_check.outputs.exists == 'false'
-        uses: subosito/flutter-action@v2.23.0
+        uses: flutter-actions/setup-flutter@v4.2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
