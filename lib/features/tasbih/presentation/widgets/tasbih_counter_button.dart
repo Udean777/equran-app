@@ -1,4 +1,5 @@
 import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 /// Tombol besar di tengah layar untuk tap tasbih.
@@ -51,7 +52,15 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.isCompleted ? AppColors.secondary : AppColors.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = widget.isCompleted
+        ? AppColors.gold
+        : (isDark ? AppColors.primaryLighter : AppColors.primary);
+    final ringBg = widget.isCompleted
+        ? AppColors.gold.withValues(alpha: 0.15)
+        : (isDark
+            ? AppColors.primaryLighter.withValues(alpha: 0.12)
+            : AppColors.primary.withValues(alpha: 0.12));
 
     return GestureDetector(
       onTap: widget.isCompleted ? null : _handleTap,
@@ -68,52 +77,62 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
                 child: CircularProgressIndicator(
                   value: widget.progress,
                   strokeWidth: 6,
-                  backgroundColor: color.withValues(alpha: 0.15),
+                  backgroundColor: ringBg,
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                   strokeCap: StrokeCap.round,
                 ),
               ),
+
+              // Gold outer ring (completed)
+              if (widget.isCompleted)
+                SizedBox.expand(
+                  child: CircularProgressIndicator(
+                    value: 1,
+                    strokeWidth: 2,
+                    backgroundColor: Colors.transparent,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.gold.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
+
               // Inner circle
               Container(
                 width: 180,
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withValues(alpha: 0.08),
+                  color: color.withValues(alpha: 0.07),
                   border: Border.all(
                     color: color.withValues(alpha: 0.2),
-                    width: 2,
+                    width: 1.5,
                   ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (widget.isCompleted)
-                      Icon(
+                    if (widget.isCompleted) ...[
+                      const Icon(
                         Icons.check_circle_rounded,
-                        color: color,
-                        size: 40,
-                      )
-                    else
+                        color: AppColors.gold,
+                        size: 44,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Selesai',
+                        style: AppTypography.serifHeadingSmall.copyWith(
+                          color: AppColors.gold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ] else
                       Text(
                         '${widget.count}',
                         style: TextStyle(
                           fontSize: 64,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           color: color,
                           height: 1,
-                        ),
-                      ),
-                    if (widget.isCompleted)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          'Selesai',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: color,
-                          ),
                         ),
                       ),
                   ],

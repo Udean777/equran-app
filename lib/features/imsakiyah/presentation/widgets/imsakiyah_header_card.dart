@@ -1,3 +1,6 @@
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:flutter/material.dart';
 
@@ -14,98 +17,114 @@ class ImsakiyahHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          border: Border.all(color: borderColor),
+        ),
+        padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  size: 18,
-                  color: colorScheme.primary,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    '${jadwal.kabkota}, ${jadwal.provinsi}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.primaryDark
+                    : AppColors.primaryContainer,
+                borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+              ),
+              child: Icon(
+                Icons.location_on_rounded,
+                size: 18,
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: AppDimens.spaceMD),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    jadwal.kabkota,
+                    style: AppTypography.serifHeadingSmall.copyWith(
+                      color: isDark
+                          ? AppColors.onSurfaceDark
+                          : AppColors.textPrimary,
+                      fontSize: 15,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                TextButton.icon(
-                  onPressed: onChangeLocation,
-                  icon: const Icon(Icons.edit_location_alt_outlined, size: 16),
-                  label: const Text('Ubah'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                  Text(
+                    jadwal.provinsi,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: isDark
+                          ? AppColors.onSurfaceDarkVariant
+                          : AppColors.textTertiary,
                     ),
-                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: onChangeLocation,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceSM + 2,
+                  vertical: AppDimens.spaceXS,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.primaryDark
+                      : AppColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.primaryLight.withValues(alpha: 0.3)
+                        : AppColors.primary.withValues(alpha: 0.2),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _InfoChip(
-                  icon: Icons.calendar_today_outlined,
-                  label: '${jadwal.hijriah} H',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.edit_location_alt_outlined,
+                      size: 12,
+                      color: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Ubah',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                _InfoChip(
-                  icon: Icons.calendar_month_outlined,
-                  label: jadwal.masehi,
-                ),
-              ],
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: colorScheme.onPrimaryContainer),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }

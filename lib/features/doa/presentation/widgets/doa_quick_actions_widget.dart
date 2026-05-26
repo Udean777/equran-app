@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/doa/domain/entities/doa.dart';
 import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart';
 import 'package:equran_app/injection/injection_container.dart';
@@ -30,35 +31,34 @@ _DoaSlot _slotForNow() {
     return const _DoaSlot(
       label: 'Doa Pagi',
       icon: Icons.wb_sunny_outlined,
-      id1: 6, // Doa Bangun Tidur 1
-      id2: 11, // Doa Setelah Wudhu
+      id1: 6,
+      id2: 11,
     );
   } else if (hour >= 12 && hour < 15) {
     return const _DoaSlot(
       label: 'Doa Siang',
       icon: Icons.wb_twilight_outlined,
-      id1: 135, // Doa Sebelum Makan
-      id2: 139, // Doa Setelah Makan
+      id1: 135,
+      id2: 139,
     );
   } else if (hour >= 15 && hour < 18) {
     return const _DoaSlot(
       label: 'Doa Sore',
       icon: Icons.nights_stay_outlined,
-      id1: 15, // Doa Berlindung dari keburukan
-      id2: 48, // Doa Naik Kendaraan
+      id1: 15,
+      id2: 48,
     );
   } else {
     return const _DoaSlot(
       label: 'Doa Malam',
       icon: Icons.bedtime_outlined,
-      id1: 1, // Doa Sebelum Tidur 1
-      id2: 58, // Doa Berlindung dari setan
+      id1: 1,
+      id2: 58,
     );
   }
 }
 
 /// Widget quick actions doa harian — tampil di atas list surat.
-/// Load doa dari cache/API, tap langsung ke DoaDetailPage.
 class DoaQuickActionsWidget extends StatefulWidget {
   const DoaQuickActionsWidget({super.key});
 
@@ -91,41 +91,59 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
     return FutureBuilder<List<Doa?>>(
       future: _future,
       builder: (context, snapshot) {
-        // Sembunyikan jika loading atau error
         if (!snapshot.hasData) return const SizedBox.shrink();
 
         final doas = snapshot.data!;
         final doa1 = doas[0];
         final doa2 = doas[1];
 
-        // Sembunyikan jika kedua doa gagal dimuat
         if (doa1 == null && doa2 == null) return const SizedBox.shrink();
+
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(
+            AppDimens.pagePadding,
             AppDimens.spaceMD,
-            AppDimens.spaceMD,
-            AppDimens.spaceMD,
+            AppDimens.pagePadding,
             AppDimens.spaceXS,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header row
               Row(
                 children: [
-                  Icon(_slot.icon, size: 16, color: AppColors.primary),
-                  const SizedBox(width: AppDimens.spaceXS),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.goldDark.withValues(alpha: 0.2)
+                          : AppColors.goldLighter,
+                      borderRadius:
+                          BorderRadius.circular(AppDimens.radiusSM),
+                    ),
+                    child: Icon(
+                      _slot.icon,
+                      size: 14,
+                      color: AppColors.goldDark,
+                    ),
+                  ),
+                  const SizedBox(width: AppDimens.spaceSM),
                   Text(
                     _slot.label,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
+                    style: AppTypography.serifHeadingSmall.copyWith(
+                      color: isDark
+                          ? AppColors.onSurfaceDark
+                          : AppColors.textPrimary,
+                      fontSize: 14,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: AppDimens.spaceSM),
+
               // 2 card horizontal
               Row(
                 children: [
@@ -133,6 +151,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
                     Expanded(
                       child: _DoaActionCard(
                         doa: doa1,
+                        isDark: isDark,
                         onTap: () => context.push('/doa/${doa1.id}'),
                       ),
                     ),
@@ -142,6 +161,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
                     Expanded(
                       child: _DoaActionCard(
                         doa: doa2,
+                        isDark: isDark,
                         onTap: () => context.push('/doa/${doa2.id}'),
                       ),
                     ),
@@ -158,23 +178,36 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
 class _DoaActionCard extends StatelessWidget {
   const _DoaActionCard({
     required this.doa,
+    required this.isDark,
     required this.onTap,
   });
 
   final Doa doa;
+  final bool isDark;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final bgColor = isDark
+        ? AppColors.surfaceDarkVariant
+        : AppColors.surfaceTint;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.primaryContainer;
 
     return Material(
-      color: AppColors.primary.withValues(alpha: 0.06),
-      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+      color: bgColor,
+      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        child: Padding(
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        splashColor: AppColors.primaryContainer.withValues(alpha: 0.5),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+            border: Border.all(color: borderColor),
+          ),
           padding: const EdgeInsets.all(AppDimens.spaceMD),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,13 +217,17 @@ class _DoaActionCard extends StatelessWidget {
                 doa.nama,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: isDark
+                      ? AppColors.primaryLighter
+                      : AppColors.primary,
+                  height: 1.3,
                 ),
               ),
               const SizedBox(height: AppDimens.spaceXS),
-              // Preview arab (pendek)
+
+              // Preview arab
               Text(
                 doa.ar,
                 maxLines: 1,
@@ -198,25 +235,35 @@ class _DoaActionCard extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontFamily: 'Amiri',
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: isDark
+                      ? AppColors.onSurfaceDarkVariant
+                      : AppColors.textTertiary,
                   fontSize: 13,
+                  height: 1.8,
                 ),
               ),
-              const SizedBox(height: AppDimens.spaceXS),
-              // Label tap
+              const SizedBox(height: AppDimens.spaceSM),
+
+              // Baca label
               Row(
                 children: [
                   Text(
-                    'Baca selengkapnya',
+                    'Baca doa',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppColors.primary.withValues(alpha: 0.7),
+                      color: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
                     ),
                   ),
                   const SizedBox(width: 2),
                   Icon(
                     Icons.arrow_forward_rounded,
                     size: 10,
-                    color: AppColors.primary.withValues(alpha: 0.7),
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
                   ),
                 ],
               ),

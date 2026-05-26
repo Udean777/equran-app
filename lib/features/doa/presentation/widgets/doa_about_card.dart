@@ -18,63 +18,105 @@ class _DoaAboutCardState extends State<DoaAboutCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
       ),
-      child: InkWell(
-        onTap: () => setState(() => _expanded = !_expanded),
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimens.cardPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header row
-              Row(
-                children: [
-                  Text(
-                    l10n.about,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+      child: Material(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        child: InkWell(
+          onTap: () => setState(() => _expanded = !_expanded),
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          splashColor: AppColors.primaryContainer.withValues(alpha: 0.3),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+              border: Border.all(color: borderColor),
+            ),
+            padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header row
+                Row(
+                  children: [
+                    Container(
+                      width: 3,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: AppColors.gold,
+                        borderRadius:
+                            BorderRadius.circular(AppDimens.radiusFull),
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  AnimatedRotation(
-                    turns: _expanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.primary,
+                    const SizedBox(width: AppDimens.spaceSM),
+                    Text(
+                      l10n.about,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              // Collapsible content
-              AnimatedSize(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                child: _expanded
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: AppDimens.spaceSM),
-                        child: Text(
-                          // Preserve newlines dari API
-                          widget.tentang,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            height: 1.7,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.8,
+                    const Spacer(),
+                    AnimatedRotation(
+                      turns: _expanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.primaryDark
+                              : AppColors.primaryContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Collapsible content
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  child: _expanded
+                      ? Padding(
+                          padding: const EdgeInsets.only(
+                            top: AppDimens.spaceMD,
+                          ),
+                          child: Text(
+                            widget.tentang,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              height: 1.7,
+                              color: isDark
+                                  ? AppColors.onSurfaceDark
+                                  : AppColors.textSecondary,
                             ),
                           ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

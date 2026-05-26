@@ -1,3 +1,6 @@
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -14,35 +17,104 @@ class ImsakiyahTodayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: colorScheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.today_rounded,
-                  size: 18,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Hari Ini — Tanggal $tanggal',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [AppColors.primaryDark, AppColors.primary]
+                : [AppColors.primary, AppColors.primaryLight],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.3),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
-            const SizedBox(height: 12),
-            _TodayGrid(entry: entry, colorScheme: colorScheme, theme: theme),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -16,
+              top: -16,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.onPrimary.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.onPrimary.withValues(alpha: 0.15),
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusSM),
+                          border: Border.all(
+                            color: AppColors.gold.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.today_rounded,
+                          size: 16,
+                          color: AppColors.onPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: AppDimens.spaceSM),
+                      Text(
+                        'Hari Ini — Tanggal $tanggal',
+                        style: AppTypography.serifHeadingSmall.copyWith(
+                          color: AppColors.onPrimary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: AppDimens.spaceMD),
+
+                  Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.gold.withValues(alpha: 0),
+                          AppColors.gold.withValues(alpha: 0.5),
+                          AppColors.gold.withValues(alpha: 0),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: AppDimens.spaceMD),
+
+                  _ImsakGrid(entry: entry),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -50,95 +122,75 @@ class ImsakiyahTodayCard extends StatelessWidget {
   }
 }
 
-class _TodayGrid extends StatelessWidget {
-  const _TodayGrid({
-    required this.entry,
-    required this.colorScheme,
-    required this.theme,
-  });
+class _ImsakGrid extends StatelessWidget {
+  const _ImsakGrid({required this.entry});
 
   final ImsakiyahEntry entry;
-  final ColorScheme colorScheme;
-  final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
     final items = [
       ('Imsak', entry.imsak, Icons.nightlight_round),
-      ('Subuh', entry.subuh, Icons.wb_twilight_rounded),
+      ('Subuh', entry.subuh, Icons.wb_twilight_outlined),
       ('Terbit', entry.terbit, Icons.wb_sunny_outlined),
       ('Dhuha', entry.dhuha, Icons.sunny_snowing),
-      ('Dzuhur', entry.dzuhur, Icons.light_mode_rounded),
+      ('Dzuhur', entry.dzuhur, Icons.light_mode_outlined),
       ('Ashar', entry.ashar, Icons.wb_cloudy_outlined),
-      ('Maghrib', entry.maghrib, Icons.wb_twilight_outlined),
-      ('Isya', entry.isya, Icons.nights_stay_rounded),
+      ('Maghrib', entry.maghrib, Icons.nights_stay_outlined),
+      ('Isya', entry.isya, Icons.bedtime_outlined),
     ];
 
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 1.1,
+    return Wrap(
+      spacing: AppDimens.spaceSM,
+      runSpacing: AppDimens.spaceSM,
       children: items
           .map(
-            (item) => _TodayItem(
-              label: item.$1,
-              time: item.$2,
-              icon: item.$3,
-              colorScheme: colorScheme,
-              theme: theme,
+            (item) => SizedBox(
+              width: (MediaQuery.sizeOf(context).width -
+                      AppDimens.pagePadding * 2 -
+                      AppDimens.cardPaddingLG * 2 -
+                      AppDimens.spaceSM * 3) /
+                  4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceXS,
+                  vertical: AppDimens.spaceSM,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.onPrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                  border: Border.all(
+                    color: AppColors.onPrimary.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(item.$3, size: 14, color: AppColors.gold),
+                    const SizedBox(height: 4),
+                    Text(
+                      item.$1,
+                      style: const TextStyle(
+                        color: AppColors.onPrimary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.$2,
+                      style: const TextStyle(
+                        color: AppColors.onPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           )
           .toList(),
-    );
-  }
-}
-
-class _TodayItem extends StatelessWidget {
-  const _TodayItem({
-    required this.label,
-    required this.time,
-    required this.icon,
-    required this.colorScheme,
-    required this.theme,
-  });
-
-  final String label;
-  final String time;
-  final IconData icon;
-  final ColorScheme colorScheme;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 16, color: colorScheme.onPrimaryContainer),
-          const SizedBox(height: 3),
-          Text(
-            time,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
@@ -35,9 +37,45 @@ class _ReadingStatsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
-        title: const Text('Statistik Baca'),
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Statistik Baca',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: BlocBuilder<ReadingProgressCubit, ReadingProgressState>(
         builder: (context, state) {
@@ -73,13 +111,13 @@ class _SuccessView extends StatelessWidget {
       color: AppColors.primary,
       onRefresh: () async => context.read<ReadingProgressCubit>().load(),
       child: ListView(
+        padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
         children: [
           ReadingStatsHeaderCard(stats: stats, streak: streak),
           ReadingHeatmap(last90Days: stats.last90Days),
           JuzProgressSection(progressPerJuz: stats.progressPerJuz),
           if (stats.topSurat.isNotEmpty)
             TopSuratSection(topSurat: stats.topSurat),
-          const SizedBox(height: 24),
         ],
       ),
     );
@@ -93,59 +131,89 @@ class _EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final subColor = isDark
+        ? AppColors.onSurfaceDarkVariant
+        : AppColors.textSecondary;
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppDimens.spaceXXL),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.menu_book_outlined,
-              size: 72,
-              color: AppColors.primary,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Belum Ada Data',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.surfaceDarkVariant
+                    : AppColors.surfaceVariant,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark
+                      ? AppColors.outlineDark
+                      : AppColors.outlineVariant,
+                ),
+              ),
+              child: Icon(
+                Icons.menu_book_outlined,
+                size: 36,
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppDimens.spaceLG),
+            Text(
+              'Belum Ada Data',
+              style: AppTypography.serifHeadingSmall.copyWith(
+                color: textColor,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: AppDimens.spaceSM),
             Text(
               'Mulai membaca Al-Quran untuk melihat statistik progress kamu.',
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              style: TextStyle(
+                color: subColor,
+                fontSize: 14,
+                height: 1.5,
               ),
             ),
             if (streak > 0) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: AppDimens.spaceLG),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                  horizontal: AppDimens.spaceMD,
+                  vertical: AppDimens.spaceSM,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: isDark
+                      ? AppColors.surfaceDarkVariant
+                      : AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                  border: Border.all(
+                    color: AppColors.gold.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.local_fire_department_rounded,
-                      color: Colors.orange,
-                      size: 20,
+                      color: AppColors.gold,
+                      size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppDimens.spaceXS),
                     Text(
                       '$streak hari streak',
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                      style: TextStyle(
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
                       ),
                     ),
                   ],

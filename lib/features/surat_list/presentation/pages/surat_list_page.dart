@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
@@ -56,53 +57,23 @@ class _SuratListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        leading: Builder(
-          builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            tooltip: 'Menu',
-            onPressed: () => Scaffold.of(ctx).openDrawer(),
-          ),
-        ),
-        actions: [
-          BlocBuilder<ThemeCubit, ThemeState>(
-            builder: (context, themeState) => IconButton(
-              tooltip: themeState.map(
-                light: (_) => l10n.darkMode,
-                dark: (_) => 'Mode Sepia',
-                sepia: (_) => l10n.lightMode,
-              ),
-              icon: Icon(
-                themeState.map(
-                  light: (_) => Icons.dark_mode_rounded,
-                  dark: (_) => Icons.auto_stories_rounded,
-                  sepia: (_) => Icons.light_mode_rounded,
-                ),
-              ),
-              onPressed: () => context.read<ThemeCubit>().cycle(),
-            ),
-          ),
-          IconButton(
-            tooltip: l10n.settings,
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
-      ),
+      appBar: _SuratListAppBar(l10n: l10n, isDark: isDark),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: context.read<SuratListCubit>().refresh,
         child: CustomScrollView(
           slivers: [
+            // Header section
             SliverToBoxAdapter(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Last Read Card
                   BlocBuilder<BookmarkCubit, BookmarkState>(
-                    // Hanya rebuild jika lastRead berubah
                     buildWhen: (prev, curr) =>
                         prev.mapOrNull(success: (s) => s.lastRead) !=
                         curr.mapOrNull(success: (s) => s.lastRead),
@@ -114,9 +85,9 @@ class _SuratListView extends StatelessWidget {
                       return LastReadCard(lastRead: lastRead);
                     },
                   ),
+
                   // Muraja'ah reminder card
                   BlocBuilder<HafalanCubit, HafalanState>(
-                    // Hanya rebuild jika suratMurajaahHariIni berubah
                     buildWhen: (prev, curr) {
                       final prevList = prev is HafalanSuccess
                           ? prev.suratMurajaahHariIni
@@ -131,79 +102,43 @@ class _SuratListView extends StatelessWidget {
                         return const SizedBox.shrink();
                       }
                       final murajaahList = state.suratMurajaahHariIni;
-                      if (murajaahList.isEmpty) return const SizedBox.shrink();
+                      if (murajaahList.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
                       return _MurajaahReminderCard(suratList: murajaahList);
                     },
                   ),
+
                   // Streak chip
                   BlocBuilder<QuranStreakCubit, int>(
-                    // Hanya rebuild jika streak count berubah
                     buildWhen: (prev, curr) => prev != curr,
                     builder: (context, streak) {
-                      if (streak == 0) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppDimens.spaceMD,
-                          vertical: AppDimens.spaceXS,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppDimens.spaceSM,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(
-                                  AppDimens.radiusFull,
-                                ),
-                                border: Border.all(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.local_fire_department_rounded,
-                                    color: Colors.orange,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '$streak hari berturut-turut',
-                                    style: const TextStyle(
-                                      color: AppColors.primary,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                      if (streak == 0) return const SizedBox.shrink();
+                      return _StreakChip(streak: streak, isDark: isDark);
                     },
                   ),
-                  // Doa Quick Actions — 2 doa relevan berdasarkan waktu
+
+                  // Doa Quick Actions
                   const DoaQuickActionsWidget(),
+
+                  // Section header "Daftar Surah"
+                  _SectionHeader(isDark: isDark),
                 ],
               ),
             ),
+
+            // Sticky search bar
             SliverPersistentHeader(
               pinned: true,
               delegate: _SearchBarDelegate(
+                isDark: isDark,
                 child: SearchBarWidget(
                   onChanged: context.read<SuratListCubit>().onQueryChanged,
                 ),
               ),
             ),
+
+            // Surat list
             BlocBuilder<SuratListCubit, SuratListState>(
               builder: (context, state) => switch (state) {
                 SuratListInitial() => const SliverToBoxAdapter(
@@ -230,6 +165,303 @@ class _SuratListView extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// AppBar
+// ---------------------------------------------------------------------------
+
+class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _SuratListAppBar({required this.l10n, required this.isDark});
+
+  final AppLocalizations l10n;
+  final bool isDark;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG);
+
+  @override
+  Widget build(BuildContext context) {
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+
+    return AppBar(
+      backgroundColor: surfaceColor,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      shadowColor: AppColors.outline,
+      surfaceTintColor: Colors.transparent,
+      toolbarHeight: AppDimens.appBarHeightLG,
+      leading: Builder(
+        builder: (ctx) => IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => Scaffold.of(ctx).openDrawer(),
+        ),
+      ),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'eQuran',
+            style: AppTypography.serifHeadingMedium.copyWith(
+              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 2),
+          // Gold ornament line
+          Container(
+            width: 24,
+            height: 1.5,
+            decoration: BoxDecoration(
+              color: AppColors.gold,
+              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+            ),
+          ),
+        ],
+      ),
+      centerTitle: true,
+      actions: [
+        BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, themeState) => IconButton(
+            tooltip: themeState.map(
+              light: (_) => l10n.darkMode,
+              dark: (_) => 'Mode Sepia',
+              sepia: (_) => l10n.lightMode,
+            ),
+            icon: Icon(
+              themeState.map(
+                light: (_) => Icons.dark_mode_outlined,
+                dark: (_) => Icons.auto_stories_outlined,
+                sepia: (_) => Icons.light_mode_outlined,
+              ),
+              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+            ),
+            onPressed: () => context.read<ThemeCubit>().cycle(),
+          ),
+        ),
+        IconButton(
+          tooltip: l10n.settings,
+          icon: Icon(
+            Icons.settings_outlined,
+            color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+          ),
+          onPressed: () => context.push('/settings'),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Section header
+// ---------------------------------------------------------------------------
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.isDark});
+
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceLG,
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+      ),
+      child: Row(
+        children: [
+          // Gold accent bar
+          Container(
+            width: 3,
+            height: 18,
+            decoration: BoxDecoration(
+              color: AppColors.gold,
+              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+            ),
+          ),
+          const SizedBox(width: AppDimens.spaceSM),
+          Text(
+            'Daftar Surah',
+            style: AppTypography.serifHeadingSmall.copyWith(
+              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              fontSize: 16,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            '114 Surah',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: isDark
+                  ? AppColors.onSurfaceDarkVariant
+                  : AppColors.textTertiary,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Streak chip
+// ---------------------------------------------------------------------------
+
+class _StreakChip extends StatelessWidget {
+  const _StreakChip({required this.streak, required this.isDark});
+
+  final int streak;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.spaceSM + 2,
+              vertical: AppDimens.spaceXS,
+            ),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.goldDark.withValues(alpha: 0.2)
+                  : AppColors.goldLighter,
+              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              border: Border.all(
+                color: AppColors.gold.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  color: Colors.orange,
+                  size: 13,
+                ),
+                const SizedBox(width: AppDimens.spaceXS),
+                Text(
+                  '$streak hari berturut-turut',
+                  style: TextStyle(
+                    color: isDark ? AppColors.goldLight : AppColors.goldDark,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Muraja'ah reminder card
+// ---------------------------------------------------------------------------
+
+class _MurajaahReminderCard extends StatelessWidget {
+  const _MurajaahReminderCard({required this.suratList});
+
+  final List<HafalanSurat> suratList;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final names = suratList.take(3).map((s) => s.namaLatin).join(', ');
+    final extra = suratList.length > 3 ? ' +${suratList.length - 3}' : '';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        child: InkWell(
+          onTap: () => context.push('/hafalan'),
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          child: Container(
+            padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.warningContainer.withValues(alpha: 0.08)
+                  : AppColors.warningContainer,
+              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+              border: Border.all(
+                color: AppColors.warning.withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                  ),
+                  child: const Icon(
+                    Icons.refresh_rounded,
+                    color: AppColors.warning,
+                    size: AppDimens.iconMD,
+                  ),
+                ),
+                const SizedBox(width: AppDimens.spaceMD),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Muraja'ah Hari Ini",
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$names$extra',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.warning.withValues(alpha: 0.8),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.warning.withValues(alpha: 0.6),
+                  size: AppDimens.iconMD,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Surat list content
+// ---------------------------------------------------------------------------
+
 class _SuratListContent extends StatelessWidget {
   const _SuratListContent({required this.state});
 
@@ -247,13 +479,16 @@ class _SuratListContent extends StatelessWidget {
       );
     }
 
-    // Ambil lastRead untuk tampilkan progress bar di surat yang sedang dibaca
     final lastRead = context.watch<BookmarkCubit>().state.mapOrNull(
       success: (s) => s.lastRead,
     );
 
     return SliverPadding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(
+        left: AppDimens.pagePadding,
+        right: AppDimens.pagePadding,
+        bottom: AppDimens.spaceLG,
+      ),
       sliver: SliverList.builder(
         itemCount: surats.length,
         itemBuilder: (_, i) {
@@ -274,10 +509,15 @@ class _SuratListContent extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Search bar delegate
+// ---------------------------------------------------------------------------
+
 class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
-  _SearchBarDelegate({required this.child});
+  _SearchBarDelegate({required this.child, required this.isDark});
 
   final Widget child;
+  final bool isDark;
 
   @override
   Widget build(
@@ -286,15 +526,17 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final isPinned = shrinkOffset > 0 || overlapsContent;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: isPinned ? surfaceColor : bgColor,
         boxShadow: isPinned
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -306,94 +548,12 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 72;
+  double get maxExtent => 64;
 
   @override
-  double get minExtent => 72;
+  double get minExtent => 64;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
-  }
-}
-
-// ─── Muraja'ah Reminder Card ──────────────────────────────────────────────────
-
-class _MurajaahReminderCard extends StatelessWidget {
-  const _MurajaahReminderCard({required this.suratList});
-
-  final List<HafalanSurat> suratList;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final names = suratList.take(3).map((s) => s.namaLatin).join(', ');
-    final extra = suratList.length > 3 ? ' +${suratList.length - 3}' : '';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.spaceMD,
-        AppDimens.spaceXS,
-        AppDimens.spaceMD,
-        AppDimens.spaceXS,
-      ),
-      child: InkWell(
-        onTap: () => context.push('/hafalan'),
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        child: Container(
-          padding: const EdgeInsets.all(AppDimens.spaceMD),
-          decoration: BoxDecoration(
-            color: AppColors.error.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-            border: Border.all(
-              color: AppColors.error.withValues(alpha: 0.25),
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppDimens.spaceSM),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-                ),
-                child: const Icon(
-                  Icons.refresh_rounded,
-                  color: AppColors.error,
-                  size: AppDimens.iconMD,
-                ),
-              ),
-              const SizedBox(width: AppDimens.spaceMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Muraja'ah Hari Ini",
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '$names$extra',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.error.withValues(alpha: 0.8),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.error.withValues(alpha: 0.6),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
 }

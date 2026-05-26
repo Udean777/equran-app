@@ -24,7 +24,7 @@ class InfoChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: highlight
-            ? AppColors.secondary.withValues(alpha: 0.15)
+            ? AppColors.gold.withValues(alpha: 0.15)
             : AppColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppDimens.radiusFull),
       ),
@@ -43,7 +43,7 @@ class InfoChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: highlight ? AppColors.secondary : AppColors.primary,
+              color: highlight ? AppColors.gold : AppColors.primary,
             ),
           ),
         ],

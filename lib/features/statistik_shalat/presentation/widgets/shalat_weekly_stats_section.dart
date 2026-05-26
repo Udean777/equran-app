@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,88 +24,119 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceSM,
-      ),
-      padding: const EdgeInsets.all(AppDimens.spaceMD),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        border: Border.all(color: AppColors.outline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            children: [
-              const Icon(
-                Icons.bar_chart_rounded,
-                size: AppDimens.iconSM + 2,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
-              Text(
-                'Statistik 7 Hari Terakhir',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+      child: Container(
+        padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color:
+                  AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  width: 3,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.radiusFull),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
-
-          // Summary chips
-          Row(
-            children: [
-              _SummaryChip(
-                label: '$totalTepatWaktu',
-                sublabel: 'Tepat Waktu',
-                color: AppColors.success,
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
-              _SummaryChip(
-                label: '$totalQadha',
-                sublabel: 'Qadha',
-                color: AppColors.warning,
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
-              _SummaryChip(
-                label: '$totalTidakShalat',
-                sublabel: 'Tidak Shalat',
-                color: AppColors.error,
-              ),
-              const Spacer(),
-              // Persentase
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${(persentaseTepatWaktu * 100).toStringAsFixed(0)}%',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                const SizedBox(width: AppDimens.spaceSM),
+                Text(
+                  'Statistik 7 Hari Terakhir',
+                  style: AppTypography.serifHeadingSmall.copyWith(
+                    color: isDark
+                        ? AppColors.onSurfaceDark
+                        : AppColors.textPrimary,
+                    fontSize: 15,
                   ),
-                  Text(
-                    'tepat waktu',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
+                ),
+                const Spacer(),
+                Text(
+                  '${(persentaseTepatWaktu * 100).toStringAsFixed(0)}%',
+                  style: AppTypography.serifHeadingSmall.copyWith(
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
+                    fontSize: 18,
                   ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
+                ),
+              ],
+            ),
 
-          // Bar chart
-          if (dailyStats.isNotEmpty) _BarChart(dailyStats: dailyStats),
-        ],
+            const SizedBox(height: AppDimens.spaceXS),
+
+            Text(
+              'tepat waktu',
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textTertiary,
+              ),
+            ),
+
+            const SizedBox(height: AppDimens.spaceMD),
+
+            // Summary chips
+            Row(
+              children: [
+                _SummaryChip(
+                  label: '$totalTepatWaktu',
+                  sublabel: 'Tepat Waktu',
+                  color: AppColors.success,
+                  isDark: isDark,
+                ),
+                const SizedBox(width: AppDimens.spaceSM),
+                _SummaryChip(
+                  label: '$totalQadha',
+                  sublabel: 'Qadha',
+                  color: AppColors.warning,
+                  isDark: isDark,
+                ),
+                const SizedBox(width: AppDimens.spaceSM),
+                _SummaryChip(
+                  label: '$totalTidakShalat',
+                  sublabel: 'Tidak Shalat',
+                  color: AppColors.error,
+                  isDark: isDark,
+                ),
+              ],
+            ),
+
+            if (dailyStats.isNotEmpty) ...[
+              const SizedBox(height: AppDimens.spaceMD),
+              Container(
+                height: 1,
+                color: isDark
+                    ? AppColors.outlineDark
+                    : AppColors.outlineVariant,
+              ),
+              const SizedBox(height: AppDimens.spaceMD),
+              _BarChart(dailyStats: dailyStats, isDark: isDark),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -115,47 +147,61 @@ class _SummaryChip extends StatelessWidget {
     required this.label,
     required this.sublabel,
     required this.color,
+    required this.isDark,
   });
 
   final String label;
   final String sublabel;
   final Color color;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceSM,
-        vertical: AppDimens.spaceXS,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDimens.spaceSM,
+          vertical: AppDimens.spaceXS,
+        ),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: isDark ? 0.12 : 0.08),
+          borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+          border: Border.all(
+            color: color.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                color: color,
+              ),
             ),
-          ),
-          Text(
-            sublabel,
-            style: const TextStyle(fontSize: 10),
-          ),
-        ],
+            Text(
+              sublabel,
+              style: TextStyle(
+                fontSize: 10,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _BarChart extends StatelessWidget {
-  const _BarChart({required this.dailyStats});
+  const _BarChart({required this.dailyStats, required this.isDark});
 
   final List<ShalatDayStats> dailyStats;
+  final bool isDark;
 
   static final _dayFormat = DateFormat('E', 'id_ID');
 
@@ -169,7 +215,7 @@ class _BarChart extends StatelessWidget {
         children: dailyStats.map((day) {
           final date = DateTime.tryParse(day.date);
           final dayLabel = date != null ? _dayFormat.format(date) : '';
-          return _Bar(dayStats: day, dayLabel: dayLabel);
+          return _Bar(dayStats: day, dayLabel: dayLabel, isDark: isDark);
         }).toList(),
       ),
     );
@@ -177,14 +223,18 @@ class _BarChart extends StatelessWidget {
 }
 
 class _Bar extends StatelessWidget {
-  const _Bar({required this.dayStats, required this.dayLabel});
+  const _Bar({
+    required this.dayStats,
+    required this.dayLabel,
+    required this.isDark,
+  });
 
   final ShalatDayStats dayStats;
   final String dayLabel;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     const maxHeight = 72.0;
     const barWidth = 28.0;
 
@@ -198,20 +248,23 @@ class _Bar extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // Jumlah shalat label
         if (total > 0)
           Text(
             '$total',
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: isDark
+                  ? AppColors.onSurfaceDark
+                  : AppColors.textPrimary,
+            ),
           ),
         const SizedBox(height: 2),
-        // Bar stacked
         SizedBox(
           width: barWidth,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Qadha (atas)
               if (qadhHeight > 0)
                 Container(
                   height: qadhHeight,
@@ -227,7 +280,6 @@ class _Bar extends StatelessWidget {
                     ),
                   ),
                 ),
-              // Tepat waktu (bawah)
               if (tepatHeight > 0)
                 Container(
                   height: tepatHeight,
@@ -243,23 +295,29 @@ class _Bar extends StatelessWidget {
                     ),
                   ),
                 ),
-              // Empty bar jika tidak ada data
               if (total == 0)
                 Container(
                   height: 4,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                    color: isDark
+                        ? AppColors.outlineDark
+                        : AppColors.outlineVariant,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.radiusSM),
                   ),
                 ),
             ],
           ),
         ),
         const SizedBox(height: AppDimens.spaceXS),
-        // Hari label
         Text(
           dayLabel,
-          style: const TextStyle(fontSize: 10),
+          style: TextStyle(
+            fontSize: 10,
+            color: isDark
+                ? AppColors.onSurfaceDarkVariant
+                : AppColors.textTertiary,
+          ),
         ),
       ],
     );

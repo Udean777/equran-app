@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/settings/presentation/widgets/notif_toggle_tile.dart';
@@ -13,6 +14,8 @@ class SettingsShalatNotifSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return BlocBuilder<ShalatNotifCubit, ShalatNotifPrefs>(
       builder: (context, prefs) {
         final cubit = context.read<ShalatNotifCubit>();
@@ -24,63 +27,183 @@ class SettingsShalatNotifSection extends StatelessWidget {
               value: prefs.subuh,
               onChanged: (_) => cubit.toggleSubuh(),
             ),
+            _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Dzuhur',
               icon: Icons.wb_sunny_rounded,
               value: prefs.dzuhur,
               onChanged: (_) => cubit.toggleDzuhur(),
             ),
+            _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Ashar',
               icon: Icons.wb_sunny_outlined,
               value: prefs.ashar,
               onChanged: (_) => cubit.toggleAshar(),
             ),
+            _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Maghrib',
               icon: Icons.nights_stay_outlined,
               value: prefs.maghrib,
               onChanged: (_) => cubit.toggleMaghrib(),
             ),
+            _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Isya',
-              icon: Icons.nightlight_round,
+              icon: Icons.dark_mode_rounded,
               value: prefs.isya,
               onChanged: (_) => cubit.toggleIsya(),
             ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(
-                Icons.timer_outlined,
-                color: AppColors.primary,
+            _InternalDivider(isDark: isDark),
+            // Menit sebelum
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.cardPadding,
+                AppDimens.spaceSM,
+                AppDimens.cardPadding,
+                AppDimens.spaceSM,
               ),
-              title: const Text('Ingatkan sebelum'),
-              trailing: DropdownButton<int>(
-                value: prefs.menitSebelum,
-                underline: const SizedBox.shrink(),
-                items: const [
-                  DropdownMenuItem(value: 0, child: Text('Tepat waktu')),
-                  DropdownMenuItem(
-                    value: 5,
-                    child: Text('5 menit sebelum'),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.primaryDark
+                          : AppColors.primaryContainer,
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                    ),
+                    child: Icon(
+                      Icons.timer_outlined,
+                      size: AppDimens.iconSM,
+                      color: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                    ),
                   ),
-                  DropdownMenuItem(
-                    value: 10,
-                    child: Text('10 menit sebelum'),
+                  const SizedBox(width: AppDimens.spaceMD),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Menit Sebelum Adzan',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: isDark
+                                ? AppColors.onSurfaceDark
+                                : AppColors.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          '${prefs.menitSebelum} menit sebelum',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.onSurfaceDarkVariant
+                                : AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  DropdownMenuItem(
-                    value: 15,
-                    child: Text('15 menit sebelum'),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _StepButton(
+                        icon: Icons.remove_rounded,
+                        onTap: () => unawaited(
+                          cubit.setMenitSebelum(
+                            (prefs.menitSebelum - 5).clamp(0, 60),
+                          ),
+                        ),
+                        isDark: isDark,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppDimens.spaceSM,
+                        ),
+                        child: Text(
+                          '${prefs.menitSebelum}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: isDark
+                                ? AppColors.primaryLighter
+                                : AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      _StepButton(
+                        icon: Icons.add_rounded,
+                        onTap: () => unawaited(
+                          cubit.setMenitSebelum(
+                            (prefs.menitSebelum + 5).clamp(0, 60),
+                          ),
+                        ),
+                        isDark: isDark,
+                      ),
+                    ],
                   ),
                 ],
-                onChanged: (val) {
-                  if (val != null) unawaited(cubit.setMenitSebelum(val));
-                },
               ),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class _InternalDivider extends StatelessWidget {
+  const _InternalDivider({required this.isDark});
+
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(horizontal: AppDimens.cardPadding),
+      color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+    );
+  }
+}
+
+class _StepButton extends StatelessWidget {
+  const _StepButton({
+    required this.icon,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
+          borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+          border: Border.all(
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 16,
+          color: isDark ? AppColors.primaryLighter : AppColors.primary,
+        ),
+      ),
     );
   }
 }

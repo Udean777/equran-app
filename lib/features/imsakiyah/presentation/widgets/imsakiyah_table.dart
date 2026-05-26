@@ -1,3 +1,5 @@
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -26,83 +28,92 @@ class ImsakiyahTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final headerBg =
+        isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(
-            colorScheme.surfaceContainerHighest,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          border: Border.all(color: borderColor),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            headingRowColor: WidgetStateProperty.all(headerBg),
+            headingRowHeight: 40,
+            dataRowMinHeight: 36,
+            dataRowMaxHeight: 40,
+            horizontalMargin: AppDimens.spaceMD,
+            columnSpacing: AppDimens.spaceMD,
+            dividerThickness: 1,
+            headingTextStyle: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: isDark
+                  ? AppColors.onSurfaceDarkVariant
+                  : AppColors.textSecondary,
+              letterSpacing: 0.3,
+            ),
+            columns: _headers
+                .map((h) => DataColumn(label: Text(h)))
+                .toList(),
+            rows: entries.map((e) {
+              final isToday = e.tanggal == todayTanggal;
+              return DataRow(
+                color: isToday
+                    ? WidgetStateProperty.all(
+                        isDark
+                            ? AppColors.primaryDark.withValues(alpha: 0.4)
+                            : AppColors.primaryContainer,
+                      )
+                    : WidgetStateProperty.all(Colors.transparent),
+                cells: [
+                  DataCell(_cell(e.tanggal.toString(), isToday, isDark, bold: true)),
+                  DataCell(_cell(e.imsak, isToday, isDark)),
+                  DataCell(_cell(e.subuh, isToday, isDark)),
+                  DataCell(_cell(e.terbit, isToday, isDark)),
+                  DataCell(_cell(e.dhuha, isToday, isDark)),
+                  DataCell(_cell(e.dzuhur, isToday, isDark)),
+                  DataCell(_cell(e.ashar, isToday, isDark)),
+                  DataCell(_cell(e.maghrib, isToday, isDark)),
+                  DataCell(_cell(e.isya, isToday, isDark)),
+                ],
+              );
+            }).toList(),
           ),
-          dataRowMinHeight: 36,
-          dataRowMaxHeight: 40,
-          horizontalMargin: 12,
-          columnSpacing: 12,
-          headingTextStyle: theme.textTheme.labelSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          columns: _headers
-              .map(
-                (h) => DataColumn(
-                  label: Text(h),
-                ),
-              )
-              .toList(),
-          rows: entries.map((e) {
-            final isToday = e.tanggal == todayTanggal;
-            return DataRow(
-              color: isToday
-                  ? WidgetStateProperty.all(
-                      colorScheme.primaryContainer.withValues(alpha: 0.4),
-                    )
-                  : null,
-              cells: [
-                DataCell(
-                  Text(
-                    '${e.tanggal}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: isToday ? FontWeight.w700 : FontWeight.normal,
-                      color: isToday ? colorScheme.primary : null,
-                    ),
-                  ),
-                ),
-                DataCell(_TimeCell(time: e.imsak, isToday: isToday)),
-                DataCell(_TimeCell(time: e.subuh, isToday: isToday)),
-                DataCell(_TimeCell(time: e.terbit, isToday: isToday)),
-                DataCell(_TimeCell(time: e.dhuha, isToday: isToday)),
-                DataCell(_TimeCell(time: e.dzuhur, isToday: isToday)),
-                DataCell(_TimeCell(time: e.ashar, isToday: isToday)),
-                DataCell(_TimeCell(time: e.maghrib, isToday: isToday)),
-                DataCell(_TimeCell(time: e.isya, isToday: isToday)),
-              ],
-            );
-          }).toList(),
         ),
       ),
     );
   }
-}
 
-class _TimeCell extends StatelessWidget {
-  const _TimeCell({required this.time, required this.isToday});
-
-  final String time;
-  final bool isToday;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  Widget _cell(
+    String text,
+    bool isToday,
+    bool isDark, {
+    bool bold = false,
+  }) {
+    final color = isToday
+        ? (isDark ? AppColors.primaryLighter : AppColors.primary)
+        : (isDark ? AppColors.onSurfaceDark : AppColors.textPrimary);
 
     return Text(
-      time,
-      style: theme.textTheme.bodySmall?.copyWith(
-        fontWeight: isToday ? FontWeight.w600 : FontWeight.normal,
-        color: isToday ? colorScheme.primary : null,
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: (isToday || bold) ? FontWeight.w600 : FontWeight.w400,
+        color: color,
       ),
     );
   }

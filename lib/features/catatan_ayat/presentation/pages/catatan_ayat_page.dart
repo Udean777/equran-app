@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
@@ -36,9 +37,46 @@ class _CatatanAyatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
-        title: const Text('Catatan Saya'),
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Catatan Saya',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: BlocBuilder<CatatanAyatCubit, CatatanAyatState>(
         builder: (context, state) => switch (state) {
@@ -48,13 +86,12 @@ class _CatatanAyatView extends StatelessWidget {
             message: message,
             onRetry: () => context.read<CatatanAyatCubit>().load(),
           ),
-          CatatanAyatSuccess(:final catatan) =>
-            catatan.isEmpty
-                ? const EmptyStateWidget(
-                    message:
-                        'Belum ada catatan.\nTambah catatan dari halaman baca surat.',
-                  )
-                : _CatatanList(catatan: catatan),
+          CatatanAyatSuccess(:final catatan) => catatan.isEmpty
+              ? const EmptyStateWidget(
+                  message:
+                      'Belum ada catatan.\nTambah catatan dari halaman baca surat.',
+                )
+              : _CatatanList(catatan: catatan),
         },
       ),
     );
@@ -69,7 +106,12 @@ class _CatatanList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.all(AppDimens.spaceMD),
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceXL,
+      ),
       itemCount: catatan.length,
       separatorBuilder: (_, _) => const SizedBox(height: AppDimens.spaceSM),
       itemBuilder: (context, index) {
@@ -102,21 +144,47 @@ class _CatatanList extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, CatatanAyat item) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hapus Catatan?'),
+        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          side: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outline,
+          ),
+        ),
+        title: Text(
+          'Hapus Catatan?',
+          style: AppTypography.serifHeadingSmall.copyWith(
+            color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+          ),
+        ),
         content: Text(
           'Catatan untuk ${item.namaLatin} ayat ${item.ayatNomor} akan dihapus.',
+          style: TextStyle(
+            color: isDark
+                ? AppColors.onSurfaceDarkVariant
+                : AppColors.textSecondary,
+            fontSize: 14,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: TextStyle(
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textSecondary,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Hapus'),
           ),
         ],
@@ -144,6 +212,10 @@ class _CatatanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
     final dateStr = DateFormat('d MMM yyyy', 'id').format(catatan.savedAt);
 
     return Dismissible(
@@ -153,42 +225,52 @@ class _CatatanCard extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: AppDimens.spaceMD),
         decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+          color: AppColors.error,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         ),
         child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
       ),
       confirmDismiss: (_) async {
         onDelete();
-        return false; // cubit handle delete + reload
+        return false;
       },
-      child: Card(
-        margin: EdgeInsets.zero,
+      child: Material(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-          child: Padding(
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+              border: Border.all(color: borderColor),
+            ),
             padding: const EdgeInsets.all(AppDimens.cardPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header — nama surat + nomor ayat + tanggal
+                // Header
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppDimens.spaceSM,
-                        vertical: 2,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                        color: isDark
+                            ? AppColors.primaryDark
+                            : AppColors.primaryContainer,
+                        borderRadius:
+                            BorderRadius.circular(AppDimens.radiusFull),
                       ),
                       child: Text(
-                        '${catatan.namaLatin} : ${catatan.ayatNomor}',
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 12,
+                        '${catatan.namaLatin} · ${catatan.ayatNomor}',
+                        style: TextStyle(
+                          color: isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -197,7 +279,9 @@ class _CatatanCard extends StatelessWidget {
                     Text(
                       dateStr,
                       style: TextStyle(
-                        color: Colors.grey[500],
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
                         fontSize: 11,
                       ),
                     ),
@@ -205,7 +289,7 @@ class _CatatanCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppDimens.spaceSM),
 
-                // Cuplikan teks Arab
+                // Teks Arab
                 Directionality(
                   textDirection: ui.TextDirection.rtl,
                   child: Text(
@@ -213,22 +297,45 @@ class _CatatanCard extends StatelessWidget {
                     textAlign: TextAlign.right,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: 'KFGQPC',
-                      fontSize: 16,
-                      color: AppColors.primary,
-                      height: 2,
+                    style: TextStyle(
+                      fontFamily: 'Amiri',
+                      fontSize: 18,
+                      color: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                      height: 1.8,
                     ),
                   ),
                 ),
-                const Divider(height: AppDimens.spaceMD),
+
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(
+                    vertical: AppDimens.spaceSM,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.gold.withValues(alpha: 0),
+                        AppColors.gold.withValues(alpha: 0.3),
+                        AppColors.gold.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
 
                 // Isi catatan
                 Text(
                   catatan.isi,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.onSurfaceDark
+                        : AppColors.textPrimary,
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),

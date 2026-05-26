@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/preset_selector_sheet.dart';
@@ -16,11 +17,13 @@ class TasbihBottomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
         AppDimens.spaceMD,
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
+        AppDimens.pagePadding,
         AppDimens.spaceXL,
       ),
       child: Row(
@@ -28,13 +31,26 @@ class TasbihBottomControls extends StatelessWidget {
           // Ganti dzikir
           Expanded(
             child: OutlinedButton.icon(
-              icon: const Icon(Icons.swap_horiz_rounded),
-              label: const Text('Ganti Dzikir'),
+              icon: Icon(
+                Icons.swap_horiz_rounded,
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+              ),
+              label: Text(
+                'Ganti Dzikir',
+                style: TextStyle(
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
+                side: BorderSide(
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                ),
                 padding: const EdgeInsets.symmetric(
                   vertical: AppDimens.spaceMD,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
                 ),
               ),
               onPressed: () => _showPresetSheet(context),
@@ -45,18 +61,56 @@ class TasbihBottomControls extends StatelessWidget {
 
           // Reset
           Expanded(
-            child: FilledButton.icon(
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Reset'),
-              style: FilledButton.styleFrom(
-                backgroundColor: state.isCompleted
-                    ? AppColors.secondary
-                    : AppColors.primary,
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppDimens.spaceMD,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: state.isCompleted
+                      ? [AppColors.goldDark, AppColors.gold]
+                      : (isDark
+                            ? [AppColors.primaryDark, AppColors.primary]
+                            : [AppColors.primary, AppColors.primaryLight]),
+                ),
+                borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        (state.isCompleted ? AppColors.gold : AppColors.primary)
+                            .withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => context.read<TasbihCubit>().reset(),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.spaceMD,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.refresh_rounded,
+                          color: AppColors.onPrimary,
+                          size: 18,
+                        ),
+                        const SizedBox(width: AppDimens.spaceXS),
+                        Text(
+                          'Reset',
+                          style: AppTypography.serifHeadingSmall.copyWith(
+                            color: AppColors.onPrimary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              onPressed: () => context.read<TasbihCubit>().reset(),
             ),
           ),
         ],

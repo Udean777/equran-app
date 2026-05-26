@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,94 +16,204 @@ class LastReadCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
         AppDimens.spaceMD,
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
+        AppDimens.pagePadding,
         AppDimens.spaceXS,
       ),
-      child: InkWell(
-        onTap: () => context.push(
-          '/surat/${lastRead.suratNomor}?ayat=${lastRead.ayatNomor}',
-        ),
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, Color(0xFF2E7D32)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+        child: InkWell(
+          onTap: () => context.push(
+            '/surat/${lastRead.suratNomor}?ayat=${lastRead.ayatNomor}',
           ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(AppDimens.spaceMD),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.menu_book_rounded,
-                      color: AppColors.onPrimary,
-                      size: AppDimens.iconLG,
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [AppColors.primaryDark, AppColors.primary]
+                    : [AppColors.primary, AppColors.primaryLight],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Ornamen geometric — subtle pattern di kanan atas
+                Positioned(
+                  right: -12,
+                  top: -12,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.onPrimary.withValues(alpha: 0.05),
                     ),
-                    const SizedBox(width: AppDimens.spaceMD),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ),
+                Positioned(
+                  right: 20,
+                  top: -20,
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.onPrimary.withValues(alpha: 0.04),
+                    ),
+                  ),
+                ),
+
+                // Content
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDimens.cardPaddingLG,
+                        AppDimens.cardPaddingLG,
+                        AppDimens.cardPaddingLG,
+                        AppDimens.spaceMD,
+                      ),
+                      child: Row(
                         children: [
-                          Text(
-                            'Lanjutkan Membaca',
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: AppColors.onPrimary.withValues(alpha: 0.8),
+                          // Icon container
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.onPrimary.withValues(alpha: 0.15),
+                              borderRadius:
+                                  BorderRadius.circular(AppDimens.radiusMD),
+                              border: Border.all(
+                                color: AppColors.gold.withValues(alpha: 0.4),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: AppDimens.spaceXS),
-                          Text(
-                            lastRead.namaLatin,
-                            style: theme.textTheme.titleMedium?.copyWith(
+                            child: const Icon(
+                              Icons.menu_book_rounded,
                               color: AppColors.onPrimary,
-                              fontWeight: FontWeight.bold,
+                              size: AppDimens.iconMD,
                             ),
                           ),
-                          Text(
-                            lastRead.totalAyat > 0
-                                ? 'Ayat ${lastRead.ayatNomor} dari ${lastRead.totalAyat}'
-                                : 'Ayat ${lastRead.ayatNomor}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: AppColors.onPrimary.withValues(alpha: 0.8),
+                          const SizedBox(width: AppDimens.spaceMD),
+
+                          // Info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Lanjutkan Membaca',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: AppColors.onPrimary
+                                        .withValues(alpha: 0.7),
+                                    letterSpacing: 0.5,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  lastRead.namaLatin,
+                                  style: AppTypography.serifHeadingSmall
+                                      .copyWith(
+                                    color: AppColors.onPrimary,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  lastRead.totalAyat > 0
+                                      ? 'Ayat ${lastRead.ayatNomor} dari ${lastRead.totalAyat}'
+                                      : 'Ayat ${lastRead.ayatNomor}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: AppColors.onPrimary
+                                        .withValues(alpha: 0.75),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Arrow
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: AppColors.onPrimary.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: AppColors.onPrimary,
+                              size: 16,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: AppColors.onPrimary,
-                      size: AppDimens.iconSM,
-                    ),
+
+                    // Progress bar
+                    if (lastRead.totalAyat > 0) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppDimens.cardPaddingLG,
+                          0,
+                          AppDimens.cardPaddingLG,
+                          AppDimens.spaceSM,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppDimens.radiusFull,
+                                ),
+                                child: LinearProgressIndicator(
+                                  value: lastRead.scrollPercent,
+                                  minHeight: 3,
+                                  backgroundColor: AppColors.onPrimary
+                                      .withValues(alpha: 0.2),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                    AppColors.gold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppDimens.spaceSM),
+                            Text(
+                              '${(lastRead.scrollPercent * 100).round()}%',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color:
+                                    AppColors.onPrimary.withValues(alpha: 0.7),
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else
+                      const SizedBox(height: AppDimens.spaceMD),
                   ],
                 ),
-              ),
-              // Progress bar — hanya tampil jika totalAyat > 0
-              if (lastRead.totalAyat > 0)
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(AppDimens.radiusMD),
-                    bottomRight: Radius.circular(AppDimens.radiusMD),
-                  ),
-                  child: LinearProgressIndicator(
-                    value: lastRead.scrollPercent,
-                    minHeight: 4,
-                    backgroundColor: AppColors.onPrimary.withValues(alpha: 0.2),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppColors.onPrimary,
-                    ),
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

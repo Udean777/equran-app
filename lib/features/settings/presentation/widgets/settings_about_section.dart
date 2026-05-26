@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,32 +10,50 @@ class SettingsAboutSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.08),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-      ),
-      color: Theme.of(context).cardColor.withValues(alpha: 0.4),
-      margin: const EdgeInsets.symmetric(horizontal: AppDimens.spaceMD),
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.spaceMD),
+        padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
         child: Column(
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: isDark
+                        ? AppColors.primaryDark
+                        : AppColors.primaryContainer,
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                    border: Border.all(
+                      color: AppColors.gold.withValues(alpha: 0.3),
+                    ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.cloud_done_outlined,
-                    color: AppColors.primary,
-                    size: 28,
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
+                    size: 26,
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceMD),
@@ -43,16 +62,22 @@ class SettingsAboutSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sumber Data & API',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        'Sumber Data',
+                        style: AppTypography.serifHeadingSmall.copyWith(
+                          color: isDark
+                              ? AppColors.onSurfaceDark
+                              : AppColors.textPrimary,
+                          fontSize: 15,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Didukung oleh equran.id',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                        'Data Al-Quran dari equran.id',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? AppColors.onSurfaceDarkVariant
+                              : AppColors.textTertiary,
                         ),
                       ),
                     ],
@@ -60,60 +85,107 @@ class SettingsAboutSection extends StatelessWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: AppDimens.spaceMD),
-            Text(
-              'Seluruh data Al-Quran, terjemahan, tafsir Kemenag RI, serta kumpulan doa harian disinkronkan secara real-time dari API publik equran.id.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 12,
-                height: 1.4,
-                color: Colors.grey[500],
+
+            Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.gold.withValues(alpha: 0),
+                    AppColors.gold.withValues(alpha: 0.3),
+                    AppColors.gold.withValues(alpha: 0),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: AppDimens.spaceSM),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () => _launchUrl(context),
-                icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                label: const Text(
-                  'Kunjungi equran.id',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
+
+            const SizedBox(height: AppDimens.spaceMD),
+
+            _LinkTile(
+              icon: Icons.api_rounded,
+              label: 'API Al-Quran',
+              url: 'https://equran.id',
+              isDark: isDark,
+            ),
+            const SizedBox(height: AppDimens.spaceXS),
+            _LinkTile(
+              icon: Icons.translate_rounded,
+              label: 'Terjemahan Kemenag RI',
+              url: 'https://quran.kemenag.go.id',
+              isDark: isDark,
+            ),
+            const SizedBox(height: AppDimens.spaceXS),
+            _LinkTile(
+              icon: Icons.location_on_outlined,
+              label: 'Jadwal Shalat MyQuran',
+              url: 'https://api.myquran.com',
+              isDark: isDark,
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Future<void> _launchUrl(BuildContext context) async {
-    final url = Uri.parse('https://equran.id/');
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tidak dapat membuka tautan')),
-          );
-        }
-      }
-    } on Exception catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Terjadi kesalahan saat membuka tautan'),
-          ),
-        );
-      }
-    }
+class _LinkTile extends StatelessWidget {
+  const _LinkTile({
+    required this.icon,
+    required this.label,
+    required this.url,
+    required this.isDark,
+  });
+
+  final IconData icon;
+  final String label;
+  final String url;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => launchUrl(Uri.parse(url)),
+      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: AppDimens.spaceXS,
+          horizontal: AppDimens.spaceXS,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isDark ? AppColors.primaryLighter : AppColors.primary,
+            ),
+            const SizedBox(width: AppDimens.spaceSM),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark
+                      ? AppColors.onSurfaceDark
+                      : AppColors.textPrimary,
+                ),
+              ),
+            ),
+            Text(
+              url.replaceFirst('https://', ''),
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                decoration: TextDecoration.underline,
+                decorationColor: isDark
+                    ? AppColors.primaryLighter
+                    : AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

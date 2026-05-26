@@ -16,78 +16,178 @@ class SuratInfoHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final surat = detail.info;
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.all(AppDimens.spaceMD),
-      padding: const EdgeInsets.all(AppDimens.spaceLG),
+      margin: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+      ),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, Color(0xFF2E7D32)],
+        gradient: LinearGradient(
+          colors: isDark
+              ? [AppColors.primaryDark, AppColors.primary]
+              : [AppColors.primary, AppColors.primaryLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          // Nama Arab
-          Text(
-            surat.nama,
-            style: AppTypography.arabicLarge.copyWith(
-              color: AppColors.onPrimary,
-              fontSize: 36,
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceSM),
-          // Nama Latin
-          Text(
-            surat.namaLatin,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: AppColors.onPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceXS),
-          // Arti
-          Text(
-            surat.arti,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.onPrimary.withValues(alpha: 0.85),
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
-          // Info row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _InfoChip(
-                label: surat.tempatTurun == TempatTurun.mekah
-                    ? 'Mekah'
-                    : 'Madinah',
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
-              _InfoChip(label: '${surat.jumlahAyat} Ayat'),
-              const SizedBox(width: AppDimens.spaceSM),
-              _InfoChip(label: 'Surat ${surat.nomor}'),
-            ],
-          ),
-          if (detail.deskripsi.isNotEmpty) ...[
-            const SizedBox(height: AppDimens.spaceMD),
-            const Divider(color: Colors.white24),
-            const SizedBox(height: AppDimens.spaceSM),
-            Text(
-              detail.deskripsi,
-              textAlign: TextAlign.center,
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.onPrimary.withValues(alpha: 0.8),
-                height: 1.6,
+          // Ornamen circle kanan atas
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.onPrimary.withValues(alpha: 0.05),
               ),
             ),
-          ],
+          ),
+          Positioned(
+            right: 30,
+            top: -30,
+            child: Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.onPrimary.withValues(alpha: 0.04),
+              ),
+            ),
+          ),
+          // Gold ornament line kiri
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.6),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(AppDimens.radiusXL),
+                  bottomLeft: Radius.circular(AppDimens.radiusXL),
+                ),
+              ),
+            ),
+          ),
+
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(AppDimens.spaceLG),
+            child: Column(
+              children: [
+                // Nama Arab — besar, centered
+                Text(
+                  surat.nama,
+                  style: AppTypography.arabicLarge.copyWith(
+                    color: AppColors.onPrimary,
+                    fontSize: 40,
+                    height: 1.6,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: AppDimens.spaceSM),
+
+                // Gold divider
+                Container(
+                  width: 40,
+                  height: 1.5,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.radiusFull),
+                  ),
+                ),
+
+                const SizedBox(height: AppDimens.spaceSM),
+
+                // Nama Latin — serif
+                Text(
+                  surat.namaLatin,
+                  style: AppTypography.serifHeadingLarge.copyWith(
+                    color: AppColors.onPrimary,
+                    fontSize: 22,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: AppDimens.spaceXS),
+
+                // Arti
+                Text(
+                  surat.arti,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.onPrimary.withValues(alpha: 0.8),
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: AppDimens.spaceMD),
+
+                // Info chips row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _InfoChip(
+                      label: surat.tempatTurun == TempatTurun.mekah
+                          ? 'Mekah'
+                          : 'Madinah',
+                      icon: Icons.location_on_outlined,
+                    ),
+                    const SizedBox(width: AppDimens.spaceSM),
+                    _InfoChip(
+                      label: '${surat.jumlahAyat} Ayat',
+                      icon: Icons.format_list_numbered_rounded,
+                    ),
+                    const SizedBox(width: AppDimens.spaceSM),
+                    _InfoChip(
+                      label: 'Surat ${surat.nomor}',
+                      icon: Icons.tag_rounded,
+                    ),
+                  ],
+                ),
+
+                // Deskripsi collapsible
+                if (detail.deskripsi.isNotEmpty) ...[
+                  const SizedBox(height: AppDimens.spaceMD),
+                  Divider(
+                    color: AppColors.onPrimary.withValues(alpha: 0.2),
+                    thickness: 1,
+                  ),
+                  const SizedBox(height: AppDimens.spaceSM),
+                  Text(
+                    detail.deskripsi,
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.onPrimary.withValues(alpha: 0.75),
+                      height: 1.7,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -95,28 +195,39 @@ class SuratInfoHeader extends StatelessWidget {
 }
 
 class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.label});
+  const _InfoChip({required this.label, required this.icon});
 
   final String label;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceSM,
+        horizontal: AppDimens.spaceSM + 2,
         vertical: AppDimens.spaceXS,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: AppColors.onPrimary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.onPrimary,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+        border: Border.all(
+          color: AppColors.gold.withValues(alpha: 0.3),
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: AppColors.gold),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.onPrimary,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

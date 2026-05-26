@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
@@ -9,9 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// AppBar untuk SuratDetailPage.
-///
-/// Menangani: tombol hafalan, download surat, auto-scroll toggle, play surat.
+/// AppBar untuk SuratDetailPage — luxury style, putih, serif title.
 class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SuratDetailAppBar({
     required this.detail,
@@ -27,10 +27,16 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onDownloadTap;
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG);
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor =
+        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final surfaceColor =
+        isDark ? AppColors.surfaceDark : AppColors.surface;
+
     return BlocBuilder<AudioDownloadCubit, AudioDownloadState>(
       builder: (context, downloadState) {
         final downloadCubit = context.read<AudioDownloadCubit>();
@@ -51,18 +57,57 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
 
             return AppBar(
-              title: Text(detail.info.namaLatin),
+              backgroundColor: surfaceColor,
+              elevation: 0,
+              scrolledUnderElevation: 0.5,
+              shadowColor: AppColors.outline,
+              surfaceTintColor: Colors.transparent,
+              toolbarHeight: AppDimens.appBarHeightLG,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+                onPressed: () => context.pop(),
+              ),
+              title: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    detail.info.namaLatin,
+                    style: AppTypography.serifHeadingSmall.copyWith(
+                      color: isDark
+                          ? AppColors.onSurfaceDark
+                          : AppColors.textPrimary,
+                      fontSize: 17,
+                      height: 1,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Container(
+                    width: 20,
+                    height: 1.5,
+                    decoration: BoxDecoration(
+                      color: AppColors.gold,
+                      borderRadius:
+                          BorderRadius.circular(AppDimens.radiusFull),
+                    ),
+                  ),
+                ],
+              ),
+              centerTitle: true,
               actions: [
-                // Tombol Hafalan
+                // Hafalan
                 IconButton(
-                  icon: const Icon(Icons.auto_stories_outlined),
-                  color: AppColors.primary,
+                  icon: Icon(
+                    Icons.auto_stories_outlined,
+                    color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                  ),
                   tooltip: 'Hafalan',
                   onPressed: () => unawaited(
                     context.push('/hafalan/${detail.info.nomor}'),
                   ),
                 ),
-                // Tombol Download Surat
+
+                // Download
                 if (downloadState.isDownloadingSurat)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -79,14 +124,18 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   ? downloadState.suratDownloadDone /
                                         downloadState.suratDownloadTotal
                                   : null,
-                              color: AppColors.primary,
+                              color: isDark
+                                  ? AppColors.primaryLighter
+                                  : AppColors.primary,
                             ),
                             GestureDetector(
                               onTap: downloadCubit.cancelSuratDownload,
-                              child: const Icon(
+                              child: Icon(
                                 Icons.close,
                                 size: 10,
-                                color: AppColors.primary,
+                                color: isDark
+                                    ? AppColors.primaryLighter
+                                    : AppColors.primary,
                               ),
                             ),
                           ],
@@ -101,38 +150,46 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
                           ? Icons.download_done_rounded
                           : Icons.download_for_offline_outlined,
                       color: isAllDownloaded
-                          ? Colors.green[600]
-                          : AppColors.primary,
+                          ? AppColors.success
+                          : (isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary),
                     ),
                     tooltip: isAllDownloaded
                         ? 'Semua ayat sudah didownload'
                         : 'Download surat',
                     onPressed: isAllDownloaded ? null : onDownloadTap,
                   ),
-                // Tombol Toggle Auto-Scroll
+
+                // Auto-scroll toggle
                 if (cubit.isPlaylistMode)
                   IconButton(
                     icon: Icon(
                       autoScrollEnabled
                           ? Icons.gps_fixed_rounded
                           : Icons.gps_not_fixed_rounded,
+                      color: autoScrollEnabled
+                          ? (isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary)
+                          : iconColor.withValues(alpha: 0.4),
                     ),
-                    color: autoScrollEnabled
-                        ? AppColors.primary
-                        : Colors.grey[400],
                     tooltip: autoScrollEnabled
                         ? 'Auto-Scroll Aktif'
                         : 'Auto-Scroll Nonaktif',
                     onPressed: onToggleAutoScroll,
                   ),
-                // Tombol Play Surat
+
+                // Play/Pause
                 IconButton(
                   icon: Icon(
                     cubit.isPlaylistMode && audioState.isPlaying
                         ? Icons.pause_circle_outline_rounded
                         : Icons.play_circle_outline_rounded,
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
                   ),
-                  color: AppColors.primary,
                   tooltip: 'Play Surat',
                   onPressed: () {
                     if (cubit.isPlaylistMode && audioState.isPlaying) {

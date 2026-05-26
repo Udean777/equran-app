@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
@@ -51,33 +54,61 @@ class _JadwalShalatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: AppBar(
-        title: const Text('Jadwal Shalat'),
-        centerTitle: false,
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
         leading: const AppMenuButton(),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Jadwal Shalat',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: BlocBuilder<JadwalShalatCubit, JadwalShalatState>(
-        builder: (context, state) {
-          return switch (state) {
-            JadwalShalatInitial() => _buildInitialPrompt(context),
-            JadwalShalatLoadingProvinsi() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            JadwalShalatDetectingLocation() => _buildDetectingLocation(),
-            JadwalShalatProvinsiLoaded() => _buildLocationPrompt(context),
-            JadwalShalatLoadingKabkota() => _buildLocationPrompt(context),
-            JadwalShalatKabkotaLoaded() => _buildLocationPrompt(context),
-            JadwalShalatLoadingJadwal() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            JadwalShalatSuccess() => _buildSuccess(context, state),
-            JadwalShalatFailure() => ErrorStateWidget(
-              message: state.failure.toUserMessage(),
-              onRetry: () => context.read<JadwalShalatCubit>().retry(),
-            ),
-          };
+        builder: (context, state) => switch (state) {
+          JadwalShalatInitial() => _buildInitialPrompt(context),
+          JadwalShalatLoadingProvinsi() => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          JadwalShalatDetectingLocation() => _buildDetectingLocation(),
+          JadwalShalatProvinsiLoaded() => _buildLocationPrompt(context),
+          JadwalShalatLoadingKabkota() => _buildLocationPrompt(context),
+          JadwalShalatKabkotaLoaded() => _buildLocationPrompt(context),
+          JadwalShalatLoadingJadwal() => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          JadwalShalatSuccess() => _buildSuccess(context, state),
+          JadwalShalatFailure() => ErrorStateWidget(
+            message: state.failure.toUserMessage(),
+            onRetry: () => context.read<JadwalShalatCubit>().retry(),
+          ),
         },
       ),
     );
@@ -105,28 +136,27 @@ class _JadwalShalatView extends StatelessWidget {
   }
 
   Widget _buildSuccess(BuildContext context, JadwalShalatSuccess state) {
-    // Tanggal hari ini UTC+7
     final now = DateTime.now().toUtc().add(const Duration(hours: 7));
     final todayStr =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-    // Cari entry hari ini via tanggal_lengkap, fallback ke entry pertama
     final todayEntry =
         state.jadwal.jadwal
             .where((e) => e.tanggalLengkap == todayStr)
             .firstOrNull ??
         state.jadwal.jadwal.first;
 
-    // Hitung bulan prev/next
     final currentBulan = state.bulan;
     final currentTahun = state.tahun;
     final prevDate = DateTime(currentTahun, currentBulan - 1);
     final nextDate = DateTime(currentTahun, currentBulan + 1);
 
     return RefreshIndicator(
-      onRefresh: () async => context.read<JadwalShalatCubit>().selectKabkota(
-        state.selectedKabkota,
-      ),
+      color: AppColors.primary,
+      onRefresh: () async =>
+          context.read<JadwalShalatCubit>().selectKabkota(
+            state.selectedKabkota,
+          ),
       child: ListView(
         children: [
           JadwalShalatHeaderCard(
@@ -141,7 +171,6 @@ class _JadwalShalatView extends StatelessWidget {
               nextDate.year,
             ),
           ),
-          // Today card hanya tampil jika bulan sekarang
           if (state.jadwal.jadwal.any((e) => e.tanggalLengkap == todayStr))
             JadwalShalatTodayCard(entry: todayEntry),
           SectionHeader(
@@ -151,7 +180,6 @@ class _JadwalShalatView extends StatelessWidget {
             entries: state.jadwal.jadwal,
             todayTanggalLengkap: todayStr,
           ),
-          const SizedBox(height: 24),
         ],
       ),
     );

@@ -2,12 +2,11 @@ import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
 
 /// Kartu ayat untuk mode setoran hafalan.
-///
-/// Menampilkan teks Arab, terjemahan toggle, dan progress bar.
 class SetoranCard extends StatelessWidget {
   const SetoranCard({
     required this.ayat,
@@ -31,116 +30,245 @@ class SetoranCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
     return Column(
       children: [
-        // Progress bar atas
+        // Progress bar atas — gold
         LinearProgressIndicator(
           value: (currentIndex + 1) / totalAyat,
-          minHeight: 4,
-          backgroundColor: Colors.grey[200],
-          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+          minHeight: 3,
+          backgroundColor:
+              isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          valueColor:
+              const AlwaysStoppedAnimation<Color>(AppColors.gold),
         ),
 
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppDimens.spaceLG),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Label ayat
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.spaceMD,
-                      vertical: AppDimens.spaceXS,
+          child: ColoredBox(
+            color: bgColor,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppDimens.spaceLG),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Label ayat
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimens.spaceMD,
+                        vertical: AppDimens.spaceXS,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.surfaceDarkVariant
+                            : AppColors.surfaceVariant,
+                        borderRadius:
+                            BorderRadius.circular(AppDimens.radiusFull),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Text(
+                        'Ayat ${ayat.nomorAyat}  ·  ${currentIndex + 1} / $totalAyat',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: isDark
+                              ? AppColors.onSurfaceDarkVariant
+                              : AppColors.textSecondary,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
+                  ),
+
+                  const SizedBox(height: AppDimens.spaceXL),
+
+                  // Card teks Arab
+                  Container(
+                    padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(
-                        AppDimens.radiusFull,
-                      ),
-                    ),
-                    child: Text(
-                      'Ayat ${ayat.nomorAyat} dari $totalAyat',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: AppDimens.spaceXL),
-
-                // Teks Arab
-                Directionality(
-                  textDirection: ui.TextDirection.rtl,
-                  child: Text(
-                    ayat.teksArab,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'KFGQPC',
-                      fontSize: 28,
-                      height: 2.2,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: AppDimens.spaceLG),
-
-                // Terjemahan — toggle
-                AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 200),
-                  crossFadeState: showTerjemahan
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  firstChild: Center(
-                    child: TextButton.icon(
-                      onPressed: onToggleTerjemahan,
-                      icon: const Icon(Icons.visibility_rounded, size: 16),
-                      label: const Text('Tampilkan Terjemahan'),
-                    ),
-                  ),
-                  secondChild: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        ayat.teksLatin,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[500],
-                          fontStyle: FontStyle.italic,
+                      color: surfaceColor,
+                      borderRadius:
+                          BorderRadius.circular(AppDimens.radiusXL),
+                      border: Border.all(color: borderColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary
+                              .withValues(alpha: isDark ? 0.04 : 0.06),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                      const SizedBox(height: AppDimens.spaceSM),
-                      Text(
-                        ayat.teksIndonesia,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: AppDimens.spaceXS),
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: onToggleTerjemahan,
-                          icon: const Icon(
-                            Icons.visibility_off_rounded,
-                            size: 16,
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Gold ornamen atas
+                        Container(
+                          width: 40,
+                          height: 2,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.goldDark,
+                                AppColors.gold,
+                                AppColors.goldDark,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.radiusFull,
+                            ),
                           ),
-                          label: const Text('Sembunyikan'),
+                        ),
+                        const SizedBox(height: AppDimens.spaceLG),
+
+                        // Teks Arab
+                        Directionality(
+                          textDirection: ui.TextDirection.rtl,
+                          child: Text(
+                            ayat.teksArab,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Amiri',
+                              fontSize: 30,
+                              height: 2.2,
+                              color: isDark
+                                  ? AppColors.primaryLighter
+                                  : AppColors.primary,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: AppDimens.spaceLG),
+                        Container(
+                          width: 40,
+                          height: 2,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.goldDark,
+                                AppColors.gold,
+                                AppColors.goldDark,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.radiusFull,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: AppDimens.spaceLG),
+
+                  // Terjemahan toggle
+                  AnimatedCrossFade(
+                    duration: const Duration(milliseconds: 200),
+                    crossFadeState: showTerjemahan
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    firstChild: Center(
+                      child: OutlinedButton.icon(
+                        onPressed: onToggleTerjemahan,
+                        icon: Icon(
+                          Icons.visibility_rounded,
+                          size: 16,
+                          color: isDark
+                              ? AppColors.onSurfaceDarkVariant
+                              : AppColors.textSecondary,
+                        ),
+                        label: Text(
+                          'Tampilkan Terjemahan',
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColors.onSurfaceDarkVariant
+                                : AppColors.textSecondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: borderColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.radiusFull,
+                            ),
+                          ),
                         ),
                       ),
-                    ],
+                    ),
+                    secondChild: Container(
+                      padding: const EdgeInsets.all(AppDimens.cardPadding),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.surfaceDarkVariant
+                            : AppColors.surfaceVariant,
+                        borderRadius:
+                            BorderRadius.circular(AppDimens.radiusLG),
+                        border: Border.all(color: borderColor),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            ayat.teksLatin,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: isDark
+                                  ? AppColors.onSurfaceDarkVariant
+                                  : AppColors.textTertiary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                          const SizedBox(height: AppDimens.spaceSM),
+                          Text(
+                            ayat.teksIndonesia,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: isDark
+                                  ? AppColors.onSurfaceDark
+                                  : AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: AppDimens.spaceSM),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: onToggleTerjemahan,
+                              icon: Icon(
+                                Icons.visibility_off_rounded,
+                                size: 14,
+                                color: isDark
+                                    ? AppColors.onSurfaceDarkVariant
+                                    : AppColors.textTertiary,
+                              ),
+                              label: Text(
+                                'Sembunyikan',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark
+                                      ? AppColors.onSurfaceDarkVariant
+                                      : AppColors.textTertiary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
 
         // Tombol jawab
-        SetoranJawabButtons(onHafal: onHafal, onBelumHafal: onBelumHafal),
+        SetoranJawabButtons(
+          onHafal: onHafal,
+          onBelumHafal: onBelumHafal,
+          isDark: isDark,
+        ),
       ],
     );
   }
@@ -151,54 +279,112 @@ class SetoranJawabButtons extends StatelessWidget {
   const SetoranJawabButtons({
     required this.onHafal,
     required this.onBelumHafal,
+    required this.isDark,
     super.key,
   });
 
   final VoidCallback onHafal;
   final VoidCallback onBelumHafal;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppDimens.spaceMD),
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceLG,
+      ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: Row(
         children: [
+          // Belum Hafal
           Expanded(
             child: OutlinedButton.icon(
               onPressed: onBelumHafal,
-              icon: const Icon(Icons.close_rounded, color: AppColors.error),
+              icon: const Icon(
+                Icons.close_rounded,
+                color: AppColors.error,
+                size: 18,
+              ),
               label: const Text(
                 'Belum Hafal',
-                style: TextStyle(color: AppColors.error),
+                style: TextStyle(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error),
                 padding: const EdgeInsets.symmetric(
                   vertical: AppDimens.spaceMD,
                 ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                ),
               ),
             ),
           ),
           const SizedBox(width: AppDimens.spaceMD),
+          // Hafal
           Expanded(
-            child: FilledButton.icon(
-              onPressed: onHafal,
-              icon: const Icon(Icons.check_rounded),
-              label: const Text('Hafal'),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.success,
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppDimens.spaceMD,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryLight],
+                ),
+                borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onHafal,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.spaceMD,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.check_rounded,
+                          color: AppColors.onPrimary,
+                          size: 18,
+                        ),
+                        const SizedBox(width: AppDimens.spaceXS),
+                        Text(
+                          'Hafal',
+                          style: AppTypography.serifHeadingSmall.copyWith(
+                            color: AppColors.onPrimary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
