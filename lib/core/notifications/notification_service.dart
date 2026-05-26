@@ -41,7 +41,19 @@ class NotificationService {
     // Init timezone database & set ke local device timezone
     tz_data.initializeTimeZones();
     final timezoneName = await _resolveLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timezoneName));
+    try {
+      tz.setLocalLocation(tz.getLocation(timezoneName));
+    } on Object catch (e) {
+      debugPrint(
+        'NotificationService: timezone "$timezoneName" not found, '
+        'falling back to Asia/Jakarta. Error: $e',
+      );
+      try {
+        tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
+      } on Object catch (err) {
+        debugPrint('NotificationService: fallback timezone failed: $err');
+      }
+    }
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -226,7 +238,13 @@ class NotificationService {
   Future<void> cancelById(int id) => _plugin.cancel(id);
 
   /// Cancel semua notifikasi shalat.
-  Future<void> cancelAll() => _plugin.cancelAll();
+  Future<void> cancelAll() async {
+    await _plugin.cancel(kNotifIdSubuh);
+    await _plugin.cancel(kNotifIdDzuhur);
+    await _plugin.cancel(kNotifIdAshar);
+    await _plugin.cancel(kNotifIdMaghrib);
+    await _plugin.cancel(kNotifIdIsya);
+  }
 
   // ---------------------------------------------------------------------------
   // Private helpers
