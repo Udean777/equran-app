@@ -9,6 +9,7 @@ import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart';
+import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -32,22 +33,40 @@ class HafalanCubit extends Cubit<HafalanState> {
   final GetHafalanStats _getHafalanStats;
   final HafalanReminderScheduler _reminderScheduler;
 
+  /// Cache semua surat — di-set dari HafalanPage via [setAllSurat].
+  List<Surat> _allSurat = [];
+
   // ─── Load ────────────────────────────────────────────────────────────────────
+
+  /// Set daftar semua surat — dipanggil dari HafalanPage saat SuratListCubit success.
+  /// Trigger recompute mergedList + filteredList jika state sudah success.
+  void setAllSurat(List<Surat> allSurat) {
+    _allSurat = allSurat;
+    final current = _currentState;
+    if (current != null) {
+      emit(_withComputedLists(current));
+    }
+  }
 
   /// Load semua hafalan dan statistik dari Hive.
   Future<void> load() async {
     emit(const HafalanState.loading());
 
-    final hafalanResult = _getAllHafalan();
-    final statsResult = _getHafalanStats();
+    final hafalanResult = await _getAllHafalan();
+    final statsResult = await _getHafalanStats();
 
     hafalanResult.fold(
       (failure) => emit(HafalanState.failure(failure.toUserMessage())),
       (list) => statsResult.fold(
         (failure) => emit(HafalanState.failure(failure.toUserMessage())),
-        (stats) => emit(
-          HafalanState.success(hafalanList: list, stats: stats),
-        ),
+        (stats) {
+          final base = HafalanState.success(
+            hafalanList: list,
+            stats: stats,
+            filter: _currentState?.filter ?? HafalanFilter.semua,
+          ) as HafalanSuccess;
+          emit(_withComputedLists(base));
+        },
       ),
     );
   }
@@ -168,11 +187,11 @@ class HafalanCubit extends Cubit<HafalanState> {
 
   // ─── Filter ──────────────────────────────────────────────────────────────────
 
-  /// Set filter tampilan list hafalan.
+  /// Set filter tampilan list hafalan — recompute filteredList di cubit.
   void setFilter(HafalanFilter filter) {
     final current = _currentState;
     if (current == null) return;
-    emit(current.copyWith(filter: filter));
+    emit(_withComputedLists(current.copyWith(filter: filter)));
   }
 
   // ─── Helpers (public) ────────────────────────────────────────────────────────
@@ -204,6 +223,52 @@ class HafalanCubit extends Cubit<HafalanState> {
       emit(current.copyWith(errorMessage: message));
     } else {
       emit(HafalanState.failure(message));
+    }
+  }
+
+  /// Hitung mergedList + filteredList dan kembalikan state baru.
+  HafalanSuccess _withComputedLists(HafalanSuccess base) {
+    final merged = _mergeWithAllSurat(base.hafalanList);
+    final filtered = _applyFilter(merged, base.filter);
+    return base.copyWith(mergedList: merged, filteredList: filtered);
+  }
+
+  /// Merge hafalanList dengan semua 114 surat dari [_allSurat].
+  /// Surat yang belum ada di hafalanList dibuat sebagai HafalanSurat default.
+  List<HafalanSurat> _mergeWithAllSurat(List<HafalanSurat> hafalanList) {
+    if (_allSurat.isEmpty) return hafalanList;
+    final hafalanMap = {for (final h in hafalanList) h.suratNomor: h};
+    return _allSurat.map((surat) {
+      return hafalanMap[surat.nomor] ??
+          HafalanSurat(
+            suratNomor: surat.nomor,
+            namaLatin: surat.namaLatin,
+            nama: surat.nama,
+            jumlahAyat: surat.jumlahAyat,
+          );
+    }).toList();
+  }
+
+  /// Filter mergedList berdasarkan [filter].
+  List<HafalanSurat> _applyFilter(
+    List<HafalanSurat> list,
+    HafalanFilter filter,
+  ) {
+    switch (filter) {
+      case HafalanFilter.semua:
+        return list;
+      case HafalanFilter.sedangDihafal:
+        return list
+            .where((h) => h.status == HafalanStatus.sedangDihafal)
+            .toList();
+      case HafalanFilter.sudahHafal:
+        return list
+            .where((h) => h.status == HafalanStatus.sudahHafal)
+            .toList();
+      case HafalanFilter.perluMurajaah:
+        return list
+            .where((h) => h.status == HafalanStatus.perluMurajaah)
+            .toList();
     }
   }
 

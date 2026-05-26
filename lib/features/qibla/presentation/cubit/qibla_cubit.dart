@@ -21,6 +21,10 @@ class QiblaCubit extends Cubit<QiblaState> {
   final WatchQiblaDirection _watchQiblaDirection;
   StreamSubscription<dynamic>? _subscription;
 
+  /// Threshold minimum perubahan sudut (derajat) sebelum emit state baru.
+  /// Mencegah rebuild setiap sensor tick (~10-20x/detik).
+  static const _angleThreshold = 1.0;
+  double? _lastEmittedAngle;
   /// Mulai: request permission, ambil koordinat, subscribe stream kompas.
   Future<void> start() async {
     if (state is QiblaLoading) return;
@@ -50,7 +54,15 @@ class QiblaCubit extends Cubit<QiblaState> {
       },
       (stream) {
         _subscription = stream.listen(
-          (direction) => emit(QiblaState.loaded(direction: direction)),
+          (direction) {
+            // Throttle: hanya emit jika perubahan deviceHeading > threshold
+            final heading = direction.deviceHeading;
+            if (_lastEmittedAngle == null ||
+                (heading - _lastEmittedAngle!).abs() > _angleThreshold) {
+              _lastEmittedAngle = heading;
+              emit(QiblaState.loaded(direction: direction));
+            }
+          },
           onError: (Object e) =>
               emit(QiblaState.error(message: e.toString())),
         );
@@ -62,6 +74,7 @@ class QiblaCubit extends Cubit<QiblaState> {
   void stop() {
     unawaited(_subscription?.cancel());
     _subscription = null;
+    _lastEmittedAngle = null;
     emit(const QiblaState.initial());
   }
 

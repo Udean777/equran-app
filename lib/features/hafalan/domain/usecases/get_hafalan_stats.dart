@@ -10,5 +10,5 @@ class GetHafalanStats {
 
   final HafalanRepository _repository;
 
-  Either<Failure, HafalanStats> call() => _repository.getHafalanStats();
+  Future<Either<Failure, HafalanStats>> call() => _repository.getHafalanStats();
 }

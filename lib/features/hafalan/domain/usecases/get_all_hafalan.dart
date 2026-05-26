@@ -10,5 +10,6 @@ class GetAllHafalan {
 
   final HafalanRepository _repository;
 
-  Either<Failure, List<HafalanSurat>> call() => _repository.getAllHafalan();
+  Future<Either<Failure, List<HafalanSurat>>> call() =>
+      _repository.getAllHafalan();
 }

@@ -21,7 +21,11 @@ class CatatanAyatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<CatatanAyatCubit>()..load(),
+      create: (_) {
+        final cubit = getIt<CatatanAyatCubit>();
+        unawaited(cubit.load());
+        return cubit;
+      },
       child: const _CatatanAyatView(),
     );
   }

@@ -3,8 +3,8 @@ import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.da
 import 'package:fpdart/fpdart.dart';
 
 abstract interface class CatatanAyatRepository {
-  Either<Failure, List<CatatanAyat>> getAll();
-  Either<Failure, CatatanAyat?> getByAyat({
+  Future<Either<Failure, List<CatatanAyat>>> getAll();
+  Future<Either<Failure, CatatanAyat?>> getByAyat({
     required int suratNomor,
     required int ayatNomor,
   });

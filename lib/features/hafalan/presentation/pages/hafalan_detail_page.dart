@@ -1,23 +1,23 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_ayat_grid.dart';
-import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_reminder_sheet.dart';
-import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_badge.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_catatan_field.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_murajaah_section.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_progress_header.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_section_header.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_selector.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 class HafalanDetailPage extends StatelessWidget {
   const HafalanDetailPage({required this.suratNomor, super.key});
@@ -83,10 +83,7 @@ class _HafalanDetailView extends StatelessWidget {
                         ))
                 : null;
 
-            return _HafalanDetailScaffold(
-              surat: surat,
-              hafalan: hafalan,
-            );
+            return _HafalanDetailScaffold(surat: surat, hafalan: hafalan);
           },
         );
       },
@@ -116,7 +113,6 @@ class _HafalanDetailScaffold extends StatelessWidget {
       appBar: AppBar(
         title: Text(surat.namaLatin),
         actions: [
-          // Hapus data hafalan
           if (hafalan != null)
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded),
@@ -129,8 +125,7 @@ class _HafalanDetailScaffold extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header progress
-            _ProgressHeader(
+            HafalanProgressHeader(
               surat: surat,
               ayatHafalCount: ayatHafal.length,
               progress: progress,
@@ -138,14 +133,15 @@ class _HafalanDetailScaffold extends StatelessWidget {
               status: status,
             ),
 
-            // Status selector
-            _StatusSelector(
+            HafalanStatusSelector(
               suratNomor: surat.nomor,
               currentStatus: status,
             ),
 
-            // Section: Ayat
-            const _SectionHeader(title: 'Ayat', icon: Icons.grid_view_rounded),
+            const HafalanSectionHeader(
+              title: 'Ayat',
+              icon: Icons.grid_view_rounded,
+            ),
             HafalanAyatGrid(
               jumlahAyat: surat.jumlahAyat,
               ayatHafal: ayatHafal,
@@ -166,17 +162,15 @@ class _HafalanDetailScaffold extends StatelessWidget {
               },
             ),
 
-            // Section: Muraja'ah — hanya tampil jika sudah selesai hafal
             if (hafalan != null && hafalan!.isSelesai) ...[
-              const _SectionHeader(
+              const HafalanSectionHeader(
                 title: "Muraja'ah",
                 icon: Icons.refresh_rounded,
               ),
-              _MurajaahSection(hafalan: hafalan!),
+              HafalanMurajaahSection(hafalan: hafalan!),
             ],
 
-            // Section: Mode Setoran
-            const _SectionHeader(
+            const HafalanSectionHeader(
               title: 'Mode Setoran',
               icon: Icons.record_voice_over_rounded,
             ),
@@ -196,12 +190,11 @@ class _HafalanDetailScaffold extends StatelessWidget {
               ),
             ),
 
-            // Section: Catatan
-            const _SectionHeader(
+            const HafalanSectionHeader(
               title: 'Catatan',
               icon: Icons.edit_note_rounded,
             ),
-            _CatatanField(
+            HafalanCatatanField(
               suratNomor: surat.nomor,
               initialValue: hafalan?.catatan,
               suratInfo: HafalanSurat(
@@ -245,384 +238,5 @@ class _HafalanDetailScaffold extends StatelessWidget {
       await context.read<HafalanCubit>().deleteSurat(surat.nomor);
       if (context.mounted) context.pop();
     }
-  }
-}
-
-// ─── Sub-widgets ──────────────────────────────────────────────────────────────
-
-class _ProgressHeader extends StatelessWidget {
-  const _ProgressHeader({
-    required this.surat,
-    required this.ayatHafalCount,
-    required this.progress,
-    required this.persen,
-    required this.status,
-  });
-
-  final Surat surat;
-  final int ayatHafalCount;
-  final double progress;
-  final String persen;
-  final HafalanStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.all(AppDimens.spaceMD),
-      padding: const EdgeInsets.all(AppDimens.spaceMD),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.15),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Directionality(
-                      textDirection: ui.TextDirection.rtl,
-                      child: Text(
-                        surat.nama,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontFamily: 'KFGQPC',
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      surat.arti,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              HafalanStatusBadge(status: status),
-            ],
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 8,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
-              Text(
-                '$ayatHafalCount/${surat.jumlahAyat} ($persen%)',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusSelector extends StatelessWidget {
-  const _StatusSelector({
-    required this.suratNomor,
-    required this.currentStatus,
-  });
-
-  final int suratNomor;
-  final HafalanStatus currentStatus;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    // Hanya tampilkan status yang bisa di-set manual (bukan perluMurajaah)
-    final options = [
-      HafalanStatus.belum,
-      HafalanStatus.sedangDihafal,
-      HafalanStatus.sudahHafal,
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceMD),
-      child: Row(
-        children: [
-          Text(
-            'Status:',
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(width: AppDimens.spaceSM),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: options.map((s) {
-                  final isSelected =
-                      currentStatus == s ||
-                      (currentStatus == HafalanStatus.perluMurajaah &&
-                          s == HafalanStatus.sudahHafal);
-                  return Padding(
-                    padding: const EdgeInsets.only(right: AppDimens.spaceXS),
-                    child: ChoiceChip(
-                      label: Text(_statusLabel(s)),
-                      selected: isSelected,
-                      onSelected: (_) => unawaited(
-                        context.read<HafalanCubit>().setStatus(
-                          suratNomor: suratNomor,
-                          status: s,
-                        ),
-                      ),
-                      selectedColor: AppColors.primary.withValues(alpha: 0.15),
-                      labelStyle: TextStyle(
-                        color: isSelected ? AppColors.primary : null,
-                        fontSize: 12,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _statusLabel(HafalanStatus status) {
-    switch (status) {
-      case HafalanStatus.belum:
-        return 'Belum';
-      case HafalanStatus.sedangDihafal:
-        return 'Sedang';
-      case HafalanStatus.sudahHafal:
-        return 'Hafal';
-      case HafalanStatus.perluMurajaah:
-        return 'Murajaah';
-    }
-  }
-}
-
-class _MurajaahSection extends StatelessWidget {
-  const _MurajaahSection({required this.hafalan});
-
-  final HafalanSurat hafalan;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final nextDate = hafalan.tanggalMurajaahBerikutnya;
-    final dateStr = nextDate != null
-        ? DateFormat('d MMMM yyyy', 'id').format(nextDate)
-        : '-';
-    final levelStr = hafalan.isMurajaahSelesai
-        ? 'Hafalan kuat ✓'
-        : 'Level ${hafalan.murajaahLevel + 1}/5';
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Info level + tanggal
-          Container(
-            padding: const EdgeInsets.all(AppDimens.spaceMD),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.timeline_rounded,
-                  color: AppColors.primary,
-                  size: AppDimens.iconMD,
-                ),
-                const SizedBox(width: AppDimens.spaceSM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        levelStr,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (!hafalan.isMurajaahSelesai)
-                        Text(
-                          'Berikutnya: $dateStr',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: hafalan.isMurajaahJatuhTempo
-                                ? AppColors.error
-                                : Colors.grey[500],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceSM),
-
-          // Tombol aksi muraja'ah
-          OutlinedButton.icon(
-            onPressed: () => unawaited(
-              showAppBottomSheet<void>(
-                context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<HafalanCubit>(),
-                  child: HafalanReminderSheet(hafalan: hafalan),
-                ),
-              ),
-            ),
-            icon: const Icon(Icons.edit_calendar_rounded),
-            label: const Text("Atur Jadwal Muraja'ah"),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CatatanField extends StatefulWidget {
-  const _CatatanField({
-    required this.suratNomor,
-    required this.suratInfo,
-    this.initialValue,
-  });
-
-  final int suratNomor;
-  final String? initialValue;
-  final HafalanSurat suratInfo;
-
-  @override
-  State<_CatatanField> createState() => _CatatanFieldState();
-}
-
-class _CatatanFieldState extends State<_CatatanField> {
-  late final TextEditingController _controller;
-  bool _isDirty = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialValue ?? '');
-    _controller.addListener(() {
-      if (!_isDirty) setState(() => _isDirty = true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _controller,
-            maxLines: 4,
-            decoration: InputDecoration(
-              hintText: 'Tulis catatan pribadi untuk surat ini...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-              ),
-              contentPadding: const EdgeInsets.all(AppDimens.spaceMD),
-            ),
-          ),
-          if (_isDirty) ...[
-            const SizedBox(height: AppDimens.spaceSM),
-            FilledButton(
-              onPressed: () => _saveCatatan(context),
-              child: const Text('Simpan Catatan'),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Future<void> _saveCatatan(BuildContext context) async {
-    final existing =
-        context.read<HafalanCubit>().getSurat(widget.suratNomor) ??
-        widget.suratInfo;
-    final updated = existing.copyWith(
-      catatan: _controller.text.trim().isEmpty ? null : _controller.text.trim(),
-    );
-    await context.read<HafalanCubit>().saveHafalanSurat(updated);
-    if (context.mounted) {
-      setState(() => _isDirty = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Catatan disimpan')),
-      );
-    }
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.icon});
-
-  final String title;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
-        AppDimens.spaceXS,
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: AppDimens.iconSM, color: AppColors.primary),
-          const SizedBox(width: AppDimens.spaceXS),
-          Text(
-            title,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

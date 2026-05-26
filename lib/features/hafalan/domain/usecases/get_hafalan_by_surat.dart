@@ -10,6 +10,6 @@ class GetHafalanBySurat {
 
   final HafalanRepository _repository;
 
-  Either<Failure, HafalanSurat?> call(int suratNomor) =>
+  Future<Either<Failure, HafalanSurat?>> call(int suratNomor) =>
       _repository.getHafalanBySurat(suratNomor);
 }

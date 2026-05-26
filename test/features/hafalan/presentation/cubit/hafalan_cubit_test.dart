@@ -61,8 +61,8 @@ void main() {
     mockScheduler = MockHafalanReminderScheduler();
 
     // Default stubs
-    when(() => mockGetAll()).thenReturn(Right([tHafalan]));
-    when(() => mockGetStats()).thenReturn(Right(tStats));
+    when(() => mockGetAll()).thenAnswer((_) async => Right([tHafalan]));
+    when(() => mockGetStats()).thenAnswer((_) async => Right(tStats));
     when(() => mockSave(any())).thenAnswer((_) async => const Right(unit));
     when(() => mockDelete(any())).thenAnswer((_) async => const Right(unit));
     when(
@@ -103,8 +103,8 @@ void main() {
     blocTest<HafalanCubit, HafalanState>(
       'load() emit failure jika getAllHafalan gagal',
       build: () {
-        when(() => mockGetAll()).thenReturn(
-          const Left(Failure.unknown(message: 'error')),
+        when(() => mockGetAll()).thenAnswer(
+          (_) async => const Left(Failure.unknown(message: 'error')),
         );
         return buildCubit();
       },

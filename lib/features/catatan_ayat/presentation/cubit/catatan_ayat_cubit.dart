@@ -22,9 +22,10 @@ class CatatanAyatCubit extends Cubit<CatatanAyatState> {
   final DeleteCatatan _delete;
 
   /// Load semua catatan dari Hive.
-  void load() {
+  Future<void> load() async {
     emit(const CatatanAyatState.loading());
-    _getAll().fold(
+    final result = await _getAll();
+    result.fold(
       (failure) => emit(const CatatanAyatState.failure('Gagal memuat catatan')),
       (list) => emit(CatatanAyatState.success(list)),
     );

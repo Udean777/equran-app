@@ -102,6 +102,10 @@ class _SuratListView extends StatelessWidget {
                 children: [
                   // Last Read Card
                   BlocBuilder<BookmarkCubit, BookmarkState>(
+                    // Hanya rebuild jika lastRead berubah
+                    buildWhen: (prev, curr) =>
+                        prev.mapOrNull(success: (s) => s.lastRead) !=
+                        curr.mapOrNull(success: (s) => s.lastRead),
                     builder: (context, state) {
                       final lastRead = state.mapOrNull(
                         success: (s) => s.lastRead,
@@ -112,6 +116,16 @@ class _SuratListView extends StatelessWidget {
                   ),
                   // Muraja'ah reminder card
                   BlocBuilder<HafalanCubit, HafalanState>(
+                    // Hanya rebuild jika suratMurajaahHariIni berubah
+                    buildWhen: (prev, curr) {
+                      final prevList = prev is HafalanSuccess
+                          ? prev.suratMurajaahHariIni
+                          : null;
+                      final currList = curr is HafalanSuccess
+                          ? curr.suratMurajaahHariIni
+                          : null;
+                      return prevList != currList;
+                    },
                     builder: (context, state) {
                       if (state is! HafalanSuccess) {
                         return const SizedBox.shrink();
@@ -123,6 +137,8 @@ class _SuratListView extends StatelessWidget {
                   ),
                   // Streak chip
                   BlocBuilder<QuranStreakCubit, int>(
+                    // Hanya rebuild jika streak count berubah
+                    buildWhen: (prev, curr) => prev != curr,
                     builder: (context, streak) {
                       if (streak == 0) {
                         return const SizedBox.shrink();

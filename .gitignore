@@ -39,6 +39,10 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Debug symbols untuk crash symbolication (--obfuscate)
+# JANGAN commit — simpan di tempat aman untuk decode stack traces
+build/debug-info/
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile

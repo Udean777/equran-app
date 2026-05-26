@@ -5,6 +5,7 @@ import 'package:equran_app/features/reading_progress/domain/usecases/cleanup_old
 import 'package:equran_app/features/reading_progress/domain/usecases/get_reading_stats.dart';
 import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read.dart';
 import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -29,6 +30,7 @@ void main() {
   );
 
   setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
     registerFallbackValue(<String>{});
   });
 
@@ -147,6 +149,68 @@ void main() {
         // Flush kedua tidak call saveBatch
         await cubit.flushBuffer();
         verify(() => mockSaveBatch(any(), any())).called(1);
+      });
+    });
+
+    // ─── close() ──────────────────────────────────────────────────────────────
+
+    group('close()', () {
+      test('flush buffer sebelum close jika ada pending ayat', () async {
+        when(() => mockSaveBatch(any(), any()))
+            .thenAnswer((_) async => const Right(unit));
+
+        final cubit = buildCubit()..bufferAyat(1, 1);
+        await cubit.close();
+
+        verify(() => mockSaveBatch(any(), any())).called(1);
+      });
+
+      test('tidak call saveBatch saat close jika buffer kosong', () async {
+        final cubit = buildCubit();
+        await cubit.close();
+
+        verifyNever(() => mockSaveBatch(any(), any()));
+      });
+    });
+
+    // ─── didChangeAppLifecycleState() ─────────────────────────────────────────
+
+    group('didChangeAppLifecycleState()', () {
+      test('flush buffer saat app paused', () async {
+        when(() => mockSaveBatch(any(), any()))
+            .thenAnswer((_) async => const Right(unit));
+
+        buildCubit()
+          ..bufferAyat(1, 1)
+          ..didChangeAppLifecycleState(AppLifecycleState.paused);
+
+        // Beri waktu async flush selesai
+        await Future<void>.delayed(Duration.zero);
+
+        verify(() => mockSaveBatch(any(), any())).called(1);
+      });
+
+      test('flush buffer saat app detached', () async {
+        when(() => mockSaveBatch(any(), any()))
+            .thenAnswer((_) async => const Right(unit));
+
+        buildCubit()
+          ..bufferAyat(2, 255)
+          ..didChangeAppLifecycleState(AppLifecycleState.detached);
+
+        await Future<void>.delayed(Duration.zero);
+
+        verify(() => mockSaveBatch(any(), any())).called(1);
+      });
+
+      test('tidak flush saat app resumed', () async {
+        buildCubit()
+          ..bufferAyat(1, 1)
+          ..didChangeAppLifecycleState(AppLifecycleState.resumed);
+
+        await Future<void>.delayed(Duration.zero);
+
+        verifyNever(() => mockSaveBatch(any(), any()));
       });
     });
   });

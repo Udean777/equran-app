@@ -77,13 +77,23 @@ class AudioDownloadCubit extends Cubit<AudioDownloadState> {
 
   bool _cancelSuratDownload = false;
 
+  /// Surat yang sedang aktif — untuk cleanup states surat lama.
+  int? _currentSuratNomor;
+
   /// Load status download semua ayat dalam surat untuk qari tertentu.
   /// Dipanggil saat halaman surat pertama dibuka.
+  /// Otomatis membersihkan states surat sebelumnya untuk mencegah memory leak.
   Future<void> loadDownloadedStatus({
     required int suratNomor,
     required List<Ayat> ayatList,
     required Qari qari,
   }) async {
+    // Bersihkan states surat lama jika ganti surat
+    if (_currentSuratNomor != null && _currentSuratNomor != suratNomor) {
+      _clearStatesForSurat(_currentSuratNomor!);
+    }
+    _currentSuratNomor = suratNomor;
+
     final result = await _getDownloadedAyats();
     result.fold(
       (failure) => debugPrint('AudioDownloadCubit: load error: $failure'),
@@ -107,6 +117,15 @@ class AudioDownloadCubit extends Cubit<AudioDownloadState> {
         emit(state.copyWith(downloadStates: newStates));
       },
     );
+  }
+
+  /// Hapus semua download states untuk surat tertentu dari map.
+  /// Dipanggil otomatis saat ganti surat untuk mencegah unbounded map growth.
+  void _clearStatesForSurat(int suratNomor) {
+    final prefix = '$suratNomor:';
+    final cleaned = Map<String, DownloadState>.from(state.downloadStates)
+      ..removeWhere((key, _) => key.startsWith(prefix));
+    emit(state.copyWith(downloadStates: cleaned));
   }
 
   /// Download satu ayat. Update progress secara realtime.
@@ -211,5 +230,12 @@ class AudioDownloadCubit extends Cubit<AudioDownloadState> {
     final newStates = Map<String, DownloadState>.from(state.downloadStates)
       ..[key] = downloadState;
     emit(state.copyWith(downloadStates: newStates));
+  }
+
+  @override
+  Future<void> close() {
+    // Bersihkan semua states saat cubit di-dispose
+    _currentSuratNomor = null;
+    return super.close();
   }
 }

@@ -8,14 +8,14 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockBox extends Mock implements Box<String> {}
+class MockLazyBox extends Mock implements LazyBox<String> {}
 
 void main() {
-  late MockBox mockBox;
+  late MockLazyBox mockBox;
   late DoaLocalDataSourceImpl dataSource;
 
   setUp(() {
-    mockBox = MockBox();
+    mockBox = MockLazyBox();
     dataSource = DoaLocalDataSourceImpl(mockBox);
   });
 
@@ -27,7 +27,7 @@ void main() {
         data: jsonEncode(tDoaDtoList.map((e) => e.toJson()).toList()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('doa_list')).thenReturn(entry.encode());
+      when(() => mockBox.get('doa_list')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedDoaList();
 
@@ -41,7 +41,7 @@ void main() {
         data: jsonEncode(tDoaDtoList.map((e) => e.toJson()).toList()),
         cachedAt: DateTime.now().subtract(const Duration(days: 8)),
       );
-      when(() => mockBox.get('doa_list')).thenReturn(entry.encode());
+      when(() => mockBox.get('doa_list')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedDoaList();
 
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('return null jika tidak ada cache', () async {
-      when(() => mockBox.get('doa_list')).thenReturn(null);
+      when(() => mockBox.get('doa_list')).thenAnswer((_) async => null);
 
       final result = await dataSource.getCachedDoaList();
 
@@ -57,7 +57,7 @@ void main() {
     });
 
     test('return null jika data corrupt', () async {
-      when(() => mockBox.get('doa_list')).thenReturn('corrupt_data');
+      when(() => mockBox.get('doa_list')).thenAnswer((_) async => 'corrupt_data');
 
       final result = await dataSource.getCachedDoaList();
 
@@ -98,7 +98,7 @@ void main() {
         data: jsonEncode(tDoaDto1.toJson()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('doa_detail_1')).thenReturn(entry.encode());
+      when(() => mockBox.get('doa_detail_1')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedDoaDetail(1);
 
@@ -112,7 +112,7 @@ void main() {
         data: jsonEncode(tDoaDto1.toJson()),
         cachedAt: DateTime.now().subtract(const Duration(days: 8)),
       );
-      when(() => mockBox.get('doa_detail_1')).thenReturn(entry.encode());
+      when(() => mockBox.get('doa_detail_1')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedDoaDetail(1);
 
@@ -120,7 +120,7 @@ void main() {
     });
 
     test('return null jika tidak ada cache detail', () async {
-      when(() => mockBox.get('doa_detail_1')).thenReturn(null);
+      when(() => mockBox.get('doa_detail_1')).thenAnswer((_) async => null);
 
       final result = await dataSource.getCachedDoaDetail(1);
 
@@ -159,7 +159,7 @@ void main() {
         data: jsonEncode(tDoaDto42.toJson()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('doa_detail_42')).thenReturn(entry.encode());
+      when(() => mockBox.get('doa_detail_42')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedDoaDetail(42);
 

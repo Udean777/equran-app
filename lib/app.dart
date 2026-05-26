@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/debug/debug_overlay.dart';
 import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/pages/main_page.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
@@ -143,7 +144,13 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => getIt<ShalatNotifCubit>()..load()),
         BlocProvider(create: (_) => getIt<QuranFontCubit>()..load()),
         BlocProvider(create: (_) => getIt<QuranReminderCubit>()..load()),
-        BlocProvider(create: (_) => getIt<QuranStreakCubit>()..load()),
+        BlocProvider(
+          create: (_) {
+            final cubit = getIt<QuranStreakCubit>();
+            unawaited(cubit.load());
+            return cubit;
+          },
+        ),
         BlocProvider(
           create: (_) {
             final cubit = getIt<HafalanCubit>();
@@ -176,6 +183,10 @@ class App extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             routerConfig: _router,
+            // DebugOverlay di dalam MaterialApp agar punya Directionality context
+            builder: (context, child) => DebugOverlay(
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         ),
       ),

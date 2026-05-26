@@ -36,10 +36,12 @@ void main() {
 
   group('HafalanRepositoryImpl', () {
     group('getAllHafalan()', () {
-      test('return list hafalan dari datasource', () {
-        when(() => mockDatasource.getAll()).thenReturn([tHafalanSelesai]);
+      test('return list hafalan dari datasource', () async {
+        when(
+          () => mockDatasource.getAll(),
+        ).thenAnswer((_) async => [tHafalanSelesai]);
 
-        final result = repository.getAllHafalan();
+        final result = await repository.getAllHafalan();
 
         expect(result.isRight(), isTrue);
         result.fold(
@@ -48,19 +50,25 @@ void main() {
         );
       });
 
-      test('resolve status perluMurajaah jika jatuh tempo', () {
-        when(() => mockDatasource.getAll()).thenReturn([tHafalanJatuhTempo]);
+      test('resolve status perluMurajaah jika jatuh tempo', () async {
+        when(
+          () => mockDatasource.getAll(),
+        ).thenAnswer((_) async => [tHafalanJatuhTempo]);
 
-        repository.getAllHafalan().fold(
+        final result = await repository.getAllHafalan();
+
+        result.fold(
           (_) => fail('should be right'),
           (list) => expect(list.first.status, HafalanStatus.perluMurajaah),
         );
       });
 
-      test('return failure jika datasource throw', () {
-        when(() => mockDatasource.getAll()).thenThrow(Exception('error'));
+      test('return failure jika datasource throw', () async {
+        when(
+          () => mockDatasource.getAll(),
+        ).thenThrow(Exception('error'));
 
-        final result = repository.getAllHafalan();
+        final result = await repository.getAllHafalan();
 
         expect(result.isLeft(), isTrue);
         result.fold(
@@ -71,10 +79,12 @@ void main() {
     });
 
     group('getHafalanBySurat()', () {
-      test('return hafalan jika ada', () {
-        when(() => mockDatasource.getBySurat(1)).thenReturn(tHafalanSelesai);
+      test('return hafalan jika ada', () async {
+        when(
+          () => mockDatasource.getBySurat(1),
+        ).thenAnswer((_) async => tHafalanSelesai);
 
-        final result = repository.getHafalanBySurat(1);
+        final result = await repository.getHafalanBySurat(1);
 
         expect(result.isRight(), isTrue);
         result.fold(
@@ -83,10 +93,12 @@ void main() {
         );
       });
 
-      test('return Right(null) jika tidak ada', () {
-        when(() => mockDatasource.getBySurat(99)).thenReturn(null);
+      test('return Right(null) jika tidak ada', () async {
+        when(
+          () => mockDatasource.getBySurat(99),
+        ).thenAnswer((_) async => null);
 
-        final result = repository.getHafalanBySurat(99);
+        final result = await repository.getHafalanBySurat(99);
 
         expect(result.isRight(), isTrue);
         result.fold(
@@ -121,10 +133,14 @@ void main() {
     });
 
     group('getHafalanStats()', () {
-      test('hitung stats dengan benar dari list hafalan', () {
-        when(() => mockDatasource.getAll()).thenReturn([tHafalanSelesai]);
+      test('hitung stats dengan benar dari list hafalan', () async {
+        when(
+          () => mockDatasource.getAll(),
+        ).thenAnswer((_) async => [tHafalanSelesai]);
 
-        repository.getHafalanStats().fold(
+        final result = await repository.getHafalanStats();
+
+        result.fold(
           (_) => fail('should be right'),
           (stats) {
             expect(stats.totalAyatHafal, 7);
@@ -136,10 +152,14 @@ void main() {
         );
       });
 
-      test('hitung progressPerJuz dengan benar', () {
-        when(() => mockDatasource.getAll()).thenReturn([tHafalanSelesai]);
+      test('hitung progressPerJuz dengan benar', () async {
+        when(
+          () => mockDatasource.getAll(),
+        ).thenAnswer((_) async => [tHafalanSelesai]);
 
-        repository.getHafalanStats().fold(
+        final result = await repository.getHafalanStats();
+
+        result.fold(
           (_) => fail('should be right'),
           (stats) {
             final juz = kJuzMapping[1]!;
@@ -148,10 +168,14 @@ void main() {
         );
       });
 
-      test('return stats kosong jika tidak ada hafalan', () {
-        when(() => mockDatasource.getAll()).thenReturn([]);
+      test('return stats kosong jika tidak ada hafalan', () async {
+        when(
+          () => mockDatasource.getAll(),
+        ).thenAnswer((_) async => []);
 
-        repository.getHafalanStats().fold(
+        final result = await repository.getHafalanStats();
+
+        result.fold(
           (_) => fail('should be right'),
           (stats) {
             expect(stats.totalAyatHafal, 0);

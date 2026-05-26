@@ -5,6 +5,7 @@ import 'package:equran_app/features/reading_progress/domain/entities/reading_his
 import 'package:equran_app/features/reading_progress/domain/usecases/cleanup_old_reading_data.dart';
 import 'package:equran_app/features/reading_progress/domain/usecases/get_reading_stats.dart';
 import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -14,12 +15,16 @@ part 'reading_progress_cubit.freezed.dart';
 part 'reading_progress_state.dart';
 
 @injectable
-class ReadingProgressCubit extends Cubit<ReadingProgressState> {
+class ReadingProgressCubit extends Cubit<ReadingProgressState>
+    with WidgetsBindingObserver {
   ReadingProgressCubit(
     this._getReadingStats,
     this._saveAyatReadBatch,
     this._cleanupOldReadingData,
-  ) : super(const ReadingProgressState.initial());
+  ) : super(const ReadingProgressState.initial()) {
+    WidgetsBinding.instance.addObserver(this);
+    _startAutoFlush();
+  }
 
   final GetReadingStats _getReadingStats;
   final SaveAyatReadBatch _saveAyatReadBatch;
@@ -29,6 +34,26 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState> {
 
   /// Buffer ayat yang belum di-flush ke Hive.
   final _pendingAyat = <String, Set<String>>{};
+
+  /// Timer untuk auto-flush setiap 30 detik — safety net jika app di-kill.
+  Timer? _autoFlushTimer;
+
+  /// Mulai periodic auto-flush.
+  void _startAutoFlush() {
+    _autoFlushTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => unawaited(flushBuffer()),
+    );
+  }
+
+  /// Flush buffer saat app masuk background atau di-detach.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      unawaited(flushBuffer());
+    }
+  }
 
   /// Load statistik + auto-cleanup data lama.
   Future<void> load() async {
@@ -56,7 +81,8 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState> {
     _pendingAyat.putIfAbsent(today, () => <String>{}).add(ayatId);
   }
 
-  /// Flush buffer ke Hive. Dipanggil saat dispose SuratDetailPage.
+  /// Flush buffer ke Hive. Dipanggil saat dispose SuratDetailPage,
+  /// auto-flush timer, atau app masuk background.
   Future<void> flushBuffer() async {
     if (_pendingAyat.isEmpty) return;
     for (final entry in _pendingAyat.entries) {
@@ -64,5 +90,13 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState> {
       await _saveAyatReadBatch(entry.key, entry.value);
     }
     _pendingAyat.clear();
+  }
+
+  @override
+  Future<void> close() async {
+    _autoFlushTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    await flushBuffer();
+    return super.close();
   }
 }

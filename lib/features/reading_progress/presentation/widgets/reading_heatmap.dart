@@ -79,12 +79,14 @@ class ReadingHeatmap extends StatelessWidget {
           const SizedBox(height: 4),
 
           // Grid heatmap
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            reverse: true, // tampilkan hari terbaru di kanan
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: weeks.map((week) => _WeekColumn(week: week)).toList(),
+          RepaintBoundary(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: true, // tampilkan hari terbaru di kanan
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: weeks.map((week) => _WeekColumn(week: week)).toList(),
+              ),
             ),
           ),
 

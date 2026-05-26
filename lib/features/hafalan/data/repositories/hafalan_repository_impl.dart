@@ -14,10 +14,9 @@ class HafalanRepositoryImpl implements HafalanRepository {
   final HafalanLocalDatasource _datasource;
 
   @override
-  Either<Failure, List<HafalanSurat>> getAllHafalan() {
+  Future<Either<Failure, List<HafalanSurat>>> getAllHafalan() async {
     try {
-      final list = _datasource.getAll();
-      // Compute perluMurajaah status saat load
+      final list = await _datasource.getAll();
       final resolved = list.map(_resolveStatus).toList();
       return Right(resolved);
     } on Object catch (e) {
@@ -26,9 +25,11 @@ class HafalanRepositoryImpl implements HafalanRepository {
   }
 
   @override
-  Either<Failure, HafalanSurat?> getHafalanBySurat(int suratNomor) {
+  Future<Either<Failure, HafalanSurat?>> getHafalanBySurat(
+    int suratNomor,
+  ) async {
     try {
-      final hafalan = _datasource.getBySurat(suratNomor);
+      final hafalan = await _datasource.getBySurat(suratNomor);
       if (hafalan == null) return const Right(null);
       return Right(_resolveStatus(hafalan));
     } on Object catch (e) {
@@ -57,9 +58,9 @@ class HafalanRepositoryImpl implements HafalanRepository {
   }
 
   @override
-  Either<Failure, HafalanStats> getHafalanStats() {
+  Future<Either<Failure, HafalanStats>> getHafalanStats() async {
     try {
-      final list = _datasource.getAll().map(_resolveStatus).toList();
+      final list = (await _datasource.getAll()).map(_resolveStatus).toList();
       return Right(_computeStats(list));
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));

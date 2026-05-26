@@ -17,28 +17,33 @@ class HafalanAyatGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceSM,
+    return RepaintBoundary(
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDimens.spaceMD,
+          vertical: AppDimens.spaceSM,
+        ),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 48,
+          mainAxisSpacing: AppDimens.spaceXS,
+          crossAxisSpacing: AppDimens.spaceXS,
+        ),
+        itemCount: jumlahAyat,
+        itemBuilder: (context, index) {
+          final nomor = index + 1;
+          final isHafal = ayatHafal.contains(nomor);
+          return RepaintBoundary(
+            child: _AyatTile(
+              key: ValueKey('ayat_${nomor}_$isHafal'),
+              nomor: nomor,
+              isHafal: isHafal,
+              onTap: () => onToggle(nomor),
+            ),
+          );
+        },
       ),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 48,
-        mainAxisSpacing: AppDimens.spaceXS,
-        crossAxisSpacing: AppDimens.spaceXS,
-      ),
-      itemCount: jumlahAyat,
-      itemBuilder: (context, index) {
-        final nomor = index + 1;
-        final isHafal = ayatHafal.contains(nomor);
-        return _AyatTile(
-          nomor: nomor,
-          isHafal: isHafal,
-          onTap: () => onToggle(nomor),
-        );
-      },
     );
   }
 }
@@ -48,6 +53,7 @@ class _AyatTile extends StatelessWidget {
     required this.nomor,
     required this.isHafal,
     required this.onTap,
+    super.key,
   });
 
   final int nomor;

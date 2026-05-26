@@ -8,14 +8,14 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockBox extends Mock implements Box<String> {}
+class MockLazyBox extends Mock implements LazyBox<String> {}
 
 void main() {
-  late MockBox mockBox;
+  late MockLazyBox mockBox;
   late TafsirLocalDataSourceImpl dataSource;
 
   setUp(() {
-    mockBox = MockBox();
+    mockBox = MockLazyBox();
     dataSource = TafsirLocalDataSourceImpl(mockBox);
   });
 
@@ -25,7 +25,7 @@ void main() {
         data: jsonEncode(tTafsirDataDto.toJson()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('tafsir_1')).thenReturn(entry.encode());
+      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedTafsir(1);
 
@@ -39,7 +39,7 @@ void main() {
         data: jsonEncode(tTafsirDataDto.toJson()),
         cachedAt: DateTime.now().subtract(const Duration(days: 8)),
       );
-      when(() => mockBox.get('tafsir_1')).thenReturn(entry.encode());
+      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedTafsir(1);
 
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('return null jika tidak ada cache', () async {
-      when(() => mockBox.get('tafsir_1')).thenReturn(null);
+      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => null);
 
       final result = await dataSource.getCachedTafsir(1);
 
@@ -55,7 +55,7 @@ void main() {
     });
 
     test('return null jika data corrupt', () async {
-      when(() => mockBox.get('tafsir_1')).thenReturn('corrupt_data');
+      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => 'corrupt_data');
 
       final result = await dataSource.getCachedTafsir(1);
 

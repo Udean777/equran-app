@@ -41,6 +41,11 @@ class AyatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<QuranFontCubit, QuranFontState>(
+      // Hanya rebuild jika font berubah — mencegah rebuild saat audio tick
+      buildWhen: (prev, curr) =>
+          prev.arabicFontSize != curr.arabicFontSize ||
+          prev.translationFontSize != curr.translationFontSize ||
+          prev.arabicFontFamily != curr.arabicFontFamily,
       builder: (context, fontState) => Card(
         margin: const EdgeInsets.symmetric(
           horizontal: AppDimens.spaceMD,

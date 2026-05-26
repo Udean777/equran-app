@@ -16,7 +16,7 @@ abstract interface class DoaLocalDataSource {
 class DoaLocalDataSourceImpl implements DoaLocalDataSource {
   const DoaLocalDataSourceImpl(@Named('doaBox') this._box);
 
-  final Box<String> _box;
+  final LazyBox<String> _box;
 
   static const _doaListKey = 'doa_list';
   String _detailKey(int id) => 'doa_detail_$id';
@@ -24,7 +24,7 @@ class DoaLocalDataSourceImpl implements DoaLocalDataSource {
   @override
   Future<List<DoaDto>?> getCachedDoaList() async {
     try {
-      final entry = CacheEntry.decode(_box.get(_doaListKey));
+      final entry = CacheEntry.decode(await _box.get(_doaListKey));
       if (entry == null || entry.isExpired) return null;
       final list = jsonDecode(entry.data) as List<dynamic>;
       return list
@@ -47,7 +47,7 @@ class DoaLocalDataSourceImpl implements DoaLocalDataSource {
   @override
   Future<DoaDto?> getCachedDoaDetail(int id) async {
     try {
-      final entry = CacheEntry.decode(_box.get(_detailKey(id)));
+      final entry = CacheEntry.decode(await _box.get(_detailKey(id)));
       if (entry == null || entry.isExpired) return null;
       return DoaDto.fromJson(jsonDecode(entry.data) as Map<String, dynamic>);
     } on Object catch (_) {

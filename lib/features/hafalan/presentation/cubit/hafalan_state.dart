@@ -11,6 +11,10 @@ sealed class HafalanState with _$HafalanState {
   const factory HafalanState.success({
     required List<HafalanSurat> hafalanList,
     required HafalanStats stats,
+    /// Merged: semua 114 surat + data hafalan yang ada. Dihitung di cubit.
+    @Default([]) List<HafalanSurat> mergedList,
+    /// Filtered: mergedList setelah filter diterapkan. Dihitung di cubit.
+    @Default([]) List<HafalanSurat> filteredList,
     @Default(HafalanFilter.semua) HafalanFilter filter,
     String? errorMessage,
   }) = HafalanSuccess;
@@ -19,26 +23,6 @@ sealed class HafalanState with _$HafalanState {
 }
 
 extension HafalanSuccessX on HafalanSuccess {
-  /// List hafalan yang sudah difilter sesuai [filter].
-  List<HafalanSurat> get filteredList {
-    switch (filter) {
-      case HafalanFilter.semua:
-        return hafalanList;
-      case HafalanFilter.sedangDihafal:
-        return hafalanList
-            .where((h) => h.status == HafalanStatus.sedangDihafal)
-            .toList();
-      case HafalanFilter.sudahHafal:
-        return hafalanList
-            .where((h) => h.status == HafalanStatus.sudahHafal)
-            .toList();
-      case HafalanFilter.perluMurajaah:
-        return hafalanList
-            .where((h) => h.status == HafalanStatus.perluMurajaah)
-            .toList();
-    }
-  }
-
   /// Surat yang jatuh tempo muraja'ah — untuk home card.
   List<HafalanSurat> get suratMurajaahHariIni => hafalanList
       .where((h) => h.status == HafalanStatus.perluMurajaah)

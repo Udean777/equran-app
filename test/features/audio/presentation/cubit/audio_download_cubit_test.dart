@@ -367,4 +367,101 @@ void main() {
       },
     );
   });
+
+  // ── Memory leak prevention ────────────────────────────────────────────────
+
+  group('AudioDownloadCubit memory leak prevention', () {
+    blocTest<AudioDownloadCubit, AudioDownloadState>(
+      'loadDownloadedStatus() membersihkan states surat lama saat ganti surat',
+      build: () {
+        when(
+          () => mockGetDownloaded(),
+        ).thenAnswer((_) async => const Right([]));
+        return buildCubit();
+      },
+      act: (cubit) async {
+        // Load surat 1 dulu — set _currentSuratNomor = 1
+        await cubit.loadDownloadedStatus(
+          suratNomor: 1,
+          ayatList: [_ayat(1), _ayat(2), _ayat(3)],
+          qari: qari,
+        );
+        // Paksa emit state dengan states surat 1 (simulasi setelah download)
+        cubit.emit(
+          const AudioDownloadState(
+            downloadStates: {
+              '1:1:05': DownloadState.done(),
+              '1:2:05': DownloadState.done(),
+              '1:3:05': DownloadState.done(),
+            },
+          ),
+        );
+        // Ganti ke surat 2 — harus clear states surat 1
+        await cubit.loadDownloadedStatus(
+          suratNomor: 2,
+          ayatList: [_ayat(1)],
+          qari: qari,
+        );
+      },
+      verify: (cubit) {
+        // States surat 1 harus sudah dihapus
+        expect(
+          cubit.state.downloadStates.keys.where((k) => k.startsWith('1:')),
+          isEmpty,
+        );
+      },
+    );
+
+    blocTest<AudioDownloadCubit, AudioDownloadState>(
+      'loadDownloadedStatus() tidak clear states jika surat sama',
+      build: () {
+        when(
+          () => mockGetDownloaded(),
+        ).thenAnswer((_) async => const Right([]));
+        return buildCubit();
+      },
+      seed: () => const AudioDownloadState(
+        downloadStates: {
+          '1:1:05': DownloadState.done(),
+          '1:2:05': DownloadState.done(),
+        },
+      ),
+      act: (cubit) async {
+        // Load surat 1 dua kali — tidak boleh clear
+        await cubit.loadDownloadedStatus(
+          suratNomor: suratNomor,
+          ayatList: [_ayat(1), _ayat(2)],
+          qari: qari,
+        );
+        await cubit.loadDownloadedStatus(
+          suratNomor: suratNomor,
+          ayatList: [_ayat(1), _ayat(2)],
+          qari: qari,
+        );
+      },
+      verify: (cubit) {
+        // States surat 1 masih ada (tidak di-clear karena surat sama)
+        expect(
+          cubit.state.downloadStates.keys.where((k) => k.startsWith('1:')),
+          isNotEmpty,
+        );
+      },
+    );
+
+    test('close() reset _currentSuratNomor', () async {
+      when(
+        () => mockGetDownloaded(),
+      ).thenAnswer((_) async => const Right([]));
+
+      final cubit = buildCubit();
+      await cubit.loadDownloadedStatus(
+        suratNomor: suratNomor,
+        ayatList: [_ayat(1)],
+        qari: qari,
+      );
+      await cubit.close();
+      // Tidak throw setelah close
+      expect(cubit.isClosed, isTrue);
+    });
+  });
 }

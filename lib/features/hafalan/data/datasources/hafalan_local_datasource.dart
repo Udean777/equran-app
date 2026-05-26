@@ -7,8 +7,8 @@ import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class HafalanLocalDatasource {
-  List<HafalanSurat> getAll();
-  HafalanSurat? getBySurat(int suratNomor);
+  Future<List<HafalanSurat>> getAll();
+  Future<HafalanSurat?> getBySurat(int suratNomor);
   Future<void> save(HafalanSurat hafalan);
   Future<void> delete(int suratNomor);
 }
@@ -23,29 +23,31 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
   String _key(int suratNomor) => 'surat_$suratNomor';
 
   @override
-  List<HafalanSurat> getAll() {
+  Future<List<HafalanSurat>> getAll() async {
     try {
-      return _box.values
-          .map((raw) {
-            try {
-              final dto = HafalanSuratDto.fromJson(
-                jsonDecode(raw) as Map<String, dynamic>,
-              );
-              return dto.toEntity();
-            } on Object catch (_) {
-              return null;
-            }
-          })
-          .whereType<HafalanSurat>()
-          .toList()
-        ..sort((a, b) => a.suratNomor.compareTo(b.suratNomor));
+      // Iterasi key surat_1 s/d surat_114 — lebih efisien dari box.values
+      final results = <HafalanSurat>[];
+      for (var i = 1; i <= 114; i++) {
+        final raw = _box.get(_key(i));
+        if (raw == null) continue;
+        try {
+          final dto = HafalanSuratDto.fromJson(
+            jsonDecode(raw) as Map<String, dynamic>,
+          );
+          results.add(dto.toEntity());
+        } on Object catch (_) {
+          continue;
+        }
+      }
+      // Sudah terurut karena iterasi 1-114, tidak perlu sort
+      return results;
     } on Object catch (_) {
       return [];
     }
   }
 
   @override
-  HafalanSurat? getBySurat(int suratNomor) {
+  Future<HafalanSurat?> getBySurat(int suratNomor) async {
     try {
       final raw = _box.get(_key(suratNomor));
       if (raw == null) return null;

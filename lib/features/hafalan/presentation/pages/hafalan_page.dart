@@ -10,7 +10,6 @@ import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_juz_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_stats_card.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
@@ -54,9 +53,11 @@ class _HafalanView extends StatelessWidget {
       ),
       body: BlocBuilder<SuratListCubit, SuratListState>(
         builder: (context, suratState) {
-          if (suratState is! SuratListSuccess) {
-            return const LoadingWidget();
+          // Saat allSurat tersedia, kirim ke HafalanCubit untuk merge
+          if (suratState is SuratListSuccess) {
+            context.read<HafalanCubit>().setAllSurat(suratState.surats);
           }
+
           return BlocBuilder<HafalanCubit, HafalanState>(
             builder: (context, hafalanState) => switch (hafalanState) {
               HafalanInitial() => const LoadingWidget(),
@@ -65,21 +66,7 @@ class _HafalanView extends StatelessWidget {
                 message: message,
                 onRetry: () => context.read<HafalanCubit>().load(),
               ),
-              HafalanSuccess(
-                :final hafalanList,
-                :final stats,
-                :final filter,
-                :final errorMessage,
-              ) =>
-                _HafalanContent(
-                  state: HafalanSuccess(
-                    hafalanList: hafalanList,
-                    stats: stats,
-                    filter: filter,
-                    errorMessage: errorMessage,
-                  ),
-                  allSurat: suratState.surats,
-                ),
+              HafalanSuccess() => _HafalanContent(state: hafalanState),
             },
           );
         },
@@ -89,19 +76,14 @@ class _HafalanView extends StatelessWidget {
 }
 
 class _HafalanContent extends StatelessWidget {
-  const _HafalanContent({
-    required this.state,
-    required this.allSurat,
-  });
+  const _HafalanContent({required this.state});
 
   final HafalanSuccess state;
-  final List<Surat> allSurat;
 
   @override
   Widget build(BuildContext context) {
-    // Merge: semua 114 surat + data hafalan yang sudah ada
-    final merged = _mergeWithAllSurat(state.hafalanList, allSurat);
-    final filtered = _applyFilter(merged, state.filter);
+    // filteredList sudah dihitung di cubit — tidak ada komputasi di build()
+    final filtered = state.filteredList;
 
     return Column(
       children: [
@@ -159,45 +141,6 @@ class _HafalanContent extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// Merge list hafalan dengan semua 114 surat.
-  /// Surat yang belum ada di hafalanList dibuat sebagai HafalanSurat.belum.
-  List<HafalanSurat> _mergeWithAllSurat(
-    List<HafalanSurat> hafalanList,
-    List<Surat> allSurat,
-  ) {
-    final hafalanMap = {for (final h in hafalanList) h.suratNomor: h};
-    return allSurat.map((surat) {
-      return hafalanMap[surat.nomor] ??
-          HafalanSurat(
-            suratNomor: surat.nomor,
-            namaLatin: surat.namaLatin,
-            nama: surat.nama,
-            jumlahAyat: surat.jumlahAyat,
-          );
-    }).toList();
-  }
-
-  /// Filter list berdasarkan HafalanFilter.
-  List<HafalanSurat> _applyFilter(
-    List<HafalanSurat> list,
-    HafalanFilter filter,
-  ) {
-    switch (filter) {
-      case HafalanFilter.semua:
-        return list;
-      case HafalanFilter.sedangDihafal:
-        return list
-            .where((h) => h.status == HafalanStatus.sedangDihafal)
-            .toList();
-      case HafalanFilter.sudahHafal:
-        return list.where((h) => h.status == HafalanStatus.sudahHafal).toList();
-      case HafalanFilter.perluMurajaah:
-        return list
-            .where((h) => h.status == HafalanStatus.perluMurajaah)
-            .toList();
-    }
   }
 }
 
@@ -259,12 +202,11 @@ class _FilterChips extends StatelessWidget {
             child: FilterChip(
               label: Text(_filterLabel(filter)),
               selected: isSelected,
-              onSelected: (_) => context.read<HafalanCubit>().setFilter(filter),
+              onSelected: (_) =>
+                  context.read<HafalanCubit>().setFilter(filter),
               selectedColor: AppColors.primary.withValues(alpha: 0.15),
-              checkmarkColor: AppColors.primary,
               labelStyle: TextStyle(
                 color: isSelected ? AppColors.primary : null,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 fontSize: 12,
               ),
             ),
@@ -283,7 +225,7 @@ class _FilterChips extends StatelessWidget {
       case HafalanFilter.sudahHafal:
         return 'Sudah Hafal';
       case HafalanFilter.perluMurajaah:
-        return 'Perlu Murajaah';
+        return "Perlu Muraja'ah";
     }
   }
 }
