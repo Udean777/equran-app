@@ -62,8 +62,14 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
       (provinsi) async {
         // 1. Coba restore lokasi terakhir
         final lastLocationResult = await _getLastLocation();
-        final lastProvinsi = lastLocationResult.fold((_) => null, (l) => l.provinsi);
-        final lastKabkota = lastLocationResult.fold((_) => null, (l) => l.kabkota);
+        final lastProvinsi = lastLocationResult.fold(
+          (_) => null,
+          (l) => l.provinsi,
+        );
+        final lastKabkota = lastLocationResult.fold(
+          (_) => null,
+          (l) => l.kabkota,
+        );
 
         if (lastProvinsi != null &&
             provinsi.contains(lastProvinsi) &&
@@ -92,10 +98,12 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
                 final matchedKabkota = fuzzyMatch(detected.kabkota, kabkota);
 
                 if (matchedKabkota != null) {
-                  unawaited(_saveLastLocation(
-                    provinsi: matchedProvinsi,
-                    kabkota: matchedKabkota,
-                  ));
+                  unawaited(
+                    _saveLastLocation(
+                      provinsi: matchedProvinsi,
+                      kabkota: matchedKabkota,
+                    ),
+                  );
                   await _autoLoadJadwal(
                     provinsiList: provinsi,
                     selectedProvinsi: matchedProvinsi,
@@ -133,10 +141,12 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
         final matched = kabkota.contains(_defaultKabkota)
             ? _defaultKabkota
             : kabkota.first;
-        unawaited(_saveLastLocation(
-          provinsi: _defaultProvinsi,
-          kabkota: matched,
-        ));
+        unawaited(
+          _saveLastLocation(
+            provinsi: _defaultProvinsi,
+            kabkota: matched,
+          ),
+        );
         await _autoLoadJadwal(
           provinsiList: provinsiList,
           selectedProvinsi: _defaultProvinsi,
@@ -157,7 +167,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     int? bulan,
     int? tahun,
   }) async {
-    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+    final now = DateTime.now();
     final targetBulan = bulan ?? now.month;
     final targetTahun = tahun ?? now.year;
 
@@ -214,7 +224,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
           ),
         );
         // Schedule notifikasi untuk hari ini jika bulan = bulan ini
-        final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+        final now = DateTime.now();
         if (targetBulan == now.month && targetTahun == now.year) {
           _scheduleNotifications(jadwal);
         }
@@ -265,10 +275,12 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
 
     if (selectedProvinsi == null) return;
 
-    unawaited(_saveLastLocation(
-      provinsi: selectedProvinsi,
-      kabkota: kabkota,
-    ));
+    unawaited(
+      _saveLastLocation(
+        provinsi: selectedProvinsi,
+        kabkota: kabkota,
+      ),
+    );
 
     await _autoLoadJadwal(
       provinsiList: provinsiList,
@@ -332,7 +344,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
 
   /// Schedule notifikasi untuk entry hari ini dari [jadwal].
   void _scheduleNotifications(JadwalShalat jadwal) {
-    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+    final now = DateTime.now();
     final todayEntry = jadwal.jadwal
         .where((e) => e.tanggal == now.day)
         .firstOrNull;
