@@ -585,12 +585,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i247.WatchQiblaDirection>(
       () => _i247.WatchQiblaDirection(gh<_i480.QiblaRepository>()),
     );
-    gh.singleton<_i615.ShalatNotifCubit>(
-      () => _i615.ShalatNotifCubit(
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-      ),
-    );
     gh.lazySingleton<_i398.TafsirLocalDataSource>(
       () => _i398.TafsirLocalDataSourceImpl(
         gh<_i738.LazyBox<String>>(instanceName: 'tafsirBox'),
@@ -749,19 +743,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i413.SaveShalatLog>(
       () => _i413.SaveShalatLog(gh<_i278.StatistikShalatRepository>()),
     );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
-        gh<_i1042.GetJadwalShalat>(),
-        gh<_i88.GetLastLocationShalat>(),
-        gh<_i584.SaveLastLocationShalat>(),
-        gh<_i177.LocationService>(),
-        gh<_i804.ShalatNotificationScheduler>(),
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-      ),
-    );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
         gh<_i575.ImsakiyahRemoteDataSource>(),
@@ -817,6 +798,27 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i734.TafsirRepositoryImpl(
         gh<_i713.TafsirRemoteDataSource>(),
         gh<_i398.TafsirLocalDataSource>(),
+      ),
+    );
+    gh.singleton<_i615.ShalatNotifCubit>(
+      () => _i615.ShalatNotifCubit(
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i804.ShalatNotificationScheduler>(),
+      ),
+    );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
+        gh<_i177.LocationService>(),
+        gh<_i804.ShalatNotificationScheduler>(),
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i615.ShalatNotifCubit>(),
       ),
     );
     gh.lazySingleton<_i420.DoaRepository>(

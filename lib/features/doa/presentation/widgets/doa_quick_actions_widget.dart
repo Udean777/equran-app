@@ -121,8 +121,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
                       color: isDark
                           ? AppColors.goldDark.withValues(alpha: 0.2)
                           : AppColors.goldLighter,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusSM),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                     ),
                     child: Icon(
                       _slot.icon,
@@ -144,28 +143,31 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
               ),
               const SizedBox(height: AppDimens.spaceSM),
 
-              // 2 card horizontal
-              Row(
-                children: [
-                  if (doa1 != null)
-                    Expanded(
-                      child: _DoaActionCard(
-                        doa: doa1,
-                        isDark: isDark,
-                        onTap: () => context.push('/doa/${doa1.id}'),
+              // 2 card horizontal — IntrinsicHeight agar tinggi selalu sama
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (doa1 != null)
+                      Expanded(
+                        child: _DoaActionCard(
+                          doa: doa1,
+                          isDark: isDark,
+                          onTap: () => context.push('/doa/${doa1.id}'),
+                        ),
                       ),
-                    ),
-                  if (doa1 != null && doa2 != null)
-                    const SizedBox(width: AppDimens.spaceSM),
-                  if (doa2 != null)
-                    Expanded(
-                      child: _DoaActionCard(
-                        doa: doa2,
-                        isDark: isDark,
-                        onTap: () => context.push('/doa/${doa2.id}'),
+                    if (doa1 != null && doa2 != null)
+                      const SizedBox(width: AppDimens.spaceSM),
+                    if (doa2 != null)
+                      Expanded(
+                        child: _DoaActionCard(
+                          doa: doa2,
+                          isDark: isDark,
+                          onTap: () => context.push('/doa/${doa2.id}'),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -211,6 +213,7 @@ class _DoaActionCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppDimens.spaceMD),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Nama doa
               Text(
@@ -219,27 +222,27 @@ class _DoaActionCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.primaryLighter
-                      : AppColors.primary,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
                   height: 1.3,
                 ),
               ),
               const SizedBox(height: AppDimens.spaceXS),
 
-              // Preview arab
-              Text(
-                doa.ar,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textDirection: TextDirection.rtl,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontFamily: 'Amiri',
-                  color: isDark
-                      ? AppColors.onSurfaceDarkVariant
-                      : AppColors.textTertiary,
-                  fontSize: 13,
-                  height: 1.8,
+              // Preview arab — Expanded agar mendorong "Baca doa" ke bawah
+              Expanded(
+                child: Text(
+                  doa.ar,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textDirection: TextDirection.rtl,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontFamily: 'Amiri',
+                    color: isDark
+                        ? AppColors.onSurfaceDarkVariant
+                        : AppColors.textTertiary,
+                    fontSize: 13,
+                    height: 1.8,
+                  ),
                 ),
               ),
               const SizedBox(height: AppDimens.spaceSM),

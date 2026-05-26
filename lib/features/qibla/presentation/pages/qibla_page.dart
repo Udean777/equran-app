@@ -86,9 +86,7 @@ class _QiblaView extends StatelessWidget {
                   color: isDark ? AppColors.primaryLighter : AppColors.primary,
                 ),
                 tooltip: 'Refresh',
-                onPressed: () => unawaited(
-                  context.read<QiblaCubit>().start(),
-                ),
+                onPressed: () => unawaited(context.read<QiblaCubit>().start()),
               );
             },
           ),
@@ -96,11 +94,11 @@ class _QiblaView extends StatelessWidget {
       ),
       body: BlocBuilder<QiblaCubit, QiblaState>(
         builder: (context, state) => switch (state) {
-          QiblaInitial() => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          QiblaInitial() => const _LoadingView(
+            message: 'Mempersiapkan kompas...',
           ),
-          QiblaLoading() => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          QiblaLoading() => const _LoadingView(
+            message: 'Mendapatkan lokasi Anda...',
           ),
           QiblaLoaded(:final direction) => _QiblaContent(
             bearing: direction.bearing,
@@ -122,6 +120,167 @@ class _QiblaView extends StatelessWidget {
     );
   }
 }
+
+// ── Loading view ──────────────────────────────────────────────────────────────
+
+class _LoadingView extends StatefulWidget {
+  const _LoadingView({required this.message});
+
+  final String message;
+
+  @override
+  State<_LoadingView> createState() => _LoadingViewState();
+}
+
+class _LoadingViewState extends State<_LoadingView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _rotateAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    unawaited(_controller.repeat());
+    _rotateAnim = Tween<double>(begin: 0, end: 1).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimens.spaceLG),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Animasi kompas berputar
+            SizedBox(
+              width: 100,
+              height: 100,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Ring luar berputar
+                  RotationTransition(
+                    turns: _rotateAnim,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.gold.withValues(alpha: 0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: CustomPaint(
+                        painter: _DashedCirclePainter(
+                          color: AppColors.gold.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Icon kompas statis
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDark
+                          ? AppColors.primaryDark.withValues(alpha: 0.4)
+                          : AppColors.primaryContainer.withValues(alpha: 0.5),
+                    ),
+                    child: Icon(
+                      Icons.explore_rounded,
+                      size: 32,
+                      color: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppDimens.spaceLG),
+
+            Text(
+              widget.message,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: AppDimens.spaceSM),
+
+            Text(
+              'Pastikan GPS dan izin lokasi aktif',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant.withValues(alpha: 0.6)
+                    : AppColors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashedCirclePainter extends CustomPainter {
+  _DashedCirclePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 1;
+    const dashCount = 12;
+    const dashAngle = 0.2;
+    const gapAngle = (2 * 3.14159 / dashCount) - dashAngle;
+
+    for (var i = 0; i < dashCount; i++) {
+      final startAngle = i * (dashAngle + gapAngle);
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        dashAngle,
+        false,
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedCirclePainter old) => old.color != color;
+}
+
+// ── Main content ──────────────────────────────────────────────────────────────
 
 class _QiblaContent extends StatelessWidget {
   const _QiblaContent({
@@ -149,7 +308,7 @@ class _QiblaContent extends StatelessWidget {
         children: [
           // Subtitle
           Text(
-            'Hadapkan perangkat ke arah kiblat',
+            'Hadapkan diri Anda ke arah jarum kompas',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: isDark
                   ? AppColors.onSurfaceDarkVariant
@@ -177,6 +336,11 @@ class _QiblaContent extends StatelessWidget {
 
           const SizedBox(height: AppDimens.spaceMD),
 
+          // Cara pakai — onboarding untuk user awam
+          _HowToCard(isDark: isDark),
+
+          const SizedBox(height: AppDimens.spaceMD),
+
           // Tip card
           _TipCard(isDark: isDark),
         ],
@@ -184,6 +348,133 @@ class _QiblaContent extends StatelessWidget {
     );
   }
 }
+
+// ── How to card ───────────────────────────────────────────────────────────────
+
+class _HowToCard extends StatelessWidget {
+  const _HowToCard({required this.isDark});
+
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
+
+    const steps = [
+      (
+        icon: Icons.stay_current_portrait_rounded,
+        text: 'Pegang HP tegak lurus, layar menghadap ke atas',
+      ),
+      (
+        icon: Icons.rotate_right_rounded,
+        text: 'Putar badan perlahan hingga jarum menunjuk lurus ke atas',
+      ),
+      (
+        icon: Icons.check_circle_outline_rounded,
+        text: 'Saat muncul "Menghadap Kiblat!", Anda sudah di arah yang benar',
+      ),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        border: Border.all(color: borderColor),
+      ),
+      padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.primaryDark
+                      : AppColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                ),
+                child: Icon(
+                  Icons.help_outline_rounded,
+                  size: 15,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: AppDimens.spaceSM),
+              Text(
+                'Cara Menggunakan',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? AppColors.onSurfaceDark
+                      : AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.spaceMD),
+          ...steps.asMap().entries.map((entry) {
+            final i = entry.key;
+            final step = entry.value;
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: i < steps.length - 1 ? AppDimens.spaceSM : 0,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nomor step
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.primaryDark
+                          : AppColors.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${i + 1}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppDimens.spaceSM),
+                  Expanded(
+                    child: Text(
+                      step.text,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Tip card ──────────────────────────────────────────────────────────────────
 
 class _TipCard extends StatelessWidget {
   const _TipCard({required this.isDark});
@@ -225,7 +516,7 @@ class _TipCard extends StatelessWidget {
           const SizedBox(width: AppDimens.spaceMD),
           Expanded(
             child: Text(
-              'Jauhkan dari benda logam dan elektronik untuk hasil yang lebih akurat.',
+              'Jauhkan dari benda logam, magnet, dan elektronik untuk hasil yang lebih akurat.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: isDark
                     ? AppColors.onSurfaceDarkVariant
