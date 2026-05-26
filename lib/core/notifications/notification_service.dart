@@ -309,18 +309,35 @@ class NotificationService {
     );
   }
 
-  /// Resolve timezone name dari device.
+  /// Resolve timezone name dari device ke IANA timezone name.
   /// Fallback ke 'Asia/Jakarta' jika gagal.
   Future<String> _resolveLocalTimezone() async {
     try {
       final offset = DateTime.now().timeZoneOffset;
       final offsetHours = offset.inHours;
+      final tzName = DateTime.now().timeZoneName.toUpperCase();
 
-      if (offsetHours == 7) return 'Asia/Jakarta'; // WIB
-      if (offsetHours == 8) return 'Asia/Makassar'; // WITA
-      if (offsetHours == 9) return 'Asia/Jayapura'; // WIT
+      // Coba match dari offset dulu (paling reliable di Android)
+      if (offsetHours == 7) return 'Asia/Jakarta';   // WIB
+      if (offsetHours == 8) return 'Asia/Makassar';  // WITA
+      if (offsetHours == 9) return 'Asia/Jayapura';  // WIT
 
-      return DateTime.now().timeZoneName;
+      // Fallback: coba match dari nama timezone string
+      if (tzName.contains('WIB') || tzName.contains('JAKARTA')) {
+        return 'Asia/Jakarta';
+      }
+      if (tzName.contains('WITA') || tzName.contains('MAKASSAR')) {
+        return 'Asia/Makassar';
+      }
+      if (tzName.contains('WIT') || tzName.contains('JAYAPURA')) {
+        return 'Asia/Jayapura';
+      }
+
+      // Coba pakai langsung jika sudah IANA format (misal dari flutter_timezone)
+      final raw = DateTime.now().timeZoneName;
+      if (raw.contains('/')) return raw;
+
+      return 'Asia/Jakarta';
     } on Object catch (_) {
       debugPrint('NotificationService: timezone resolve failed, using WIB');
       return 'Asia/Jakarta';

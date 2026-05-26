@@ -14,6 +14,7 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_not
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -29,6 +30,7 @@ class MockLocationService extends Mock implements LocationService {}
 class MockShalatNotificationScheduler extends Mock implements ShalatNotificationScheduler {}
 class MockGetShalatNotifPrefs extends Mock implements GetShalatNotifPrefs {}
 class MockSaveShalatNotifPrefs extends Mock implements SaveShalatNotifPrefs {}
+class MockShalatNotifCubit extends Mock implements ShalatNotifCubit {}
 
 class FakeJadwalShalatEntry extends Fake implements JadwalShalatEntry {}
 class FakeShalatNotifPrefs extends Fake implements ShalatNotifPrefs {}
@@ -45,6 +47,7 @@ void main() {
   late MockShalatNotificationScheduler mockScheduler;
   late MockGetShalatNotifPrefs mockGetNotifPrefs;
   late MockSaveShalatNotifPrefs mockSaveNotifPrefs;
+  late MockShalatNotifCubit mockShalatNotifCubit;
 
   setUpAll(() {
     registerFallbackValue(FakeJadwalShalatEntry());
@@ -63,6 +66,7 @@ void main() {
     mockScheduler = MockShalatNotificationScheduler();
     mockGetNotifPrefs = MockGetShalatNotifPrefs();
     mockSaveNotifPrefs = MockSaveShalatNotifPrefs();
+    mockShalatNotifCubit = MockShalatNotifCubit();
 
     // Default stubs untuk notification mocks
     when(() => mockGetNotifPrefs())
@@ -77,6 +81,8 @@ void main() {
         kabkota: any(named: 'kabkota'),
       ),
     ).thenAnswer((_) async => right(unit));
+    // Default stub for ShalatNotifCubit
+    when(() => mockShalatNotifCubit.setTodayEntry(any())).thenAnswer((_) {});
   });
 
   JadwalShalatCubit buildCubit() => JadwalShalatCubit(
@@ -89,6 +95,7 @@ void main() {
     mockScheduler,
     mockGetNotifPrefs,
     mockSaveNotifPrefs,
+    mockShalatNotifCubit,
   );
 
   const tFailure = NetworkFailure();

@@ -16,6 +16,7 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_s
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -36,6 +37,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     this._scheduler,
     this._getNotifPrefs,
     this._saveNotifPrefs,
+    this._shalatNotifCubit,
   ) : super(const JadwalShalatState.initial());
 
   final GetProvinsiShalat _getProvinsi;
@@ -47,6 +49,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
   final ShalatNotificationScheduler _scheduler;
   final GetShalatNotifPrefs _getNotifPrefs;
   final SaveShalatNotifPrefs _saveNotifPrefs;
+  final ShalatNotifCubit _shalatNotifCubit;
 
   static const _defaultProvinsi = 'DKI Jakarta';
   static const _defaultKabkota = 'Kota Jakarta';
@@ -351,6 +354,11 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
 
     if (todayEntry == null) return;
 
+    final entry = _toScheduleEntry(todayEntry);
+
+    // Beritahu ShalatNotifCubit agar bisa reschedule saat prefs berubah
+    _shalatNotifCubit.setTodayEntry(entry);
+
     unawaited(
       _getNotifPrefs()
           .then((result) {
@@ -360,7 +368,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
             );
             unawaited(
               _scheduler.scheduleForToday(
-                _toScheduleEntry(todayEntry),
+                entry,
                 _toNotifConfig(prefs),
               ),
             );

@@ -17,8 +17,8 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 
 ### 🕌 Ibadah & Spiritual
 
-- **Jadwal Shalat & Notifikasi** — Waktu shalat fardhu lima waktu sesuai lokasi GPS, lengkap dengan notifikasi adzan otomatis yang bisa dikonfigurasi per waktu shalat.
-- **Imsakiyah & Alarm Sahur/Imsak** — Jadwal imsakiyah bulanan dengan alarm sahur (default 60 menit sebelum imsak) dan alarm imsak yang bisa diatur sesuai kebutuhan.
+- **Jadwal Shalat & Notifikasi** — Waktu shalat fardhu lima waktu sesuai lokasi GPS, lengkap dengan notifikasi adzan otomatis yang bisa dikonfigurasi per waktu shalat. Dilengkapi inisialisasi timezone tangguh yang auto-adaptasi dengan nama zona waktu lokal (WIB, WITA, WIT, dll.) serta pemutaran audio adzan latar belakang yang andal pada Android dan iOS.
+- **Imsakiyah & Alarm Sahur/Imsak** — Jadwal imsakiyah bulanan dengan alarm sahur (default 60 menit sebelum imsak) dan alarm imsak yang bisa diatur sesuai kebutuhan. Sistem alarm dipisahkan secara independen dari notifikasi shalat agar tidak saling menghapus saat proses penjadwalan ulang.
 - **Kompas Arah Kiblat (Qibla Finder)** — Arah kiblat real-time menggunakan sensor kompas fisik perangkat. Bekerja 100% offline.
 - **Tasbih Digital** — Penghitung zikir dengan haptic feedback, target hitungan (33, 99, atau custom), dan riwayat sesi zikir.
 - **Kumpulan Doa Harian** — Doa-doa pilihan dengan rekomendasi cerdas sesuai waktu (pagi, siang, malam).
@@ -156,7 +156,7 @@ make analyze-size
 flutter test
 ```
 
-> 552 test — semua passed ✅
+> 545 test — semua passed ✅
 
 ---
 
