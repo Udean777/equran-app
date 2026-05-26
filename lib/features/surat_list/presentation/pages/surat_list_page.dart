@@ -1,13 +1,17 @@
 import 'dart:async';
 
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_widget.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
@@ -52,18 +56,32 @@ class _SuratListView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: Text(l10n.appTitle),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         actions: [
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) => IconButton(
-              tooltip: themeState.isDark ? l10n.lightMode : l10n.darkMode,
-              icon: Icon(
-                themeState.isDark
-                    ? Icons.light_mode_rounded
-                    : Icons.dark_mode_rounded,
+              tooltip: themeState.map(
+                light: (_) => l10n.darkMode,
+                dark: (_) => 'Mode Sepia',
+                sepia: (_) => l10n.lightMode,
               ),
-              onPressed: context.read<ThemeCubit>().toggle,
+              icon: Icon(
+                themeState.map(
+                  light: (_) => Icons.dark_mode_rounded,
+                  dark: (_) => Icons.auto_stories_rounded,
+                  sepia: (_) => Icons.light_mode_rounded,
+                ),
+              ),
+              onPressed: () => context.read<ThemeCubit>().cycle(),
             ),
           ),
           IconButton(
@@ -81,6 +99,56 @@ class _SuratListView extends StatelessWidget {
               final lastRead = state.mapOrNull(success: (s) => s.lastRead);
               if (lastRead == null) return const SizedBox.shrink();
               return LastReadCard(lastRead: lastRead);
+            },
+          ),
+          // Streak chip
+          BlocBuilder<QuranStreakCubit, int>(
+            builder: (context, streak) {
+              if (streak == 0) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceMD,
+                  vertical: AppDimens.spaceXS,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimens.spaceSM,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppDimens.radiusFull,
+                        ),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.local_fire_department_rounded,
+                            color: Colors.orange,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$streak hari berturut-turut',
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
           // Doa Quick Actions — 2 doa relevan berdasarkan waktu
@@ -121,16 +189,28 @@ class _SuratListContent extends StatelessWidget {
       return EmptyStateWidget(message: l10n.emptySearch);
     }
 
+    // Ambil lastRead untuk tampilkan progress bar di surat yang sedang dibaca
+    final lastRead = context
+        .watch<BookmarkCubit>()
+        .state
+        .mapOrNull(success: (s) => s.lastRead);
+
     return RefreshIndicator(
       onRefresh: context.read<SuratListCubit>().refresh,
       child: ListView.builder(
         padding: const EdgeInsets.only(bottom: 16),
         itemCount: surats.length,
-        itemBuilder: (_, i) => SuratCard(
-          key: ValueKey(surats[i].nomor),
-          surat: surats[i],
-          onTap: () => context.push('/surat/${surats[i].nomor}'),
-        ),
+        itemBuilder: (_, i) {
+          final surat = surats[i];
+          final isLastRead =
+              lastRead != null && lastRead.suratNomor == surat.nomor;
+          return SuratCard(
+            key: ValueKey(surat.nomor),
+            surat: surat,
+            onTap: () => context.push('/surat/${surat.nomor}'),
+            scrollPercent: isLastRead ? lastRead.scrollPercent : null,
+          );
+        },
       ),
     );
   }

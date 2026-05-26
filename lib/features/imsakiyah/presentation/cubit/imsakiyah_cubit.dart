@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_local_data_source.dart';
+import 'package:equran_app/core/utils/string_utils.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart';
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_last_location_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart';
+import 'package:equran_app/features/imsakiyah/domain/usecases/save_last_location_imsakiyah.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -18,14 +22,16 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
     this._getProvinsi,
     this._getKabkota,
     this._getImsakiyah,
-    this._local,
+    this._getLastLocation,
+    this._saveLastLocation,
     this._locationService,
   ) : super(const ImsakiyahState.initial());
 
   final GetProvinsi _getProvinsi;
   final GetKabkota _getKabkota;
   final GetImsakiyah _getImsakiyah;
-  final ImsakiyahLocalDataSource _local;
+  final GetLastLocationImsakiyah _getLastLocation;
+  final SaveLastLocationImsakiyah _saveLastLocation;
   final LocationService _locationService;
 
   /// Load provinsi list + restore last location jika ada,
@@ -38,8 +44,15 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
       (failure) async => emit(ImsakiyahState.failure(failure: failure)),
       (provinsi) async {
         // 1. Coba restore lokasi terakhir (saved preference)
-        final lastProvinsi = await _local.getLastProvinsi();
-        final lastKabkota = await _local.getLastKabkota();
+        final lastLocationResult = await _getLastLocation();
+        final lastProvinsi = lastLocationResult.fold(
+          (_) => null,
+          (l) => l.provinsi,
+        );
+        final lastKabkota = lastLocationResult.fold(
+          (_) => null,
+          (l) => l.kabkota,
+        );
 
         if (lastProvinsi != null &&
             provinsi.contains(lastProvinsi) &&
@@ -58,7 +71,7 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
 
         if (detected != null) {
           // Cocokkan dengan daftar provinsi (case-insensitive partial match)
-          final matchedProvinsi = _fuzzyMatch(detected.provinsi, provinsi);
+          final matchedProvinsi = fuzzyMatch(detected.provinsi, provinsi);
 
           if (matchedProvinsi != null) {
             final kabkotaResult = await _getKabkota(matchedProvinsi);
@@ -66,12 +79,16 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
               (failure) async =>
                   emit(ImsakiyahState.provinsiLoaded(provinsi: provinsi)),
               (kabkota) async {
-                final matchedKabkota = _fuzzyMatch(detected.kabkota, kabkota);
+                final matchedKabkota = fuzzyMatch(detected.kabkota, kabkota);
 
                 if (matchedKabkota != null) {
                   // Simpan preferensi dan langsung load jadwal
-                  await _local.saveLastProvinsi(matchedProvinsi);
-                  await _local.saveLastKabkota(matchedKabkota);
+                  unawaited(
+                    _saveLastLocation(
+                      provinsi: matchedProvinsi,
+                      kabkota: matchedKabkota,
+                    ),
+                  );
                   await _autoLoadJadwal(
                     provinsiList: provinsi,
                     selectedProvinsi: matchedProvinsi,
@@ -114,8 +131,12 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
         final matched = kabkota.contains(_defaultKabkota)
             ? _defaultKabkota
             : kabkota.first;
-        await _local.saveLastProvinsi(_defaultProvinsi);
-        await _local.saveLastKabkota(matched);
+        unawaited(
+          _saveLastLocation(
+            provinsi: _defaultProvinsi,
+            kabkota: matched,
+          ),
+        );
         await _autoLoadJadwal(
           provinsiList: provinsiList,
           selectedProvinsi: _defaultProvinsi,
@@ -187,49 +208,10 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
     return result.fold((_) => null, (list) => list);
   }
 
-  /// Fuzzy match: cari item dalam [candidates] yang paling mendekati [query].
+  /// Fuzzy match: cari item dalam candidates yang paling mendekati query.
   ///
   /// Geocoding sering mengembalikan nama tanpa prefix (e.g. "Medan", "Deli Serdang")
   /// sedangkan API mengembalikan "Kota Medan" atau "Kab. Deli Serdang".
-  /// Strategi matching (urutan prioritas):
-  ///   1. Exact match (case-insensitive)
-  ///   2. Candidate contains query
-  ///   3. Query contains candidate (setelah strip prefix Kab./Kota)
-  ///   4. Token-based: semua token query ada di candidate
-  String? _fuzzyMatch(String query, List<String> candidates) {
-    final q = query.toUpperCase().trim();
-
-    // 1. Exact match
-    final exact = candidates.where((c) => c.toUpperCase() == q);
-    if (exact.isNotEmpty) return exact.first;
-
-    // 2. Candidate contains query (e.g. "KAB. DELI SERDANG".contains("DELI SERDANG"))
-    final containsQ = candidates.where((c) => c.toUpperCase().contains(q));
-    if (containsQ.isNotEmpty) return containsQ.first;
-
-    // 3. Strip prefix Kab./Kota dari candidate lalu bandingkan
-    // e.g. strip("Kab. Deli Serdang") = "DELI SERDANG" == "DELI SERDANG" ✓
-    final stripped = candidates.where((c) {
-      final upper = c.toUpperCase();
-      final clean = upper
-          .replaceFirst(RegExp(r'^KAB\.\s*'), '')
-          .replaceFirst(RegExp(r'^KABUPATEN\s+'), '')
-          .replaceFirst(RegExp(r'^KOTA\s+'), '')
-          .trim();
-      return clean == q || clean.contains(q) || q.contains(clean);
-    });
-    if (stripped.isNotEmpty) return stripped.first;
-
-    // 4. Token match: semua kata dalam query ada di candidate
-    final qTokens = q.split(RegExp(r'\s+'));
-    bool allTokensIn(String c) {
-      final upper = c.toUpperCase();
-      return qTokens.every(upper.contains);
-    }
-
-    return candidates.where(allTokensIn).firstOrNull;
-  }
-
   /// User memilih provinsi → load kabkota
   Future<void> selectProvinsi(String provinsi) async {
     final currentProvinsiList = _extractProvinsiList();
@@ -277,8 +259,12 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
     );
 
     // Simpan preferensi
-    await _local.saveLastProvinsi(selectedProvinsi);
-    await _local.saveLastKabkota(kabkota);
+    unawaited(
+      _saveLastLocation(
+        provinsi: selectedProvinsi,
+        kabkota: kabkota,
+      ),
+    );
 
     final result = await _getImsakiyah(
       provinsi: selectedProvinsi,

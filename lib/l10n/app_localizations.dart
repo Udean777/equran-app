@@ -172,6 +172,18 @@ abstract class AppLocalizations {
   /// **'Ayat Tersimpan'**
   String get ayatTersimpan;
 
+  /// Judul section doa tersimpan
+  ///
+  /// In id, this message translates to:
+  /// **'Doa Tersimpan'**
+  String get doaTersimpan;
+
+  /// Pesan kosong halaman bookmark doa
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada doa favorit.\nTandai doa favoritmu!'**
+  String get doaBookmarkEmpty;
+
   /// Label terakhir dibaca
   ///
   /// In id, this message translates to:

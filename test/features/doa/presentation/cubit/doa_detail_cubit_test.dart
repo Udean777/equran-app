@@ -1,6 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart';
 import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart';
+import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart';
 import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -10,12 +12,31 @@ import '../../../../helpers/fake_data.dart';
 
 class MockGetDoaDetail extends Mock implements GetDoaDetail {}
 
+class MockGetDoaBookmarks extends Mock implements GetDoaBookmarks {}
+
+class MockToggleDoaBookmark extends Mock implements ToggleDoaBookmark {}
+
 void main() {
   late MockGetDoaDetail mockGetDoaDetail;
+  late MockGetDoaBookmarks mockGetDoaBookmarks;
+  late MockToggleDoaBookmark mockToggleDoaBookmark;
 
   setUp(() {
     mockGetDoaDetail = MockGetDoaDetail();
+    mockGetDoaBookmarks = MockGetDoaBookmarks();
+    mockToggleDoaBookmark = MockToggleDoaBookmark();
+
+    // Default: bookmark kosong
+    when(
+      () => mockGetDoaBookmarks(),
+    ).thenAnswer((_) async => right(<int>{}));
   });
+
+  DoaDetailCubit buildCubit() => DoaDetailCubit(
+    mockGetDoaDetail,
+    mockGetDoaBookmarks,
+    mockToggleDoaBookmark,
+  );
 
   group('DoaDetailCubit', () {
     // ── load ──────────────────────────────────────────────────────────────────
@@ -24,7 +45,7 @@ void main() {
       'emits [loading, success] saat load() berhasil',
       build: () {
         when(() => mockGetDoaDetail(1)).thenAnswer((_) async => right(tDoa1));
-        return DoaDetailCubit(mockGetDoaDetail);
+        return buildCubit();
       },
       act: (cubit) => cubit.load(1),
       expect: () => [
@@ -39,7 +60,7 @@ void main() {
         when(
           () => mockGetDoaDetail(1),
         ).thenAnswer((_) async => left(const Failure.network()));
-        return DoaDetailCubit(mockGetDoaDetail);
+        return buildCubit();
       },
       act: (cubit) => cubit.load(1),
       expect: () => [
@@ -54,7 +75,7 @@ void main() {
         when(() => mockGetDoaDetail(1)).thenAnswer(
           (_) async => left(const Failure.server(statusCode: 404)),
         );
-        return DoaDetailCubit(mockGetDoaDetail);
+        return buildCubit();
       },
       act: (cubit) => cubit.load(1),
       expect: () => [
@@ -65,13 +86,55 @@ void main() {
       ],
     );
 
+    blocTest<DoaDetailCubit, DoaDetailState>(
+      'load() set isBookmarked=true jika doa ada di bookmarks',
+      build: () {
+        when(() => mockGetDoaDetail(1)).thenAnswer((_) async => right(tDoa1));
+        when(
+          () => mockGetDoaBookmarks(),
+        ).thenAnswer((_) async => right({1}));
+        return buildCubit();
+      },
+      act: (cubit) => cubit.load(1),
+      expect: () => [
+        const DoaDetailState.loading(),
+        const DoaDetailState.success(doa: tDoa1, isBookmarked: true),
+      ],
+    );
+
+    // ── toggleBookmark ────────────────────────────────────────────────────────
+
+    blocTest<DoaDetailCubit, DoaDetailState>(
+      'toggleBookmark() emit success dengan isBookmarked=true',
+      build: () {
+        when(() => mockGetDoaDetail(1)).thenAnswer((_) async => right(tDoa1));
+        when(
+          () => mockToggleDoaBookmark(1),
+        ).thenAnswer((_) async => right(true));
+        return buildCubit();
+      },
+      seed: () => const DoaDetailState.success(doa: tDoa1),
+      act: (cubit) => cubit.toggleBookmark(),
+      expect: () => [
+        const DoaDetailState.success(doa: tDoa1, isBookmarked: true),
+      ],
+    );
+
+    blocTest<DoaDetailCubit, DoaDetailState>(
+      'toggleBookmark() tidak emit jika state bukan success',
+      build: buildCubit,
+      seed: DoaDetailState.loading,
+      act: (cubit) => cubit.toggleBookmark(),
+      expect: () => <DoaDetailState>[],
+    );
+
     // ── retry ─────────────────────────────────────────────────────────────────
 
     blocTest<DoaDetailCubit, DoaDetailState>(
       'retry() memanggil load() ulang dengan id yang sama',
       build: () {
         when(() => mockGetDoaDetail(1)).thenAnswer((_) async => right(tDoa1));
-        return DoaDetailCubit(mockGetDoaDetail);
+        return buildCubit();
       },
       act: (cubit) async {
         await cubit.load(1);
@@ -84,7 +147,7 @@ void main() {
 
     blocTest<DoaDetailCubit, DoaDetailState>(
       'retry() tidak melakukan apa-apa jika belum pernah load()',
-      build: () => DoaDetailCubit(mockGetDoaDetail),
+      build: buildCubit,
       act: (cubit) => cubit.retry(),
       expect: () => <DoaDetailState>[],
     );
@@ -95,7 +158,7 @@ void main() {
       'load() handle doa dengan tr dan idn kosong (id 42)',
       build: () {
         when(() => mockGetDoaDetail(42)).thenAnswer((_) async => right(tDoa42));
-        return DoaDetailCubit(mockGetDoaDetail);
+        return buildCubit();
       },
       act: (cubit) => cubit.load(42),
       expect: () => [

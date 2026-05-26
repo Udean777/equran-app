@@ -1,5 +1,14 @@
 import 'dart:async';
 
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
+import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
+import 'package:equran_app/core/widgets/app_menu_button.dart';
+import 'package:equran_app/core/widgets/detecting_location_widget.dart';
+import 'package:equran_app/core/widgets/error_state_widget.dart';
+import 'package:equran_app/core/widgets/location/location_change_prompt_widget.dart';
+import 'package:equran_app/core/widgets/location/location_initial_prompt_widget.dart';
+import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_header_card.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_location_selector_sheet.dart';
@@ -30,13 +39,8 @@ class _JadwalShalatView extends StatelessWidget {
 
   void _showLocationSheet(BuildContext context) {
     unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
+      showAppBottomSheet<void>(
+        context,
         builder: (_) => BlocProvider.value(
           value: context.read<JadwalShalatCubit>(),
           child: const JadwalShalatLocationSelectorSheet(),
@@ -48,9 +52,11 @@ class _JadwalShalatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Jadwal Shalat'),
         centerTitle: false,
+        leading: const AppMenuButton(),
       ),
       body: BlocBuilder<JadwalShalatCubit, JadwalShalatState>(
         builder: (context, state) {
@@ -67,82 +73,34 @@ class _JadwalShalatView extends StatelessWidget {
               child: CircularProgressIndicator(),
             ),
             JadwalShalatSuccess() => _buildSuccess(context, state),
-            JadwalShalatFailure() => _buildFailure(context, state),
+            JadwalShalatFailure() => ErrorStateWidget(
+              message: state.failure.toUserMessage(),
+              onRetry: () => context.read<JadwalShalatCubit>().retry(),
+            ),
           };
         },
       ),
     );
   }
 
-  Widget _buildDetectingLocation() {
-    return const Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Icon(Icons.gps_fixed_rounded, size: 40),
-          SizedBox(height: 12),
-          Text(
-            'Mendeteksi lokasi Anda...',
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Jadwal akan dimuat secara otomatis',
-            style: TextStyle(fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildDetectingLocation() => const DetectingLocationWidget();
 
-  Widget _buildInitialPrompt(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.access_time_rounded, size: 64),
-          const SizedBox(height: 16),
-          const Text('Pilih lokasi untuk melihat jadwal shalat'),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: () => _showLocationSheet(context),
-            icon: const Icon(Icons.location_on_outlined),
-            label: const Text('Pilih Lokasi'),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildInitialPrompt(BuildContext context) =>
+      LocationInitialPromptWidget(
+        icon: Icons.access_time_rounded,
+        message: 'Pilih lokasi untuk melihat jadwal shalat',
+        onSelectLocation: () => _showLocationSheet(context),
+      );
 
   Widget _buildLocationPrompt(BuildContext context) {
     final state = context.read<JadwalShalatCubit>().state;
     final isLoading =
         state is JadwalShalatLoadingKabkota ||
         state is JadwalShalatLoadingJadwal;
-
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isLoading) ...[
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            const Text('Memuat data...'),
-          ] else ...[
-            const Icon(Icons.location_searching_rounded, size: 64),
-            const SizedBox(height: 16),
-            const Text('Pilih lokasi untuk melihat jadwal shalat'),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () => _showLocationSheet(context),
-              icon: const Icon(Icons.location_on_outlined),
-              label: const Text('Pilih Lokasi'),
-            ),
-          ],
-        ],
-      ),
+    return LocationChangePromptWidget(
+      message: 'Pilih lokasi untuk melihat jadwal shalat',
+      onSelectLocation: () => _showLocationSheet(context),
+      isLoading: isLoading,
     );
   }
 
@@ -186,14 +144,8 @@ class _JadwalShalatView extends StatelessWidget {
           // Today card hanya tampil jika bulan sekarang
           if (state.jadwal.jadwal.any((e) => e.tanggalLengkap == todayStr))
             JadwalShalatTodayCard(entry: todayEntry),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Text(
-              'Jadwal ${state.jadwal.bulanNama} ${state.jadwal.tahun}',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          SectionHeader(
+            label: 'Jadwal ${state.jadwal.bulanNama} ${state.jadwal.tahun}',
           ),
           JadwalShalatTable(
             entries: state.jadwal.jadwal,
@@ -201,37 +153,6 @@ class _JadwalShalatView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFailure(BuildContext context, JadwalShalatFailure state) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.wifi_off_rounded, size: 64),
-            const SizedBox(height: 16),
-            Text(
-              'Gagal memuat data',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              state.failure.toString(),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () => context.read<JadwalShalatCubit>().retry(),
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Coba Lagi'),
-            ),
-          ],
-        ),
       ),
     );
   }

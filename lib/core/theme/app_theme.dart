@@ -56,6 +56,59 @@ abstract final class AppTheme {
     ),
   );
 
+  static ThemeData sepia() => ThemeData(
+    useMaterial3: true,
+    colorScheme: _sepiaColorScheme,
+    textTheme: AppTypography.textTheme,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.onPrimary,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: AppTypography.textTheme.titleLarge?.copyWith(
+        color: AppColors.onPrimary,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    scaffoldBackgroundColor: AppColors.backgroundSepia,
+    cardTheme: CardThemeData(
+      color: AppColors.surfaceSepia,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.outlineSepia),
+      ),
+    ),
+    dividerTheme: const DividerThemeData(
+      color: AppColors.outlineSepia,
+      thickness: 1,
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.onPrimary,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surfaceSepia,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.outlineSepia),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.outlineSepia),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
+    ),
+  );
+
   static ThemeData dark() => ThemeData(
     useMaterial3: true,
     colorScheme: _darkColorScheme,
@@ -107,6 +160,18 @@ abstract final class AppTheme {
         vertical: 12,
       ),
     ),
+  );
+
+  static const _sepiaColorScheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: AppColors.primary,
+    onPrimary: AppColors.onPrimary,
+    secondary: AppColors.secondary,
+    onSecondary: AppColors.onSecondary,
+    error: AppColors.error,
+    onError: AppColors.onError,
+    surface: AppColors.surfaceSepia,
+    onSurface: AppColors.onSurfaceSepia,
   );
 
   static const _lightColorScheme = ColorScheme(

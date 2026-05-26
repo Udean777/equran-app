@@ -49,6 +49,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get ayatTersimpan => 'Ayat Tersimpan';
 
   @override
+  String get doaTersimpan => 'Doa Tersimpan';
+
+  @override
+  String get doaBookmarkEmpty =>
+      'Belum ada doa favorit.\nTandai doa favoritmu!';
+
+  @override
   String get lastRead => 'Terakhir Dibaca';
 
   @override

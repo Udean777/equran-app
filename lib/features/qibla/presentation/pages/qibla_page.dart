@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart';
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_state.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_compass_widget.dart';
@@ -33,8 +34,16 @@ class _QiblaView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Qibla Finder'),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
         actions: [
           // Tombol refresh manual
           BlocBuilder<QiblaCubit, QiblaState>(

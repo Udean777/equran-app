@@ -6,8 +6,6 @@ import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/doa/domain/entities/doa.dart';
-import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart';
-import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart';
 import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_about_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_arabic_card.dart';
@@ -46,7 +44,8 @@ class _DoaDetailView extends StatelessWidget {
       builder: (context, state) => switch (state) {
         DoaDetailInitial() => const Scaffold(body: LoadingWidget()),
         DoaDetailLoading() => const Scaffold(body: LoadingWidget()),
-        DoaDetailSuccess(:final doa) => _DoaDetailContent(doa: doa),
+        DoaDetailSuccess(:final doa, :final isBookmarked) =>
+          _DoaDetailContent(doa: doa, isBookmarked: isBookmarked),
         DoaDetailFailure(:final failure) => Scaffold(
           appBar: AppBar(),
           body: ErrorStateWidget(
@@ -59,62 +58,14 @@ class _DoaDetailView extends StatelessWidget {
   }
 }
 
-class _DoaDetailContent extends StatefulWidget {
-  const _DoaDetailContent({required this.doa});
+class _DoaDetailContent extends StatelessWidget {
+  const _DoaDetailContent({
+    required this.doa,
+    required this.isBookmarked,
+  });
 
   final Doa doa;
-
-  @override
-  State<_DoaDetailContent> createState() => _DoaDetailContentState();
-}
-
-class _DoaDetailContentState extends State<_DoaDetailContent> {
-  late final GetDoaBookmarks _getBookmarks;
-  late final ToggleDoaBookmark _toggleBookmark;
-  bool _isBookmarked = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _getBookmarks = getIt<GetDoaBookmarks>();
-    _toggleBookmark = getIt<ToggleDoaBookmark>();
-    unawaited(_loadBookmarkStatus());
-  }
-
-  Future<void> _loadBookmarkStatus() async {
-    final result = await _getBookmarks();
-    result.fold(
-      (_) {},
-      (ids) {
-        if (mounted) {
-          setState(() => _isBookmarked = ids.contains(widget.doa.id));
-        }
-      },
-    );
-  }
-
-  Future<void> _onToggleBookmark() async {
-    final result = await _toggleBookmark(widget.doa.id);
-    result.fold(
-      (_) {},
-      (isNowBookmarked) {
-        if (mounted) {
-          setState(() => _isBookmarked = isNowBookmarked);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isNowBookmarked
-                    ? 'Doa disimpan ke favorit'
-                    : 'Doa dihapus dari favorit',
-              ),
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    );
-  }
+  final bool isBookmarked;
 
   @override
   Widget build(BuildContext context) {
@@ -123,19 +74,19 @@ class _DoaDetailContentState extends State<_DoaDetailContent> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.doa.nama,
+          doa.nama,
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
           IconButton(
-            tooltip: _isBookmarked ? 'Hapus dari favorit' : 'Simpan ke favorit',
+            tooltip: isBookmarked ? 'Hapus dari favorit' : 'Simpan ke favorit',
             icon: Icon(
-              _isBookmarked
+              isBookmarked
                   ? Icons.bookmark_rounded
                   : Icons.bookmark_outline_rounded,
-              color: _isBookmarked ? AppColors.secondary : null,
+              color: isBookmarked ? AppColors.secondary : null,
             ),
-            onPressed: _onToggleBookmark,
+            onPressed: () => _onToggleBookmark(context),
           ),
         ],
       ),
@@ -148,32 +99,53 @@ class _DoaDetailContentState extends State<_DoaDetailContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Header card — nama, grup, tag chips
-            _DoaHeaderCard(doa: widget.doa),
+            _DoaHeaderCard(doa: doa),
 
             // 2. Arabic card — selalu tampil
-            DoaArabicCard(ar: widget.doa.ar),
+            DoaArabicCard(ar: doa.ar),
 
             // 3. Latin (skip jika kosong)
-            if (widget.doa.tr.isNotEmpty)
+            if (doa.tr.isNotEmpty)
               DoaTranslationCard(
                 label: l10n.transliteration,
-                text: widget.doa.tr,
+                text: doa.tr,
               ),
 
             // 4. Terjemahan (skip jika kosong)
-            if (widget.doa.idn.isNotEmpty)
+            if (doa.idn.isNotEmpty)
               DoaTranslationCard(
                 label: l10n.translation,
-                text: widget.doa.idn,
+                text: doa.idn,
               ),
 
             // 5. Tentang collapsible (skip jika kosong)
-            if (widget.doa.tentang.isNotEmpty)
-              DoaAboutCard(tentang: widget.doa.tentang),
+            if (doa.tentang.isNotEmpty)
+              DoaAboutCard(tentang: doa.tentang),
           ],
         ),
       ),
     );
+  }
+
+  void _onToggleBookmark(BuildContext context) {
+    final cubit = context.read<DoaDetailCubit>();
+    unawaited(cubit.toggleBookmark().then((_) {
+      // Baca state terbaru setelah toggle
+      final state = cubit.state;
+      if (state is DoaDetailSuccess && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              state.isBookmarked
+                  ? 'Doa disimpan ke favorit'
+                  : 'Doa dihapus dari favorit',
+            ),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }));
   }
 }
 

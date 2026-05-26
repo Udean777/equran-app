@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -60,15 +62,8 @@ class _DoaListViewState extends State<_DoaListView> {
 
   void _showFilterSheet() {
     unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppDimens.radiusLG),
-          ),
-        ),
+      showAppBottomSheet<void>(
+        context,
         builder: (_) => BlocProvider.value(
           value: context.read<DoaListCubit>(),
           child: const DoaFilterSheet(),
@@ -81,9 +76,21 @@ class _DoaListViewState extends State<_DoaListView> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    final canPop = Navigator.canPop(context);
+
     return Scaffold(
+      drawer: canPop ? null : const AppDrawer(),
       appBar: AppBar(
         title: Text(l10n.doaList),
+        leading: canPop
+            ? const BackButton()
+            : Builder(
+                builder: (ctx) => IconButton(
+                  icon: const Icon(Icons.menu_rounded),
+                  tooltip: 'Menu',
+                  onPressed: () => Scaffold.of(ctx).openDrawer(),
+                ),
+              ),
         actions: [
           IconButton(
             tooltip: 'Cari',

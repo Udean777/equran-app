@@ -15,7 +15,7 @@ abstract interface class TasbihLocalDataSource {
 class TasbihLocalDataSourceImpl implements TasbihLocalDataSource {
   const TasbihLocalDataSourceImpl(@Named('tasbihBox') this._box);
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _sessionsKey = 'tasbih_sessions';
 
@@ -24,7 +24,7 @@ class TasbihLocalDataSourceImpl implements TasbihLocalDataSource {
     try {
       final raw = _box.get(_sessionsKey);
       if (raw == null) return [];
-      final list = jsonDecode(raw as String) as List<dynamic>;
+      final list = jsonDecode(raw) as List<dynamic>;
       return list
           .map((e) => TasbihSessionDto.fromJson(e as Map<String, dynamic>))
           .toList()

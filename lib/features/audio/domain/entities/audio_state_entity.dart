@@ -1,25 +1,9 @@
+import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+export 'qari.dart';
+
 part 'audio_state_entity.freezed.dart';
-
-/// Daftar qari yang tersedia dari API equran.id
-enum Qari {
-  abdullahAlMatrood('01', 'Abdullah Al-Matrood'),
-  abdurrahmanAsSudais('02', 'Abdurrahman As-Sudais'),
-  muhammadAyyoob('03', 'Muhammad Ayyoob'),
-  muhammadJibreel('04', 'Muhammad Jibreel'),
-  misyariRasyidAlAfasi('05', 'Misyari Rasyid Al-Afasi');
-
-  const Qari(this.id, this.name);
-
-  final String id;
-  final String name;
-
-  static Qari fromId(String id) => Qari.values.firstWhere(
-    (q) => q.id == id,
-    orElse: () => Qari.misyariRasyidAlAfasi,
-  );
-}
 
 @freezed
 sealed class AudioPlayerState with _$AudioPlayerState {

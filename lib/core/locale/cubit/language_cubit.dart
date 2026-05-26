@@ -14,10 +14,10 @@ class LanguageCubit extends Cubit<LanguageState> {
   LanguageCubit(@Named('settingsBox') this._box)
     : super(const LanguageState.id());
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   void load() {
-    final saved = _box.get(_languageKey) as String?;
+    final saved = _box.get(_languageKey);
     emit(switch (saved) {
       'en' => const LanguageState.en(),
       'ar' => const LanguageState.ar(),

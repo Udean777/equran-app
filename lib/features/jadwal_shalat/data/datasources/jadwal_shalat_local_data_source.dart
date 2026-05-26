@@ -32,7 +32,7 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
     @Named('shalatBox') this._box,
   );
 
-  final Box<dynamic> _box;
+  final Box<String> _box;
 
   static const _provinsiKey = 'provinsi_list';
   static const _lastProvinsiKey = 'last_provinsi';
@@ -125,7 +125,7 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
 
   @override
   Future<String?> getLastProvinsi() async =>
-      _box.get(_lastProvinsiKey) as String?;
+      _box.get(_lastProvinsiKey);
 
   @override
   Future<void> saveLastProvinsi(String provinsi) async =>
@@ -133,7 +133,7 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
 
   @override
   Future<String?> getLastKabkota() async =>
-      _box.get(_lastKabkotaKey) as String?;
+      _box.get(_lastKabkotaKey);
 
   @override
   Future<void> saveLastKabkota(String kabkota) async =>

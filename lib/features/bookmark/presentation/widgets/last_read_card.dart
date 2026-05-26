@@ -29,7 +29,6 @@ class LastReadCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(AppDimens.radiusMD),
         child: Container(
-          padding: const EdgeInsets.all(AppDimens.spaceMD),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.primary, Color(0xFF2E7D32)],
@@ -38,46 +37,71 @@ class LastReadCard extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(AppDimens.radiusMD),
           ),
-          child: Row(
+          child: Column(
             children: [
-              const Icon(
-                Icons.menu_book_rounded,
-                color: AppColors.onPrimary,
-                size: AppDimens.iconLG,
-              ),
-              const SizedBox(width: AppDimens.spaceMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Padding(
+                padding: const EdgeInsets.all(AppDimens.spaceMD),
+                child: Row(
                   children: [
-                    Text(
-                      'Lanjutkan Membaca',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: AppColors.onPrimary.withValues(alpha: 0.8),
+                    const Icon(
+                      Icons.menu_book_rounded,
+                      color: AppColors.onPrimary,
+                      size: AppDimens.iconLG,
+                    ),
+                    const SizedBox(width: AppDimens.spaceMD),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Lanjutkan Membaca',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: AppColors.onPrimary.withValues(alpha: 0.8),
+                            ),
+                          ),
+                          const SizedBox(height: AppDimens.spaceXS),
+                          Text(
+                            lastRead.namaLatin,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: AppColors.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            lastRead.totalAyat > 0
+                                ? 'Ayat ${lastRead.ayatNomor} dari ${lastRead.totalAyat}'
+                                : 'Ayat ${lastRead.ayatNomor}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.onPrimary.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppDimens.spaceXS),
-                    Text(
-                      lastRead.namaLatin,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: AppColors.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Ayat ${lastRead.ayatNomor}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.onPrimary.withValues(alpha: 0.8),
-                      ),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: AppColors.onPrimary,
+                      size: AppDimens.iconSM,
                     ),
                   ],
                 ),
               ),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: AppColors.onPrimary,
-                size: AppDimens.iconSM,
-              ),
+              // Progress bar — hanya tampil jika totalAyat > 0
+              if (lastRead.totalAyat > 0)
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(AppDimens.radiusMD),
+                    bottomRight: Radius.circular(AppDimens.radiusMD),
+                  ),
+                  child: LinearProgressIndicator(
+                    value: lastRead.scrollPercent,
+                    minHeight: 4,
+                    backgroundColor: AppColors.onPrimary.withValues(alpha: 0.2),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.onPrimary,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

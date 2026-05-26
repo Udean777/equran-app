@@ -29,19 +29,7 @@ class DoaListCubit extends Cubit<DoaListState> {
     );
   }
 
-  Future<void> refresh() async {
-    final result = await _getDoaList();
-    result.fold(
-      (failure) => emit(DoaListState.failure(failure: failure)),
-      (doaList) => emit(
-        DoaListState.success(
-          allDoa: doaList,
-          grupList: _extractGrupList(doaList),
-          tagList: _extractTagList(doaList),
-        ),
-      ),
-    );
-  }
+  Future<void> refresh() => load();
 
   void search(String query) {
     final current = state;

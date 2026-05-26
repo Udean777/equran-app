@@ -18,19 +18,19 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   late int _currentIndex;
-
-  List<Widget> get _pages => const [
-    SuratListPage(),
-    DoaListPage(),
-    JadwalShalatPage(),
-    TasbihPage(),
-    QiblaPage(),
-  ];
+  late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _pages = const [
+      SuratListPage(),
+      DoaListPage(),
+      JadwalShalatPage(),
+      TasbihPage(),
+      QiblaPage(),
+    ];
   }
 
   @override
@@ -58,8 +58,8 @@ class _MainPageState extends State<MainPage> {
             label: l10n.doaNav,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.access_time_outlined),
-            selectedIcon: const Icon(Icons.access_time_filled),
+            icon: const Icon(Icons.mosque_outlined),
+            selectedIcon: const Icon(Icons.mosque_rounded),
             label: l10n.jadwalShalatNav,
           ),
           const NavigationDestination(

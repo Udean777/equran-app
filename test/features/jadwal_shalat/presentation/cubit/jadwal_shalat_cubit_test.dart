@@ -1,10 +1,18 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
+import 'package:equran_app/core/notifications/shalat_notif_config.dart';
+import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
+import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -13,36 +21,74 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../helpers/fake_data.dart';
 
 class MockGetProvinsiShalat extends Mock implements GetProvinsiShalat {}
-
 class MockGetKabkotaShalat extends Mock implements GetKabkotaShalat {}
-
 class MockGetJadwalShalat extends Mock implements GetJadwalShalat {}
-
-class MockLocalDataSource extends Mock implements JadwalShalatLocalDataSource {}
-
+class MockGetLastLocationShalat extends Mock implements GetLastLocationShalat {}
+class MockSaveLastLocationShalat extends Mock implements SaveLastLocationShalat {}
 class MockLocationService extends Mock implements LocationService {}
+class MockShalatNotificationScheduler extends Mock implements ShalatNotificationScheduler {}
+class MockGetShalatNotifPrefs extends Mock implements GetShalatNotifPrefs {}
+class MockSaveShalatNotifPrefs extends Mock implements SaveShalatNotifPrefs {}
+
+class FakeJadwalShalatEntry extends Fake implements JadwalShalatEntry {}
+class FakeShalatNotifPrefs extends Fake implements ShalatNotifPrefs {}
+class FakeShalatScheduleEntry extends Fake implements ShalatScheduleEntry {}
+class FakeShalatNotifConfig extends Fake implements ShalatNotifConfig {}
 
 void main() {
   late MockGetProvinsiShalat mockGetProvinsi;
   late MockGetKabkotaShalat mockGetKabkota;
   late MockGetJadwalShalat mockGetJadwalShalat;
-  late MockLocalDataSource mockLocal;
+  late MockGetLastLocationShalat mockGetLastLocation;
+  late MockSaveLastLocationShalat mockSaveLastLocation;
   late MockLocationService mockLocationService;
+  late MockShalatNotificationScheduler mockScheduler;
+  late MockGetShalatNotifPrefs mockGetNotifPrefs;
+  late MockSaveShalatNotifPrefs mockSaveNotifPrefs;
+
+  setUpAll(() {
+    registerFallbackValue(FakeJadwalShalatEntry());
+    registerFallbackValue(FakeShalatNotifPrefs());
+    registerFallbackValue(FakeShalatScheduleEntry());
+    registerFallbackValue(FakeShalatNotifConfig());
+  });
 
   setUp(() {
     mockGetProvinsi = MockGetProvinsiShalat();
     mockGetKabkota = MockGetKabkotaShalat();
     mockGetJadwalShalat = MockGetJadwalShalat();
-    mockLocal = MockLocalDataSource();
+    mockGetLastLocation = MockGetLastLocationShalat();
+    mockSaveLastLocation = MockSaveLastLocationShalat();
     mockLocationService = MockLocationService();
+    mockScheduler = MockShalatNotificationScheduler();
+    mockGetNotifPrefs = MockGetShalatNotifPrefs();
+    mockSaveNotifPrefs = MockSaveShalatNotifPrefs();
+
+    // Default stubs untuk notification mocks
+    when(() => mockGetNotifPrefs())
+        .thenAnswer((_) async => right(const ShalatNotifPrefs()));
+    when(
+      () => mockScheduler.scheduleForToday(any(), any()),
+    ).thenAnswer((_) async {});
+    // Default stub save location — fire-and-forget, tidak perlu verify
+    when(
+      () => mockSaveLastLocation(
+        provinsi: any(named: 'provinsi'),
+        kabkota: any(named: 'kabkota'),
+      ),
+    ).thenAnswer((_) async => right(unit));
   });
 
   JadwalShalatCubit buildCubit() => JadwalShalatCubit(
     mockGetProvinsi,
     mockGetKabkota,
     mockGetJadwalShalat,
-    mockLocal,
+    mockGetLastLocation,
+    mockSaveLastLocation,
     mockLocationService,
+    mockScheduler,
+    mockGetNotifPrefs,
+    mockSaveNotifPrefs,
   );
 
   const tFailure = NetworkFailure();
@@ -59,16 +105,16 @@ void main() {
         when(
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
-        when(() => mockLocal.getLastProvinsi()).thenAnswer((_) async => null);
-        when(() => mockLocal.getLastKabkota()).thenAnswer((_) async => null);
+        when(() => mockGetLastLocation()).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
+        
         when(
           () => mockLocationService.detectCurrentLocation(),
         ).thenAnswer((_) async => null);
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakartaList));
-        when(() => mockLocal.saveLastProvinsi(any())).thenAnswer((_) async {});
-        when(() => mockLocal.saveLastKabkota(any())).thenAnswer((_) async {});
+        
+        
         when(
           () => mockGetJadwalShalat(
             provinsi: 'DKI Jakarta',
@@ -122,8 +168,8 @@ void main() {
         when(
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
-        when(() => mockLocal.getLastProvinsi()).thenAnswer((_) async => null);
-        when(() => mockLocal.getLastKabkota()).thenAnswer((_) async => null);
+        when(() => mockGetLastLocation()).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
+        
         when(() => mockLocationService.detectCurrentLocation()).thenAnswer(
           (_) async => const DetectedLocation(
             provinsi: 'DKI JAKARTA',
@@ -133,8 +179,8 @@ void main() {
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakartaList));
-        when(() => mockLocal.saveLastProvinsi(any())).thenAnswer((_) async {});
-        when(() => mockLocal.saveLastKabkota(any())).thenAnswer((_) async {});
+        
+        
         when(
           () => mockGetJadwalShalat(
             provinsi: 'DKI Jakarta',
@@ -178,11 +224,8 @@ void main() {
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
         when(
-          () => mockLocal.getLastProvinsi(),
-        ).thenAnswer((_) async => 'DKI Jakarta');
-        when(
-          () => mockLocal.getLastKabkota(),
-        ).thenAnswer((_) async => 'Kota Jakarta');
+          () => mockGetLastLocation(),
+        ).thenAnswer((_) async => right((provinsi: 'DKI Jakarta', kabkota: 'Kota Jakarta')));
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakartaList));
@@ -226,11 +269,8 @@ void main() {
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
         when(
-          () => mockLocal.getLastProvinsi(),
-        ).thenAnswer((_) async => 'DKI Jakarta');
-        when(
-          () => mockLocal.getLastKabkota(),
-        ).thenAnswer((_) async => 'Kota Tidak Ada');
+          () => mockGetLastLocation(),
+        ).thenAnswer((_) async => right((provinsi: 'DKI Jakarta', kabkota: 'Kota Tidak Ada')));
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakartaList));
@@ -299,8 +339,8 @@ void main() {
         kabkota: tKabkotaJakartaList,
       ),
       setUp: () {
-        when(() => mockLocal.saveLastProvinsi(any())).thenAnswer((_) async {});
-        when(() => mockLocal.saveLastKabkota(any())).thenAnswer((_) async {});
+        
+        
         when(
           () => mockGetJadwalShalat(
             provinsi: 'DKI Jakarta',
@@ -341,8 +381,8 @@ void main() {
         kabkota: tKabkotaJakartaList,
       ),
       setUp: () {
-        when(() => mockLocal.saveLastProvinsi(any())).thenAnswer((_) async {});
-        when(() => mockLocal.saveLastKabkota(any())).thenAnswer((_) async {});
+        
+        
         when(
           () => mockGetJadwalShalat(
             provinsi: any(named: 'provinsi'),
@@ -437,16 +477,16 @@ void main() {
         when(
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
-        when(() => mockLocal.getLastProvinsi()).thenAnswer((_) async => null);
-        when(() => mockLocal.getLastKabkota()).thenAnswer((_) async => null);
+        when(() => mockGetLastLocation()).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
+        
         when(
           () => mockLocationService.detectCurrentLocation(),
         ).thenAnswer((_) async => null);
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakartaList));
-        when(() => mockLocal.saveLastProvinsi(any())).thenAnswer((_) async {});
-        when(() => mockLocal.saveLastKabkota(any())).thenAnswer((_) async {});
+        
+        
         when(
           () => mockGetJadwalShalat(
             provinsi: 'DKI Jakarta',

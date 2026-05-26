@@ -7,10 +7,13 @@ abstract interface class AudioRepository {
     required String url,
     required int ayatNomor,
     required Qari qari,
+    int? suratNomor,
   });
   Future<Either<Failure, Unit>> pause();
   Future<Either<Failure, Unit>> resume();
   Future<Either<Failure, Unit>> stop();
   Future<Either<Failure, Unit>> seek(Duration position);
   Stream<AudioPlayerState> get stateStream;
+
+  Future<Either<Failure, Unit>> deleteAllAudio();
 }

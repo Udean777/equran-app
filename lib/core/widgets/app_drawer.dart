@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -49,12 +53,43 @@ class AppDrawer extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Arah Baru Selayar',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.onPrimary.withValues(alpha: 0.7),
-                    ),
+                  const SizedBox(height: AppDimens.spaceXS),
+                  // Streak chip
+                  BlocBuilder<QuranStreakCubit, int>(
+                    builder: (context, streak) {
+                      if (streak == 0) return const SizedBox.shrink();
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppDimens.spaceSM,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.onPrimary.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.radiusFull,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.local_fire_department_rounded,
+                              color: Colors.orange,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$streak hari berturut-turut',
+                              style: const TextStyle(
+                                color: AppColors.onPrimary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -69,7 +104,7 @@ class AppDrawer extends StatelessWidget {
               label: l10n.imsakiyahNav,
               onTap: () {
                 Navigator.pop(context);
-                context.go('/imsakiyah');
+                unawaited(context.push('/imsakiyah'));
               },
             ),
             _DrawerItem(
@@ -78,7 +113,7 @@ class AppDrawer extends StatelessWidget {
               label: l10n.bookmarkNav,
               onTap: () {
                 Navigator.pop(context);
-                context.go('/bookmark');
+                unawaited(context.push('/bookmark'));
               },
             ),
             _DrawerItem(
@@ -87,7 +122,25 @@ class AppDrawer extends StatelessWidget {
               label: 'Doa Harian',
               onTap: () {
                 Navigator.pop(context);
-                context.go('/doa-harian');
+                unawaited(context.push('/doa-harian'));
+              },
+            ),
+            _DrawerItem(
+              icon: Icons.edit_note_outlined,
+              selectedIcon: Icons.edit_note_rounded,
+              label: 'Catatan Saya',
+              onTap: () {
+                Navigator.pop(context);
+                unawaited(context.push('/catatan'));
+              },
+            ),
+            _DrawerItem(
+              icon: Icons.audio_file_outlined,
+              selectedIcon: Icons.audio_file_rounded,
+              label: 'Manajemen Audio',
+              onTap: () {
+                Navigator.pop(context);
+                unawaited(context.push('/audio/storage'));
               },
             ),
 

@@ -1,3 +1,4 @@
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AppTypography {
@@ -111,5 +112,29 @@ abstract final class AppTypography {
     fontSize: 18,
     fontWeight: FontWeight.w400,
     height: 2,
+  );
+
+  // ---------------------------------------------------------------------------
+  // Dynamic styles — menggunakan preferensi dari QuranFontCubit
+  // ---------------------------------------------------------------------------
+
+  /// Style teks Arab dinamis berdasarkan [QuranFontState].
+  ///
+  /// Gunakan di widget yang menampilkan teks Arab Al-Quran / doa.
+  static TextStyle arabicDynamic(QuranFontState fontState) => TextStyle(
+    fontFamily: fontState.arabicFontFamily,
+    fontSize: fontState.arabicFontSize,
+    fontWeight: FontWeight.w400,
+    height: 2,
+  );
+
+  /// Style teks terjemahan & latin dinamis berdasarkan [QuranFontState].
+  ///
+  /// Gunakan di widget yang menampilkan terjemahan / transliterasi.
+  static TextStyle translationDynamic(QuranFontState fontState) => TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: fontState.translationFontSize,
+    fontWeight: FontWeight.w400,
+    height: 1.6,
   );
 }

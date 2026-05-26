@@ -125,12 +125,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( Doa doa)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( Doa doa,  bool isBookmarked)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DoaDetailInitial() when initial != null:
 return initial();case DoaDetailLoading() when loading != null:
 return loading();case DoaDetailSuccess() when success != null:
-return success(_that.doa);case DoaDetailFailure() when failure != null:
+return success(_that.doa,_that.isBookmarked);case DoaDetailFailure() when failure != null:
 return failure(_that.failure);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( Doa doa)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( Doa doa,  bool isBookmarked)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case DoaDetailInitial():
 return initial();case DoaDetailLoading():
 return loading();case DoaDetailSuccess():
-return success(_that.doa);case DoaDetailFailure():
+return success(_that.doa,_that.isBookmarked);case DoaDetailFailure():
 return failure(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( Doa doa)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( Doa doa,  bool isBookmarked)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case DoaDetailInitial() when initial != null:
 return initial();case DoaDetailLoading() when loading != null:
 return loading();case DoaDetailSuccess() when success != null:
-return success(_that.doa);case DoaDetailFailure() when failure != null:
+return success(_that.doa,_that.isBookmarked);case DoaDetailFailure() when failure != null:
 return failure(_that.failure);case _:
   return null;
 
@@ -251,10 +251,11 @@ String toString() {
 
 
 class DoaDetailSuccess implements DoaDetailState {
-  const DoaDetailSuccess({required this.doa});
+  const DoaDetailSuccess({required this.doa, this.isBookmarked = false});
   
 
  final  Doa doa;
+@JsonKey() final  bool isBookmarked;
 
 /// Create a copy of DoaDetailState
 /// with the given fields replaced by the non-null parameter values.
@@ -266,16 +267,16 @@ $DoaDetailSuccessCopyWith<DoaDetailSuccess> get copyWith => _$DoaDetailSuccessCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DoaDetailSuccess&&(identical(other.doa, doa) || other.doa == doa));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DoaDetailSuccess&&(identical(other.doa, doa) || other.doa == doa)&&(identical(other.isBookmarked, isBookmarked) || other.isBookmarked == isBookmarked));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,doa);
+int get hashCode => Object.hash(runtimeType,doa,isBookmarked);
 
 @override
 String toString() {
-  return 'DoaDetailState.success(doa: $doa)';
+  return 'DoaDetailState.success(doa: $doa, isBookmarked: $isBookmarked)';
 }
 
 
@@ -286,7 +287,7 @@ abstract mixin class $DoaDetailSuccessCopyWith<$Res> implements $DoaDetailStateC
   factory $DoaDetailSuccessCopyWith(DoaDetailSuccess value, $Res Function(DoaDetailSuccess) _then) = _$DoaDetailSuccessCopyWithImpl;
 @useResult
 $Res call({
- Doa doa
+ Doa doa, bool isBookmarked
 });
 
 
@@ -303,10 +304,11 @@ class _$DoaDetailSuccessCopyWithImpl<$Res>
 
 /// Create a copy of DoaDetailState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? doa = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? doa = null,Object? isBookmarked = null,}) {
   return _then(DoaDetailSuccess(
 doa: null == doa ? _self.doa : doa // ignore: cast_nullable_to_non_nullable
-as Doa,
+as Doa,isBookmarked: null == isBookmarked ? _self.isBookmarked : isBookmarked // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

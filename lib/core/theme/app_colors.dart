@@ -22,6 +22,12 @@ abstract final class AppColors {
   static const Color onSurfaceDark = Color(0xFFE6E1E5);
   static const Color outlineDark = Color(0xFF2C2C2C);
 
+  // Background & Surface — Sepia
+  static const Color backgroundSepia = Color(0xFFF5ECD7);
+  static const Color surfaceSepia = Color(0xFFFDF6E3);
+  static const Color onSurfaceSepia = Color(0xFF3E2723);
+  static const Color outlineSepia = Color(0xFFD7C4A0);
+
   // Semantic
   static const Color error = Color(0xFFB00020);
   static const Color onError = Color(0xFFFFFFFF);

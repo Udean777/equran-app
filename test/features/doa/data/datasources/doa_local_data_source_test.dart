@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fake_data.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -70,14 +70,14 @@ void main() {
   group('cacheDoaList()', () {
     test('simpan CacheEntry dengan timestamp ke Hive', () async {
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.cacheDoaList(tDoaDtoList);
 
       final captured =
           verify(
-                () => mockBox.put('doa_list', captureAny<dynamic>()),
+                () => mockBox.put('doa_list', captureAny<String>()),
               ).captured.first
               as String;
 
@@ -133,14 +133,14 @@ void main() {
   group('cacheDoaDetail()', () {
     test('simpan DoaDto ke Hive dengan key doa_detail_{id}', () async {
       when(
-        () => mockBox.put(any<dynamic>(), any<dynamic>()),
+        () => mockBox.put(any<String>(), any<String>()),
       ).thenAnswer((_) async {});
 
       await dataSource.cacheDoaDetail(1, tDoaDto1);
 
       final captured =
           verify(
-                () => mockBox.put('doa_detail_1', captureAny<dynamic>()),
+                () => mockBox.put('doa_detail_1', captureAny<String>()),
               ).captured.first
               as String;
 

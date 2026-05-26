@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockBox extends Mock implements Box<dynamic> {}
+class MockBox extends Mock implements Box<String> {}
 
 void main() {
   late MockBox mockBox;
@@ -15,12 +15,14 @@ void main() {
   });
 
   group('ThemeCubit', () {
+    // ── initial state ────────────────────────────────────────────────────────
     test('initial state adalah light', () {
       when(() => mockBox.get(any<dynamic>())).thenReturn(null);
       final cubit = ThemeCubit(mockBox);
       expect(cubit.state, const ThemeState.light());
     });
 
+    // ── load() ───────────────────────────────────────────────────────────────
     blocTest<ThemeCubit, ThemeState>(
       'load() emit dark jika tersimpan dark di Hive',
       build: () {
@@ -42,6 +44,16 @@ void main() {
     );
 
     blocTest<ThemeCubit, ThemeState>(
+      'load() emit sepia jika tersimpan sepia di Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn('sepia');
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) => cubit.load(),
+      expect: () => [const ThemeState.sepia()],
+    );
+
+    blocTest<ThemeCubit, ThemeState>(
       'load() emit light jika tidak ada data di Hive',
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn(null);
@@ -51,18 +63,19 @@ void main() {
       expect: () => [const ThemeState.light()],
     );
 
+    // ── cycle() ──────────────────────────────────────────────────────────────
     blocTest<ThemeCubit, ThemeState>(
-      'toggle() dari light emit dark dan simpan ke Hive',
+      'cycle() dari light emit dark dan simpan ke Hive',
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn(null);
         when(
-          () => mockBox.put(any<dynamic>(), any<dynamic>()),
+          () => mockBox.put(any<String>(), any<String>()),
         ).thenAnswer((_) async {});
         return ThemeCubit(mockBox);
       },
       act: (cubit) async {
         cubit.load();
-        await cubit.toggle();
+        await cubit.cycle();
       },
       expect: () => [
         const ThemeState.light(),
@@ -74,20 +87,42 @@ void main() {
     );
 
     blocTest<ThemeCubit, ThemeState>(
-      'toggle() dari dark emit light dan simpan ke Hive',
+      'cycle() dari dark emit sepia dan simpan ke Hive',
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn('dark');
         when(
-          () => mockBox.put(any<dynamic>(), any<dynamic>()),
+          () => mockBox.put(any<String>(), any<String>()),
         ).thenAnswer((_) async {});
         return ThemeCubit(mockBox);
       },
       act: (cubit) async {
         cubit.load();
-        await cubit.toggle();
+        await cubit.cycle();
       },
       expect: () => [
         const ThemeState.dark(),
+        const ThemeState.sepia(),
+      ],
+      verify: (_) {
+        verify(() => mockBox.put('theme_mode', 'sepia')).called(1);
+      },
+    );
+
+    blocTest<ThemeCubit, ThemeState>(
+      'cycle() dari sepia emit light dan simpan ke Hive',
+      build: () {
+        when(() => mockBox.get('theme_mode')).thenReturn('sepia');
+        when(
+          () => mockBox.put(any<String>(), any<String>()),
+        ).thenAnswer((_) async {});
+        return ThemeCubit(mockBox);
+      },
+      act: (cubit) async {
+        cubit.load();
+        await cubit.cycle();
+      },
+      expect: () => [
+        const ThemeState.sepia(),
         const ThemeState.light(),
       ],
       verify: (_) {
@@ -95,24 +130,65 @@ void main() {
       },
     );
 
-    test('ThemeStateX.themeMode return ThemeMode.light untuk light state', () {
+    // ── ThemeStateX ──────────────────────────────────────────────────────────
+    test('themeMode return ThemeMode.light untuk light state', () {
       const state = ThemeState.light();
       expect(state.themeMode, ThemeMode.light);
     });
 
-    test('ThemeStateX.themeMode return ThemeMode.dark untuk dark state', () {
+    test('themeMode return ThemeMode.dark untuk dark state', () {
       const state = ThemeState.dark();
       expect(state.themeMode, ThemeMode.dark);
     });
 
-    test('ThemeStateX.isDark return false untuk light state', () {
+    test('themeMode return ThemeMode.light untuk sepia state', () {
+      const state = ThemeState.sepia();
+      expect(state.themeMode, ThemeMode.light);
+    });
+
+    test('isLight return true untuk light state', () {
+      const state = ThemeState.light();
+      expect(state.isLight, isTrue);
+    });
+
+    test('isLight return false untuk dark state', () {
+      const state = ThemeState.dark();
+      expect(state.isLight, isFalse);
+    });
+
+    test('isLight return false untuk sepia state', () {
+      const state = ThemeState.sepia();
+      expect(state.isLight, isFalse);
+    });
+
+    test('isDark return false untuk light state', () {
       const state = ThemeState.light();
       expect(state.isDark, isFalse);
     });
 
-    test('ThemeStateX.isDark return true untuk dark state', () {
+    test('isDark return true untuk dark state', () {
       const state = ThemeState.dark();
       expect(state.isDark, isTrue);
+    });
+
+    test('isDark return false untuk sepia state', () {
+      const state = ThemeState.sepia();
+      expect(state.isDark, isFalse);
+    });
+
+    test('isSepia return false untuk light state', () {
+      const state = ThemeState.light();
+      expect(state.isSepia, isFalse);
+    });
+
+    test('isSepia return false untuk dark state', () {
+      const state = ThemeState.dark();
+      expect(state.isSepia, isFalse);
+    });
+
+    test('isSepia return true untuk sepia state', () {
+      const state = ThemeState.sepia();
+      expect(state.isSepia, isTrue);
     });
   });
 }

@@ -7,11 +7,13 @@ class DoaCard extends StatelessWidget {
   const DoaCard({
     required this.doa,
     required this.onTap,
+    this.onRemove,
     super.key,
   });
 
   final Doa doa;
   final VoidCallback onTap;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +33,27 @@ class DoaCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Nama doa
-              Text(
-                doa.nama,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      doa.nama,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  if (onRemove != null)
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded),
+                      color: Colors.grey[400],
+                      onPressed: onRemove,
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                ],
               ),
               const SizedBox(height: AppDimens.spaceXS),
               // Grup

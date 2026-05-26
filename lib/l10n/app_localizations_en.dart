@@ -49,6 +49,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ayatTersimpan => 'Saved Verses';
 
   @override
+  String get doaTersimpan => 'Saved Duas';
+
+  @override
+  String get doaBookmarkEmpty =>
+      'No favorite duas yet.\nMark your favorite duas!';
+
+  @override
   String get lastRead => 'Last Read';
 
   @override

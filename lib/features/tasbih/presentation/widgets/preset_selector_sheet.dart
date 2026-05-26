@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_preset.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:flutter/material.dart';
@@ -34,14 +35,9 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Handle
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: AppDimens.spaceMD),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-                ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: AppDimens.spaceMD),
+                child: BottomSheetHandle(),
               ),
 
               Padding(

@@ -6,6 +6,7 @@ sealed class BookmarkState with _$BookmarkState {
   const factory BookmarkState.loading() = BookmarkLoading;
   const factory BookmarkState.success({
     required List<Bookmark> bookmarks,
+    @Default([]) List<Doa> bookmarkedDoas,
     LastRead? lastRead,
   }) = BookmarkSuccess;
   const factory BookmarkState.failure({
