@@ -152,6 +152,15 @@ class AppDrawer extends StatelessWidget {
                 unawaited(context.push('/audio/storage'));
               },
             ),
+            _DrawerItem(
+              icon: Icons.mosque_outlined,
+              selectedIcon: Icons.mosque_rounded,
+              label: 'Statistik Shalat',
+              onTap: () {
+                Navigator.pop(context);
+                unawaited(context.push('/statistik-shalat'));
+              },
+            ),
 
             const Divider(height: AppDimens.spaceLG),
 

@@ -21,6 +21,7 @@ import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/pages/statistik_shalat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
@@ -105,8 +106,7 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/hafalan/:suratNomor',
       builder: (context, state) {
-        final nomor =
-            int.tryParse(state.pathParameters['suratNomor'] ?? '');
+        final nomor = int.tryParse(state.pathParameters['suratNomor'] ?? '');
         if (nomor == null) return const HafalanPage();
         return HafalanDetailPage(suratNomor: nomor);
       },
@@ -114,11 +114,14 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/hafalan/:suratNomor/setoran',
       builder: (context, state) {
-        final nomor =
-            int.tryParse(state.pathParameters['suratNomor'] ?? '');
+        final nomor = int.tryParse(state.pathParameters['suratNomor'] ?? '');
         if (nomor == null) return const HafalanPage();
         return HafalanSetoranPage(suratNomor: nomor);
       },
+    ),
+    GoRoute(
+      path: '/statistik-shalat',
+      builder: (context, state) => const StatistikShalatPage(),
     ),
   ],
 );
@@ -146,31 +149,30 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => getIt<AudioCubit>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, themeState) =>
-            BlocBuilder<LanguageCubit, LanguageState>(
-              builder: (context, langState) => MaterialApp.router(
-                title: 'eQuran',
-                debugShowCheckedModeBanner: false,
-        theme: themeState.isSepia ? AppTheme.sepia() : AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: themeState.themeMode,
-                locale: langState.locale,
-                // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
-                // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
-                supportedLocales: const [
-                  Locale('id'), // Indonesia (default)
-                  Locale('en'), // English
-                  Locale('ar'), // Arabic
-                ],
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                routerConfig: _router,
-              ),
-            ),
+        builder: (context, themeState) => BlocBuilder<LanguageCubit, LanguageState>(
+          builder: (context, langState) => MaterialApp.router(
+            title: 'eQuran',
+            debugShowCheckedModeBanner: false,
+            theme: themeState.isSepia ? AppTheme.sepia() : AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: themeState.themeMode,
+            locale: langState.locale,
+            // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
+            // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
+            supportedLocales: const [
+              Locale('id'), // Indonesia (default)
+              Locale('en'), // English
+              Locale('ar'), // Arabic
+            ],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            routerConfig: _router,
+          ),
+        ),
       ),
     );
   }

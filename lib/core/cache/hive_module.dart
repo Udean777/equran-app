@@ -47,4 +47,9 @@ abstract class HiveModule {
   @preResolve
   @Named('hafalanBox')
   Future<Box<String>> hafalanBox() => Hive.openBox<String>('hafalan_box');
+
+  @preResolve
+  @Named('statistikShalatBox')
+  Future<Box<String>> statistikShalatBox() =>
+      Hive.openBox<String>('statistik_shalat_box');
 }
