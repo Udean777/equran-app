@@ -126,6 +126,15 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             _DrawerItem(
+              icon: Icons.edit_note_outlined,
+              selectedIcon: Icons.edit_note_rounded,
+              label: 'Catatan Saya',
+              onTap: () {
+                Navigator.pop(context);
+                unawaited(context.push('/catatan'));
+              },
+            ),
+            _DrawerItem(
               icon: Icons.audio_file_outlined,
               selectedIcon: Icons.audio_file_rounded,
               label: 'Manajemen Audio',

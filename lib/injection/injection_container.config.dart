@@ -77,6 +77,22 @@ import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart
     as _i187;
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
     as _i194;
+import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_datasource.dart'
+    as _i289;
+import 'package:equran_app/features/catatan_ayat/data/repositories/catatan_ayat_repository_impl.dart'
+    as _i410;
+import 'package:equran_app/features/catatan_ayat/domain/repositories/catatan_ayat_repository.dart'
+    as _i321;
+import 'package:equran_app/features/catatan_ayat/domain/usecases/delete_catatan.dart'
+    as _i451;
+import 'package:equran_app/features/catatan_ayat/domain/usecases/get_all_catatan.dart'
+    as _i508;
+import 'package:equran_app/features/catatan_ayat/domain/usecases/get_catatan_by_ayat.dart'
+    as _i563;
+import 'package:equran_app/features/catatan_ayat/domain/usecases/save_catatan.dart'
+    as _i559;
+import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart'
+    as _i914;
 import 'package:equran_app/features/doa/data/datasources/doa_bookmark_data_source.dart'
     as _i553;
 import 'package:equran_app/features/doa/data/datasources/doa_local_data_source.dart'
@@ -330,6 +346,11 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     await gh.factoryAsync<_i919.Box<String>>(
+      () => hiveModule.catatanBox(),
+      instanceName: 'catatanBox',
+      preResolve: true,
+    );
+    await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.suratBox(),
       instanceName: 'suratBox',
       preResolve: true,
@@ -384,6 +405,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i550.AudioRepositoryImpl(
         gh<_i945.AudioPlayerDataSource>(),
         gh<_i503.AudioDownloadDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i289.CatatanAyatLocalDatasource>(
+      () => _i289.CatatanAyatLocalDatasourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'catatanBox'),
       ),
     );
     gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
@@ -570,6 +596,23 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i555.ImsakiyahLocalDataSource>(),
       ),
     );
+    gh.factory<_i321.CatatanAyatRepository>(
+      () => _i410.CatatanAyatRepositoryImpl(
+        gh<_i289.CatatanAyatLocalDatasource>(),
+      ),
+    );
+    gh.factory<_i451.DeleteCatatan>(
+      () => _i451.DeleteCatatan(gh<_i321.CatatanAyatRepository>()),
+    );
+    gh.factory<_i508.GetAllCatatan>(
+      () => _i508.GetAllCatatan(gh<_i321.CatatanAyatRepository>()),
+    );
+    gh.factory<_i563.GetCatatanByAyat>(
+      () => _i563.GetCatatanByAyat(gh<_i321.CatatanAyatRepository>()),
+    );
+    gh.factory<_i559.SaveCatatan>(
+      () => _i559.SaveCatatan(gh<_i321.CatatanAyatRepository>()),
+    );
     gh.singleton<_i443.QuranReminderCubit>(
       () => _i443.QuranReminderCubit(
         gh<_i23.GetQuranReminderPrefs>(),
@@ -599,6 +642,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i164.DoaRepositoryImpl(
         gh<_i34.DoaRemoteDataSource>(),
         gh<_i547.DoaLocalDataSource>(),
+      ),
+    );
+    gh.factory<_i914.CatatanAyatCubit>(
+      () => _i914.CatatanAyatCubit(
+        gh<_i508.GetAllCatatan>(),
+        gh<_i559.SaveCatatan>(),
+        gh<_i451.DeleteCatatan>(),
       ),
     );
     gh.lazySingleton<_i246.SuratDetailRepository>(

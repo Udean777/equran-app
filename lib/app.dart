@@ -5,6 +5,7 @@ import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/pages/catatan_ayat_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_detail_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
@@ -84,6 +85,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/audio/storage',
       builder: (context, state) => const AudioStoragePage(),
+    ),
+    GoRoute(
+      path: '/catatan',
+      builder: (context, state) => const CatatanAyatPage(),
     ),
   ],
 );

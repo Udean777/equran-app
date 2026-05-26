@@ -11,6 +11,8 @@ import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/widgets/catatan_editor_sheet.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
@@ -50,6 +52,9 @@ class SuratDetailPage extends StatelessWidget {
             unawaited(cubit.load());
             return cubit;
           },
+        ),
+        BlocProvider(
+          create: (_) => getIt<CatatanAyatCubit>()..load(),
         ),
         // AudioCubit adalah singleton — pakai getIt langsung tanpa create baru
         BlocProvider.value(value: getIt<AudioCubit>()),
@@ -304,6 +309,17 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
                               ayat,
                               detail,
                             ),
+                            hasCatatan: context
+                                .read<CatatanAyatCubit>()
+                                .hasCatatan(
+                                  suratNomor: detail.info.nomor,
+                                  ayatNomor: ayat.nomorAyat,
+                                ),
+                            onCatatanTap: () => _showCatatanSheet(
+                              context,
+                              ayat,
+                              detail,
+                            ),
                           ),
                         );
                       },
@@ -342,6 +358,28 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
           ayat: ayat,
           namaLatin: detail.info.namaLatin,
           suratNomor: detail.info.nomor,
+        ),
+      ),
+    );
+  }
+
+  void _showCatatanSheet(BuildContext context, Ayat ayat, SuratDetail detail) {
+    final existing = context.read<CatatanAyatCubit>().getCatatan(
+      suratNomor: detail.info.nomor,
+      ayatNomor: ayat.nomorAyat,
+    );
+    unawaited(
+      showAppBottomSheet<void>(
+        context,
+        builder: (_) => BlocProvider.value(
+          value: context.read<CatatanAyatCubit>(),
+          child: CatatanEditorSheet(
+            suratNomor: detail.info.nomor,
+            ayatNomor: ayat.nomorAyat,
+            namaLatin: detail.info.namaLatin,
+            teksArab: ayat.teksArab,
+            existing: existing,
+          ),
         ),
       ),
     );

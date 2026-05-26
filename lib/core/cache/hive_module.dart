@@ -39,4 +39,8 @@ abstract class HiveModule {
   @Named('doaBookmarkBox')
   Future<Box<String>> doaBookmarkBox() =>
       Hive.openBox<String>('doa_bookmark_box');
+
+  @preResolve
+  @Named('catatanBox')
+  Future<Box<String>> catatanBox() => Hive.openBox<String>('catatan_box');
 }

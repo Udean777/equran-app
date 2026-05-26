@@ -12,9 +12,11 @@ class AyatCard extends StatelessWidget {
     this.isBookmarked = false,
     this.isPlaying = false,
     this.isAudioLoading = false,
+    this.hasCatatan = false,
     this.onBookmarkToggle,
     this.onPlayTap,
     this.onShareTap,
+    this.onCatatanTap,
     super.key,
   });
 
@@ -22,9 +24,11 @@ class AyatCard extends StatelessWidget {
   final bool isBookmarked;
   final bool isPlaying;
   final bool isAudioLoading;
+  final bool hasCatatan;
   final VoidCallback? onBookmarkToggle;
   final VoidCallback? onPlayTap;
   final VoidCallback? onShareTap;
+  final VoidCallback? onCatatanTap;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +53,10 @@ class AyatCard extends StatelessWidget {
               // Nomor ayat + action buttons
               Row(
                 children: [
-                  _AyatNumberBadge(nomor: ayat.nomorAyat),
+                  _AyatNumberBadge(
+                    nomor: ayat.nomorAyat,
+                    hasCatatan: hasCatatan,
+                  ),
                   const Spacer(),
                   // Play button
                   if (onPlayTap != null)
@@ -103,6 +110,18 @@ class AyatCard extends StatelessWidget {
                       onPressed: onShareTap,
                       tooltip: 'Bagikan Ayat',
                     ),
+                  // Catatan button
+                  if (onCatatanTap != null)
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_note_rounded,
+                        color: hasCatatan
+                            ? AppColors.secondary
+                            : Colors.grey[400],
+                      ),
+                      onPressed: onCatatanTap,
+                      tooltip: hasCatatan ? 'Edit Catatan' : 'Tambah Catatan',
+                    ),
                 ],
               ),
               const SizedBox(height: AppDimens.spaceMD),
@@ -140,28 +159,52 @@ class AyatCard extends StatelessWidget {
 }
 
 class _AyatNumberBadge extends StatelessWidget {
-  const _AyatNumberBadge({required this.nomor});
+  const _AyatNumberBadge({required this.nomor, this.hasCatatan = false});
 
   final int nomor;
+  final bool hasCatatan;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: const BoxDecoration(
-        color: AppColors.ayatNumberBg,
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        nomor.toString(),
-        style: const TextStyle(
-          color: AppColors.ayatNumberText,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: const BoxDecoration(
+            color: AppColors.ayatNumberBg,
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            nomor.toString(),
+            style: const TextStyle(
+              color: AppColors.ayatNumberText,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
         ),
-      ),
+        // Indikator titik kuning jika ada catatan
+        if (hasCatatan)
+          Positioned(
+            top: -2,
+            right: -2,
+            child: Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: AppColors.secondary,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Theme.of(context).cardColor,
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
