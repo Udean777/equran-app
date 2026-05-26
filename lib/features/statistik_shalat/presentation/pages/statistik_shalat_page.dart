@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/statistik_shalat/data/utils/shalat_csv_exporter.dart';
@@ -37,9 +38,46 @@ class _StatistikShalatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
-        title: const Text('Statistik Shalat'),
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Statistik Shalat',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
         actions: [
           BlocBuilder<StatistikShalatCubit, StatistikShalatState>(
             builder: (context, state) {
@@ -49,7 +87,7 @@ class _StatistikShalatView extends StatelessWidget {
               );
               if (!hasData) return const SizedBox.shrink();
               return IconButton(
-                icon: const Icon(Icons.download_rounded),
+                icon: Icon(Icons.download_rounded, color: iconColor),
                 tooltip: 'Export CSV',
                 onPressed: () => _onExport(context, state),
               );
@@ -101,7 +139,6 @@ class _SuccessView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Build map untuk kalender
     final statsByDate = <String, ShalatDayStats>{};
     for (final day in stats.dailyStats) {
       if (day.hasData) statsByDate[day.date] = day;
@@ -112,14 +149,9 @@ class _SuccessView extends StatelessWidget {
       color: AppColors.primary,
       onRefresh: () async => context.read<StatistikShalatCubit>().load(),
       child: ListView(
+        padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
         children: [
-          // Header streak + progress hari ini
-          ShalatStreakCard(
-            streak: stats.streak,
-            today: today,
-          ),
-
-          // Checklist 5 waktu hari ini
+          ShalatStreakCard(streak: stats.streak, today: today),
           ShalatChecklistSection(
             today: today,
             onStatusChanged: (waktu, status) {
@@ -131,10 +163,7 @@ class _SuccessView extends StatelessWidget {
               );
             },
           ),
-
           const SizedBox(height: AppDimens.spaceSM),
-
-          // Statistik mingguan + bar chart
           ShalatWeeklyStatsSection(
             dailyStats: stats.dailyStats,
             totalTepatWaktu: stats.totalTepatWaktu,
@@ -142,10 +171,7 @@ class _SuccessView extends StatelessWidget {
             totalTidakShalat: stats.totalTidakShalat,
             persentaseTepatWaktu: stats.persentaseTepatWaktu,
           ),
-
           const SizedBox(height: AppDimens.spaceSM),
-
-          // Kalender bulanan
           ShalatCalendarSection(
             statsByDate: statsByDate,
             onDayTap: (date, dayStats) {
@@ -158,8 +184,6 @@ class _SuccessView extends StatelessWidget {
               );
             },
           ),
-
-          const SizedBox(height: AppDimens.spaceLG),
         ],
       ),
     );

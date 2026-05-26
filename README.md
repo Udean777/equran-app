@@ -83,6 +83,7 @@ graph TD
 | **`path_provider`**                   |      `^2.1.4`       | Akses direktori penyimpanan lokal                                    |
 | **`intl`**                            |      `^0.20.1`      | Internasionalisasi & format tanggal                                  |
 | **`url_launcher`**                    |      `^6.3.2`       | Membuka URL eksternal                                                |
+| **`synchronized`**                    |     `^3.1.0+1`      | Mutex lock untuk concurrent write operations                         |
 
 ---
 
@@ -131,13 +132,31 @@ flutter run
 
 ---
 
+## 🏗️ Build Production
+
+```bash
+# APK per ABI (distribusi langsung)
+make build-android-apk
+
+# App Bundle (Google Play Store)
+make build-android-aab
+
+# iOS IPA (perlu Mac + Xcode)
+make build-ios
+
+# Analisis ukuran APK
+make analyze-size
+```
+
+---
+
 ## 🧪 Menjalankan Pengujian
 
 ```bash
 flutter test
 ```
 
-> 510 test — semua passed ✅
+> 552 test — semua passed ✅
 
 ---
 

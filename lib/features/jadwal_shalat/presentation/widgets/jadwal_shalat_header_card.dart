@@ -1,3 +1,6 @@
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:flutter/material.dart';
 
@@ -18,79 +21,174 @@ class JadwalShalatHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          border: Border.all(color: borderColor),
+        ),
+        padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Lokasi row
             Row(
               children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  size: 18,
-                  color: colorScheme.primary,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    '${jadwal.kabkota}, ${jadwal.provinsi}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.primaryDark
+                        : AppColors.primaryContainer,
+                    borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                  ),
+                  child: Icon(
+                    Icons.location_on_rounded,
+                    size: 16,
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: onChangeLocation,
-                  icon: const Icon(Icons.edit_location_alt_outlined, size: 16),
-                  label: const Text('Ubah'),
-                  style: TextButton.styleFrom(
+                const SizedBox(width: AppDimens.spaceSM),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        jadwal.kabkota,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.onSurfaceDark
+                              : AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        jadwal.provinsi,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: isDark
+                              ? AppColors.onSurfaceDarkVariant
+                              : AppColors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: onChangeLocation,
+                  child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: AppDimens.spaceSM + 2,
+                      vertical: AppDimens.spaceXS,
                     ),
-                    visualDensity: VisualDensity.compact,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.primaryDark
+                          : AppColors.primaryContainer,
+                      borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.primaryLight.withValues(alpha: 0.3)
+                            : AppColors.primary.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.edit_location_alt_outlined,
+                          size: 12,
+                          color: isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Ganti',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? AppColors.primaryLighter
+                                : AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            // Navigasi bulan
+
+            const SizedBox(height: AppDimens.spaceMD),
+
+            // Gold divider
+            Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.gold.withValues(alpha: 0),
+                    AppColors.gold.withValues(alpha: 0.4),
+                    AppColors.gold.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: AppDimens.spaceMD),
+
+            // Bulan navigator
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  onPressed: onPrevBulan,
-                  icon: const Icon(Icons.chevron_left_rounded),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
+                _NavBtn(
+                  icon: Icons.chevron_left_rounded,
+                  onTap: onPrevBulan,
+                  isDark: isDark,
                 ),
-                Expanded(
-                  child: Center(
-                    child: _InfoChip(
-                      icon: Icons.calendar_month_outlined,
-                      label: '${jadwal.bulanNama} ${jadwal.tahun}',
+                Column(
+                  children: [
+                    Text(
+                      jadwal.bulanNama,
+                      style: AppTypography.serifHeadingSmall.copyWith(
+                        color: isDark
+                            ? AppColors.onSurfaceDark
+                            : AppColors.textPrimary,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
+                    Text(
+                      jadwal.tahun.toString(),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  onPressed: onNextBulan,
-                  icon: const Icon(Icons.chevron_right_rounded),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
+                _NavBtn(
+                  icon: Icons.chevron_right_rounded,
+                  onTap: onNextBulan,
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -101,36 +199,33 @@ class JadwalShalatHeaderCard extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.icon, required this.label});
+class _NavBtn extends StatelessWidget {
+  const _NavBtn({
+    required this.icon,
+    required this.onTap,
+    required this.isDark,
+  });
 
   final IconData icon;
-  final String label;
+  final VoidCallback onTap;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: colorScheme.onPrimaryContainer),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: isDark ? AppColors.primaryLighter : AppColors.primary,
+          size: AppDimens.iconMD,
+        ),
       ),
     );
   }

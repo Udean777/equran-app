@@ -18,70 +18,101 @@ class DoaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimens.cardPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Nama doa
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      doa.nama,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.spaceSM),
+      child: Material(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          splashColor: AppColors.primaryContainer.withValues(alpha: 0.4),
+          highlightColor: AppColors.primaryContainer.withValues(alpha: 0.2),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+              border: Border.all(color: borderColor),
+            ),
+            padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header row — nama + delete
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        doa.nama,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                  ),
-                  if (onRemove != null)
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded),
-                      color: Colors.grey[400],
-                      onPressed: onRemove,
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppDimens.spaceXS),
-              // Grup
-              Text(
-                doa.grup,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
+                    if (onRemove != null) ...[
+                      const SizedBox(width: AppDimens.spaceXS),
+                      GestureDetector(
+                        onTap: onRemove,
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          color: isDark
+                              ? AppColors.onSurfaceDarkVariant
+                              : AppColors.textTertiary,
+                          size: AppDimens.iconSM + 2,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ),
-              // Preview terjemahan (skip jika kosong)
-              if (doa.idn.isNotEmpty) ...[
+
                 const SizedBox(height: AppDimens.spaceXS),
+
+                // Grup
                 Text(
-                  doa.idn,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  doa.grup,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: isDark
+                        ? AppColors.onSurfaceDarkVariant
+                        : AppColors.textTertiary,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 11,
                   ),
                 ),
+
+                // Preview terjemahan
+                if (doa.idn.isNotEmpty) ...[
+                  const SizedBox(height: AppDimens.spaceSM),
+                  Text(
+                    doa.idn,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: isDark
+                          ? AppColors.onSurfaceDarkVariant
+                          : AppColors.textSecondary,
+                      height: 1.5,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+
+                // Tag chips
+                if (doa.tag.isNotEmpty) ...[
+                  const SizedBox(height: AppDimens.spaceSM),
+                  _TagChips(tags: doa.tag, isDark: isDark),
+                ],
               ],
-              // Tag chips
-              if (doa.tag.isNotEmpty) ...[
-                const SizedBox(height: AppDimens.spaceSM),
-                _TagChips(tags: doa.tag),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -90,9 +121,10 @@ class DoaCard extends StatelessWidget {
 }
 
 class _TagChips extends StatelessWidget {
-  const _TagChips({required this.tags});
+  const _TagChips({required this.tags, required this.isDark});
 
   final List<String> tags;
+  final bool isDark;
 
   static const _maxVisible = 3;
 
@@ -105,35 +137,46 @@ class _TagChips extends StatelessWidget {
       spacing: AppDimens.spaceXS,
       runSpacing: AppDimens.spaceXS,
       children: [
-        ...visible.map(
-          (tag) => _TagChip(label: tag),
-        ),
-        if (overflow > 0) _TagChip(label: '+$overflow', isOverflow: true),
+        ...visible.map((tag) => _TagChip(label: tag, isDark: isDark)),
+        if (overflow > 0)
+          _TagChip(label: '+$overflow', isDark: isDark, isOverflow: true),
       ],
     );
   }
 }
 
 class _TagChip extends StatelessWidget {
-  const _TagChip({required this.label, this.isOverflow = false});
+  const _TagChip({
+    required this.label,
+    required this.isDark,
+    this.isOverflow = false,
+  });
 
   final String label;
+  final bool isDark;
   final bool isOverflow;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = isOverflow
+        ? (isDark
+            ? AppColors.outlineDark
+            : AppColors.outlineVariant)
+        : (isDark
+            ? AppColors.primaryDark
+            : AppColors.primaryContainer);
+
+    final textColor = isOverflow
+        ? (isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary)
+        : (isDark ? AppColors.primaryLighter : AppColors.primary);
 
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.spaceSM,
-        vertical: 2,
+        vertical: 3,
       ),
       decoration: BoxDecoration(
-        color: isOverflow
-            ? (isDark ? Colors.grey[800] : Colors.grey[200])
-            : AppColors.primary.withValues(alpha: 0.1),
+        color: bgColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusFull),
       ),
       child: Text(
@@ -141,9 +184,7 @@ class _TagChip extends StatelessWidget {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,
-          color: isOverflow
-              ? (isDark ? Colors.grey[400] : Colors.grey[600])
-              : AppColors.primary,
+          color: textColor,
         ),
       ),
     );

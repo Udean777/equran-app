@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -70,13 +71,46 @@ class _DoaDetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor =
+        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          doa.nama,
-          overflow: TextOverflow.ellipsis,
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
         ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              doa.nama,
+              style: AppTypography.serifHeadingSmall.copyWith(
+                color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+                fontSize: 16,
+                height: 1,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
             tooltip: isBookmarked ? 'Hapus dari favorit' : 'Simpan ke favorit',
@@ -84,7 +118,7 @@ class _DoaDetailContent extends StatelessWidget {
               isBookmarked
                   ? Icons.bookmark_rounded
                   : Icons.bookmark_outline_rounded,
-              color: isBookmarked ? AppColors.secondary : null,
+              color: isBookmarked ? AppColors.gold : iconColor,
             ),
             onPressed: () => _onToggleBookmark(context),
           ),
@@ -93,32 +127,32 @@ class _DoaDetailContent extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(
           top: AppDimens.spaceSM,
-          bottom: AppDimens.spaceLG,
+          bottom: AppDimens.spaceXXL,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Header card — nama, grup, tag chips
-            _DoaHeaderCard(doa: doa),
+            // Header card
+            _DoaHeaderCard(doa: doa, isDark: isDark),
 
-            // 2. Arabic card — selalu tampil
+            // Arabic card
             DoaArabicCard(ar: doa.ar),
 
-            // 3. Latin (skip jika kosong)
+            // Latin
             if (doa.tr.isNotEmpty)
               DoaTranslationCard(
                 label: l10n.transliteration,
                 text: doa.tr,
               ),
 
-            // 4. Terjemahan (skip jika kosong)
+            // Terjemahan
             if (doa.idn.isNotEmpty)
               DoaTranslationCard(
                 label: l10n.translation,
                 text: doa.idn,
               ),
 
-            // 5. Tentang collapsible (skip jika kosong)
+            // Tentang
             if (doa.tentang.isNotEmpty)
               DoaAboutCard(tentang: doa.tentang),
           ],
@@ -130,7 +164,6 @@ class _DoaDetailContent extends StatelessWidget {
   void _onToggleBookmark(BuildContext context) {
     final cubit = context.read<DoaDetailCubit>();
     unawaited(cubit.toggleBookmark().then((_) {
-      // Baca state terbaru setelah toggle
       final state = cubit.state;
       if (state is DoaDetailSuccess && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +174,6 @@ class _DoaDetailContent extends StatelessWidget {
                   : 'Doa dihapus dari favorit',
             ),
             duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -149,45 +181,83 @@ class _DoaDetailContent extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Header card
+// ---------------------------------------------------------------------------
+
 class _DoaHeaderCard extends StatelessWidget {
-  const _DoaHeaderCard({required this.doa});
+  const _DoaHeaderCard({required this.doa, required this.isDark});
 
   final Doa doa;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.cardPadding),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          border: Border.all(color: borderColor),
+        ),
+        padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Nama
-            Text(
-              doa.nama,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+            // Nama dengan gold accent bar
+            Row(
+              children: [
+                Container(
+                  width: 3,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.radiusFull),
+                  ),
+                ),
+                const SizedBox(width: AppDimens.spaceSM),
+                Expanded(
+                  child: Text(
+                    doa.nama,
+                    style: AppTypography.serifHeadingSmall.copyWith(
+                      color: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: AppDimens.spaceXS),
+
+            const SizedBox(height: AppDimens.spaceSM),
+
             // Grup
             Text(
               doa.grup,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textTertiary,
                 fontStyle: FontStyle.italic,
               ),
             ),
+
             // Tag chips
             if (doa.tag.isNotEmpty) ...[
-              const SizedBox(height: AppDimens.spaceSM),
+              const SizedBox(height: AppDimens.spaceMD),
               Wrap(
                 spacing: AppDimens.spaceXS,
                 runSpacing: AppDimens.spaceXS,
@@ -196,20 +266,23 @@ class _DoaHeaderCard extends StatelessWidget {
                       (tag) => Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppDimens.spaceSM,
-                          vertical: 2,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(
-                            AppDimens.radiusFull,
-                          ),
+                          color: isDark
+                              ? AppColors.primaryDark
+                              : AppColors.primaryContainer,
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusFull),
                         ),
                         child: Text(
                           '#$tag',
-                          style: const TextStyle(
-                            fontSize: 11,
+                          style: TextStyle(
+                            fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.primary,
+                            color: isDark
+                                ? AppColors.primaryLighter
+                                : AppColors.primary,
                           ),
                         ),
                       ),

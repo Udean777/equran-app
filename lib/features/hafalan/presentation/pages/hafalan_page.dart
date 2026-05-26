@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -22,12 +23,13 @@ class HafalanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) {
+        // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
+        BlocProvider.value(
+          value: () {
             final cubit = getIt<HafalanCubit>();
             unawaited(cubit.load());
             return cubit;
-          },
+          }(),
         ),
         BlocProvider(
           create: (_) {
@@ -47,13 +49,47 @@ class _HafalanView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hafalan Quran'),
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Hafalan Quran',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: BlocBuilder<SuratListCubit, SuratListState>(
         builder: (context, suratState) {
-          // Saat allSurat tersedia, kirim ke HafalanCubit untuk merge
           if (suratState is SuratListSuccess) {
             context.read<HafalanCubit>().setAllSurat(suratState.surats);
           }
@@ -82,29 +118,33 @@ class _HafalanContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // filteredList sudah dihitung di cubit — tidak ada komputasi di build()
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final filtered = state.filteredList;
 
     return Column(
       children: [
-        // Stats card
         HafalanStatsCard(stats: state.stats),
 
         // Filter chips
-        _FilterChips(currentFilter: state.filter),
+        _FilterChips(currentFilter: state.filter, isDark: isDark),
 
-        // Error snackbar inline
+        // Error inline
         if (state.errorMessage != null)
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.spaceMD,
-              vertical: AppDimens.spaceXS,
+            padding: const EdgeInsets.fromLTRB(
+              AppDimens.pagePadding,
+              AppDimens.spaceXS,
+              AppDimens.pagePadding,
+              AppDimens.spaceXS,
             ),
             child: Container(
               padding: const EdgeInsets.all(AppDimens.spaceSM),
               decoration: BoxDecoration(
                 color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                border: Border.all(
+                  color: AppColors.error.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
@@ -155,13 +195,11 @@ class _HafalanJuzList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Kelompokkan per juz
     final byJuz = <int, List<HafalanSurat>>{};
     for (final h in hafalanList) {
       final juz = kJuzMapping[h.suratNomor] ?? 1;
       byJuz.putIfAbsent(juz, () => []).add(h);
     }
-
     final juzKeys = byJuz.keys.toList()..sort();
 
     return ListView.builder(
@@ -182,32 +220,68 @@ class _HafalanJuzList extends StatelessWidget {
 }
 
 class _FilterChips extends StatelessWidget {
-  const _FilterChips({required this.currentFilter});
+  const _FilterChips({
+    required this.currentFilter,
+    required this.isDark,
+  });
 
   final HafalanFilter currentFilter;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceSM,
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
       ),
       child: Row(
         children: HafalanFilter.values.map((filter) {
           final isSelected = filter == currentFilter;
           return Padding(
             padding: const EdgeInsets.only(right: AppDimens.spaceXS),
-            child: FilterChip(
-              label: Text(_filterLabel(filter)),
-              selected: isSelected,
-              onSelected: (_) =>
+            child: GestureDetector(
+              onTap: () =>
                   context.read<HafalanCubit>().setFilter(filter),
-              selectedColor: AppColors.primary.withValues(alpha: 0.15),
-              labelStyle: TextStyle(
-                color: isSelected ? AppColors.primary : null,
-                fontSize: 12,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceMD,
+                  vertical: AppDimens.spaceXS + 2,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? (isDark ? AppColors.primaryLight : AppColors.primary)
+                      : (isDark
+                          ? AppColors.surfaceDarkVariant
+                          : AppColors.surfaceVariant),
+                  borderRadius:
+                      BorderRadius.circular(AppDimens.radiusFull),
+                  border: Border.all(
+                    color: isSelected
+                        ? Colors.transparent
+                        : (isDark
+                            ? AppColors.outlineDark
+                            : AppColors.outline),
+                  ),
+                ),
+                child: Text(
+                  _filterLabel(filter),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    color: isSelected
+                        ? AppColors.onPrimary
+                        : (isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textSecondary),
+                  ),
+                ),
               ),
             ),
           );
@@ -216,16 +290,10 @@ class _FilterChips extends StatelessWidget {
     );
   }
 
-  String _filterLabel(HafalanFilter filter) {
-    switch (filter) {
-      case HafalanFilter.semua:
-        return 'Semua';
-      case HafalanFilter.sedangDihafal:
-        return 'Sedang Dihafal';
-      case HafalanFilter.sudahHafal:
-        return 'Sudah Hafal';
-      case HafalanFilter.perluMurajaah:
-        return "Perlu Muraja'ah";
-    }
-  }
+  String _filterLabel(HafalanFilter filter) => switch (filter) {
+    HafalanFilter.semua => 'Semua',
+    HafalanFilter.sedangDihafal => 'Sedang Dihafal',
+    HafalanFilter.sudahHafal => 'Sudah Hafal',
+    HafalanFilter.perluMurajaah => "Perlu Muraja'ah",
+  };
 }

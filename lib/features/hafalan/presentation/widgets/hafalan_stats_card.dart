@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:flutter/material.dart';
 
@@ -11,122 +12,166 @@ class HafalanStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final persen = (stats.persentaseQuran * 100).toStringAsFixed(1);
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
         AppDimens.spaceMD,
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
+        AppDimens.pagePadding,
         AppDimens.spaceXS,
       ),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, Color(0xFF2E7D32)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [AppColors.primaryDark, AppColors.primary]
+                : [AppColors.primary, AppColors.primaryLight],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.3),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.spaceMD),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            // Header
-            Row(
-              children: [
-                const Icon(
-                  Icons.auto_stories_rounded,
-                  color: AppColors.onPrimary,
-                  size: AppDimens.iconLG,
+            // Ornamen circle
+            Positioned(
+              right: -20,
+              top: -20,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.onPrimary.withValues(alpha: 0.05),
                 ),
-                const SizedBox(width: AppDimens.spaceSM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
                     children: [
-                      Text(
-                        'Progress Hafalan',
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: AppColors.onPrimary.withValues(alpha: 0.8),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.onPrimary.withValues(alpha: 0.15),
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusMD),
+                          border: Border.all(
+                            color: AppColors.gold.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.auto_stories_rounded,
+                          color: AppColors.onPrimary,
+                          size: AppDimens.iconMD,
                         ),
                       ),
-                      Text(
-                        '$persen% Al-Quran',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: AppColors.onPrimary,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(width: AppDimens.spaceMD),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Progress Hafalan',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: AppColors.onPrimary
+                                    .withValues(alpha: 0.7),
+                                letterSpacing: 0.5,
+                                fontSize: 10,
+                              ),
+                            ),
+                            Text(
+                              '$persen% Al-Quran',
+                              style: AppTypography.serifHeadingSmall.copyWith(
+                                color: AppColors.onPrimary,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-                // Total ayat hafal
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${stats.totalAyatHafal}',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: AppColors.onPrimary,
-                        fontWeight: FontWeight.bold,
+
+                  const SizedBox(height: AppDimens.spaceMD),
+
+                  // Progress bar
+                  ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.radiusFull),
+                    child: LinearProgressIndicator(
+                      value: stats.persentaseQuran,
+                      minHeight: 6,
+                      backgroundColor:
+                          AppColors.onPrimary.withValues(alpha: 0.2),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.gold,
                       ),
                     ),
-                    Text(
-                      'ayat hafal',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: AppColors.onPrimary.withValues(alpha: 0.8),
+                  ),
+
+                  const SizedBox(height: AppDimens.spaceMD),
+
+                  // Gold divider
+                  Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.gold.withValues(alpha: 0),
+                          AppColors.gold.withValues(alpha: 0.4),
+                          AppColors.gold.withValues(alpha: 0),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
 
-            const SizedBox(height: AppDimens.spaceMD),
+                  const SizedBox(height: AppDimens.spaceMD),
 
-            // Progress bar keseluruhan
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              child: LinearProgressIndicator(
-                value: stats.persentaseQuran,
-                minHeight: 8,
-                backgroundColor: AppColors.onPrimary.withValues(alpha: 0.2),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.onPrimary,
-                ),
+                  // Stats row
+                  Row(
+                    children: [
+                      _StatItem(
+                        label: 'Surat Hafal',
+                        value: stats.totalSuratSelesai.toString(),
+                        icon: Icons.check_circle_outline_rounded,
+                      ),
+                      _StatDivider(),
+                      _StatItem(
+                        label: 'Sedang Dihafal',
+                        value: stats.suratSedangDihafal.toString(),
+                        icon: Icons.pending_outlined,
+                      ),
+                      _StatDivider(),
+                      _StatItem(
+                        label: "Perlu Muraja'ah",
+                        value: stats.suratPerluMurajaah.toString(),
+                        icon: Icons.refresh_rounded,
+                      ),
+                      _StatDivider(),
+                      _StatItem(
+                        label: 'Total Ayat',
+                        value: stats.totalAyatHafal.toString(),
+                        icon: Icons.format_list_numbered_rounded,
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-
-            const SizedBox(height: AppDimens.spaceMD),
-
-            // Statistik bawah: 3 kolom
-            Row(
-              children: [
-                _StatChip(
-                  icon: Icons.check_circle_rounded,
-                  label: 'Selesai',
-                  value: '${stats.totalSuratSelesai} surat',
-                  color: AppColors.onPrimary,
-                ),
-                const SizedBox(width: AppDimens.spaceSM),
-                _StatChip(
-                  icon: Icons.edit_note_rounded,
-                  label: 'Sedang',
-                  value: '${stats.suratSedangDihafal} surat',
-                  color: AppColors.onPrimary,
-                ),
-                const SizedBox(width: AppDimens.spaceSM),
-                _StatChip(
-                  icon: Icons.refresh_rounded,
-                  label: 'Murajaah',
-                  value: '${stats.suratPerluMurajaah} surat',
-                  color: stats.suratPerluMurajaah > 0
-                      ? AppColors.secondary
-                      : AppColors.onPrimary,
-                ),
-              ],
             ),
           ],
         ),
@@ -135,62 +180,54 @@ class HafalanStatsCard extends StatelessWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  const _StatChip({
-    required this.icon,
+class _StatItem extends StatelessWidget {
+  const _StatItem({
     required this.label,
     required this.value,
-    required this.color,
+    required this.icon,
   });
 
-  final IconData icon;
   final String label;
   final String value;
-  final Color color;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppDimens.spaceSM,
-          vertical: AppDimens.spaceXS,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.onPrimary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: AppDimens.iconSM, color: color),
-            const SizedBox(width: AppDimens.spaceXS),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppColors.onPrimary.withValues(alpha: 0.7),
-                      fontSize: 9,
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+      child: Column(
+        children: [
+          Icon(icon, size: 14, color: AppColors.gold),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.onPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
             ),
-          ],
-        ),
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.onPrimary,
+              fontSize: 9,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 36,
+      color: AppColors.onPrimary.withValues(alpha: 0.15),
     );
   }
 }

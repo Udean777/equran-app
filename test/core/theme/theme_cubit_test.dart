@@ -44,13 +44,13 @@ void main() {
     );
 
     blocTest<ThemeCubit, ThemeState>(
-      'load() emit sepia jika tersimpan sepia di Hive',
+      'load() emit light jika tersimpan sepia di Hive (sepia dihapus)',
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn('sepia');
         return ThemeCubit(mockBox);
       },
       act: (cubit) => cubit.load(),
-      expect: () => [const ThemeState.sepia()],
+      expect: () => [const ThemeState.light()],
     );
 
     blocTest<ThemeCubit, ThemeState>(
@@ -87,7 +87,7 @@ void main() {
     );
 
     blocTest<ThemeCubit, ThemeState>(
-      'cycle() dari dark emit sepia dan simpan ke Hive',
+      'cycle() dari dark emit light dan simpan ke Hive',
       build: () {
         when(() => mockBox.get('theme_mode')).thenReturn('dark');
         when(
@@ -101,28 +101,6 @@ void main() {
       },
       expect: () => [
         const ThemeState.dark(),
-        const ThemeState.sepia(),
-      ],
-      verify: (_) {
-        verify(() => mockBox.put('theme_mode', 'sepia')).called(1);
-      },
-    );
-
-    blocTest<ThemeCubit, ThemeState>(
-      'cycle() dari sepia emit light dan simpan ke Hive',
-      build: () {
-        when(() => mockBox.get('theme_mode')).thenReturn('sepia');
-        when(
-          () => mockBox.put(any<String>(), any<String>()),
-        ).thenAnswer((_) async {});
-        return ThemeCubit(mockBox);
-      },
-      act: (cubit) async {
-        cubit.load();
-        await cubit.cycle();
-      },
-      expect: () => [
-        const ThemeState.sepia(),
         const ThemeState.light(),
       ],
       verify: (_) {
@@ -141,11 +119,6 @@ void main() {
       expect(state.themeMode, ThemeMode.dark);
     });
 
-    test('themeMode return ThemeMode.light untuk sepia state', () {
-      const state = ThemeState.sepia();
-      expect(state.themeMode, ThemeMode.light);
-    });
-
     test('isLight return true untuk light state', () {
       const state = ThemeState.light();
       expect(state.isLight, isTrue);
@@ -153,11 +126,6 @@ void main() {
 
     test('isLight return false untuk dark state', () {
       const state = ThemeState.dark();
-      expect(state.isLight, isFalse);
-    });
-
-    test('isLight return false untuk sepia state', () {
-      const state = ThemeState.sepia();
       expect(state.isLight, isFalse);
     });
 
@@ -169,26 +137,6 @@ void main() {
     test('isDark return true untuk dark state', () {
       const state = ThemeState.dark();
       expect(state.isDark, isTrue);
-    });
-
-    test('isDark return false untuk sepia state', () {
-      const state = ThemeState.sepia();
-      expect(state.isDark, isFalse);
-    });
-
-    test('isSepia return false untuk light state', () {
-      const state = ThemeState.light();
-      expect(state.isSepia, isFalse);
-    });
-
-    test('isSepia return false untuk dark state', () {
-      const state = ThemeState.dark();
-      expect(state.isSepia, isFalse);
-    });
-
-    test('isSepia return true untuk sepia state', () {
-      const state = ThemeState.sepia();
-      expect(state.isSepia, isTrue);
     });
   });
 }

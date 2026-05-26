@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart';
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_state.dart';
@@ -33,55 +34,88 @@ class _QiblaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: AppBar(
-        title: const Text('Qibla Finder'),
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
         leading: Builder(
           builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            tooltip: 'Menu',
+            icon: Icon(Icons.menu_rounded, color: iconColor),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Qibla Finder',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
         actions: [
-          // Tombol refresh manual
           BlocBuilder<QiblaCubit, QiblaState>(
+            buildWhen: (prev, next) => prev.runtimeType != next.runtimeType,
             builder: (context, state) {
-              if (state is QiblaError) {
-                return IconButton(
-                  icon: const Icon(Icons.refresh_rounded),
-                  onPressed: () => context.read<QiblaCubit>().start(),
-                  tooltip: 'Coba Lagi',
-                );
-              }
-              return const SizedBox.shrink();
+              if (state is! QiblaLoaded) return const SizedBox.shrink();
+              return IconButton(
+                icon: Icon(
+                  Icons.refresh_rounded,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                ),
+                tooltip: 'Refresh',
+                onPressed: () => unawaited(
+                  context.read<QiblaCubit>().start(),
+                ),
+              );
             },
           ),
         ],
       ),
       body: BlocBuilder<QiblaCubit, QiblaState>(
         builder: (context, state) => switch (state) {
-          QiblaInitial() => const _LoadingView(
-            message: 'Mempersiapkan kompas...',
+          QiblaInitial() => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          QiblaLoading() => const _LoadingView(
-            message: 'Mendeteksi lokasi...',
+          QiblaLoading() => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          QiblaLoaded(:final direction) => _LoadedView(
-            qiblaAngle: direction.qiblaAngle,
+          QiblaLoaded(:final direction) => _QiblaContent(
             bearing: direction.bearing,
+            qiblaAngle: direction.qiblaAngle,
             accuracy: direction.accuracy,
+            isDark: isDark,
+          ),
+          QiblaNoSensor() => QiblaErrorWidget(
+            message: 'Perangkat tidak memiliki sensor kompas.',
+            onRetry: () => unawaited(context.read<QiblaCubit>().start()),
+            isNoSensor: true,
           ),
           QiblaError(:final message) => QiblaErrorWidget(
             message: message,
-            onRetry: () => context.read<QiblaCubit>().start(),
-          ),
-          QiblaNoSensor() => QiblaErrorWidget(
-            message:
-                'Perangkat ini tidak memiliki sensor kompas yang diperlukan untuk menentukan arah kiblat.',
-            onRetry: () => context.read<QiblaCubit>().start(),
-            isNoSensor: true,
+            onRetry: () => unawaited(context.read<QiblaCubit>().start()),
           ),
         },
       ),
@@ -89,96 +123,118 @@ class _QiblaView extends StatelessWidget {
   }
 }
 
-class _LoadingView extends StatelessWidget {
-  const _LoadingView({required this.message});
+class _QiblaContent extends StatelessWidget {
+  const _QiblaContent({
+    required this.bearing,
+    required this.qiblaAngle,
+    required this.isDark,
+    this.accuracy,
+  });
 
-  final String message;
+  final double bearing;
+  final double qiblaAngle;
+  final double? accuracy;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final theme = Theme.of(context);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.pagePadding,
+        vertical: AppDimens.spaceLG,
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(color: AppColors.primary),
-          const SizedBox(height: AppDimens.spaceMD),
+          // Subtitle
           Text(
-            message,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
+            'Hadapkan perangkat ke arah kiblat',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: isDark
+                  ? AppColors.onSurfaceDarkVariant
+                  : AppColors.textTertiary,
+              fontStyle: FontStyle.italic,
             ),
+            textAlign: TextAlign.center,
           ),
+
+          const SizedBox(height: AppDimens.spaceLG),
+
+          // Kompas
+          QiblaCompassWidget(
+            qiblaAngle: qiblaAngle,
+            accuracy: accuracy,
+          ),
+
+          const SizedBox(height: AppDimens.spaceLG),
+
+          // Info panel
+          QiblaInfoPanel(
+            bearing: bearing,
+            qiblaAngle: qiblaAngle,
+          ),
+
+          const SizedBox(height: AppDimens.spaceMD),
+
+          // Tip card
+          _TipCard(isDark: isDark),
         ],
       ),
     );
   }
 }
 
-class _LoadedView extends StatelessWidget {
-  const _LoadedView({
-    required this.qiblaAngle,
-    required this.bearing,
-    this.accuracy,
-  });
+class _TipCard extends StatelessWidget {
+  const _TipCard({required this.isDark});
 
-  final double qiblaAngle;
-  final double bearing;
-  final double? accuracy;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.spaceMD),
-        child: Column(
-          children: [
-            const SizedBox(height: AppDimens.spaceLG),
+    final theme = Theme.of(context);
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
-            // Label atas
-            Text(
-              'Arahkan perangkat ke jarum hijau',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
+    return Container(
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        border: Border.all(color: borderColor),
+      ),
+      padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.goldDark.withValues(alpha: 0.2)
+                  : AppColors.goldLighter,
+              borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+            ),
+            child: const Icon(
+              Icons.tips_and_updates_outlined,
+              size: 16,
+              color: AppColors.goldDark,
+            ),
+          ),
+          const SizedBox(width: AppDimens.spaceMD),
+          Expanded(
+            child: Text(
+              'Jauhkan dari benda logam dan elektronik untuk hasil yang lebih akurat.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textSecondary,
+                height: 1.5,
               ),
             ),
-            const SizedBox(height: AppDimens.spaceXL),
-
-            // Kompas
-            QiblaCompassWidget(
-              qiblaAngle: qiblaAngle,
-              accuracy: accuracy,
-            ),
-
-            const SizedBox(height: AppDimens.spaceXL),
-
-            // Info panel
-            QiblaInfoPanel(
-              bearing: bearing,
-              qiblaAngle: qiblaAngle,
-            ),
-
-            const SizedBox(height: AppDimens.spaceLG),
-
-            // Label Kabah
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.location_on_rounded,
-                  color: AppColors.primary,
-                  size: 16,
-                ),
-                const SizedBox(width: AppDimens.spaceXS),
-                Text(
-                  'Kabah, Mekah Al-Mukarramah',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

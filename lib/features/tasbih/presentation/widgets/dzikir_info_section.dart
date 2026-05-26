@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/info_chip.dart';
@@ -17,15 +18,48 @@ class DzikirInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceLG,
+      margin: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // Nama dzikir
+          // Gold ornamen atas
+          Container(
+            width: 32,
+            height: 2,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.goldDark, AppColors.gold, AppColors.goldDark],
+              ),
+              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+            ),
+          ),
+          const SizedBox(height: AppDimens.spaceMD),
+
+          // Nama dzikir — tap untuk ganti
           GestureDetector(
             onTap: () => _showPresetSheet(context),
             child: Row(
@@ -33,15 +67,20 @@ class DzikirInfoSection extends StatelessWidget {
               children: [
                 Text(
                   state.selectedPreset.name,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                  style: AppTypography.serifHeadingMedium.copyWith(
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
+                    fontSize: 22,
                   ),
                 ),
-                const SizedBox(width: AppDimens.spaceSM),
-                const Icon(
+                const SizedBox(width: AppDimens.spaceXS),
+                Icon(
                   Icons.expand_more_rounded,
-                  color: AppColors.primary,
+                  color: isDark
+                      ? AppColors.primaryLighter
+                      : AppColors.primary,
+                  size: 20,
                 ),
               ],
             ),
@@ -52,17 +91,35 @@ class DzikirInfoSection extends StatelessWidget {
           // Teks Arab
           Text(
             state.selectedPreset.arabic,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Amiri',
-              fontSize: 24,
+              fontSize: 26,
               height: 1.8,
+              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
             ),
             textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
           ),
 
-          const SizedBox(height: AppDimens.spaceSM),
+          const SizedBox(height: AppDimens.spaceMD),
 
-          // Target info
+          // Gold divider
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.gold.withValues(alpha: 0),
+                  AppColors.gold.withValues(alpha: 0.4),
+                  AppColors.gold.withValues(alpha: 0),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: AppDimens.spaceMD),
+
+          // Target + Sisa chips
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -78,6 +135,8 @@ class DzikirInfoSection extends StatelessWidget {
               ),
             ],
           ),
+
+          const SizedBox(height: AppDimens.spaceXS),
         ],
       ),
     );

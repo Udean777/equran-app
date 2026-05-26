@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:flutter/material.dart';
 
@@ -16,29 +17,91 @@ class ShalatChecklistSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor =
+        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceMD),
-          child: Text(
-            'Shalat Hari Ini',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : AppColors.surface,
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: AppDimens.spaceSM),
-        ...WaktuShalat.values.map(
-          (waktu) => _ShalatRow(
-            waktu: waktu,
-            log: today.logFor(waktu),
-            onStatusChanged: (status) => onStatusChanged(waktu, status),
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.cardPadding,
+                AppDimens.cardPadding,
+                AppDimens.cardPadding,
+                AppDimens.spaceSM,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 3,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.gold,
+                      borderRadius:
+                          BorderRadius.circular(AppDimens.radiusFull),
+                    ),
+                  ),
+                  const SizedBox(width: AppDimens.spaceSM),
+                  Text(
+                    'Shalat Hari Ini',
+                    style: AppTypography.serifHeadingSmall.copyWith(
+                      color: isDark
+                          ? AppColors.onSurfaceDark
+                          : AppColors.textPrimary,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Divider
+            Container(
+              height: 1,
+              margin: const EdgeInsets.symmetric(
+                horizontal: AppDimens.cardPadding,
+              ),
+              color: isDark
+                  ? AppColors.outlineDark
+                  : AppColors.outlineVariant,
+            ),
+
+            // Rows
+            ...WaktuShalat.values.map(
+              (waktu) => _ShalatRow(
+                waktu: waktu,
+                log: today.logFor(waktu),
+                isDark: isDark,
+                onStatusChanged: (status) => onStatusChanged(waktu, status),
+              ),
+            ),
+
+            const SizedBox(height: AppDimens.spaceXS),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -47,33 +110,43 @@ class _ShalatRow extends StatelessWidget {
   const _ShalatRow({
     required this.waktu,
     required this.log,
+    required this.isDark,
     required this.onStatusChanged,
   });
 
   final WaktuShalat waktu;
   final ShalatLog log;
+  final bool isDark;
   final void Function(ShalatStatus status) onStatusChanged;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final currentStatus = log.status;
+    final borderColor = _borderColor(currentStatus);
+    final hasBorder = currentStatus != ShalatStatus.belumDicatat;
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS / 2,
+      margin: const EdgeInsets.fromLTRB(
+        AppDimens.cardPadding,
+        AppDimens.spaceXS,
+        AppDimens.cardPadding,
+        AppDimens.spaceXS,
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.spaceMD,
         vertical: AppDimens.spaceSM,
       ),
       decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+        color: hasBorder
+            ? borderColor.withValues(alpha: isDark ? 0.08 : 0.05)
+            : (isDark
+                ? AppColors.surfaceDarkVariant
+                : AppColors.surfaceVariant),
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         border: Border.all(
-          color: _borderColor(currentStatus),
-          width: currentStatus == ShalatStatus.belumDicatat ? 1 : 1.5,
+          color: hasBorder
+              ? borderColor.withValues(alpha: 0.4)
+              : (isDark ? AppColors.outlineDark : AppColors.outlineVariant),
         ),
       ),
       child: Row(
@@ -84,7 +157,7 @@ class _ShalatRow extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: _iconBgColor(currentStatus),
-              borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+              borderRadius: BorderRadius.circular(AppDimens.radiusMD),
             ),
             child: Icon(
               _waktuIcon(waktu),
@@ -97,8 +170,12 @@ class _ShalatRow extends StatelessWidget {
           Expanded(
             child: Text(
               waktu.label,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: isDark
+                    ? AppColors.onSurfaceDark
+                    : AppColors.textPrimary,
               ),
             ),
           ),
@@ -112,59 +189,37 @@ class _ShalatRow extends StatelessWidget {
     );
   }
 
-  Color _borderColor(ShalatStatus status) {
-    switch (status) {
-      case ShalatStatus.tepatWaktu:
-        return AppColors.success;
-      case ShalatStatus.qadha:
-        return AppColors.warning;
-      case ShalatStatus.tidakShalat:
-        return AppColors.error;
-      case ShalatStatus.belumDicatat:
-        return AppColors.outline;
-    }
-  }
+  Color _borderColor(ShalatStatus status) => switch (status) {
+    ShalatStatus.tepatWaktu => AppColors.success,
+    ShalatStatus.qadha => AppColors.warning,
+    ShalatStatus.tidakShalat => AppColors.error,
+    ShalatStatus.belumDicatat => AppColors.outline,
+  };
 
-  Color _iconBgColor(ShalatStatus status) {
-    switch (status) {
-      case ShalatStatus.tepatWaktu:
-        return AppColors.success.withValues(alpha: 0.1);
-      case ShalatStatus.qadha:
-        return AppColors.warning.withValues(alpha: 0.1);
-      case ShalatStatus.tidakShalat:
-        return AppColors.error.withValues(alpha: 0.1);
-      case ShalatStatus.belumDicatat:
-        return AppColors.primary.withValues(alpha: 0.08);
-    }
-  }
+  Color _iconBgColor(ShalatStatus status) => switch (status) {
+    ShalatStatus.tepatWaktu =>
+      AppColors.success.withValues(alpha: 0.12),
+    ShalatStatus.qadha => AppColors.warning.withValues(alpha: 0.12),
+    ShalatStatus.tidakShalat =>
+      AppColors.error.withValues(alpha: 0.12),
+    ShalatStatus.belumDicatat =>
+      AppColors.primary.withValues(alpha: 0.08),
+  };
 
-  Color _iconColor(ShalatStatus status) {
-    switch (status) {
-      case ShalatStatus.tepatWaktu:
-        return AppColors.success;
-      case ShalatStatus.qadha:
-        return AppColors.warning;
-      case ShalatStatus.tidakShalat:
-        return AppColors.error;
-      case ShalatStatus.belumDicatat:
-        return AppColors.primary;
-    }
-  }
+  Color _iconColor(ShalatStatus status) => switch (status) {
+    ShalatStatus.tepatWaktu => AppColors.success,
+    ShalatStatus.qadha => AppColors.warning,
+    ShalatStatus.tidakShalat => AppColors.error,
+    ShalatStatus.belumDicatat => AppColors.primary,
+  };
 
-  IconData _waktuIcon(WaktuShalat waktu) {
-    switch (waktu) {
-      case WaktuShalat.subuh:
-        return Icons.wb_twilight_rounded;
-      case WaktuShalat.dzuhur:
-        return Icons.wb_sunny_rounded;
-      case WaktuShalat.ashar:
-        return Icons.wb_cloudy_rounded;
-      case WaktuShalat.maghrib:
-        return Icons.nights_stay_rounded;
-      case WaktuShalat.isya:
-        return Icons.dark_mode_rounded;
-    }
-  }
+  IconData _waktuIcon(WaktuShalat waktu) => switch (waktu) {
+    WaktuShalat.subuh => Icons.wb_twilight_rounded,
+    WaktuShalat.dzuhur => Icons.wb_sunny_rounded,
+    WaktuShalat.ashar => Icons.wb_cloudy_rounded,
+    WaktuShalat.maghrib => Icons.nights_stay_rounded,
+    WaktuShalat.isya => Icons.dark_mode_rounded,
+  };
 }
 
 class _StatusButtons extends StatelessWidget {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
@@ -75,62 +76,35 @@ class _DoaListViewState extends State<_DoaListView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final canPop = Navigator.canPop(context);
 
     return Scaffold(
       drawer: canPop ? null : const AppDrawer(),
-      appBar: AppBar(
-        title: Text(l10n.doaList),
-        leading: canPop
-            ? const BackButton()
-            : Builder(
-                builder: (ctx) => IconButton(
-                  icon: const Icon(Icons.menu_rounded),
-                  tooltip: 'Menu',
-                  onPressed: () => Scaffold.of(ctx).openDrawer(),
-                ),
-              ),
-        actions: [
-          IconButton(
-            tooltip: 'Cari',
-            icon: Icon(
-              _searchVisible ? Icons.search_off_rounded : Icons.search_rounded,
-            ),
-            onPressed: _toggleSearch,
-          ),
-          BlocBuilder<DoaListCubit, DoaListState>(
-            builder: (context, state) {
-              final hasFilter =
-                  state.mapOrNull(
-                    success: (s) => s.hasActiveFilter,
-                  ) ??
-                  false;
-              return IconButton(
-                tooltip: l10n.filterDoa,
-                icon: Badge(
-                  isLabelVisible: hasFilter,
-                  child: const Icon(Icons.filter_list_rounded),
-                ),
-                onPressed: _showFilterSheet,
-              );
-            },
-          ),
-        ],
+      appBar: _DoaListAppBar(
+        l10n: l10n,
+        isDark: isDark,
+        canPop: canPop,
+        searchVisible: _searchVisible,
+        onToggleSearch: _toggleSearch,
+        onFilter: _showFilterSheet,
       ),
       body: Column(
         children: [
-          // Search bar (collapsible)
+          // Search bar collapsible
           AnimatedSize(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeInOut,
             child: _searchVisible
                 ? _DoaSearchBar(
                     controller: _searchController,
                     onChanged: context.read<DoaListCubit>().search,
                     hint: l10n.searchDoa,
+                    isDark: isDark,
                   )
                 : const SizedBox.shrink(),
           ),
+
           // Active filter chip
           BlocBuilder<DoaListCubit, DoaListState>(
             builder: (context, state) {
@@ -140,10 +114,12 @@ class _DoaListViewState extends State<_DoaListView> {
               }
               return _ActiveFilterChip(
                 label: success.activeFilterLabel,
+                isDark: isDark,
                 onClear: context.read<DoaListCubit>().clearFilter,
               );
             },
           ),
+
           // Content
           Expanded(
             child: BlocBuilder<DoaListCubit, DoaListState>(
@@ -164,41 +140,171 @@ class _DoaListViewState extends State<_DoaListView> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// AppBar
+// ---------------------------------------------------------------------------
+
+class _DoaListAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _DoaListAppBar({
+    required this.l10n,
+    required this.isDark,
+    required this.canPop,
+    required this.searchVisible,
+    required this.onToggleSearch,
+    required this.onFilter,
+  });
+
+  final AppLocalizations l10n;
+  final bool isDark;
+  final bool canPop;
+  final bool searchVisible;
+  final VoidCallback onToggleSearch;
+  final VoidCallback onFilter;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG);
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor =
+        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
+    return AppBar(
+      backgroundColor:
+          isDark ? AppColors.surfaceDark : AppColors.surface,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      surfaceTintColor: Colors.transparent,
+      toolbarHeight: AppDimens.appBarHeightLG,
+      leading: canPop
+          ? BackButton(color: iconColor)
+          : Builder(
+              builder: (ctx) => IconButton(
+                icon: Icon(Icons.menu_rounded, color: iconColor),
+                onPressed: () => Scaffold.of(ctx).openDrawer(),
+              ),
+            ),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            l10n.doaList,
+            style: AppTypography.serifHeadingMedium.copyWith(
+              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              height: 1,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Container(
+            width: 20,
+            height: 1.5,
+            decoration: BoxDecoration(
+              color: AppColors.gold,
+              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+            ),
+          ),
+        ],
+      ),
+      centerTitle: true,
+      actions: [
+        // Search toggle
+        IconButton(
+          icon: Icon(
+            searchVisible
+                ? Icons.search_off_rounded
+                : Icons.search_rounded,
+            color: searchVisible
+                ? (isDark ? AppColors.primaryLighter : AppColors.primary)
+                : iconColor,
+          ),
+          onPressed: onToggleSearch,
+        ),
+
+        // Filter dengan badge
+        BlocBuilder<DoaListCubit, DoaListState>(
+          builder: (context, state) {
+            final hasFilter =
+                state.mapOrNull(success: (s) => s.hasActiveFilter) ?? false;
+            return IconButton(
+              icon: Badge(
+                isLabelVisible: hasFilter,
+                backgroundColor: AppColors.gold,
+                smallSize: 8,
+                child: Icon(
+                  Icons.tune_rounded,
+                  color: hasFilter
+                      ? (isDark ? AppColors.primaryLighter : AppColors.primary)
+                      : iconColor,
+                ),
+              ),
+              onPressed: onFilter,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Search bar
+// ---------------------------------------------------------------------------
+
 class _DoaSearchBar extends StatelessWidget {
   const _DoaSearchBar({
     required this.controller,
     required this.onChanged,
     required this.hint,
+    required this.isDark,
   });
 
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final String hint;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
-        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceSM,
+        AppDimens.pagePadding,
         AppDimens.spaceSM,
       ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
         autofocus: true,
+        style: TextStyle(
+          color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+          fontSize: 14,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: const Icon(
+          hintStyle: TextStyle(
+            color: isDark
+                ? AppColors.onSurfaceDarkVariant
+                : AppColors.textTertiary,
+            fontSize: 14,
+          ),
+          prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppColors.primary,
+            color: isDark ? AppColors.primaryLighter : AppColors.primary,
+            size: AppDimens.iconMD,
           ),
           suffixIcon: ValueListenableBuilder<TextEditingValue>(
             valueListenable: controller,
             builder: (_, value, _) => value.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear_rounded),
+                    icon: Icon(
+                      Icons.clear_rounded,
+                      color: isDark
+                          ? AppColors.onSurfaceDarkVariant
+                          : AppColors.textTertiary,
+                      size: AppDimens.iconSM + 2,
+                    ),
                     onPressed: () {
                       controller.clear();
                       onChanged('');
@@ -206,53 +312,121 @@ class _DoaSearchBar extends StatelessWidget {
                   )
                 : const SizedBox.shrink(),
           ),
+          filled: true,
+          fillColor: isDark
+              ? AppColors.surfaceDarkVariant
+              : AppColors.surfaceVariant,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+            borderSide: BorderSide(
+              color: isDark ? AppColors.outlineDark : AppColors.outline,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+            borderSide: BorderSide(
+              color: isDark ? AppColors.primaryLighter : AppColors.primary,
+              width: 1.5,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.spaceMD,
+            vertical: AppDimens.spaceSM + 2,
+          ),
         ),
       ),
     );
   }
 }
 
+// ---------------------------------------------------------------------------
+// Active filter chip
+// ---------------------------------------------------------------------------
+
 class _ActiveFilterChip extends StatelessWidget {
   const _ActiveFilterChip({
     required this.label,
+    required this.isDark,
     required this.onClear,
   });
 
   final String label;
+  final bool isDark;
   final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
+        AppDimens.pagePadding,
+        AppDimens.spaceXS,
       ),
       child: Row(
         children: [
-          Chip(
-            label: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.spaceSM + 2,
+              vertical: AppDimens.spaceXS,
+            ),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.primaryDark
+                  : AppColors.primaryContainer,
+              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              border: Border.all(
+                color: isDark
+                    ? AppColors.primaryLight.withValues(alpha: 0.3)
+                    : AppColors.primary.withValues(alpha: 0.3),
               ),
             ),
-            backgroundColor: AppColors.primary,
-            deleteIcon: const Icon(
-              Icons.close_rounded,
-              size: 16,
-              color: Colors.white,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.filter_list_rounded,
+                  size: 12,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                ),
+                const SizedBox(width: AppDimens.spaceXS),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: AppDimens.spaceXS),
+                GestureDetector(
+                  onTap: onClear,
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 13,
+                    color: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
+                  ),
+                ),
+              ],
             ),
-            onDeleted: onClear,
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
           ),
         ],
       ),
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// List content
+// ---------------------------------------------------------------------------
 
 class _DoaListContent extends StatelessWidget {
   const _DoaListContent({required this.state});
@@ -269,9 +443,15 @@ class _DoaListContent extends StatelessWidget {
     }
 
     return RefreshIndicator(
+      color: AppColors.primary,
       onRefresh: context.read<DoaListCubit>().refresh,
       child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.fromLTRB(
+          AppDimens.pagePadding,
+          AppDimens.spaceSM,
+          AppDimens.pagePadding,
+          AppDimens.spaceLG,
+        ),
         itemCount: doaList.length,
         itemBuilder: (_, i) => DoaCard(
           key: ValueKey(doaList[i].id),

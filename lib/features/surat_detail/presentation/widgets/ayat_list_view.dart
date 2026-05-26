@@ -18,8 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// SliverList builder untuk daftar ayat di SuratDetailPage.
-///
-/// Menangani: viewport keys, bookmark, audio play, share, catatan, download per ayat.
 class AyatListView extends StatelessWidget {
   const AyatListView({
     required this.detail,
@@ -30,12 +28,12 @@ class AyatListView extends StatelessWidget {
 
   final SuratDetail detail;
   final ViewportDetectionController viewportController;
-
-  /// Dipanggil saat user tap bookmark atau perlu simpan last read.
   final void Function(SuratDetail detail, int ayatNomor) onSaveLastRead;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return BlocBuilder<BookmarkCubit, BookmarkState>(
       builder: (context, bookmarkState) {
         final bookmarks =
@@ -94,12 +92,19 @@ class AyatListView extends StatelessWidget {
 
                     return Container(
                       key: itemKey,
+                      // Luxury highlight — left accent bar saat playing
                       decoration: isCurrentAyat
                           ? BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.05),
-                              border: const Border(
+                              color: isDark
+                                  ? AppColors.primaryDark.withValues(alpha: 0.3)
+                                  : AppColors.primaryContainer.withValues(
+                                      alpha: 0.4,
+                                    ),
+                              border: Border(
                                 left: BorderSide(
-                                  color: AppColors.primary,
+                                  color: isDark
+                                      ? AppColors.primaryLighter
+                                      : AppColors.primary,
                                   width: 3,
                                 ),
                               ),

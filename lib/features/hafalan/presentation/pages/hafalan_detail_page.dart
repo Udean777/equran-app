@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
@@ -28,12 +29,13 @@ class HafalanDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) {
+        // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
+        BlocProvider.value(
+          value: () {
             final cubit = getIt<HafalanCubit>();
             unawaited(cubit.load());
             return cubit;
-          },
+          }(),
         ),
         BlocProvider(
           create: (_) {
@@ -102,6 +104,10 @@ class _HafalanDetailScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     final ayatHafal = hafalan?.ayatHafal ?? [];
     final progress = surat.jumlahAyat > 0
         ? ayatHafal.length / surat.jumlahAyat
@@ -110,12 +116,48 @@ class _HafalanDetailScaffold extends StatelessWidget {
     final status = hafalan?.status ?? HafalanStatus.belum;
 
     return Scaffold(
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
-        title: Text(surat.namaLatin),
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              surat.namaLatin,
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
         actions: [
           if (hafalan != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline_rounded),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.error.withValues(alpha: 0.8),
+              ),
               tooltip: 'Hapus data hafalan',
               onPressed: () => _confirmDelete(context),
             ),
@@ -133,9 +175,17 @@ class _HafalanDetailScaffold extends StatelessWidget {
               status: status,
             ),
 
-            HafalanStatusSelector(
-              suratNomor: surat.nomor,
-              currentStatus: status,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.pagePadding,
+                AppDimens.spaceXS,
+                AppDimens.pagePadding,
+                AppDimens.spaceMD,
+              ),
+              child: HafalanStatusSelector(
+                suratNomor: surat.nomor,
+                currentStatus: status,
+              ),
             ),
 
             const HafalanSectionHeader(
@@ -175,19 +225,13 @@ class _HafalanDetailScaffold extends StatelessWidget {
               icon: Icons.record_voice_over_rounded,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.spaceMD,
-                vertical: AppDimens.spaceXS,
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.pagePadding,
+                AppDimens.spaceXS,
+                AppDimens.pagePadding,
+                AppDimens.spaceMD,
               ),
-              child: FilledButton.icon(
-                onPressed: () =>
-                    context.push('/hafalan/${surat.nomor}/setoran'),
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: const Text('Mulai Setoran'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                ),
-              ),
+              child: _SetoranButton(suratNomor: surat.nomor, isDark: isDark),
             ),
 
             const HafalanSectionHeader(
@@ -213,18 +257,45 @@ class _HafalanDetailScaffold extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hapus Data Hafalan?'),
+        backgroundColor:
+            isDark ? AppColors.surfaceDark : AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
+          side: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outline,
+          ),
+        ),
+        title: Text(
+          'Hapus Data Hafalan?',
+          style: AppTypography.serifHeadingSmall.copyWith(
+            color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+          ),
+        ),
         content: Text(
           'Semua data hafalan ${surat.namaLatin} akan dihapus. '
           'Tindakan ini tidak bisa dibatalkan.',
+          style: TextStyle(
+            color: isDark
+                ? AppColors.onSurfaceDarkVariant
+                : AppColors.textSecondary,
+            fontSize: 14,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: TextStyle(
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textSecondary,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -238,5 +309,64 @@ class _HafalanDetailScaffold extends StatelessWidget {
       await context.read<HafalanCubit>().deleteSurat(surat.nomor);
       if (context.mounted) context.pop();
     }
+  }
+}
+
+class _SetoranButton extends StatelessWidget {
+  const _SetoranButton({required this.suratNomor, required this.isDark});
+
+  final int suratNomor;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [AppColors.primaryDark, AppColors.primary]
+              : [AppColors.primary, AppColors.primaryLight],
+        ),
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/hafalan/$suratNomor/setoran'),
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: AppDimens.spaceMD,
+              horizontal: AppDimens.spaceLG,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.play_arrow_rounded,
+                  color: AppColors.onPrimary,
+                  size: AppDimens.iconMD,
+                ),
+                const SizedBox(width: AppDimens.spaceSM),
+                Text(
+                  'Mulai Setoran',
+                  style: AppTypography.serifHeadingSmall.copyWith(
+                    color: AppColors.onPrimary,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/detecting_location_widget.dart';
@@ -62,31 +65,63 @@ class _ImsakiyahView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Imsakiyah'),
-        centerTitle: false,
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: AppDimens.appBarHeightLG,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Imsakiyah',
+              style: AppTypography.serifHeadingMedium.copyWith(
+                color: iconColor,
+                height: 1,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Container(
+              width: 20,
+              height: 1.5,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: BlocBuilder<ImsakiyahCubit, ImsakiyahState>(
-        builder: (context, state) {
-          return switch (state) {
-            ImsakiyahInitial() => _buildInitialPrompt(context),
-            ImsakiyahLoadingProvinsi() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            ImsakiyahDetectingLocation() => _buildDetectingLocation(),
-            ImsakiyahProvinsiLoaded() => _buildLocationPrompt(context),
-            ImsakiyahLoadingKabkota() => _buildLocationPrompt(context),
-            ImsakiyahKabkotaLoaded() => _buildLocationPrompt(context),
-            ImsakiyahLoadingJadwal() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            ImsakiyahSuccess() => _buildSuccess(context, state),
-            ImsakiyahFailure() => ErrorStateWidget(
-              message: state.failure.toUserMessage(),
-              onRetry: () => context.read<ImsakiyahCubit>().retry(),
-            ),
-          };
+        builder: (context, state) => switch (state) {
+          ImsakiyahInitial() => _buildInitialPrompt(context),
+          ImsakiyahLoadingProvinsi() => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          ImsakiyahDetectingLocation() => _buildDetectingLocation(),
+          ImsakiyahProvinsiLoaded() => _buildLocationPrompt(context),
+          ImsakiyahLoadingKabkota() => _buildLocationPrompt(context),
+          ImsakiyahKabkotaLoaded() => _buildLocationPrompt(context),
+          ImsakiyahLoadingJadwal() => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          ImsakiyahSuccess() => _buildSuccess(context, state),
+          ImsakiyahFailure() => ErrorStateWidget(
+            message: state.failure.toUserMessage(),
+            onRetry: () => context.read<ImsakiyahCubit>().retry(),
+          ),
         },
       ),
     );
@@ -113,23 +148,19 @@ class _ImsakiyahView extends StatelessWidget {
   }
 
   Widget _buildSuccess(BuildContext context, ImsakiyahSuccess state) {
-    // Tentukan tanggal hari ini (UTC+7)
     final now = DateTime.now().toUtc().add(const Duration(hours: 7));
     final todayTanggal = now.day;
 
-    // Cari entry hari ini, fallback ke entry pertama
     final todayEntry =
         state.jadwal.imsakiyah
-            .where(
-              (e) => e.tanggal == todayTanggal,
-            )
+            .where((e) => e.tanggal == todayTanggal)
             .firstOrNull ??
         state.jadwal.imsakiyah.first;
 
     return RefreshIndicator(
-      onRefresh: () async => context.read<ImsakiyahCubit>().selectKabkota(
-        state.selectedKabkota,
-      ),
+      color: AppColors.primary,
+      onRefresh: () async =>
+          context.read<ImsakiyahCubit>().selectKabkota(state.selectedKabkota),
       child: ListView(
         children: [
           ImsakiyahHeaderCard(
@@ -146,7 +177,6 @@ class _ImsakiyahView extends StatelessWidget {
             entries: state.jadwal.imsakiyah,
             todayTanggal: todayTanggal,
           ),
-          const SizedBox(height: 24),
         ],
       ),
     );

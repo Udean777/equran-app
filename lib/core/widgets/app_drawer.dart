@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -14,205 +15,320 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Drawer(
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Scrollable area
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.spaceMD,
-                      vertical: AppDimens.spaceLG,
-                    ),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppColors.onPrimary.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(
-                              AppDimens.radiusMD,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.menu_book_rounded,
-                            color: AppColors.onPrimary,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(height: AppDimens.spaceMD),
-                        Text(
-                          'eQuran',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                color: AppColors.onPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                        const SizedBox(height: AppDimens.spaceXS),
-                        // Streak chip
-                        BlocBuilder<QuranStreakCubit, int>(
-                          builder: (context, streak) {
-                            if (streak == 0) return const SizedBox.shrink();
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppDimens.spaceSM,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.onPrimary.withValues(
-                                  alpha: 0.2,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  AppDimens.radiusFull,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.local_fire_department_rounded,
-                                    color: Colors.orange,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '$streak hari berturut-turut',
-                                    style: const TextStyle(
-                                      color: AppColors.onPrimary,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(
+          right: Radius.circular(AppDimens.radiusXL),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          _DrawerHeader(isDark: isDark),
 
-                  const SizedBox(height: AppDimens.spaceSM),
-
-                  // Menu items
-                  _DrawerItem(
-                    icon: Icons.mosque_outlined,
-                    selectedIcon: Icons.mosque_rounded,
-                    label: l10n.imsakiyahNav,
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/imsakiyah'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.bookmark_outline_rounded,
-                    selectedIcon: Icons.bookmark_rounded,
-                    label: l10n.bookmarkNav,
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/bookmark'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.auto_stories_outlined,
-                    selectedIcon: Icons.auto_stories_rounded,
-                    label: 'Doa Harian',
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/doa-harian'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.edit_note_outlined,
-                    selectedIcon: Icons.edit_note_rounded,
-                    label: 'Catatan Saya',
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/catatan'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.auto_stories_outlined,
-                    selectedIcon: Icons.auto_stories_rounded,
-                    label: 'Hafalan Quran',
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/hafalan'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.audio_file_outlined,
-                    selectedIcon: Icons.audio_file_rounded,
-                    label: 'Manajemen Audio',
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/audio/storage'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.mosque_outlined,
-                    selectedIcon: Icons.mosque_rounded,
-                    label: 'Statistik Shalat',
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/statistik-shalat'));
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.bar_chart_outlined,
-                    selectedIcon: Icons.bar_chart_rounded,
-                    label: 'Statistik Baca',
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push('/reading-stats'));
-                    },
-                  ),
-
-                  const Divider(height: AppDimens.spaceLG),
-
-                  _DrawerItem(
-                    icon: Icons.settings_outlined,
-                    selectedIcon: Icons.settings_rounded,
-                    label: 'Pengaturan',
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await context.push('/settings');
-                    },
-                  ),
-                ],
+          // Menu items — scrollable
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.spaceSM,
+                vertical: AppDimens.spaceSM,
               ),
-            ),
-
-            // Footer — tetap di bawah, tidak ikut scroll
-            Padding(
-              padding: const EdgeInsets.all(AppDimens.spaceMD),
-              child: Text(
-                'v1.0.0',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[400],
+              children: [
+                const _SectionLabel(label: 'Ibadah'),
+                _DrawerItem(
+                  icon: Icons.mosque_outlined,
+                  selectedIcon: Icons.mosque_rounded,
+                  label: l10n.imsakiyahNav,
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/imsakiyah'));
+                  },
                 ),
-                textAlign: TextAlign.center,
-              ),
+                _DrawerItem(
+                  icon: Icons.auto_stories_outlined,
+                  selectedIcon: Icons.auto_stories_rounded,
+                  label: 'Hafalan Quran',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/hafalan'));
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.auto_stories_outlined,
+                  selectedIcon: Icons.auto_stories_rounded,
+                  label: 'Doa Harian',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/doa-harian'));
+                  },
+                ),
+
+                const SizedBox(height: AppDimens.spaceSM),
+                const _SectionLabel(label: 'Catatan & Statistik'),
+                _DrawerItem(
+                  icon: Icons.bookmark_outline_rounded,
+                  selectedIcon: Icons.bookmark_rounded,
+                  label: l10n.bookmarkNav,
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/bookmark'));
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.edit_note_outlined,
+                  selectedIcon: Icons.edit_note_rounded,
+                  label: 'Catatan Saya',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/catatan'));
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.bar_chart_outlined,
+                  selectedIcon: Icons.bar_chart_rounded,
+                  label: 'Statistik Baca',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/reading-stats'));
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.mosque_outlined,
+                  selectedIcon: Icons.mosque_rounded,
+                  label: 'Statistik Shalat',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/statistik-shalat'));
+                  },
+                ),
+
+                const SizedBox(height: AppDimens.spaceSM),
+                const _SectionLabel(label: 'Lainnya'),
+                _DrawerItem(
+                  icon: Icons.audio_file_outlined,
+                  selectedIcon: Icons.audio_file_rounded,
+                  label: 'Manajemen Audio',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push('/audio/storage'));
+                  },
+                ),
+                _DrawerItem(
+                  icon: Icons.settings_outlined,
+                  selectedIcon: Icons.settings_rounded,
+                  label: 'Pengaturan',
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await context.push('/settings');
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
+
+          // Footer
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppDimens.spaceMD,
+              AppDimens.spaceSM,
+              AppDimens.spaceMD,
+              AppDimens.spaceLG,
+            ),
+            child: Text(
+              'eQuran v1.0.0',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textTertiary,
+                letterSpacing: 0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Drawer Header — luxury gradient
+// ---------------------------------------------------------------------------
+
+class _DrawerHeader extends StatelessWidget {
+  const _DrawerHeader({required this.isDark});
+
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [AppColors.primaryDark, AppColors.primary]
+              : [AppColors.primary, AppColors.primaryLight],
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppDimens.spaceLG,
+            AppDimens.spaceLG,
+            AppDimens.spaceLG,
+            AppDimens.spaceLG,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Logo container dengan gold border
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AppColors.onPrimary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                  border: Border.all(
+                    color: AppColors.gold.withValues(alpha: 0.6),
+                    width: AppDimens.goldBorderWidth,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.menu_book_rounded,
+                  color: AppColors.onPrimary,
+                  size: 28,
+                ),
+              ),
+
+              const SizedBox(height: AppDimens.spaceMD),
+
+              // App name — serif
+              Text(
+                'eQuran',
+                style: AppTypography.serifHeadingLarge.copyWith(
+                  color: AppColors.onPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+
+              const SizedBox(height: AppDimens.spaceXS),
+
+              // Gold divider line
+              Container(
+                width: 32,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: AppColors.gold,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                ),
+              ),
+
+              const SizedBox(height: AppDimens.spaceSM),
+
+              // Streak chip
+              BlocBuilder<QuranStreakCubit, int>(
+                builder: (context, streak) {
+                  if (streak == 0) return const SizedBox.shrink();
+                  return _StreakChip(streak: streak);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+class _StreakChip extends StatelessWidget {
+  const _StreakChip({required this.streak});
+
+  final int streak;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.spaceSM + 2,
+        vertical: AppDimens.spaceXS,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.gold.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+        border: Border.all(
+          color: AppColors.gold.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.local_fire_department_rounded,
+            color: Colors.orange,
+            size: 13,
+          ),
+          const SizedBox(width: AppDimens.spaceXS),
+          Text(
+            '$streak hari berturut-turut',
+            style: const TextStyle(
+              color: AppColors.onPrimary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Section label
+// ---------------------------------------------------------------------------
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.spaceMD,
+        AppDimens.spaceSM,
+        AppDimens.spaceMD,
+        AppDimens.spaceXS,
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: isDark
+              ? AppColors.onSurfaceDarkVariant
+              : AppColors.textTertiary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Drawer item
+// ---------------------------------------------------------------------------
 
 class _DrawerItem extends StatelessWidget {
   const _DrawerItem({
@@ -229,13 +345,50 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
-      title: Text(label),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceMD,
-        vertical: AppDimens.spaceXS,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+        splashColor: AppColors.primaryContainer,
+        highlightColor: AppColors.primaryContainer.withValues(alpha: 0.5),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.spaceMD,
+            vertical: AppDimens.spaceSM + 2,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                size: AppDimens.iconMD,
+              ),
+              const SizedBox(width: AppDimens.spaceMD),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isDark
+                        ? AppColors.onSurfaceDark
+                        : AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textTertiary,
+                size: AppDimens.iconSM + 2,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
