@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
+import 'package:equran_app/core/widgets/gradient_button.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_ayat_grid.dart';
@@ -63,9 +65,8 @@ class _HafalanDetailView extends StatelessWidget {
           return const Scaffold(body: LoadingWidget());
         }
 
-        final suratMatches = suratState.surats.where(
-          (s) => s.nomor == suratNomor,
-        );
+        final suratMatches =
+            suratState.surats.where((s) => s.nomor == suratNomor);
         if (suratMatches.isEmpty) {
           return const Scaffold(
             body: EmptyStateWidget(message: 'Surat tidak ditemukan.'),
@@ -104,53 +105,16 @@ class _HafalanDetailScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-
     final ayatHafal = hafalan?.ayatHafal ?? [];
-    final progress = surat.jumlahAyat > 0
-        ? ayatHafal.length / surat.jumlahAyat
-        : 0.0;
+    final progress =
+        surat.jumlahAyat > 0 ? ayatHafal.length / surat.jumlahAyat : 0.0;
     final persen = (progress * 100).toStringAsFixed(0);
     final status = hafalan?.status ?? HafalanStatus.belum;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.background,
-      appBar: AppBar(
-        backgroundColor: surfaceColor,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        surfaceTintColor: Colors.transparent,
-        toolbarHeight: AppDimens.appBarHeightLG,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              surat.namaLatin,
-              style: AppTypography.serifHeadingMedium.copyWith(
-                color: iconColor,
-                height: 1,
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Container(
-              width: 20,
-              height: 1.5,
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
+      appBar: LuxuryAppBar(
+        title: surat.namaLatin,
+        titleFontSize: 18,
         actions: [
           if (hafalan != null)
             IconButton(
@@ -231,7 +195,12 @@ class _HafalanDetailScaffold extends StatelessWidget {
                 AppDimens.pagePadding,
                 AppDimens.spaceMD,
               ),
-              child: _SetoranButton(suratNomor: surat.nomor, isDark: isDark),
+              child: GradientButton(
+                label: 'Mulai Setoran',
+                icon: Icons.play_arrow_rounded,
+                onTap: () =>
+                    context.push('/hafalan/${surat.nomor}/setoran'),
+              ),
             ),
 
             const HafalanSectionHeader(
@@ -257,116 +226,16 @@ class _HafalanDetailScaffold extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor:
-            isDark ? AppColors.surfaceDark : AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
-          side: BorderSide(
-            color: isDark ? AppColors.outlineDark : AppColors.outline,
-          ),
-        ),
-        title: Text(
-          'Hapus Data Hafalan?',
-          style: AppTypography.serifHeadingSmall.copyWith(
-            color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-          ),
-        ),
-        content: Text(
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Hapus Data Hafalan?',
+      content:
           'Semua data hafalan ${surat.namaLatin} akan dihapus. '
           'Tindakan ini tidak bisa dibatalkan.',
-          style: TextStyle(
-            color: isDark
-                ? AppColors.onSurfaceDarkVariant
-                : AppColors.textSecondary,
-            fontSize: 14,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              'Batal',
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textSecondary,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
     );
-    if ((confirmed ?? false) && context.mounted) {
+    if (confirmed && context.mounted) {
       await context.read<HafalanCubit>().deleteSurat(surat.nomor);
       if (context.mounted) context.pop();
     }
-  }
-}
-
-class _SetoranButton extends StatelessWidget {
-  const _SetoranButton({required this.suratNomor, required this.isDark});
-
-  final int suratNomor;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark
-              ? [AppColors.primaryDark, AppColors.primary]
-              : [AppColors.primary, AppColors.primaryLight],
-        ),
-        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.push('/hafalan/$suratNomor/setoran'),
-          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppDimens.spaceMD,
-              horizontal: AppDimens.spaceLG,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.play_arrow_rounded,
-                  color: AppColors.onPrimary,
-                  size: AppDimens.iconMD,
-                ),
-                const SizedBox(width: AppDimens.spaceSM),
-                Text(
-                  'Mulai Setoran',
-                  style: AppTypography.serifHeadingSmall.copyWith(
-                    color: AppColors.onPrimary,
-                    fontSize: 15,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

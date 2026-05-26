@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/utils/format_utils.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_surat_group.dart';
@@ -35,8 +34,8 @@ class _AudioStorageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manajemen Audio'),
+      appBar: LuxuryAppBar(
+        title: 'Manajemen Audio',
         actions: [
           BlocBuilder<AudioStorageCubit, AudioStorageState>(
             builder: (context, state) {
@@ -47,7 +46,7 @@ class _AudioStorageView extends StatelessWidget {
               if (!hasFiles) return const SizedBox.shrink();
               return IconButton(
                 icon: const Icon(Icons.delete_sweep_rounded),
-                tooltip: 'Hapus semua',
+                tooltip: 'Hapus semua audio',
                 onPressed: () => _confirmDeleteAll(context),
               );
             },
@@ -58,123 +57,79 @@ class _AudioStorageView extends StatelessWidget {
         builder: (context, state) => switch (state) {
           AudioStorageInitial() => const LoadingWidget(),
           AudioStorageLoading() => const LoadingWidget(),
-          AudioStorageError(:final message) => ErrorStateWidget(
-            message: message,
-            onRetry: () => context.read<AudioStorageCubit>().load(),
-          ),
           AudioStorageSuccess(:final files, :final totalBytes) =>
             files.isEmpty
-                ? _buildEmpty(context)
-                : _buildList(context, files, totalBytes),
+                ? const Center(
+                    child: Text('Belum ada audio yang diunduh.'),
+                  )
+                : _AudioStorageContent(files: files, totalBytes: totalBytes),
+          AudioStorageError(:final message) => ErrorStateWidget(
+            message: message,
+            onRetry: context.read<AudioStorageCubit>().load,
+          ),
         },
       ),
     );
   }
 
-  Widget _buildEmpty(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.audio_file_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
-          Text(
-            'Belum ada audio yang didownload',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[500],
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceSM),
-          Text(
-            'Download audio ayat dari halaman surat\nuntuk diputar secara offline.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey[400],
-            ),
-          ),
-        ],
-      ),
+  Future<void> _confirmDeleteAll(BuildContext context) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Hapus Semua Audio?',
+      content: 'Semua file audio yang telah diunduh akan dihapus.',
     );
-  }
-
-  Widget _buildList(
-    BuildContext context,
-    List<DownloadedAyatInfo> files,
-    int totalBytes,
-  ) {
-    // Group by surat
-    final grouped = <int, List<DownloadedAyatInfo>>{};
-    for (final file in files) {
-      grouped.putIfAbsent(file.suratNomor, () => []).add(file);
+    if (confirmed && context.mounted) {
+      await context.read<AudioStorageCubit>().deleteAll();
     }
-    final suratNumbers = grouped.keys.toList()..sort();
+  }
+}
+
+class _AudioStorageContent extends StatelessWidget {
+  const _AudioStorageContent({
+    required this.files,
+    required this.totalBytes,
+  });
+
+  final List<DownloadedAyatInfo> files;
+  final int totalBytes;
+
+  @override
+  Widget build(BuildContext context) {
+    // Group files by suratNomor
+    final grouped = <int, List<DownloadedAyatInfo>>{};
+    for (final f in files) {
+      grouped.putIfAbsent(f.suratNomor, () => []).add(f);
+    }
+    final sortedKeys = grouped.keys.toList()..sort();
 
     return Column(
       children: [
-        // Storage summary
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimens.spaceMD,
-            vertical: AppDimens.spaceSM,
-          ),
-          color: AppColors.primary.withValues(alpha: 0.08),
+        Padding(
+          padding: const EdgeInsets.all(16),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(
-                Icons.storage_rounded,
-                size: AppDimens.iconSM,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
+              const Text('Total ukuran:'),
               Text(
-                '${files.length} file • ${totalBytes.toReadableBytes()}',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+                totalBytes.toReadableBytes(),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
-
-        // File list grouped by surat
         Expanded(
           child: ListView.builder(
-            itemCount: suratNumbers.length,
-            itemBuilder: (context, i) {
-              final suratNomor = suratNumbers[i];
-              final suratFiles = grouped[suratNomor]!
-                ..sort((a, b) => a.ayatNomor.compareTo(b.ayatNomor));
-
+            itemCount: sortedKeys.length,
+            itemBuilder: (_, i) {
+              final suratNomor = sortedKeys[i];
               return AudioSuratGroup(
                 suratNomor: suratNomor,
-                files: suratFiles,
+                files: grouped[suratNomor]!,
               );
             },
           ),
         ),
       ],
-    );
-  }
-
-  void _confirmDeleteAll(BuildContext context) {
-    final cubit = context.read<AudioStorageCubit>();
-    unawaited(
-      showConfirmDialog(
-        context,
-        title: 'Hapus Semua Audio',
-        content:
-            'Semua file audio yang sudah didownload akan dihapus. '
-            'Tindakan ini tidak dapat dibatalkan.',
-        confirmLabel: 'Hapus Semua',
-      ).then((confirmed) {
-        if (confirmed) unawaited(cubit.deleteAll());
-      }),
     );
   }
 }

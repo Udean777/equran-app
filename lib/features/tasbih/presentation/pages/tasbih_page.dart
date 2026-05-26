@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/dzikir_info_section.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/tasbih_bottom_controls.dart';
@@ -31,67 +31,18 @@ class _TasbihView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.background,
       drawer: const AppDrawer(),
-      appBar: AppBar(
-        backgroundColor: surfaceColor,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        surfaceTintColor: Colors.transparent,
-        toolbarHeight: AppDimens.appBarHeightLG,
-        leading: Builder(
-          builder: (ctx) => IconButton(
-            icon: Icon(Icons.menu_rounded, color: iconColor),
-            tooltip: 'Menu',
-            onPressed: () => Scaffold.of(ctx).openDrawer(),
-          ),
-        ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Tasbih Digital',
-              style: AppTypography.serifHeadingMedium.copyWith(
-                color: iconColor,
-                height: 1,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Container(
-              width: 20,
-              height: 1.5,
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
+      appBar: LuxuryAppBar(
+        title: 'Tasbih & Dzikir',
         actions: [
-          BlocBuilder<TasbihCubit, TasbihState>(
-            builder: (context, state) => IconButton(
-              icon: Icon(
-                state.hapticEnabled
-                    ? Icons.vibration_rounded
-                    : Icons.phone_android_rounded,
-                color: iconColor,
-              ),
-              tooltip: state.hapticEnabled
-                  ? 'Matikan getaran'
-                  : 'Aktifkan getaran',
-              onPressed: () => context.read<TasbihCubit>().toggleHaptic(),
-            ),
-          ),
           IconButton(
-            icon: Icon(Icons.history_rounded, color: iconColor),
+            icon: const Icon(Icons.history_rounded),
             tooltip: 'Riwayat',
-            onPressed: () => unawaited(context.push('/tasbih/history')),
+            onPressed: () => context.push('/tasbih/history'),
           ),
         ],
       ),
@@ -99,14 +50,26 @@ class _TasbihView extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
-              DzikirInfoSection(state: state),
               Expanded(
-                child: Center(
-                  child: TasbihCounterButton(
-                    count: state.count,
-                    progress: state.progress,
-                    isCompleted: state.isCompleted,
-                    onTap: () => context.read<TasbihCubit>().increment(),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding,
+                    vertical: AppDimens.spaceLG,
+                  ),
+                  child: Column(
+                    children: [
+                      DzikirInfoSection(state: state),
+                      const SizedBox(height: AppDimens.spaceLG),
+              TasbihCounterButton(
+                      count: state.count,
+                      progress: state.target > 0
+                          ? state.count / state.target
+                          : 0.0,
+                      isCompleted: state.isCompleted,
+                      onTap: () =>
+                          unawaited(context.read<TasbihCubit>().increment()),
+                    ),
+                    ],
                   ),
                 ),
               ),

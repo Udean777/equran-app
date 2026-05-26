@@ -1,18 +1,15 @@
 import 'dart:async';
 
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
-import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
-import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
+import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/bookmark_card.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
-import 'package:equran_app/features/doa/domain/entities/doa.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_card.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -42,61 +39,18 @@ class _BookmarkView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.background,
-      appBar: AppBar(
-        backgroundColor: surfaceColor,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        surfaceTintColor: Colors.transparent,
-        toolbarHeight: AppDimens.appBarHeightLG,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.bookmark,
-              style: AppTypography.serifHeadingMedium.copyWith(
-                color: iconColor,
-                height: 1,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Container(
-              width: 20,
-              height: 1.5,
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-      ),
+      appBar: const LuxuryAppBar(title: 'Bookmark'),
       body: BlocBuilder<BookmarkCubit, BookmarkState>(
         builder: (context, state) => switch (state) {
-          BookmarkInitial() => const SizedBox.shrink(),
+          BookmarkInitial() => const LoadingWidget(),
           BookmarkLoading() => const LoadingWidget(),
-          BookmarkSuccess(:final bookmarks, :final bookmarkedDoas, :final lastRead) =>
-            _BookmarkContent(
-              bookmarks: bookmarks,
-              bookmarkedDoas: bookmarkedDoas,
-              lastRead: lastRead,
-            ),
           BookmarkFailure(:final failure) => ErrorStateWidget(
             message: failure.toUserMessage(),
             onRetry: context.read<BookmarkCubit>().load,
           ),
+          BookmarkSuccess() => _BookmarkContent(state: state, l10n: l10n),
         },
       ),
     );
@@ -104,119 +58,79 @@ class _BookmarkView extends StatelessWidget {
 }
 
 class _BookmarkContent extends StatelessWidget {
-  const _BookmarkContent({
-    required this.bookmarks,
-    required this.bookmarkedDoas,
-    required this.lastRead,
-  });
+  const _BookmarkContent({required this.state, required this.l10n});
 
-  final List<Bookmark> bookmarks;
-  final List<Doa> bookmarkedDoas;
-  final LastRead? lastRead;
+  final BookmarkSuccess state;
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lastRead = state.lastRead;
+    final bookmarks = state.bookmarks;
+    final doaBookmarks = state.bookmarkedDoas;
 
-    if (bookmarks.isEmpty && bookmarkedDoas.isEmpty && lastRead == null) {
-      return EmptyStateWidget(
-        message: l10n.bookmarkEmpty,
-        icon: Icons.bookmark_border_rounded,
-      );
+    final isEmpty =
+        lastRead == null && bookmarks.isEmpty && doaBookmarks.isEmpty;
+
+    if (isEmpty) {
+      return EmptyStateWidget(message: l10n.bookmarkEmpty);
     }
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
       children: [
-        if (lastRead != null) LastReadCard(lastRead: lastRead!),
+        // Terakhir Dibaca
+        if (lastRead != null) ...[
+          const SectionHeader(label: 'Terakhir Dibaca'),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.pagePadding,
+            ),
+            child: LastReadCard(lastRead: lastRead),
+          ),
+        ],
+
+        // Bookmark Ayat
         if (bookmarks.isNotEmpty) ...[
-          _SectionHeader(
-            title: l10n.ayatTersimpan,
-            icon: Icons.bookmark_rounded,
-            isDark: isDark,
-          ),
+          const SectionHeader(label: 'Bookmark Ayat'),
           ...bookmarks.map(
-            (b) => BookmarkCard(
-              key: ValueKey('${b.suratNomor}_${b.ayatNomor}'),
-              bookmark: b,
-              onTap: () => context.push(
-                '/surat/${b.suratNomor}?ayat=${b.ayatNomor}',
+            (b) => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.pagePadding,
+                vertical: AppDimens.spaceXS,
               ),
-              onRemove: () => context.read<BookmarkCubit>().removeBookmark(
-                suratNomor: b.suratNomor,
-                ayatNomor: b.ayatNomor,
+              child: BookmarkCard(
+                bookmark: b,
+                onTap: () => context.push(
+                  '/surat/${b.suratNomor}?initialAyat=${b.ayatNomor}',
+                ),
+                onRemove: () => context.read<BookmarkCubit>().removeBookmark(
+                  suratNomor: b.suratNomor,
+                  ayatNomor: b.ayatNomor,
+                ),
               ),
             ),
           ),
         ],
-        if (bookmarkedDoas.isNotEmpty) ...[
-          _SectionHeader(
-            title: l10n.doaTersimpan,
-            icon: Icons.menu_book_rounded,
-            isDark: isDark,
-          ),
-          ...bookmarkedDoas.map(
-            (doa) => DoaCard(
-              key: ValueKey(doa.id),
-              doa: doa,
-              onTap: () => context.push('/doa/${doa.id}'),
-              onRemove: () =>
-                  context.read<BookmarkCubit>().removeDoaBookmark(doa.id),
+
+        // Bookmark Doa
+        if (doaBookmarks.isNotEmpty) ...[
+          const SectionHeader(label: 'Bookmark Doa'),
+          ...doaBookmarks.map(
+            (d) => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.pagePadding,
+                vertical: AppDimens.spaceXS,
+              ),
+              child: DoaCard(
+                doa: d,
+                onTap: () => context.push('/doa/${d.id}'),
+              ),
             ),
           ),
         ],
+
+        const SizedBox(height: AppDimens.spaceXL),
       ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    required this.icon,
-    required this.isDark,
-  });
-
-  final String title;
-  final IconData icon;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.pagePadding,
-        AppDimens.spaceMD,
-        AppDimens.pagePadding,
-        AppDimens.spaceXS,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 3,
-            height: 16,
-            decoration: BoxDecoration(
-              color: AppColors.gold,
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-            ),
-          ),
-          const SizedBox(width: AppDimens.spaceSM),
-          Icon(
-            icon,
-            size: AppDimens.iconSM,
-            color: isDark ? AppColors.primaryLighter : AppColors.primary,
-          ),
-          const SizedBox(width: AppDimens.spaceXS),
-          Text(
-            title,
-            style: AppTypography.serifHeadingSmall.copyWith(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-              fontSize: 15,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

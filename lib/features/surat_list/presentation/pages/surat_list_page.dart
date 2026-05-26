@@ -6,17 +6,20 @@ import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
+import 'package:equran_app/core/widgets/app_search_bar.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
+import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
-import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
-import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_widget.dart';
+import 'package:equran_app/features/surat_list/presentation/widgets/murajaah_reminder_card.dart';
+import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_delegate.dart';
+import 'package:equran_app/features/surat_list/presentation/widgets/streak_chip.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -102,10 +105,11 @@ class _SuratListView extends StatelessWidget {
                         return const SizedBox.shrink();
                       }
                       final murajaahList = state.suratMurajaahHariIni;
-                      if (murajaahList.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-                      return _MurajaahReminderCard(suratList: murajaahList);
+                      if (murajaahList.isEmpty) return const SizedBox.shrink();
+                      return MurajaahReminderCard(
+                        suratList: murajaahList,
+                        onTap: () => context.push('/hafalan'),
+                      );
                     },
                   ),
 
@@ -114,7 +118,7 @@ class _SuratListView extends StatelessWidget {
                     buildWhen: (prev, curr) => prev != curr,
                     builder: (context, streak) {
                       if (streak == 0) return const SizedBox.shrink();
-                      return _StreakChip(streak: streak, isDark: isDark);
+                      return StreakChip(streak: streak);
                     },
                   ),
 
@@ -122,7 +126,18 @@ class _SuratListView extends StatelessWidget {
                   const DoaQuickActionsWidget(),
 
                   // Section header "Daftar Surah"
-                  _SectionHeader(isDark: isDark),
+                  SectionHeader(
+                    label: 'Daftar Surah',
+                    trailing: Text(
+                      '114 Surah',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -130,9 +145,9 @@ class _SuratListView extends StatelessWidget {
             // Sticky search bar
             SliverPersistentHeader(
               pinned: true,
-              delegate: _SearchBarDelegate(
-                isDark: isDark,
-                child: SearchBarWidget(
+              delegate: SearchBarDelegate(
+                child: AppSearchBar(
+                  hint: 'Cari surah...',
                   onChanged: context.read<SuratListCubit>().onQueryChanged,
                 ),
               ),
@@ -165,9 +180,7 @@ class _SuratListView extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// AppBar
-// ---------------------------------------------------------------------------
+// ── AppBar ────────────────────────────────────────────────────────────────────
 
 class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
   const _SuratListAppBar({required this.l10n, required this.isDark});
@@ -181,6 +194,9 @@ class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final contentColor = isDark
+        ? AppColors.onSurfaceDark
+        : AppColors.textPrimary;
 
     return AppBar(
       backgroundColor: surfaceColor,
@@ -201,12 +217,11 @@ class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
           Text(
             'eQuran',
             style: AppTypography.serifHeadingMedium.copyWith(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              color: contentColor,
               height: 1,
             ),
           ),
           const SizedBox(height: 2),
-          // Gold ornament line
           Container(
             width: 24,
             height: 1.5,
@@ -230,17 +245,14 @@ class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
                 light: (_) => Icons.dark_mode_outlined,
                 dark: (_) => Icons.light_mode_outlined,
               ),
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              color: contentColor,
             ),
             onPressed: () => context.read<ThemeCubit>().cycle(),
           ),
         ),
         IconButton(
           tooltip: l10n.settings,
-          icon: Icon(
-            Icons.settings_outlined,
-            color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-          ),
+          icon: Icon(Icons.settings_outlined, color: contentColor),
           onPressed: () => context.push('/settings'),
         ),
       ],
@@ -248,217 +260,7 @@ class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Section header
-// ---------------------------------------------------------------------------
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.isDark});
-
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.pagePadding,
-        AppDimens.spaceLG,
-        AppDimens.pagePadding,
-        AppDimens.spaceSM,
-      ),
-      child: Row(
-        children: [
-          // Gold accent bar
-          Container(
-            width: 3,
-            height: 18,
-            decoration: BoxDecoration(
-              color: AppColors.gold,
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-            ),
-          ),
-          const SizedBox(width: AppDimens.spaceSM),
-          Text(
-            'Daftar Surah',
-            style: AppTypography.serifHeadingSmall.copyWith(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-              fontSize: 16,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            '114 Surah',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: isDark
-                  ? AppColors.onSurfaceDarkVariant
-                  : AppColors.textTertiary,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Streak chip
-// ---------------------------------------------------------------------------
-
-class _StreakChip extends StatelessWidget {
-  const _StreakChip({required this.streak, required this.isDark});
-
-  final int streak;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.pagePadding,
-        AppDimens.spaceSM,
-        AppDimens.pagePadding,
-        AppDimens.spaceXS,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.spaceSM + 2,
-              vertical: AppDimens.spaceXS,
-            ),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.goldDark.withValues(alpha: 0.2)
-                  : AppColors.goldLighter,
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.4),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.local_fire_department_rounded,
-                  color: Colors.orange,
-                  size: 13,
-                ),
-                const SizedBox(width: AppDimens.spaceXS),
-                Text(
-                  '$streak hari berturut-turut',
-                  style: TextStyle(
-                    color: isDark ? AppColors.goldLight : AppColors.goldDark,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Muraja'ah reminder card
-// ---------------------------------------------------------------------------
-
-class _MurajaahReminderCard extends StatelessWidget {
-  const _MurajaahReminderCard({required this.suratList});
-
-  final List<HafalanSurat> suratList;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final names = suratList.take(3).map((s) => s.namaLatin).join(', ');
-    final extra = suratList.length > 3 ? ' +${suratList.length - 3}' : '';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.pagePadding,
-        AppDimens.spaceXS,
-        AppDimens.pagePadding,
-        AppDimens.spaceXS,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-        child: InkWell(
-          onTap: () => context.push('/hafalan'),
-          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-          child: Container(
-            padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.warningContainer.withValues(alpha: 0.08)
-                  : AppColors.warningContainer,
-              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-              border: Border.all(
-                color: AppColors.warning.withValues(alpha: 0.25),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-                  ),
-                  child: const Icon(
-                    Icons.refresh_rounded,
-                    color: AppColors.warning,
-                    size: AppDimens.iconMD,
-                  ),
-                ),
-                const SizedBox(width: AppDimens.spaceMD),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Muraja'ah Hari Ini",
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: AppColors.warning,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '$names$extra',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.warning.withValues(alpha: 0.8),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.warning.withValues(alpha: 0.6),
-                  size: AppDimens.iconMD,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Surat list content
-// ---------------------------------------------------------------------------
+// ── Surat list content ────────────────────────────────────────────────────────
 
 class _SuratListContent extends StatelessWidget {
   const _SuratListContent({required this.state});
@@ -505,53 +307,4 @@ class _SuratListContent extends StatelessWidget {
       ),
     );
   }
-}
-
-// ---------------------------------------------------------------------------
-// Search bar delegate
-// ---------------------------------------------------------------------------
-
-class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
-  _SearchBarDelegate({required this.child, required this.isDark});
-
-  final Widget child;
-  final bool isDark;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    final isPinned = shrinkOffset > 0 || overlapsContent;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        color: isPinned ? surfaceColor : bgColor,
-        boxShadow: isPinned
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
-      ),
-      child: child,
-    );
-  }
-
-  @override
-  double get maxExtent => 64;
-
-  @override
-  double get minExtent => 64;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      true;
 }

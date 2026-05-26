@@ -1,8 +1,10 @@
 import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/luxury_list_tile.dart';
 import 'package:flutter/material.dart';
 
-/// Toggle tile untuk notifikasi waktu shalat di SettingsPage.
+/// Toggle tile untuk notifikasi — pakai [LuxuryListTile] dengan trailing Switch.
+///
+/// Icon container warna berubah sesuai state aktif/nonaktif.
 class NotifToggleTile extends StatelessWidget {
   const NotifToggleTile({
     required this.label,
@@ -21,62 +23,32 @@ class NotifToggleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.cardPadding,
-        vertical: AppDimens.spaceXS,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: value
-                  ? (isDark
-                        ? AppColors.primaryLight.withValues(alpha: 0.2)
-                        : AppColors.primaryContainer)
-                  : (isDark
-                        ? AppColors.surfaceDarkVariant
-                        : AppColors.surfaceVariant),
-              borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-            ),
-            child: Icon(
-              icon,
-              size: AppDimens.iconSM,
-              color: value
-                  ? (isDark ? AppColors.primaryLighter : AppColors.primary)
-                  : (isDark
-                        ? AppColors.onSurfaceDarkVariant
-                        : AppColors.textTertiary),
-            ),
-          ),
-          const SizedBox(width: AppDimens.spaceMD),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-              ),
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: AppColors.onPrimary,
-            activeTrackColor: isDark
-                ? AppColors.primaryLighter
-                : AppColors.primary,
-            inactiveThumbColor: isDark
-                ? AppColors.onSurfaceDarkVariant
-                : AppColors.textTertiary,
-            inactiveTrackColor: isDark
-                ? AppColors.surfaceDarkVariant
-                : AppColors.surfaceVariant,
-          ),
-        ],
+    // Warna icon container berubah sesuai state aktif/nonaktif
+    final iconBg = value
+        ? (isDark
+            ? AppColors.primaryLight.withValues(alpha: 0.2)
+            : AppColors.primaryContainer)
+        : (isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant);
+
+    final iconColor = value
+        ? (isDark ? AppColors.primaryLighter : AppColors.primary)
+        : (isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary);
+
+    return LuxuryListTile(
+      icon: icon,
+      title: label,
+      iconColor: iconColor,
+      iconBackgroundColor: iconBg,
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: AppColors.onPrimary,
+        activeTrackColor:
+            isDark ? AppColors.primaryLighter : AppColors.primary,
+        inactiveThumbColor:
+            isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary,
+        inactiveTrackColor:
+            isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant,
       ),
     );
   }

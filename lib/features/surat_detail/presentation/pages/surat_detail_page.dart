@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
-import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
@@ -16,12 +14,7 @@ import 'package:equran_app/features/reading_progress/presentation/cubit/reading_
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/viewport_detection_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_list_view.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/download_surat_sheet.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_app_bar.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_header.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_nav_button.dart';
-import 'package:equran_app/features/tafsir/presentation/widgets/tafsir_bottom_sheet.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_body.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -141,9 +134,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
       final ayatNomor = _viewportController.keys.isNotEmpty
           ? _viewportController.keys.keys.first
           : (widget.initialAyat ?? 1);
-      final scrollPercent = totalAyat > 0
-          ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
-          : 0.0;
+      final scrollPercent =
+          totalAyat > 0 ? (ayatNomor / totalAyat).clamp(0.0, 1.0) : 0.0;
       unawaited(
         cubit.saveLastRead(
           LastRead(
@@ -212,9 +204,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
 
   void _saveLastRead(BuildContext context, SuratDetail detail, int ayatNomor) {
     final totalAyat = detail.ayatList.length;
-    final scrollPercent = totalAyat > 0
-        ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
-        : 0.0;
+    final scrollPercent =
+        totalAyat > 0 ? (ayatNomor / totalAyat).clamp(0.0, 1.0) : 0.0;
     unawaited(
       context.read<BookmarkCubit>().saveLastRead(
         LastRead(
@@ -240,7 +231,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
           appBar: AppBar(),
           body: ErrorStateWidget(
             message: failure.toUserMessage(),
-            onRetry: () => context.read<SuratDetailCubit>().retry(widget.nomor),
+            onRetry: () =>
+                context.read<SuratDetailCubit>().retry(widget.nomor),
           ),
         ),
       },
@@ -279,94 +271,16 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
       });
     }
 
-    return BlocConsumer<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, next) =>
-          prev.currentAyat != next.currentAyat ||
-          prev.isPlaying != next.isPlaying ||
-          prev.isLoading != next.isLoading ||
-          prev.isPaused != next.isPaused ||
-          prev.currentQari != next.currentQari,
-      listenWhen: (prev, next) => prev.currentAyat != next.currentAyat,
-      listener: (context, audioState) {
-        final cubit = context.read<AudioCubit>();
-        if (_autoScrollEnabled &&
-            cubit.isPlaylistMode &&
-            audioState.currentAyat != null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _scrollToAyat(audioState.currentAyat!);
-          });
-        }
-      },
-      builder: (context, audioState) {
-        final qari = audioState.currentQari;
-
-        return Scaffold(
-          appBar: SuratDetailAppBar(
-            detail: detail,
-            autoScrollEnabled: _autoScrollEnabled,
-            onToggleAutoScroll: () =>
-                setState(() => _autoScrollEnabled = !_autoScrollEnabled),
-            onDownloadTap: () => _showDownloadSuratSheet(context, detail, qari),
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _showTafsirBottomSheet(context, widget.nomor),
-            icon: const Icon(Icons.menu_book_rounded),
-            label: const Text('Lihat Tafsir'),
-          ),
-          bottomNavigationBar: AudioPlayerBar(audioMap: detail.audioFull),
-          body: RefreshIndicator(
-            onRefresh: () async =>
-                context.read<SuratDetailCubit>().load(widget.nomor),
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: SuratInfoHeader(detail: detail),
-                ),
-                AyatListView(
-                  detail: detail,
-                  viewportController: _viewportController,
-                  onSaveLastRead: (d, ayatNomor) =>
-                      _saveLastRead(context, d, ayatNomor),
-                ),
-                SliverToBoxAdapter(
-                  child: SuratNavButton(
-                    suratSebelumnya: detail.suratSebelumnya,
-                    suratSelanjutnya: detail.suratSelanjutnya,
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 80)),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showTafsirBottomSheet(BuildContext context, int nomor) {
-    unawaited(
-      showAppBottomSheet<void>(
-        context,
-        builder: (_) => TafsirBottomSheet(nomor: nomor),
-      ),
-    );
-  }
-
-  void _showDownloadSuratSheet(
-    BuildContext context,
-    SuratDetail detail,
-    Qari qari,
-  ) {
-    unawaited(
-      showAppBottomSheet<void>(
-        context,
-        builder: (_) => DownloadSuratSheet(
-          detail: detail,
-          qari: qari,
-          downloadCubit: context.read<AudioDownloadCubit>(),
-        ),
-      ),
+    return SuratDetailBody(
+      detail: detail,
+      scrollController: _scrollController,
+      viewportController: _viewportController,
+      autoScrollEnabled: _autoScrollEnabled,
+      onToggleAutoScroll: () =>
+          setState(() => _autoScrollEnabled = !_autoScrollEnabled),
+      onSaveLastRead: (detail, ayatNomor) =>
+          _saveLastRead(context, detail, ayatNomor),
+      suratNomor: widget.nomor,
     );
   }
 }

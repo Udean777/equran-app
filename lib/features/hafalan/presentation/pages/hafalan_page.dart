@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:equran_app/core/constants/juz_mapping.dart';
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_juz_section.dart';
@@ -49,251 +48,77 @@ class _HafalanView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: surfaceColor,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        surfaceTintColor: Colors.transparent,
-        toolbarHeight: AppDimens.appBarHeightLG,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Hafalan Quran',
-              style: AppTypography.serifHeadingMedium.copyWith(
-                color: iconColor,
-                height: 1,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Container(
-              width: 20,
-              height: 1.5,
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-      ),
-      body: BlocBuilder<SuratListCubit, SuratListState>(
-        builder: (context, suratState) {
-          if (suratState is SuratListSuccess) {
-            context.read<HafalanCubit>().setAllSurat(suratState.surats);
-          }
+      appBar: const LuxuryAppBar(title: 'Hafalan'),
+      body: BlocBuilder<HafalanCubit, HafalanState>(
+        builder: (context, hafalanState) =>
+            BlocBuilder<SuratListCubit, SuratListState>(
+          builder: (context, suratState) {
+            if (hafalanState is HafalanLoading ||
+                suratState is SuratListLoading) {
+              return const LoadingWidget();
+            }
+            if (hafalanState is HafalanFailure) {
+              return ErrorStateWidget(
+                message: hafalanState.message,
+                onRetry: context.read<HafalanCubit>().load,
+              );
+            }
+            if (suratState is SuratListFailure) {
+              return ErrorStateWidget(
+                message: suratState.failure.toString(),
+                onRetry: context.read<SuratListCubit>().retry,
+              );
+            }
+            if (hafalanState is! HafalanSuccess ||
+                suratState is! SuratListSuccess) {
+              return const LoadingWidget();
+            }
 
-          return BlocBuilder<HafalanCubit, HafalanState>(
-            builder: (context, hafalanState) => switch (hafalanState) {
-              HafalanInitial() => const LoadingWidget(),
-              HafalanLoading() => const LoadingWidget(),
-              HafalanFailure(:final message) => ErrorStateWidget(
-                message: message,
-                onRetry: () => context.read<HafalanCubit>().load(),
-              ),
-              HafalanSuccess() => _HafalanContent(state: hafalanState),
-            },
-          );
-        },
+            return _HafalanContent(hafalanState: hafalanState);
+          },
+        ),
       ),
     );
   }
 }
 
 class _HafalanContent extends StatelessWidget {
-  const _HafalanContent({required this.state});
+  const _HafalanContent({required this.hafalanState});
 
-  final HafalanSuccess state;
+  final HafalanSuccess hafalanState;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final filtered = state.filteredList;
+    final hafalanList = hafalanState.hafalanList;
+    final stats = hafalanState.stats;
 
-    return Column(
+    if (hafalanList.isEmpty) {
+      return const EmptyStateWidget(
+        message: 'Belum ada hafalan.\nMulai dari halaman detail surah.',
+      );
+    }
+
+    // Group by juz menggunakan kJuzMapping
+    final juzGroups = <int, List<HafalanSurat>>{};
+    for (final hafalan in hafalanList) {
+      final juz = kJuzMapping[hafalan.suratNomor] ?? 1;
+      juzGroups.putIfAbsent(juz, () => []).add(hafalan);
+    }
+    final sortedJuz = juzGroups.keys.toList()..sort();
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
       children: [
-        HafalanStatsCard(stats: state.stats),
-
-        // Filter chips
-        _FilterChips(currentFilter: state.filter, isDark: isDark),
-
-        // Error inline
-        if (state.errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppDimens.pagePadding,
-              AppDimens.spaceXS,
-              AppDimens.pagePadding,
-              AppDimens.spaceXS,
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(AppDimens.spaceSM),
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-                border: Border.all(
-                  color: AppColors.error.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: AppColors.error,
-                    size: 16,
-                  ),
-                  const SizedBox(width: AppDimens.spaceXS),
-                  Expanded(
-                    child: Text(
-                      state.errorMessage!,
-                      style: const TextStyle(
-                        color: AppColors.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        HafalanStatsCard(stats: stats),
+        ...sortedJuz.map(
+          (juz) => HafalanJuzSection(
+            juzNomor: juz,
+            hafalanList: juzGroups[juz]!,
+            progressJuz: stats.progressPerJuz[juz] ?? 0.0,
           ),
-
-        // List per juz
-        Expanded(
-          child: filtered.isEmpty
-              ? const EmptyStateWidget(
-                  message: 'Belum ada hafalan dengan filter ini.',
-                )
-              : _HafalanJuzList(
-                  hafalanList: filtered,
-                  progressPerJuz: state.stats.progressPerJuz,
-                ),
         ),
       ],
     );
   }
-}
-
-class _HafalanJuzList extends StatelessWidget {
-  const _HafalanJuzList({
-    required this.hafalanList,
-    required this.progressPerJuz,
-  });
-
-  final List<HafalanSurat> hafalanList;
-  final Map<int, double> progressPerJuz;
-
-  @override
-  Widget build(BuildContext context) {
-    final byJuz = <int, List<HafalanSurat>>{};
-    for (final h in hafalanList) {
-      final juz = kJuzMapping[h.suratNomor] ?? 1;
-      byJuz.putIfAbsent(juz, () => []).add(h);
-    }
-    final juzKeys = byJuz.keys.toList()..sort();
-
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: AppDimens.spaceLG),
-      itemCount: juzKeys.length,
-      itemBuilder: (context, index) {
-        final juz = juzKeys[index];
-        final suratDiJuz = byJuz[juz]!;
-        final progressJuz = progressPerJuz[juz] ?? 0.0;
-        return HafalanJuzSection(
-          juzNomor: juz,
-          hafalanList: suratDiJuz,
-          progressJuz: progressJuz,
-        );
-      },
-    );
-  }
-}
-
-class _FilterChips extends StatelessWidget {
-  const _FilterChips({
-    required this.currentFilter,
-    required this.isDark,
-  });
-
-  final HafalanFilter currentFilter;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(
-        AppDimens.pagePadding,
-        AppDimens.spaceSM,
-        AppDimens.pagePadding,
-        AppDimens.spaceSM,
-      ),
-      child: Row(
-        children: HafalanFilter.values.map((filter) {
-          final isSelected = filter == currentFilter;
-          return Padding(
-            padding: const EdgeInsets.only(right: AppDimens.spaceXS),
-            child: GestureDetector(
-              onTap: () =>
-                  context.read<HafalanCubit>().setFilter(filter),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.spaceMD,
-                  vertical: AppDimens.spaceXS + 2,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? (isDark ? AppColors.primaryLight : AppColors.primary)
-                      : (isDark
-                          ? AppColors.surfaceDarkVariant
-                          : AppColors.surfaceVariant),
-                  borderRadius:
-                      BorderRadius.circular(AppDimens.radiusFull),
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.transparent
-                        : (isDark
-                            ? AppColors.outlineDark
-                            : AppColors.outline),
-                  ),
-                ),
-                child: Text(
-                  _filterLabel(filter),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.w400,
-                    color: isSelected
-                        ? AppColors.onPrimary
-                        : (isDark
-                            ? AppColors.onSurfaceDarkVariant
-                            : AppColors.textSecondary),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  String _filterLabel(HafalanFilter filter) => switch (filter) {
-    HafalanFilter.semua => 'Semua',
-    HafalanFilter.sedangDihafal => 'Sedang Dihafal',
-    HafalanFilter.sudahHafal => 'Sudah Hafal',
-    HafalanFilter.perluMurajaah => "Perlu Muraja'ah",
-  };
 }

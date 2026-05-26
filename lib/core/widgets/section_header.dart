@@ -3,22 +3,49 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
-/// Header section luxury — gold accent bar + serif label.
+/// Header section luxury — gold accent bar + optional icon + serif label.
+///
+/// Contoh penggunaan:
+/// ```dart
+/// // Sederhana
+/// SectionHeader(label: 'Daftar Surah')
+///
+/// // Dengan icon
+/// SectionHeader(label: 'Tampilan', icon: Icons.palette_outlined)
+///
+/// // Dengan trailing
+/// SectionHeader(label: 'Daftar Surah', trailing: Text('114 Surah'))
+/// ```
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     required this.label,
+    this.icon,
+    this.trailing,
     this.showBackButton = false,
     this.onBack,
     super.key,
   });
 
+  /// Label teks utama section.
   final String label;
+
+  /// Icon opsional yang ditampilkan di antara gold bar dan label.
+  final IconData? icon;
+
+  /// Widget opsional di sisi kanan (misal count label, action button).
+  final Widget? trailing;
+
+  /// Tampilkan back button di sisi kiri (sebelum gold bar).
   final bool showBackButton;
+
+  /// Callback back button. Jika null, pakai [Navigator.maybePop].
   final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final iconColor = isDark ? AppColors.primaryLighter : AppColors.primary;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -29,6 +56,7 @@ class SectionHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Back button opsional
           if (showBackButton) ...[
             GestureDetector(
               onTap: onBack ?? () => Navigator.maybePop(context),
@@ -44,12 +72,13 @@ class SectionHeader extends StatelessWidget {
                 child: Icon(
                   Icons.arrow_back_rounded,
                   size: 14,
-                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                  color: iconColor,
                 ),
               ),
             ),
             const SizedBox(width: AppDimens.spaceSM),
           ],
+
           // Gold accent bar
           Container(
             width: 3,
@@ -60,13 +89,26 @@ class SectionHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppDimens.spaceSM),
-          Text(
-            label,
-            style: AppTypography.serifHeadingSmall.copyWith(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-              fontSize: 15,
+
+          // Icon opsional
+          if (icon != null) ...[
+            Icon(icon, size: AppDimens.iconSM, color: iconColor),
+            const SizedBox(width: AppDimens.spaceXS),
+          ],
+
+          // Label
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.serifHeadingSmall.copyWith(
+                color: textColor,
+                fontSize: 15,
+              ),
             ),
           ),
+
+          // Trailing opsional
+          ?trailing,
         ],
       ),
     );
