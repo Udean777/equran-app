@@ -15,6 +15,7 @@ import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_stre
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_card.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/share_ayat_sheet.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_header.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_nav_button.dart';
 import 'package:equran_app/features/tafsir/presentation/widgets/tafsir_bottom_sheet.dart';
@@ -298,6 +299,11 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
                                       ),
                                     );
                                   },
+                            onShareTap: () => _showShareSheet(
+                              context,
+                              ayat,
+                              detail,
+                            ),
                           ),
                         );
                       },
@@ -324,6 +330,19 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
       showAppBottomSheet<void>(
         context,
         builder: (_) => TafsirBottomSheet(nomor: nomor),
+      ),
+    );
+  }
+
+  void _showShareSheet(BuildContext context, Ayat ayat, SuratDetail detail) {
+    unawaited(
+      showAppBottomSheet<void>(
+        context,
+        builder: (_) => ShareAyatSheet(
+          ayat: ayat,
+          namaLatin: detail.info.namaLatin,
+          suratNomor: detail.info.nomor,
+        ),
       ),
     );
   }

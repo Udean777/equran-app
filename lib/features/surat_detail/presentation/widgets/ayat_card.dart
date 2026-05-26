@@ -14,6 +14,7 @@ class AyatCard extends StatelessWidget {
     this.isAudioLoading = false,
     this.onBookmarkToggle,
     this.onPlayTap,
+    this.onShareTap,
     super.key,
   });
 
@@ -23,6 +24,7 @@ class AyatCard extends StatelessWidget {
   final bool isAudioLoading;
   final VoidCallback? onBookmarkToggle;
   final VoidCallback? onPlayTap;
+  final VoidCallback? onShareTap;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +92,16 @@ class AyatCard extends StatelessWidget {
                       tooltip: isBookmarked
                           ? 'Hapus Bookmark'
                           : 'Tambah Bookmark',
+                    ),
+                  // Share button
+                  if (onShareTap != null)
+                    IconButton(
+                      icon: Icon(
+                        Icons.share_rounded,
+                        color: Colors.grey[400],
+                      ),
+                      onPressed: onShareTap,
+                      tooltip: 'Bagikan Ayat',
                     ),
                 ],
               ),

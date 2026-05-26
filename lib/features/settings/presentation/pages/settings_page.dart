@@ -32,21 +32,94 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          // Dark Mode Toggle
+          // Tema — 3-way segmented button
           BlocBuilder<ThemeCubit, ThemeState>(
-            builder: (context, themeState) => SwitchListTile(
-              secondary: Icon(
-                themeState.isDark
-                    ? Icons.dark_mode_rounded
-                    : Icons.light_mode_rounded,
-                color: AppColors.primary,
+            builder: (context, themeState) => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.spaceMD,
+                vertical: AppDimens.spaceSM,
               ),
-              title: Text(
-                themeState.isDark ? l10n.darkMode : l10n.lightMode,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.palette_outlined,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: AppDimens.spaceSM),
+                      Text(
+                        'Tema Tampilan',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimens.spaceSM),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                        value: 'light',
+                        label: Text('Terang'),
+                        icon: Icon(Icons.light_mode_rounded),
+                      ),
+                      ButtonSegment(
+                        value: 'dark',
+                        label: Text('Gelap'),
+                        icon: Icon(Icons.dark_mode_rounded),
+                      ),
+                      ButtonSegment(
+                        value: 'sepia',
+                        label: Text('Sepia'),
+                        icon: Icon(Icons.auto_stories_rounded),
+                      ),
+                    ],
+                    selected: {
+                      if (themeState.isSepia)
+                        'sepia'
+                      else if (themeState.isDark)
+                        'dark'
+                      else
+                        'light',
+                    },
+                    onSelectionChanged: (selected) {
+                      final current = themeState.isSepia
+                          ? 'sepia'
+                          : themeState.isDark
+                          ? 'dark'
+                          : 'light';
+                      if (selected.first != current) {
+                        unawaited(context.read<ThemeCubit>().cycle());
+                      }
+                    },
+                    style: ButtonStyle(
+                      iconColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected)) {
+                          return AppColors.onPrimary;
+                        }
+                        return AppColors.primary;
+                      }),
+                      backgroundColor: WidgetStateProperty.resolveWith(
+                        (states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return AppColors.primary;
+                          }
+                          return null;
+                        },
+                      ),
+                      foregroundColor: WidgetStateProperty.resolveWith(
+                        (states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return AppColors.onPrimary;
+                          }
+                          return AppColors.primary;
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              value: themeState.isDark,
-              activeThumbColor: AppColors.primary,
-              onChanged: (_) => context.read<ThemeCubit>().toggle(),
             ),
           ),
           const Divider(height: 1),

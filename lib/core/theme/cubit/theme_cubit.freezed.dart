@@ -55,12 +55,13 @@ extension ThemeStatePatterns on ThemeState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ThemeLight value)?  light,TResult Function( ThemeDark value)?  dark,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ThemeLight value)?  light,TResult Function( ThemeDark value)?  dark,TResult Function( ThemeSepia value)?  sepia,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ThemeLight() when light != null:
 return light(_that);case ThemeDark() when dark != null:
-return dark(_that);case _:
+return dark(_that);case ThemeSepia() when sepia != null:
+return sepia(_that);case _:
   return orElse();
 
 }
@@ -78,12 +79,13 @@ return dark(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ThemeLight value)  light,required TResult Function( ThemeDark value)  dark,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ThemeLight value)  light,required TResult Function( ThemeDark value)  dark,required TResult Function( ThemeSepia value)  sepia,}){
 final _that = this;
 switch (_that) {
 case ThemeLight():
 return light(_that);case ThemeDark():
-return dark(_that);}
+return dark(_that);case ThemeSepia():
+return sepia(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -97,12 +99,13 @@ return dark(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ThemeLight value)?  light,TResult? Function( ThemeDark value)?  dark,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ThemeLight value)?  light,TResult? Function( ThemeDark value)?  dark,TResult? Function( ThemeSepia value)?  sepia,}){
 final _that = this;
 switch (_that) {
 case ThemeLight() when light != null:
 return light(_that);case ThemeDark() when dark != null:
-return dark(_that);case _:
+return dark(_that);case ThemeSepia() when sepia != null:
+return sepia(_that);case _:
   return null;
 
 }
@@ -119,11 +122,12 @@ return dark(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  light,TResult Function()?  dark,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  light,TResult Function()?  dark,TResult Function()?  sepia,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ThemeLight() when light != null:
 return light();case ThemeDark() when dark != null:
-return dark();case _:
+return dark();case ThemeSepia() when sepia != null:
+return sepia();case _:
   return orElse();
 
 }
@@ -141,11 +145,12 @@ return dark();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  light,required TResult Function()  dark,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  light,required TResult Function()  dark,required TResult Function()  sepia,}) {final _that = this;
 switch (_that) {
 case ThemeLight():
 return light();case ThemeDark():
-return dark();}
+return dark();case ThemeSepia():
+return sepia();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +164,12 @@ return dark();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  light,TResult? Function()?  dark,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  light,TResult? Function()?  dark,TResult? Function()?  sepia,}) {final _that = this;
 switch (_that) {
 case ThemeLight() when light != null:
 return light();case ThemeDark() when dark != null:
-return dark();case _:
+return dark();case ThemeSepia() when sepia != null:
+return sepia();case _:
   return null;
 
 }
@@ -227,6 +233,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'ThemeState.dark()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ThemeSepia implements ThemeState {
+  const ThemeSepia();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ThemeSepia);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ThemeState.sepia()';
 }
 
 

@@ -69,13 +69,19 @@ class _SuratListView extends StatelessWidget {
         actions: [
           BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) => IconButton(
-              tooltip: themeState.isDark ? l10n.lightMode : l10n.darkMode,
-              icon: Icon(
-                themeState.isDark
-                    ? Icons.light_mode_rounded
-                    : Icons.dark_mode_rounded,
+              tooltip: themeState.map(
+                light: (_) => l10n.darkMode,
+                dark: (_) => 'Mode Sepia',
+                sepia: (_) => l10n.lightMode,
               ),
-              onPressed: context.read<ThemeCubit>().toggle,
+              icon: Icon(
+                themeState.map(
+                  light: (_) => Icons.dark_mode_rounded,
+                  dark: (_) => Icons.auto_stories_rounded,
+                  sepia: (_) => Icons.light_mode_rounded,
+                ),
+              ),
+              onPressed: () => context.read<ThemeCubit>().cycle(),
             ),
           ),
           IconButton(

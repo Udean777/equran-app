@@ -108,9 +108,9 @@ class App extends StatelessWidget {
               builder: (context, langState) => MaterialApp.router(
                 title: 'eQuran',
                 debugShowCheckedModeBanner: false,
-                theme: AppTheme.light(),
-                darkTheme: AppTheme.dark(),
-                themeMode: themeState.themeMode,
+        theme: themeState.isSepia ? AppTheme.sepia() : AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: themeState.themeMode,
                 locale: langState.locale,
                 // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
                 // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
