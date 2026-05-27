@@ -6,6 +6,7 @@ import 'package:equran_app/core/router/app_router.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
@@ -77,9 +78,12 @@ class App extends StatelessWidget {
             ],
             routerConfig: getIt<AppRouter>().router,
             // DebugOverlay di dalam MaterialApp agar punya Directionality context
-            builder: (context, child) => DebugOverlay(
-              child: child ?? const SizedBox.shrink(),
-            ),
+            builder: (context, child) {
+              unawaited(AppLogo.precache(context));
+              return DebugOverlay(
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
           ),
         ),
       ),

@@ -10,6 +10,9 @@ import 'package:equran_app/features/hafalan/presentation/pages/hafalan_detail_pa
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_page.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_setoran_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
+import 'package:equran_app/features/notification_test/presentation/pages/notification_test_page.dart';
+import 'package:equran_app/features/onboarding/data/onboarding_service.dart';
+import 'package:equran_app/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/reading_progress/presentation/pages/reading_stats_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
@@ -28,7 +31,25 @@ class AppRouter {
   late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.home,
     errorBuilder: (context, state) => const NotFoundPage(),
+    redirect: (context, state) {
+      final onboardingService = getIt<OnboardingService>();
+      final location = state.matchedLocation;
+      final isOnboarding = location == AppRoutes.onboarding;
+
+      // Jangan redirect jika sudah di onboarding
+      if (isOnboarding) return null;
+
+      // Jangan redirect jika onboarding sudah selesai
+      if (onboardingService.isDone) return null;
+
+      // Redirect ke onboarding hanya untuk route yang valid (bukan error/not found)
+      return AppRoutes.onboarding;
+    },
     routes: [
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingPage(),
+      ),
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const MainPage(),
@@ -147,6 +168,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.readingStats,
         builder: (context, state) => const ReadingStatsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.notificationTest,
+        builder: (context, state) => const NotificationTestPage(),
       ),
     ],
   );

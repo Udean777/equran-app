@@ -57,19 +57,30 @@ class _JadwalShalatView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<JadwalShalatCubit, JadwalShalatState>(
+      body: BlocConsumer<JadwalShalatCubit, JadwalShalatState>(
+        listener: (context, state) {
+          // Auto-show location selector jika GPS gagal detect lokasi
+          if (state is JadwalShalatProvinsiLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) _showLocationSheet(context);
+            });
+          }
+        },
         builder: (context, state) => switch (state) {
           JadwalShalatInitial() => const LoadingWidget(),
           JadwalShalatLoadingProvinsi() => const LoadingWidget(),
           JadwalShalatLoadingKabkota() => const LoadingWidget(),
           JadwalShalatLoadingJadwal() => const LoadingWidget(),
           JadwalShalatDetectingLocation() => const DetectingLocationWidget(),
-          JadwalShalatProvinsiLoaded() => const LoadingWidget(),
+          JadwalShalatProvinsiLoaded() => _LocationFallbackWidget(
+            message: 'Lokasi tidak terdeteksi otomatis.',
+            actionLabel: 'Pilih Lokasi Manual',
+            onAction: () => _showLocationSheet(context),
+          ),
           JadwalShalatKabkotaLoaded() => const LoadingWidget(),
           JadwalShalatFailure(:final failure) => ErrorStateWidget(
             message: failure.toUserMessage(),
-            onRetry: () =>
-                unawaited(context.read<JadwalShalatCubit>().init()),
+            onRetry: () => unawaited(context.read<JadwalShalatCubit>().init()),
           ),
           JadwalShalatSuccess(:final jadwal, :final bulan, :final tahun) =>
             _JadwalShalatContent(
@@ -89,6 +100,49 @@ class _JadwalShalatView extends StatelessWidget {
         builder: (_) => BlocProvider.value(
           value: context.read<JadwalShalatCubit>(),
           child: const JadwalShalatLocationSelectorSheet(),
+        ),
+      ),
+    );
+  }
+}
+
+class _LocationFallbackWidget extends StatelessWidget {
+  const _LocationFallbackWidget({
+    required this.message,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  final String message;
+  final String actionLabel;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppDimens.pagePadding),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.location_off_rounded,
+              size: 56,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: AppDimens.spaceMD),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: AppDimens.spaceLG),
+            FilledButton.icon(
+              onPressed: onAction,
+              icon: const Icon(Icons.location_on_rounded),
+              label: Text(actionLabel),
+            ),
+          ],
         ),
       ),
     );
@@ -128,24 +182,26 @@ class _JadwalShalatContent extends StatelessWidget {
               ),
             ),
           ),
-        onPrevBulan: () {
-              final prevBulan = bulan == 1 ? 12 : bulan - 1;
-              final prevTahun = bulan == 1 ? tahun - 1 : tahun;
-              unawaited(
-                context
-                    .read<JadwalShalatCubit>()
-                    .changeBulan(prevBulan, prevTahun),
-              );
-            },
+          onPrevBulan: () {
+            final prevBulan = bulan == 1 ? 12 : bulan - 1;
+            final prevTahun = bulan == 1 ? tahun - 1 : tahun;
+            unawaited(
+              context.read<JadwalShalatCubit>().changeBulan(
+                prevBulan,
+                prevTahun,
+              ),
+            );
+          },
           onNextBulan: () {
-              final nextBulan = bulan == 12 ? 1 : bulan + 1;
-              final nextTahun = bulan == 12 ? tahun + 1 : tahun;
-              unawaited(
-                context
-                    .read<JadwalShalatCubit>()
-                    .changeBulan(nextBulan, nextTahun),
-              );
-            },
+            final nextBulan = bulan == 12 ? 1 : bulan + 1;
+            final nextTahun = bulan == 12 ? tahun + 1 : tahun;
+            unawaited(
+              context.read<JadwalShalatCubit>().changeBulan(
+                nextBulan,
+                nextTahun,
+              ),
+            );
+          },
         ),
         if (entry != null) JadwalShalatTodayCard(entry: entry),
         const SectionHeader(

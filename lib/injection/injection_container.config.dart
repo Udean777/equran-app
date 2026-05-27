@@ -196,6 +196,8 @@ import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shal
     as _i83;
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart'
     as _i615;
+import 'package:equran_app/features/onboarding/data/onboarding_service.dart'
+    as _i1015;
 import 'package:equran_app/features/qibla/data/datasources/qibla_data_source.dart'
     as _i473;
 import 'package:equran_app/features/qibla/data/repositories/qibla_repository_impl.dart'
@@ -402,6 +404,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i729.ThemeCubit>(
       () =>
           _i729.ThemeCubit(gh<_i738.Box<String>>(instanceName: 'settingsBox')),
+    );
+    gh.lazySingleton<_i1015.OnboardingService>(
+      () => _i1015.OnboardingService(
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
+      ),
     );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),

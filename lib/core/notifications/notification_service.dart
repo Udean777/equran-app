@@ -139,6 +139,8 @@ class NotificationService {
           : 'Notifikasi adzan waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
+      groupKey: isSubuh ? 'adzan_subuh_group' : 'adzan_group',
+      audioAttributesUsage: AudioAttributesUsage.alarm,
       sound: RawResourceAndroidNotificationSound(
         isSubuh ? 'adzan_subuh' : 'adzan',
       ),
@@ -243,12 +245,15 @@ class NotificationService {
 
   /// Schedule notifikasi dengan [NotificationDetails] custom.
   /// Digunakan oleh scheduler yang butuh channel spesifik (misal imsak).
+  /// [matchDateTimeComponents] — null untuk one-shot, DateTimeComponents.time
+  /// untuk repeat harian.
   Future<void> scheduleNotificationRaw({
     required int id,
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
     required NotificationDetails details,
+    DateTimeComponents? matchDateTimeComponents = DateTimeComponents.time,
   }) async {
     final androidPlugin = _plugin
         .resolvePlatformSpecificImplementation<
@@ -268,7 +273,7 @@ class NotificationService {
           : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+      matchDateTimeComponents: matchDateTimeComponents,
     );
   }
 
@@ -304,6 +309,15 @@ class NotificationService {
           AndroidFlutterLocalNotificationsPlugin
         >();
     if (androidPlugin == null) return;
+
+    // Delete channel lama dulu agar sound bisa di-update.
+    // Android tidak mengizinkan update sound pada channel yang sudah ada.
+    await androidPlugin.deleteNotificationChannel(kAdzanChannelId);
+    await androidPlugin.deleteNotificationChannel(kAdzanSubuhChannelId);
+    await androidPlugin.deleteNotificationChannel(kQuranReminderChannelId);
+    await androidPlugin.deleteNotificationChannel(kImsakChannelId);
+    await androidPlugin.deleteNotificationChannel(kHafalanChannelId);
+    await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
 
     // Channel adzan biasa (Dzuhur, Ashar, Maghrib, Isya)
     await androidPlugin.createNotificationChannel(

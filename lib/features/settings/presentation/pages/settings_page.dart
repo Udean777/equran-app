@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/locale/cubit/language_cubit.dart';
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
@@ -12,6 +13,7 @@ import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/settings/presentation/widgets/font_settings_sheet.dart';
 import 'package:equran_app/features/settings/presentation/widgets/language_selector_sheet.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_about_section.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_brand_header.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_luxury_card.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_quran_reminder_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_shalat_notif_section.dart';
@@ -19,6 +21,7 @@ import 'package:equran_app/features/settings/presentation/widgets/settings_theme
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -32,6 +35,9 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
         children: [
+          // Brand Header
+          const SettingsBrandHeader(),
+
           // ── Tampilan ──────────────────────────────────────────────────
           const SectionHeader(
             label: 'Tampilan',
@@ -111,6 +117,28 @@ class SettingsPage extends StatelessWidget {
           ),
           const SettingsLuxuryCard(
             children: [SettingsQuranReminderSection()],
+          ),
+
+          const SizedBox(height: AppDimens.spaceMD),
+
+          // ── Developer ─────────────────────────────────────────────────
+          const SectionHeader(
+            label: 'Developer',
+            icon: Icons.developer_mode_rounded,
+          ),
+          SettingsLuxuryCard(
+            children: [
+              LuxuryListTile(
+                icon: Icons.notifications_active_rounded,
+                title: 'Test Notifikasi',
+                subtitle: 'Coba semua jenis notif — adzan, imsak, quran, dll',
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                ),
+                onTap: () => context.push(AppRoutes.notificationTest),
+              ),
+            ],
           ),
 
           const SizedBox(height: AppDimens.spaceMD),

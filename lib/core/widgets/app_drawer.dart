@@ -4,6 +4,7 @@ import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/core/widgets/streak_badge.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -193,22 +194,9 @@ class _DrawerHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Logo container dengan gold border
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: AppColors.onPrimary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-                  border: Border.all(
-                    color: AppColors.gold.withValues(alpha: 0.6),
-                    width: AppDimens.goldBorderWidth,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.menu_book_rounded,
-                  color: AppColors.onPrimary,
-                  size: 28,
-                ),
+              AppLogo(
+                size: 52,
+                borderRadius: BorderRadius.circular(AppDimens.radiusMD),
               ),
 
               const SizedBox(height: AppDimens.spaceMD),

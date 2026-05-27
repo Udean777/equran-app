@@ -8,6 +8,7 @@ library;
 
 export 'active_filter_chip.dart';
 export 'app_drawer.dart';
+export 'app_logo.dart';
 export 'app_menu_button.dart';
 export 'app_search_bar.dart';
 export 'bottom_sheet_handle.dart';

@@ -53,10 +53,13 @@ class LocationServiceImpl implements LocationService {
         ),
       );
 
-      // 4. Reverse geocode
+      // 4. Reverse geocode dengan timeout
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
+      ).timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => [],
       );
 
       if (placemarks.isEmpty) return null;

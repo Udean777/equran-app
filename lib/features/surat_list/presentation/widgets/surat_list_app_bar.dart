@@ -3,6 +3,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,8 +21,9 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final contentColor =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final contentColor = isDark
+        ? AppColors.onSurfaceDark
+        : AppColors.textPrimary;
 
     return AppBar(
       backgroundColor: surfaceColor,
@@ -39,16 +41,26 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'eQuran',
-            style: AppTypography.serifHeadingMedium.copyWith(
-              color: contentColor,
-              height: 1,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppLogo(
+                size: 24,
+                borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+              ),
+              const SizedBox(width: AppDimens.spaceSM),
+              Text(
+                'eQuran',
+                style: AppTypography.serifHeadingMedium.copyWith(
+                  color: contentColor,
+                  height: 1,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Container(
-            width: 24,
+            width: 32,
             height: 1.5,
             decoration: BoxDecoration(
               color: AppColors.gold,

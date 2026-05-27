@@ -25,6 +25,8 @@ abstract final class AppRoutes {
   static const String hafalanSetoran = '/hafalan/:suratNomor/setoran';
   static const String statistikShalat = '/statistik-shalat';
   static const String readingStats = '/reading-stats';
+  static const String notificationTest = '/notification-test';
+  static const String onboarding = '/onboarding';
 
   // ---------------------------------------------------------------------------
   // Location builders — dipakai di context.push(...) / context.go(...)
