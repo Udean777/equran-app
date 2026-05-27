@@ -59,6 +59,10 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   /// Diset oleh UI yang membutuhkan notifikasi selesai (misal auto-read mode).
   VoidCallback? onPlaylistCompleted;
 
+  /// Apakah playlist ini boleh update lastRead di BookmarkCubit.
+  /// false saat diplay dari manajemen audio — tidak berpengaruh pada reading progress.
+  bool _shouldUpdateLastRead = true;
+
   /// audioMap terakhir yang dipakai saat play — disimpan agar global
   /// AudioPlayerBar bisa ganti qari tanpa perlu data dari API response.
   Map<String, String> _lastAudioMap = {};
@@ -68,6 +72,10 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   int? get playlistSuratNomor => _playlistSuratNomor;
   List<Ayat> get playlist => List.unmodifiable(_playlist);
   String? get playlistSuratName => _playlistSuratName;
+
+  /// Apakah playlist aktif boleh update lastRead.
+  /// false saat diplay dari manajemen audio.
+  bool get shouldUpdateLastRead => _shouldUpdateLastRead;
 
   /// audioMap terakhir yang dipakai — untuk global AudioPlayerBar.
   Map<String, String> get lastAudioMap => Map.unmodifiable(_lastAudioMap);
@@ -175,6 +183,8 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   // ---------------------------------------------------------------------------
 
   /// Play surat penuh mulai dari [startIndex].
+  /// [updateLastRead] — jika false, tidak update BookmarkCubit saat audio advance.
+  /// Set false saat dipanggil dari manajemen audio.
   Future<void> playFullSurat({
     required List<Ayat> ayatList,
     required int startIndex,
@@ -182,6 +192,7 @@ class AudioCubit extends Cubit<AudioPlayerState> {
     required int suratNomor,
     required String suratName,
     Map<String, String> audioMap = const {},
+    bool updateLastRead = true,
   }) async {
     if (ayatList.isEmpty || startIndex >= ayatList.length) return;
 
@@ -193,6 +204,7 @@ class AudioCubit extends Cubit<AudioPlayerState> {
     _playlistQari = qari;
     _playlistSuratNomor = suratNomor;
     _playlistSuratName = suratName;
+    _shouldUpdateLastRead = updateLastRead;
 
     await _playAtIndex(startIndex);
   }
@@ -251,6 +263,12 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   // Playlist timeline helpers
   // ---------------------------------------------------------------------------
 
+  /// Apakah playlist ini punya teks Arab — dipakai untuk timeline calculation.
+  /// Playlist dari manajemen audio tidak punya teksArab (kosong),
+  /// sehingga estimasi durasi tidak akurat. Skip timeline mode untuk kasus ini.
+  bool get _hasArabText =>
+      _playlist.isNotEmpty && _playlist.first.teksArab.isNotEmpty;
+
   /// Estimasi durasi ayat berdasarkan panjang teks Arab.
   Duration _estimateDuration(Ayat ayat) {
     final ms = (ayat.teksArab.length * _msPerArabChar).round();
@@ -265,14 +283,16 @@ class AudioCubit extends Cubit<AudioPlayerState> {
       _discoveredDurations[ayat.nomorAyat] ?? _estimateDuration(ayat);
 
   /// Total durasi seluruh playlist (aktual + estimasi).
+  /// Return Duration.zero jika playlist tidak punya teks Arab (local file).
   Duration get playlistTotalDuration {
-    if (!isPlaylistMode) return Duration.zero;
+    if (!isPlaylistMode || !_hasArabText) return Duration.zero;
     return _playlist.fold(Duration.zero, (sum, ayat) => sum + _durationFor(ayat));
   }
 
   /// Posisi saat ini dalam timeline playlist.
+  /// Return Duration.zero jika playlist tidak punya teks Arab (local file).
   Duration get playlistCurrentPosition {
-    if (!isPlaylistMode) return Duration.zero;
+    if (!isPlaylistMode || !_hasArabText) return Duration.zero;
     var offset = Duration.zero;
     for (var i = 0; i < _playlistIndex; i++) {
       offset += _durationFor(_playlist[i]);
@@ -321,6 +341,7 @@ class AudioCubit extends Cubit<AudioPlayerState> {
     _playlistSuratName = null;
     _discoveredDurations.clear();
     _pendingSeek = null;
+    _shouldUpdateLastRead = true; // reset ke default
   }
 
   @override

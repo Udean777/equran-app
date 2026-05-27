@@ -38,8 +38,12 @@ import 'package:equran_app/features/audio/data/datasources/audio_player_data_sou
     as _i945;
 import 'package:equran_app/features/audio/data/datasources/audio_service_module.dart'
     as _i718;
+import 'package:equran_app/features/audio/data/repositories/audio_download_repository_impl.dart'
+    as _i937;
 import 'package:equran_app/features/audio/data/repositories/audio_repository_impl.dart'
     as _i550;
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
+    as _i965;
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart'
     as _i451;
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart'
@@ -343,7 +347,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
       () => notificationModule.flutterLocalNotificationsPlugin,
     );
-    gh.lazySingleton<_i222.AppRouter>(() => _i222.AppRouter());
     gh.lazySingleton<_i372.GetAvailableQari>(
       () => const _i372.GetAvailableQari(),
     );
@@ -377,15 +380,6 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
-    gh.lazySingleton<_i380.DeleteAyatAudio>(
-      () => _i380.DeleteAyatAudio(gh<_i503.AudioDownloadDataSource>()),
-    );
-    gh.lazySingleton<_i434.DownloadAyatAudio>(
-      () => _i434.DownloadAyatAudio(gh<_i503.AudioDownloadDataSource>()),
-    );
-    gh.lazySingleton<_i232.GetDownloadedAyats>(
-      () => _i232.GetDownloadedAyats(gh<_i503.AudioDownloadDataSource>()),
-    );
     await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.readingHistoryBox(),
       instanceName: 'readingHistoryBox',
@@ -473,6 +467,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i182.BookmarkRepository>(
       () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
     );
+    gh.lazySingleton<_i965.AudioDownloadRepository>(
+      () => _i937.AudioDownloadRepositoryImpl(
+        gh<_i503.AudioDownloadDataSource>(),
+      ),
+    );
     await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.hafalanBox(),
       instanceName: 'hafalanBox',
@@ -500,6 +499,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
+    );
+    gh.lazySingleton<_i380.DeleteAyatAudio>(
+      () => _i380.DeleteAyatAudio(gh<_i965.AudioDownloadRepository>()),
+    );
+    gh.lazySingleton<_i434.DownloadAyatAudio>(
+      () => _i434.DownloadAyatAudio(gh<_i965.AudioDownloadRepository>()),
+    );
+    gh.lazySingleton<_i232.GetDownloadedAyats>(
+      () => _i232.GetDownloadedAyats(gh<_i965.AudioDownloadRepository>()),
     );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioCompositeHandler>()),
@@ -564,6 +572,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
       () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
+    );
+    gh.lazySingleton<_i222.AppRouter>(
+      () => _i222.AppRouter(gh<_i1015.OnboardingService>()),
     );
     gh.lazySingleton<_i1011.QuranStreakRepository>(
       () => _i54.QuranStreakRepositoryImpl(

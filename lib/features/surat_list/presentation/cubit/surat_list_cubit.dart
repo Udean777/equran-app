@@ -36,6 +36,7 @@ class SuratListCubit extends Cubit<SuratListState> {
   void retry() => load();
 
   Future<void> refresh() async {
+    emit(const SuratListState.loading());
     final result = await _getSuratList();
     result.fold(
       (failure) => emit(SuratListState.failure(failure: failure)),

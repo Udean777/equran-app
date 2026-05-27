@@ -131,6 +131,7 @@ void main() {
 
     void stubMocks() {
       when(() => mockService.cancelAll()).thenAnswer((_) async {});
+      when(() => mockService.cancelById(any())).thenAnswer((_) async {});
       when(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),
@@ -147,7 +148,7 @@ void main() {
 
       await scheduler.scheduleForToday(entry, const ShalatNotifConfig());
 
-      verify(() => mockService.cancelAll()).called(1);
+      verify(() => mockService.cancelById(any())).called(5);
       verify(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),
@@ -170,7 +171,7 @@ void main() {
 
       await scheduler.scheduleForToday(entry, prefs);
 
-      verify(() => mockService.cancelAll()).called(1);
+      verify(() => mockService.cancelById(any())).called(5);
       verify(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),
@@ -207,6 +208,7 @@ void main() {
 
     test('cancelAll dipanggil meski semua prefs disabled', () async {
       when(() => mockService.cancelAll()).thenAnswer((_) async {});
+      when(() => mockService.cancelById(any())).thenAnswer((_) async {});
 
       const prefs = ShalatNotifConfig(
         subuh: false,
@@ -218,7 +220,7 @@ void main() {
 
       await scheduler.scheduleForToday(entry, prefs);
 
-      verify(() => mockService.cancelAll()).called(1);
+      verify(() => mockService.cancelById(any())).called(5);
       verifyNever(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),

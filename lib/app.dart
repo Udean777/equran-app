@@ -20,8 +20,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool _precached = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +70,7 @@ class App extends StatelessWidget {
         listener: (context, state) {
           final audioCubit = context.read<AudioCubit>();
           if (!audioCubit.isPlaylistMode) return;
+          if (!audioCubit.shouldUpdateLastRead) return; // skip jika dari manajemen audio
           final suratNomor = audioCubit.playlistSuratNomor;
           final suratName = audioCubit.playlistSuratName;
           if (suratNomor == null || suratName == null) return;
@@ -100,7 +108,12 @@ class App extends StatelessWidget {
               routerConfig: getIt<AppRouter>().router,
               // DebugOverlay di dalam MaterialApp agar punya Directionality context
               builder: (context, child) {
-                unawaited(AppLogo.precache(context));
+                if (!_precached) {
+                  _precached = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) unawaited(AppLogo.precache(context));
+                  });
+                }
                 return DebugOverlay(
                   child: child ?? const SizedBox.shrink(),
                 );

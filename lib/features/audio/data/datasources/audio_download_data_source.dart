@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
+    show DownloadedAyatInfo;
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
@@ -48,23 +50,6 @@ abstract interface class AudioDownloadDataSource {
 
   /// Total ukuran storage yang digunakan (bytes).
   Future<int> getTotalStorageBytes();
-}
-
-/// Info file audio yang sudah didownload.
-class DownloadedAyatInfo {
-  const DownloadedAyatInfo({
-    required this.suratNomor,
-    required this.ayatNomor,
-    required this.qari,
-    required this.filePath,
-    required this.sizeBytes,
-  });
-
-  final int suratNomor;
-  final int ayatNomor;
-  final Qari qari;
-  final String filePath;
-  final int sizeBytes;
 }
 
 @LazySingleton(as: AudioDownloadDataSource)

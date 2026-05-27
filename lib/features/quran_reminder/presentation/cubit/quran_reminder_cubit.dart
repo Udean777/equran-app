@@ -23,6 +23,7 @@ class QuranReminderCubit extends Cubit<QuranReminderPrefs> {
   void load() {
     unawaited(
       _getPrefs().then((result) {
+        if (isClosed) return;
         result.fold(
           (_) => emit(const QuranReminderPrefs()),
           (prefs) {

@@ -1,8 +1,9 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
 import 'package:equran_app/features/audio/domain/entities/download_state.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
+    show DownloadedAyatInfo;
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';

@@ -30,12 +30,16 @@ class AudioProgressBar extends StatelessWidget {
       builder: (context, posState) {
         final cubit = context.read<AudioCubit>();
         final isPlaylist = cubit.isPlaylistMode;
+        final playlistTotal = cubit.playlistTotalDuration;
 
-        final position = isPlaylist
+        // Gunakan timeline playlist jika tersedia (punya teksArab).
+        // Fallback ke durasi ayat aktual jika playlist dari local file
+        // (teksArab kosong → playlistTotalDuration == Duration.zero).
+        final position = isPlaylist && playlistTotal > Duration.zero
             ? cubit.playlistCurrentPosition
             : posState.position;
-        final duration = isPlaylist
-            ? cubit.playlistTotalDuration
+        final duration = isPlaylist && playlistTotal > Duration.zero
+            ? playlistTotal
             : posState.duration;
 
         final progress = duration.inMilliseconds > 0

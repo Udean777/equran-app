@@ -8,12 +8,14 @@ class HafalanAyatGrid extends StatelessWidget {
     required this.jumlahAyat,
     required this.ayatHafal,
     required this.onToggle,
+    this.startAyat = 1,
     super.key,
   });
 
   final int jumlahAyat;
   final List<int> ayatHafal;
   final void Function(int ayatNomor) onToggle;
+  final int startAyat;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class HafalanAyatGrid extends StatelessWidget {
         ),
         itemCount: jumlahAyat,
         itemBuilder: (context, index) {
-          final nomor = index + 1;
+          final nomor = startAyat + index;
           final isHafal = ayatHafal.contains(nomor);
           return RepaintBoundary(
             child: _AyatTile(

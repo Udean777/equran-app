@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -24,9 +25,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class HafalanDetailPage extends StatelessWidget {
-  const HafalanDetailPage({required this.suratNomor, super.key});
+  const HafalanDetailPage({
+    required this.suratNomor,
+    this.juzNomor,
+    super.key,
+  });
 
   final int suratNomor;
+  final int? juzNomor;
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +54,19 @@ class HafalanDetailPage extends StatelessWidget {
           },
         ),
       ],
-      child: _HafalanDetailView(suratNomor: suratNomor),
+      child: _HafalanDetailView(suratNomor: suratNomor, juzNomor: juzNomor),
     );
   }
 }
 
 class _HafalanDetailView extends StatelessWidget {
-  const _HafalanDetailView({required this.suratNomor});
+  const _HafalanDetailView({
+    required this.suratNomor,
+    this.juzNomor,
+  });
 
   final int suratNomor;
+  final int? juzNomor;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +98,11 @@ class _HafalanDetailView extends StatelessWidget {
                         ))
                 : null;
 
-            return _HafalanDetailScaffold(surat: surat, hafalan: hafalan);
+            return _HafalanDetailScaffold(
+              surat: surat,
+              hafalan: hafalan,
+              juzNomor: juzNomor,
+            );
           },
         );
       },
@@ -96,30 +110,61 @@ class _HafalanDetailView extends StatelessWidget {
   }
 }
 
-class _HafalanDetailScaffold extends StatelessWidget {
+class _HafalanDetailScaffold extends StatefulWidget {
   const _HafalanDetailScaffold({
     required this.surat,
     required this.hafalan,
+    this.juzNomor,
   });
 
   final Surat surat;
   final HafalanSurat? hafalan;
+  final int? juzNomor;
+
+  @override
+  State<_HafalanDetailScaffold> createState() => _HafalanDetailScaffoldState();
+}
+
+class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
+  int _maxItemsToShow = 10;
 
   @override
   Widget build(BuildContext context) {
-    final ayatHafal = hafalan?.ayatHafal ?? [];
-    final progress = surat.jumlahAyat > 0
-        ? ayatHafal.length / surat.jumlahAyat
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ayatHafal = widget.hafalan?.ayatHafal ?? [];
+
+    // Cari range ayat untuk surat ini di juz yang aktif
+    final range = widget.juzNomor != null
+        ? kJuzSurahVerseRanges['${widget.juzNomor}:${widget.surat.nomor}']
+        : null;
+
+    final startAyat = range?.$1 ?? 1;
+    final endAyat = range?.$2 ?? widget.surat.jumlahAyat;
+    final totalAyatInRange = endAyat - startAyat + 1;
+
+    // Filter ayat yang dihafal hanya yang berada di range juz aktif
+    final ayatHafalInRange = ayatHafal
+        .where((a) => a >= startAyat && a <= endAyat)
+        .toList();
+
+    final progress = totalAyatInRange > 0
+        ? ayatHafalInRange.length / totalAyatInRange
         : 0.0;
     final persen = (progress * 100).toStringAsFixed(0);
-    final status = hafalan?.status ?? HafalanStatus.belum;
+    final status = widget.hafalan?.status ?? HafalanStatus.belum;
+
+    final visibleCount = _maxItemsToShow < totalAyatInRange
+        ? _maxItemsToShow
+        : totalAyatInRange;
 
     return Scaffold(
       appBar: LuxuryAppBar(
-        title: surat.namaLatin,
+        title: widget.juzNomor != null
+            ? '${widget.surat.namaLatin} (Juz ${widget.juzNomor})'
+            : widget.surat.namaLatin,
         titleFontSize: 18,
         actions: [
-          if (hafalan != null)
+          if (widget.hafalan != null)
             IconButton(
               icon: Icon(
                 Icons.delete_outline_rounded,
@@ -135,8 +180,8 @@ class _HafalanDetailScaffold extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             HafalanProgressHeader(
-              surat: surat,
-              ayatHafalCount: ayatHafal.length,
+              surat: widget.surat,
+              ayatHafalCount: ayatHafalInRange.length,
               progress: progress,
               persen: persen,
               status: status,
@@ -150,7 +195,7 @@ class _HafalanDetailScaffold extends StatelessWidget {
                 AppDimens.spaceMD,
               ),
               child: HafalanStatusSelector(
-                suratNomor: surat.nomor,
+                suratNomor: widget.surat.nomor,
                 currentStatus: status,
               ),
             ),
@@ -160,18 +205,19 @@ class _HafalanDetailScaffold extends StatelessWidget {
               icon: Icons.grid_view_rounded,
             ),
             HafalanAyatGrid(
-              jumlahAyat: surat.jumlahAyat,
+              jumlahAyat: visibleCount,
               ayatHafal: ayatHafal,
+              startAyat: startAyat,
               onToggle: (ayatNomor) {
                 final suratAsHafalan = HafalanSurat(
-                  suratNomor: surat.nomor,
-                  namaLatin: surat.namaLatin,
-                  nama: surat.nama,
-                  jumlahAyat: surat.jumlahAyat,
+                  suratNomor: widget.surat.nomor,
+                  namaLatin: widget.surat.namaLatin,
+                  nama: widget.surat.nama,
+                  jumlahAyat: widget.surat.jumlahAyat,
                 );
                 unawaited(
                   context.read<HafalanCubit>().toggleAyat(
-                    suratNomor: surat.nomor,
+                    suratNomor: widget.surat.nomor,
                     ayatNomor: ayatNomor,
                     suratInfo: suratAsHafalan,
                   ),
@@ -179,12 +225,50 @@ class _HafalanDetailScaffold extends StatelessWidget {
               },
             ),
 
-            if (hafalan != null && hafalan!.isSelesai) ...[
+            if (_maxItemsToShow < totalAyatInRange)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.pagePadding,
+                ),
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _maxItemsToShow += 10;
+                    });
+                  },
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(
+                    'Tampilkan 10 Ayat Lagi (${totalAyatInRange - _maxItemsToShow} Tersisa)',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
+                    side: BorderSide(
+                      color: isDark
+                          ? AppColors.outlineDark
+                          : AppColors.primary.withValues(alpha: 0.2),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.spaceMD,
+                    ),
+                  ),
+                ),
+              ),
+
+            if (widget.hafalan != null && widget.hafalan!.isSelesai) ...[
               const HafalanSectionHeader(
                 title: "Muraja'ah",
                 icon: Icons.refresh_rounded,
               ),
-              HafalanMurajaahSection(hafalan: hafalan!),
+              HafalanMurajaahSection(hafalan: widget.hafalan!),
             ],
 
             const HafalanSectionHeader(
@@ -201,8 +285,12 @@ class _HafalanDetailScaffold extends StatelessWidget {
               child: GradientButton(
                 label: 'Mulai Setoran',
                 icon: Icons.play_arrow_rounded,
-                onTap: () =>
-                    context.push(AppRoutes.hafalanSetoranSurat(surat.nomor)),
+                onTap: () => context.push(
+                  AppRoutes.hafalanSetoranSurat(
+                    widget.surat.nomor,
+                    juzNomor: widget.juzNomor,
+                  ),
+                ),
               ),
             ),
 
@@ -211,13 +299,13 @@ class _HafalanDetailScaffold extends StatelessWidget {
               icon: Icons.edit_note_rounded,
             ),
             HafalanCatatanField(
-              suratNomor: surat.nomor,
-              initialValue: hafalan?.catatan,
+              suratNomor: widget.surat.nomor,
+              initialValue: widget.hafalan?.catatan,
               suratInfo: HafalanSurat(
-                suratNomor: surat.nomor,
-                namaLatin: surat.namaLatin,
-                nama: surat.nama,
-                jumlahAyat: surat.jumlahAyat,
+                suratNomor: widget.surat.nomor,
+                namaLatin: widget.surat.namaLatin,
+                nama: widget.surat.nama,
+                jumlahAyat: widget.surat.jumlahAyat,
               ),
             ),
 
@@ -233,11 +321,11 @@ class _HafalanDetailScaffold extends StatelessWidget {
       context,
       title: 'Hapus Data Hafalan?',
       content:
-          'Semua data hafalan ${surat.namaLatin} akan dihapus. '
+          'Semua data hafalan ${widget.surat.namaLatin} akan dihapus. '
           'Tindakan ini tidak bisa dibatalkan.',
     );
     if (confirmed && context.mounted) {
-      await context.read<HafalanCubit>().deleteSurat(surat.nomor);
+      await context.read<HafalanCubit>().deleteSurat(widget.surat.nomor);
       if (context.mounted) context.pop();
     }
   }

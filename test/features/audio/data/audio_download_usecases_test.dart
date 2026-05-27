@@ -1,6 +1,6 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
@@ -8,11 +8,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAudioDownloadDataSource extends Mock
-    implements AudioDownloadDataSource {}
+class MockAudioDownloadRepository extends Mock
+    implements AudioDownloadRepository {}
 
 void main() {
-  late MockAudioDownloadDataSource mockDataSource;
+  late MockAudioDownloadRepository mockRepository;
   late DownloadAyatAudio downloadAyatAudio;
   late DeleteAyatAudio deleteAyatAudio;
   late GetDownloadedAyats getDownloadedAyats;
@@ -22,22 +22,22 @@ void main() {
   });
 
   setUp(() {
-    mockDataSource = MockAudioDownloadDataSource();
-    downloadAyatAudio = DownloadAyatAudio(mockDataSource);
-    deleteAyatAudio = DeleteAyatAudio(mockDataSource);
-    getDownloadedAyats = GetDownloadedAyats(mockDataSource);
+    mockRepository = MockAudioDownloadRepository();
+    downloadAyatAudio = DownloadAyatAudio(mockRepository);
+    deleteAyatAudio = DeleteAyatAudio(mockRepository);
+    getDownloadedAyats = GetDownloadedAyats(mockRepository);
   });
 
   group('DownloadAyatAudio', () {
     test('emit right(1.0) saat download selesai', () async {
       when(
-        () => mockDataSource.downloadAyat(
+        () => mockRepository.downloadAyat(
           suratNomor: any(named: 'suratNomor'),
           ayatNomor: any(named: 'ayatNomor'),
           qari: any(named: 'qari'),
           url: any(named: 'url'),
         ),
-      ).thenAnswer((_) => Stream.value(1));
+      ).thenAnswer((_) => Stream.value(right(1)));
 
       final results = await downloadAyatAudio(
         suratNomor: 1,
@@ -56,13 +56,15 @@ void main() {
 
     test('emit left(Failure) saat download error', () async {
       when(
-        () => mockDataSource.downloadAyat(
+        () => mockRepository.downloadAyat(
           suratNomor: any(named: 'suratNomor'),
           ayatNomor: any(named: 'ayatNomor'),
           qari: any(named: 'qari'),
           url: any(named: 'url'),
         ),
-      ).thenAnswer((_) => Stream.error(Exception('network error')));
+      ).thenAnswer(
+        (_) => Stream.value(left(const Failure.unknown(message: 'network error'))),
+      );
 
       final results = await downloadAyatAudio(
         suratNomor: 1,
@@ -79,12 +81,12 @@ void main() {
   group('DeleteAyatAudio', () {
     test('return right(unit) saat delete berhasil', () async {
       when(
-        () => mockDataSource.deleteAyat(
+        () => mockRepository.deleteAyat(
           suratNomor: any(named: 'suratNomor'),
           ayatNomor: any(named: 'ayatNomor'),
           qari: any(named: 'qari'),
         ),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => right(unit));
 
       final result = await deleteAyatAudio(
         suratNomor: 1,
@@ -94,7 +96,7 @@ void main() {
 
       expect(result, equals(right<Failure, Unit>(unit)));
       verify(
-        () => mockDataSource.deleteAyat(
+        () => mockRepository.deleteAyat(
           suratNomor: 1,
           ayatNomor: 1,
           qari: Qari.misyariRasyidAlAfasi,
@@ -104,12 +106,14 @@ void main() {
 
     test('return left(Failure) saat delete error', () async {
       when(
-        () => mockDataSource.deleteAyat(
+        () => mockRepository.deleteAyat(
           suratNomor: any(named: 'suratNomor'),
           ayatNomor: any(named: 'ayatNomor'),
           qari: any(named: 'qari'),
         ),
-      ).thenThrow(Exception('delete error'));
+      ).thenAnswer(
+        (_) async => left(const Failure.unknown(message: 'delete error')),
+      );
 
       final result = await deleteAyatAudio(
         suratNomor: 1,
@@ -140,8 +144,8 @@ void main() {
         ),
       ];
 
-      when(() => mockDataSource.getDownloadedAyats())
-          .thenAnswer((_) async => files);
+      when(() => mockRepository.getDownloadedAyats())
+          .thenAnswer((_) async => right(files));
 
       final result = await getDownloadedAyats();
 
@@ -157,8 +161,8 @@ void main() {
     });
 
     test('return empty list jika tidak ada file', () async {
-      when(() => mockDataSource.getDownloadedAyats())
-          .thenAnswer((_) async => []);
+      when(() => mockRepository.getDownloadedAyats())
+          .thenAnswer((_) async => right(<DownloadedAyatInfo>[]));
 
       final result = await getDownloadedAyats();
 
@@ -168,9 +172,10 @@ void main() {
       );
     });
 
-    test('return left(Failure) jika datasource throw', () async {
-      when(() => mockDataSource.getDownloadedAyats())
-          .thenThrow(Exception('storage error'));
+    test('return left(Failure) jika repository return failure', () async {
+      when(() => mockRepository.getDownloadedAyats()).thenAnswer(
+        (_) async => left(const Failure.unknown(message: 'storage error')),
+      );
 
       final result = await getDownloadedAyats();
 

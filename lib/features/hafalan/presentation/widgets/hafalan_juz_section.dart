@@ -1,4 +1,3 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
@@ -84,28 +83,13 @@ class HafalanJuzSection extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceMD),
           itemCount: hafalanList.length,
-          separatorBuilder: (_, _) =>
-              const SizedBox(height: AppDimens.spaceXS),
-          itemBuilder: (context, index) =>
-              HafalanSuratCard(hafalan: hafalanList[index]),
+          separatorBuilder: (_, _) => const SizedBox(height: AppDimens.spaceXS),
+          itemBuilder: (context, index) => HafalanSuratCard(
+            hafalan: hafalanList[index],
+            juzNomor: juzNomor,
+          ),
         ),
       ],
     );
   }
-}
-
-/// Helper: kelompokkan list hafalan per juz.
-/// Surat yang belum ada di hafalanList tetap ditampilkan dengan status belum.
-Map<int, List<HafalanSurat>> groupHafalanByJuz({
-  required List<HafalanSurat> hafalanList,
-  required List<HafalanSurat> allSuratAsHafalan,
-}) {
-  final map = <int, List<HafalanSurat>>{};
-
-  for (final surat in allSuratAsHafalan) {
-    final juz = kJuzMapping[surat.suratNomor] ?? 1;
-    map.putIfAbsent(juz, () => []).add(surat);
-  }
-
-  return map;
 }

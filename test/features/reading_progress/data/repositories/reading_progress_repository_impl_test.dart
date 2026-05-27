@@ -23,7 +23,7 @@ void main() {
 
   const tHistory2 = ReadingHistory(
     date: tDate2,
-    ayatRead: {'2:255', '2:256'},
+    ayatRead: {'2:100', '2:101'},
   );
 
   setUp(() {

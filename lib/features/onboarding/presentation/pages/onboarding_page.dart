@@ -76,7 +76,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     try {
       final locPerm = await Geolocator.requestPermission();
       setState(() {
-        _locationGranted = locPerm == LocationPermission.always ||
+        _locationGranted =
+            locPerm == LocationPermission.always ||
             locPerm == LocationPermission.whileInUse;
       });
     } on Object {
@@ -242,42 +243,19 @@ class _BottomNav extends StatelessWidget {
                         onTap: onFinish,
                       )
                     : isPermissionSlide && !permissionRequested
-                        ? _NavButton(
-                            label: 'Lewati',
-                            isPrimary: false,
-                            onTap: onNext,
-                          )
-                        : _NavButton(
-                            label: 'Lanjut',
-                            isPrimary: true,
-                            onTap: onNext,
-                          ),
+                    ? _NavButton(
+                        label: 'Lewati',
+                        isPrimary: false,
+                        onTap: onNext,
+                      )
+                    : _NavButton(
+                        label: 'Lanjut',
+                        isPrimary: true,
+                        onTap: onNext,
+                      ),
               ),
             ],
           ),
-
-          // Skip text — hanya slide pertama
-          if (currentPage == 0) ...[
-            const SizedBox(height: AppDimens.spaceSM),
-            GestureDetector(
-              onTap: onSkip,
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppDimens.spaceSM,
-                  horizontal: AppDimens.spaceLG,
-                ),
-                child: Text(
-                  'Lewati semua',
-                  style: TextStyle(
-                    color: AppColors.gold.withValues(alpha: 0.6),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );

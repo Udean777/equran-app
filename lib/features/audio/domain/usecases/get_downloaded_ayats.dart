@@ -1,20 +1,14 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class GetDownloadedAyats {
-  const GetDownloadedAyats(this._dataSource);
+  const GetDownloadedAyats(this._repository);
 
-  final AudioDownloadDataSource _dataSource;
+  final AudioDownloadRepository _repository;
 
-  Future<Either<Failure, List<DownloadedAyatInfo>>> call() async {
-    try {
-      final result = await _dataSource.getDownloadedAyats();
-      return right(result);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  Future<Either<Failure, List<DownloadedAyatInfo>>> call() =>
+      _repository.getDownloadedAyats();
 }

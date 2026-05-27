@@ -41,6 +41,7 @@ class HafalanCubit extends Cubit<HafalanState> {
   /// Set daftar semua surat — dipanggil dari HafalanPage saat SuratListCubit success.
   /// Trigger recompute mergedList + filteredList jika state sudah success.
   void setAllSurat(List<Surat> allSurat) {
+    if (_allSurat.isNotEmpty) return;
     _allSurat = allSurat;
     final current = _currentState;
     if (current != null) {
@@ -102,6 +103,31 @@ class HafalanCubit extends Cubit<HafalanState> {
     }
 
     final updated = _computeAfterToggle(existing, ayatHafal);
+    await _saveAndReload(updated);
+  }
+
+  /// Update seluruh list ayat hafal untuk surat tertentu dalam satu operasi.
+  /// Dipanggil saat menyimpan hasil setoran untuk mencegah race condition.
+  Future<void> saveAyatHafalList({
+    required int suratNomor,
+    required List<int> newAyatHafal,
+    required HafalanSurat suratInfo,
+  }) async {
+    final current = _currentState;
+    if (current == null) return;
+
+    final existing =
+        getSurat(suratNomor) ??
+        HafalanSurat(
+          suratNomor: suratInfo.suratNomor,
+          namaLatin: suratInfo.namaLatin,
+          nama: suratInfo.nama,
+          jumlahAyat: suratInfo.jumlahAyat,
+          status: HafalanStatus.sedangDihafal,
+          tanggalMulai: DateTime.now(),
+        );
+
+    final updated = _computeAfterToggle(existing, newAyatHafal);
     await _saveAndReload(updated);
   }
 
@@ -334,7 +360,7 @@ class HafalanCubit extends Cubit<HafalanState> {
         } else {
           await _reminderScheduler.cancelReminder(hafalan.suratNomor);
         }
-        unawaited(load());
+        if (!isClosed) await load();
       },
     );
   }

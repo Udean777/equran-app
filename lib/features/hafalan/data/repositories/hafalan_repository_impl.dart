@@ -110,15 +110,25 @@ class HafalanRepositoryImpl implements HafalanRepository {
         progressPerJuz[juz] = 0;
         continue;
       }
-      // Surat yang masuk juz ini (berdasarkan juz pertama surat)
-      final suratDiJuz = kJuzMapping.entries
-          .where((e) => e.value == juz)
-          .map((e) => e.key)
-          .toSet();
 
-      final ayatHafalJuz = list
-          .where((h) => suratDiJuz.contains(h.suratNomor))
-          .fold<int>(0, (sum, h) => sum + h.ayatHafal.length);
+      final suratList = kJuzToSurahMapping[juz] ?? [];
+      var ayatHafalJuz = 0;
+
+      for (final suratNomor in suratList) {
+        final matches = list.where((h) => h.suratNomor == suratNomor);
+        if (matches.isEmpty) continue;
+        final h = matches.first;
+
+        final range = kJuzSurahVerseRanges['$juz:$suratNomor'];
+        final start = range?.$1 ?? 1;
+        final end = range?.$2 ?? h.jumlahAyat;
+
+        for (final a in h.ayatHafal) {
+          if (a >= start && a <= end) {
+            ayatHafalJuz++;
+          }
+        }
+      }
 
       progressPerJuz[juz] = (ayatHafalJuz / totalAyatJuz).clamp(0.0, 1.0);
     }

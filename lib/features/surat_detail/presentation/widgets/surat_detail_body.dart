@@ -66,16 +66,27 @@ class SuratDetailBody extends StatelessWidget {
         final qari = audioState.currentQari;
 
         return Scaffold(
-          appBar: SuratDetailAppBar(
-            detail: detail,
-            autoScrollEnabled: autoScrollEnabled,
-            onToggleAutoScroll: onToggleAutoScroll,
-            onDownloadTap: () => _showDownloadSuratSheet(context, detail, qari),
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _showTafsirBottomSheet(context, suratNomor),
-            icon: const Icon(Icons.menu_book_rounded),
-            label: const Text('Lihat Tafsir'),
+          appBar: SuratDetailAppBar(detail: detail),
+          floatingActionButton: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Download button
+              FloatingActionButton.small(
+                heroTag: 'download_fab',
+                onPressed: () => _showDownloadSuratSheet(context, detail, qari),
+                tooltip: 'Unduh Surat',
+                child: const Icon(Icons.download_for_offline_outlined),
+              ),
+              const SizedBox(height: 8),
+              // Tafsir button
+              FloatingActionButton.extended(
+                heroTag: 'tafsir_fab',
+                onPressed: () => _showTafsirBottomSheet(context, suratNomor),
+                icon: const Icon(Icons.menu_book_rounded),
+                label: const Text('Lihat Tafsir'),
+              ),
+            ],
           ),
           bottomNavigationBar: AudioPlayerBar(audioMap: detail.audioFull),
           body: RefreshIndicator(
