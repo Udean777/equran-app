@@ -2,11 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/widgets/app_search_bar.dart';
-import 'package:equran_app/core/widgets/empty_state_widget.dart';
-import 'package:equran_app/core/widgets/error_state_widget.dart';
-import 'package:equran_app/core/widgets/loading_widget.dart';
-import 'package:equran_app/core/widgets/luxury_app_bar.dart';
+import 'package:equran_app/core/widgets/widgets.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_juz_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_stats_card.dart';
@@ -148,8 +144,7 @@ class _HafalanContent extends StatelessWidget {
                 return HafalanJuzSection(
                   juzNomor: juz,
                   hafalanList: juzGroups[juz]!,
-                  progressJuz:
-                      hafalanState.stats.progressPerJuz[juz] ?? 0.0,
+                  progressJuz: hafalanState.stats.progressPerJuz[juz] ?? 0.0,
                 );
               },
               childCount: sortedJuz.length + 1,
@@ -181,8 +176,8 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
   final ValueChanged<int?> onJuzSelected;
   final ValueChanged<HafalanFilter> onStatusFilterChanged;
 
-  // Search bar + status chips + juz chips + padding
-  static const double _height = 180;
+  // Search bar + select dropdowns Row + padding
+  static const double _height = 136;
 
   @override
   double get maxExtent => _height;
@@ -200,9 +195,44 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
     final isPinned = shrinkOffset > 0 || overlapsContent;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
-    final chipBgColor = isDark ? AppColors.surfaceDarkVariant : Colors.grey[100]!;
-    final chipBorderColor = isDark ? AppColors.outlineDark : Colors.grey[300]!;
-    final chipLabelColor = isDark ? AppColors.onSurfaceDark : Colors.grey[700]!;
+
+    // Options list for status hafalan filter
+    final statusOptions = HafalanFilter.values.map((filter) {
+      final label = switch (filter) {
+        HafalanFilter.semua => 'Semua Status',
+        HafalanFilter.sedangDihafal => 'Sedang Dihafal',
+        HafalanFilter.sudahHafal => 'Sudah Hafal',
+        HafalanFilter.perluMurajaah => "Perlu Muraja'ah",
+      };
+      final icon = switch (filter) {
+        HafalanFilter.semua => Icons.layers_rounded,
+        HafalanFilter.sedangDihafal => Icons.menu_book_rounded,
+        HafalanFilter.sudahHafal => Icons.check_circle_rounded,
+        HafalanFilter.perluMurajaah => Icons.alarm_rounded,
+      };
+      return AppSelectOption<HafalanFilter>(
+        value: filter,
+        label: label,
+        icon: icon,
+      );
+    }).toList();
+
+    // Options list for juz filter
+    final juzOptions = <AppSelectOption<int?>>[
+      const AppSelectOption<int?>(
+        value: null,
+        label: 'Semua Juz',
+        icon: Icons.auto_stories_rounded,
+      ),
+      ...List.generate(30, (index) {
+        final juzNum = index + 1;
+        return AppSelectOption<int?>(
+          value: juzNum,
+          label: 'Juz $juzNum',
+          icon: Icons.book_rounded,
+        );
+      }),
+    ];
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -227,72 +257,38 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
             onChanged: onSearchChanged,
           ),
 
-          // Status chips
-          SizedBox(
-            height: 34,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.pagePadding,
-              ),
-              children: HafalanFilter.values.map((filter) {
-                final isSelected = filter == currentStatusFilter;
-                final label = switch (filter) {
-                  HafalanFilter.semua => 'Semua',
-                  HafalanFilter.sedangDihafal => 'Sedang Dihafal',
-                  HafalanFilter.sudahHafal => 'Sudah Hafal',
-                  HafalanFilter.perluMurajaah => "Perlu Muraja'ah",
-                };
-                return Padding(
-                  padding: const EdgeInsets.only(right: AppDimens.spaceXS),
-                  child: _FilterChip(
-                    label: label,
-                    isSelected: isSelected,
-                    isDark: isDark,
-                    chipBgColor: chipBgColor,
-                    chipBorderColor: chipBorderColor,
-                    chipLabelColor: chipLabelColor,
-                    onSelected: () => onStatusFilterChanged(filter),
+          // Custom Select dropdowns in a Row
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.pagePadding,
+            ),
+            child: Row(
+              children: [
+                // Filter status select
+                Expanded(
+                  child: AppSelect<HafalanFilter>(
+                    title: 'Status Hafalan',
+                    options: statusOptions,
+                    selectedValue: currentStatusFilter,
+                    leadingIcon: Icons.filter_list_rounded,
+                    onChanged: onStatusFilterChanged,
                   ),
-                );
-              }).toList(),
+                ),
+                const SizedBox(width: AppDimens.spaceSM),
+                // Filter juz select
+                Expanded(
+                  child: AppSelect<int?>(
+                    title: 'Pilih Juz',
+                    options: juzOptions,
+                    selectedValue: selectedJuz,
+                    leadingIcon: Icons.auto_stories_rounded,
+                    onChanged: onJuzSelected,
+                  ),
+                ),
+              ],
             ),
           ),
-
-          const SizedBox(height: AppDimens.spaceXS),
-
-          // Juz chips
-          SizedBox(
-            height: 34,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.pagePadding,
-              ),
-              itemCount: 31, // "Semua Juz" + Juz 1–30
-              itemBuilder: (context, index) {
-                final isSemua = index == 0;
-                final juzNum = isSemua ? null : index;
-                final isSelected = selectedJuz == juzNum;
-                final label = isSemua ? 'Semua Juz' : 'Juz $index';
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: AppDimens.spaceXS),
-                  child: _FilterChip(
-                    label: label,
-                    isSelected: isSelected,
-                    isDark: isDark,
-                    chipBgColor: chipBgColor,
-                    chipBorderColor: chipBorderColor,
-                    chipLabelColor: chipLabelColor,
-                    onSelected: () => onJuzSelected(juzNum),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          const SizedBox(height: AppDimens.spaceXS),
+          const SizedBox(height: AppDimens.spaceSM),
         ],
       ),
     );
@@ -303,56 +299,4 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
       oldDelegate.searchQuery != searchQuery ||
       oldDelegate.selectedJuz != selectedJuz ||
       oldDelegate.currentStatusFilter != currentStatusFilter;
-}
-
-// ---------------------------------------------------------------------------
-// Reusable filter chip
-// ---------------------------------------------------------------------------
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
-    required this.isDark,
-    required this.chipBgColor,
-    required this.chipBorderColor,
-    required this.chipLabelColor,
-    required this.onSelected,
-  });
-
-  final String label;
-  final bool isSelected;
-  final bool isDark;
-  final Color chipBgColor;
-  final Color chipBorderColor;
-  final Color chipLabelColor;
-  final VoidCallback onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedColor = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final selectedLabelColor = isDark ? AppColors.backgroundDark : AppColors.onPrimary;
-
-    return ChoiceChip(
-      label: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? selectedLabelColor : chipLabelColor,
-          fontSize: 12,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      selected: isSelected,
-      selectedColor: selectedColor,
-      backgroundColor: chipBgColor,
-      checkmarkColor: selectedLabelColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-        side: BorderSide(
-          color: isSelected ? selectedColor : chipBorderColor,
-        ),
-      ),
-      onSelected: (_) => onSelected(),
-    );
-  }
 }

@@ -11,6 +11,7 @@ export 'app_drawer.dart';
 export 'app_logo.dart';
 export 'app_menu_button.dart';
 export 'app_search_bar.dart';
+export 'app_select.dart';
 export 'bottom_sheet_handle.dart';
 export 'empty_state_widget.dart';
 export 'error_state_widget.dart';

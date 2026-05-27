@@ -4,6 +4,20 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 
 ---
 
+## 📱 Preview Aplikasi
+
+Berikut adalah visualisasi antarmuka premium dari **eQuran App** yang dirancang dengan estetika mewah, bersih, dan modern:
+
+| 🌟 Premium Onboarding | 📖 Daftar Surah (Home) | 🎨 Membaca (Sepia Mode) |
+| :---: | :---: | :---: |
+| ![Onboarding](https://placehold.co/280x560/1A5C38/FFFFFF/png?text=Onboarding+Screen%0A6+Premium+Slides) | ![Daftar Surah](https://placehold.co/280x560/1A5C38/FFFFFF/png?text=Daftar+Surah%0AForest+Green+Theme) | ![Membaca Quran](https://placehold.co/280x560/1A5C38/FFFFFF/png?text=Sepia+Read+Mode%0AWarm+Comfortable+Font) |
+
+| 🕌 Jadwal Shalat & Kompas | 📈 Hafalan & Setoran | 📊 Statistik & Heatmap |
+| :---: | :---: | :---: |
+| ![Jadwal Shalat](https://placehold.co/280x560/1A5C38/FFFFFF/png?text=Jadwal+Shalat%0AGPS+Location+%26+Qibla) | ![Hafalan Page](https://placehold.co/280x560/1A5C38/FFFFFF/png?text=Hafalan+%26+Setoran%0ASelect+Filter+Filters) | ![Statistik Heatmap](https://placehold.co/280x560/1A5C38/FFFFFF/png?text=Statistik+Heatmap%0AGitHub-style+90+Days) |
+
+---
+
 ## ✨ Fitur Utama
 
 ### 📖 Al-Quran & Tafsir
