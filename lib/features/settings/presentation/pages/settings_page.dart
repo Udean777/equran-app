@@ -19,6 +19,7 @@ import 'package:equran_app/features/settings/presentation/widgets/settings_quran
 import 'package:equran_app/features/settings/presentation/widgets/settings_shalat_notif_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_theme_section.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -122,24 +123,29 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceMD),
 
           // ── Developer ─────────────────────────────────────────────────
-          const SectionHeader(
-            label: 'Developer',
-            icon: Icons.developer_mode_rounded,
-          ),
-          SettingsLuxuryCard(
-            children: [
-              LuxuryListTile(
-                icon: Icons.notifications_active_rounded,
-                title: 'Test Notifikasi',
-                subtitle: 'Coba semua jenis notif — adzan, imsak, quran, dll',
-                trailing: const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
+          if (kDebugMode) ...[
+            const SizedBox(height: AppDimens.spaceMD),
+
+            // ── Developer ─────────────────────────────────────────────────
+            const SectionHeader(
+              label: 'Developer',
+              icon: Icons.developer_mode_rounded,
+            ),
+            SettingsLuxuryCard(
+              children: [
+                LuxuryListTile(
+                  icon: Icons.notifications_active_rounded,
+                  title: 'Test Notifikasi',
+                  subtitle: 'Coba semua jenis notif — adzan, imsak, quran, dll',
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                  ),
+                  onTap: () => context.push(AppRoutes.notificationTest),
                 ),
-                onTap: () => context.push(AppRoutes.notificationTest),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
 
           const SizedBox(height: AppDimens.spaceMD),
 

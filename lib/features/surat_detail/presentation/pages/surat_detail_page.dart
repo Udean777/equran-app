@@ -88,6 +88,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   SuratDetail? _currentDetail;
   BookmarkCubit? _bookmarkCubit;
   ReadingProgressCubit? _readingProgressCubit;
+  AudioCubit? _audioCubit;
 
   @override
   void initState() {
@@ -95,17 +96,28 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
     unawaited(context.read<QuranStreakCubit>().recordRead());
     _bookmarkCubit = context.read<BookmarkCubit>();
     _readingProgressCubit = context.read<ReadingProgressCubit>();
+    // Simpan referensi AudioCubit di initState agar aman dipakai di dispose()
+    // tanpa perlu context.read (context tidak valid saat dispose).
+    _audioCubit = context.read<AudioCubit>();
   }
 
   @override
   void dispose() {
     _cardController?.removeListener(_onCardProgress);
+
+    // Sync posisi card ke audio aktif sebelum save last read.
+    // Mencegah "stuck ayat" saat user keluar di tengah auto-read —
+    // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
+    // Pakai _audioCubit (disimpan di initState) — context tidak valid di dispose().
+    final currentAyat = _audioCubit?.state.currentAyat;
+    if (currentAyat != null &&
+        (_audioCubit?.isPlaylistMode ?? false) &&
+        _cardController != null) {
+      _cardController!.jumpTo(currentAyat);
+    }
+
     _saveLastRead();
     _cardController?.dispose();
-    final readingCubit = _readingProgressCubit;
-    if (readingCubit != null) {
-      unawaited(readingCubit.flushBuffer());
-    }
     super.dispose();
   }
 

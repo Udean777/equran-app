@@ -90,12 +90,15 @@ class SuratListContent extends StatelessWidget {
 
           final surat = filteredSurats[i - 1];
           final progress = suratProgressMap[surat.nomor];
+          final isCompleted = progress == 1.0;
           return SuratCard(
             key: ValueKey(surat.nomor),
             surat: surat,
             onTap: () => context.push(AppRoutes.surat(surat.nomor)),
-            onPlayTap: () =>
-                context.push(AppRoutes.suratAutoPlay(surat.nomor)),
+            // Tombol play hanya muncul jika semua ayat sudah dibaca
+            onPlayTap: isCompleted
+                ? () => context.push(AppRoutes.suratAutoPlay(surat.nomor))
+                : null,
             scrollPercent: progress,
           );
         },

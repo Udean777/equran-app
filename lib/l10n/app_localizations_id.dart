@@ -227,4 +227,31 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get bulanBerikutnya => 'Bulan Berikutnya';
+
+  @override
+  String get tasbihNav => 'Tasbih';
+
+  @override
+  String get qiblaNav => 'Qibla';
+
+  @override
+  String get hafalanDrawer => 'Hafalan Quran';
+
+  @override
+  String get doaHarianDrawer => 'Doa Harian';
+
+  @override
+  String get catatanDrawer => 'Catatan Saya';
+
+  @override
+  String get statistikBacaDrawer => 'Statistik Baca';
+
+  @override
+  String get statistikShalatDrawer => 'Statistik Shalat';
+
+  @override
+  String get manajemenAudioDrawer => 'Manajemen Audio';
+
+  @override
+  String get pengaturanDrawer => 'Pengaturan';
 }

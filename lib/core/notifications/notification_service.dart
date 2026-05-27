@@ -1,3 +1,6 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
+import 'package:equran_app/core/constants/quran_constants.dart';
+import 'package:equran_app/core/constants/timezone_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
@@ -5,29 +8,10 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 /// Channel IDs
-const String kAdzanChannelId = 'adzan_channel';
-const String kAdzanSubuhChannelId = 'adzan_subuh_channel';
+const String kAdzanPlaybackChannelId = 'adzan_playback_channel';
 const String kQuranReminderChannelId = 'quran_reminder_channel';
 const String kImsakChannelId = 'imsak_channel';
 const String kHafalanChannelId = 'hafalan_channel';
-
-/// Notification IDs per waktu shalat
-const int kNotifIdSubuh = 1;
-const int kNotifIdDzuhur = 2;
-const int kNotifIdAshar = 3;
-const int kNotifIdMaghrib = 4;
-const int kNotifIdIsya = 5;
-
-/// Notification ID untuk alarm imsak & sahur
-const int kNotifIdImsak = 6;
-const int kNotifIdSahur = 7;
-
-/// Notification ID untuk reminder baca Quran
-const int kNotifIdQuranReminder = 10;
-
-/// Notification ID base untuk hafalan muraja'ah.
-/// ID range: 20–133 (satu per surat, suratNomor 1–114).
-const int kNotifIdHafalanBase = 20;
 
 @lazySingleton
 class NotificationService {
@@ -49,7 +33,7 @@ class NotificationService {
         'falling back to Asia/Jakarta. Error: $e',
       );
       try {
-        tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
+        tz.setLocalLocation(tz.getLocation(TimezoneConstants.wib));
       } on Object catch (err) {
         debugPrint('NotificationService: fallback timezone failed: $err');
       }
@@ -122,8 +106,10 @@ class NotificationService {
     return granted;
   }
 
-  /// Schedule notifikasi pada [scheduledTime].
-  /// [isSubuh] menentukan channel + sound yang digunakan.
+  /// Schedule notifikasi adzan pada [scheduledTime].
+  /// Android: visual-only (audio dihandle AlarmManager + AudioCompositeHandler).
+  /// iOS: dengan .caf sound (max ~30 detik, karena iOS tidak support AlarmManager).
+  /// [isSubuh] menentukan sound iOS yang digunakan.
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -131,19 +117,13 @@ class NotificationService {
     required tz.TZDateTime scheduledTime,
     required bool isSubuh,
   }) async {
-    final androidDetails = AndroidNotificationDetails(
-      isSubuh ? kAdzanSubuhChannelId : kAdzanChannelId,
-      isSubuh ? 'Adzan Subuh' : 'Adzan Waktu Shalat',
-      channelDescription: isSubuh
-          ? 'Notifikasi adzan waktu Subuh'
-          : 'Notifikasi adzan waktu shalat',
+    const androidDetails = AndroidNotificationDetails(
+      kAdzanPlaybackChannelId,
+      'Adzan',
+      channelDescription: 'Notifikasi waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
-      groupKey: isSubuh ? 'adzan_subuh_group' : 'adzan_group',
-      audioAttributesUsage: AudioAttributesUsage.alarm,
-      sound: RawResourceAndroidNotificationSound(
-        isSubuh ? 'adzan_subuh' : 'adzan',
-      ),
+      playSound: false, // Audio dihandle AlarmManager di Android
     );
 
     final iosDetails = DarwinNotificationDetails(
@@ -283,19 +263,19 @@ class NotificationService {
   /// Cancel semua notifikasi (shalat, imsak, quran reminder, hafalan).
   Future<void> cancelAll() async {
     // Shalat
-    await _plugin.cancel(kNotifIdSubuh);
-    await _plugin.cancel(kNotifIdDzuhur);
-    await _plugin.cancel(kNotifIdAshar);
-    await _plugin.cancel(kNotifIdMaghrib);
-    await _plugin.cancel(kNotifIdIsya);
+    await _plugin.cancel(NotificationIds.subuh);
+    await _plugin.cancel(NotificationIds.dzuhur);
+    await _plugin.cancel(NotificationIds.ashar);
+    await _plugin.cancel(NotificationIds.maghrib);
+    await _plugin.cancel(NotificationIds.isya);
     // Imsak & sahur
-    await _plugin.cancel(kNotifIdImsak);
-    await _plugin.cancel(kNotifIdSahur);
+    await _plugin.cancel(NotificationIds.imsak);
+    await _plugin.cancel(NotificationIds.sahur);
     // Quran reminder
-    await _plugin.cancel(kNotifIdQuranReminder);
+    await _plugin.cancel(NotificationIds.quranReminder);
     // Hafalan muraja'ah (ID range 20–133, satu per surat 1–114)
-    for (var i = 0; i < 114; i++) {
-      await _plugin.cancel(kNotifIdHafalanBase + i);
+    for (var i = 0; i < QuranConstants.totalSurat; i++) {
+      await _plugin.cancel(NotificationIds.hafalanReminderBase + i);
     }
   }
 
@@ -310,34 +290,23 @@ class NotificationService {
         >();
     if (androidPlugin == null) return;
 
-    // Delete channel lama dulu agar sound bisa di-update.
-    // Android tidak mengizinkan update sound pada channel yang sudah ada.
-    await androidPlugin.deleteNotificationChannel(kAdzanChannelId);
-    await androidPlugin.deleteNotificationChannel(kAdzanSubuhChannelId);
+    // Delete channel lama agar tidak ada konflik.
+    await androidPlugin.deleteNotificationChannel('adzan_channel');
+    await androidPlugin.deleteNotificationChannel('adzan_subuh_channel');
+    await androidPlugin.deleteNotificationChannel(kAdzanPlaybackChannelId);
     await androidPlugin.deleteNotificationChannel(kQuranReminderChannelId);
     await androidPlugin.deleteNotificationChannel(kImsakChannelId);
     await androidPlugin.deleteNotificationChannel(kHafalanChannelId);
     await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
 
-    // Channel adzan biasa (Dzuhur, Ashar, Maghrib, Isya)
+    // Channel adzan playback (visual-only, audio via AlarmManager)
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
-        kAdzanChannelId,
-        'Adzan Waktu Shalat',
-        description: 'Notifikasi adzan waktu shalat',
+        kAdzanPlaybackChannelId,
+        'Adzan',
+        description: 'Notifikasi waktu shalat',
         importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('adzan'),
-      ),
-    );
-
-    // Channel adzan subuh
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        kAdzanSubuhChannelId,
-        'Adzan Subuh',
-        description: 'Notifikasi adzan waktu Subuh',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('adzan_subuh'),
+        playSound: false,
       ),
     );
 
@@ -380,29 +349,35 @@ class NotificationService {
       final tzName = DateTime.now().timeZoneName.toUpperCase();
 
       // Coba match dari offset dulu (paling reliable di Android)
-      if (offsetHours == 7) return 'Asia/Jakarta'; // WIB
-      if (offsetHours == 8) return 'Asia/Makassar'; // WITA
-      if (offsetHours == 9) return 'Asia/Jayapura'; // WIT
+      if (offsetHours == TimezoneConstants.wibOffsetHours) {
+        return TimezoneConstants.wib;
+      }
+      if (offsetHours == TimezoneConstants.witaOffsetHours) {
+        return TimezoneConstants.wita;
+      }
+      if (offsetHours == TimezoneConstants.witOffsetHours) {
+        return TimezoneConstants.wit;
+      }
 
       // Fallback: coba match dari nama timezone string
       if (tzName.contains('WIB') || tzName.contains('JAKARTA')) {
-        return 'Asia/Jakarta';
+        return TimezoneConstants.wib;
       }
       if (tzName.contains('WITA') || tzName.contains('MAKASSAR')) {
-        return 'Asia/Makassar';
+        return TimezoneConstants.wita;
       }
       if (tzName.contains('WIT') || tzName.contains('JAYAPURA')) {
-        return 'Asia/Jayapura';
+        return TimezoneConstants.wit;
       }
 
       // Coba pakai langsung jika sudah IANA format (misal dari flutter_timezone)
       final raw = DateTime.now().timeZoneName;
       if (raw.contains('/')) return raw;
 
-      return 'Asia/Jakarta';
+      return TimezoneConstants.wib;
     } on Object catch (_) {
       debugPrint('NotificationService: timezone resolve failed, using WIB');
-      return 'Asia/Jakarta';
+      return TimezoneConstants.wib;
     }
   }
 }

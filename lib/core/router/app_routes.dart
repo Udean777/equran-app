@@ -46,8 +46,12 @@ abstract final class AppRoutes {
   static String doa(int id) => '/doa/$id';
 
   /// Navigasi ke halaman detail hafalan surat.
-  static String hafalanSurat(int nomor) => '/hafalan/$nomor';
+  static String hafalanSurat(int nomor, {int? juzNomor}) =>
+      juzNomor != null ? '/hafalan/$nomor?juz=$juzNomor' : '/hafalan/$nomor';
 
   /// Navigasi ke halaman setoran hafalan surat.
-  static String hafalanSetoranSurat(int nomor) => '/hafalan/$nomor/setoran';
+  static String hafalanSetoranSurat(int nomor, {int? juzNomor}) =>
+      juzNomor != null
+      ? '/hafalan/$nomor/setoran?juz=$juzNomor'
+      : '/hafalan/$nomor/setoran';
 }

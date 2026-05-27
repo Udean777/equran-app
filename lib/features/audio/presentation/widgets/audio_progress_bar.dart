@@ -9,33 +9,53 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Slider progress + label waktu untuk AudioPlayerBar.
 class AudioProgressBar extends StatelessWidget {
-  const AudioProgressBar({required this.isDark, super.key});
+  const AudioProgressBar({
+    required this.isDark,
+    this.showLabels = true,
+    super.key,
+  });
 
   final bool isDark;
+
+  /// Jika false, hanya render slider tanpa label waktu.
+  final bool showLabels;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AudioCubit, AudioPlayerState>(
       buildWhen: (prev, curr) =>
-          prev.position != curr.position || prev.duration != curr.duration,
+          prev.position != curr.position ||
+          prev.duration != curr.duration ||
+          prev.currentAyat != curr.currentAyat,
       builder: (context, posState) {
-        final position = posState.position;
-        final duration = posState.duration;
+        final cubit = context.read<AudioCubit>();
+        final isPlaylist = cubit.isPlaylistMode;
+        final playlistTotal = cubit.playlistTotalDuration;
+
+        // Gunakan timeline playlist jika tersedia (punya teksArab).
+        // Fallback ke durasi ayat aktual jika playlist dari local file
+        // (teksArab kosong → playlistTotalDuration == Duration.zero).
+        final position = isPlaylist && playlistTotal > Duration.zero
+            ? cubit.playlistCurrentPosition
+            : posState.position;
+        final duration = isPlaylist && playlistTotal > Duration.zero
+            ? playlistTotal
+            : posState.duration;
+
         final progress = duration.inMilliseconds > 0
             ? position.inMilliseconds / duration.inMilliseconds
             : 0.0;
-        final primaryColor =
-            isDark ? AppColors.primaryLighter : AppColors.primary;
+        final primaryColor = isDark
+            ? AppColors.primaryLighter
+            : AppColors.primary;
 
         return Column(
           children: [
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 2.5,
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 5),
-                overlayShape:
-                    const RoundSliderOverlayShape(overlayRadius: 10),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
                 activeTrackColor: primaryColor,
                 inactiveTrackColor: isDark
                     ? AppColors.outlineDark
@@ -47,41 +67,41 @@ class AudioProgressBar extends StatelessWidget {
                 value: progress.clamp(0.0, 1.0),
                 onChanged: (value) {
                   final seekTo = Duration(
-                    milliseconds:
-                        (value * duration.inMilliseconds).round(),
+                    milliseconds: (value * duration.inMilliseconds).round(),
                   );
                   unawaited(context.read<AudioCubit>().seek(seekTo));
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.spaceSM,
+            if (showLabels)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceSM,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _formatDuration(position),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                        fontSize: 10,
+                      ),
+                    ),
+                    Text(
+                      _formatDuration(duration),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _formatDuration(position),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
-                          fontSize: 10,
-                        ),
-                  ),
-                  Text(
-                    _formatDuration(duration),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
-                          fontSize: 10,
-                        ),
-                  ),
-                ],
-              ),
-            ),
           ],
         );
       },
@@ -89,8 +109,14 @@ class AudioProgressBar extends StatelessWidget {
   }
 
   String _formatDuration(Duration d) {
-    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
+    if (d.inHours > 0) {
+      final h = d.inHours.toString().padLeft(2, '0');
+      final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+      final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+      return '$h:$m:$s';
+    }
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
   }
 }

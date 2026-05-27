@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:equran_app/core/utils/failure_extension.dart';
-import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart'
-    show DownloadedAyatInfo;
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
+    show DownloadedAyatInfo;
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
@@ -42,7 +42,8 @@ class AudioStorageCubit extends Cubit<AudioStorageState> {
     emit(const AudioStorageState.loading());
     final result = await _getDownloadedAyats();
     result.fold(
-      (failure) => emit(AudioStorageState.error(message: failure.toUserMessage())),
+      (failure) =>
+          emit(AudioStorageState.error(message: failure.toUserMessage())),
       (files) {
         final totalBytes = files.fold<int>(0, (sum, f) => sum + f.sizeBytes);
         emit(AudioStorageState.success(files: files, totalBytes: totalBytes));

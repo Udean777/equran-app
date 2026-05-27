@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/imsak_alarm_config.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
@@ -30,7 +31,7 @@ class ImsakAlarmScheduler {
 
       if (scheduledTime != null) {
         await _scheduleAlarm(
-          id: kNotifIdImsak,
+          id: NotificationIds.imsak,
           title: 'Waktu Imsak',
           body: 'Sudah masuk waktu imsak, hentikan makan dan minum',
           scheduledTime: scheduledTime,
@@ -54,7 +55,7 @@ class ImsakAlarmScheduler {
 
       if (scheduledTime != null) {
         await _scheduleAlarm(
-          id: kNotifIdSahur,
+          id: NotificationIds.sahur,
           title: 'Alarm Sahur',
           body: 'Sahur sekarang! Imsak ${config.menitSebelumImsak} menit lagi',
           scheduledTime: scheduledTime,
@@ -74,8 +75,8 @@ class ImsakAlarmScheduler {
   /// Cancel alarm imsak (ID 6) dan sahur (ID 7).
   /// Tidak mengganggu notifikasi shalat (ID 1–5) maupun reminder Quran (ID 10).
   Future<void> cancelAll() async {
-    await _notificationService.cancelById(kNotifIdImsak);
-    await _notificationService.cancelById(kNotifIdSahur);
+    await _notificationService.cancelById(NotificationIds.imsak);
+    await _notificationService.cancelById(NotificationIds.sahur);
   }
 
   // ---------------------------------------------------------------------------

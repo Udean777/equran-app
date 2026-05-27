@@ -4,6 +4,7 @@ import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,9 +23,9 @@ class LanguageSelectorSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final languages = [
-      (const LanguageState.id(), l10n.indonesia),
-      (const LanguageState.en(), l10n.english),
-      (const LanguageState.ar(), l10n.arabic),
+      (const LanguageState.id(), l10n.indonesia, 'Bahasa diubah ke Indonesia'),
+      (const LanguageState.en(), l10n.english, 'Language changed to English'),
+      (const LanguageState.ar(), l10n.arabic, 'تم تغيير اللغة إلى العربية'),
     ];
 
     return Padding(
@@ -50,7 +51,7 @@ class LanguageSelectorSheet extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceSM),
           ...languages.map(
             (entry) {
-              final (lang, label) = entry;
+              final (lang, label, toastMessage) = entry;
               final isSelected = lang.runtimeType == current.runtimeType;
               final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -59,6 +60,7 @@ class LanguageSelectorSheet extends StatelessWidget {
                   unawaited(
                     context.read<LanguageCubit>().changeLanguage(lang),
                   );
+                  showSettingsToast(context, toastMessage);
                   Navigator.pop(context);
                 },
                 child: Padding(

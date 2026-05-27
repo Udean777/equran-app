@@ -5,6 +5,7 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/settings/presentation/widgets/notif_toggle_tile.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,35 +26,80 @@ class SettingsShalatNotifSection extends StatelessWidget {
               label: 'Subuh',
               icon: Icons.wb_twilight_rounded,
               value: prefs.subuh,
-              onChanged: (_) => cubit.toggleSubuh(),
+              onChanged: (_) {
+                unawaited(cubit.toggleSubuh());
+                showSettingsToast(
+                  context,
+                  prefs.subuh
+                      ? 'Notifikasi Subuh dimatikan'
+                      : 'Notifikasi Subuh aktif',
+                  isSuccess: !prefs.subuh,
+                );
+              },
             ),
             _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Dzuhur',
               icon: Icons.wb_sunny_rounded,
               value: prefs.dzuhur,
-              onChanged: (_) => cubit.toggleDzuhur(),
+              onChanged: (_) {
+                unawaited(cubit.toggleDzuhur());
+                showSettingsToast(
+                  context,
+                  prefs.dzuhur
+                      ? 'Notifikasi Dzuhur dimatikan'
+                      : 'Notifikasi Dzuhur aktif',
+                  isSuccess: !prefs.dzuhur,
+                );
+              },
             ),
             _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Ashar',
               icon: Icons.wb_sunny_outlined,
               value: prefs.ashar,
-              onChanged: (_) => cubit.toggleAshar(),
+              onChanged: (_) {
+                unawaited(cubit.toggleAshar());
+                showSettingsToast(
+                  context,
+                  prefs.ashar
+                      ? 'Notifikasi Ashar dimatikan'
+                      : 'Notifikasi Ashar aktif',
+                  isSuccess: !prefs.ashar,
+                );
+              },
             ),
             _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Maghrib',
               icon: Icons.nights_stay_outlined,
               value: prefs.maghrib,
-              onChanged: (_) => cubit.toggleMaghrib(),
+              onChanged: (_) {
+                unawaited(cubit.toggleMaghrib());
+                showSettingsToast(
+                  context,
+                  prefs.maghrib
+                      ? 'Notifikasi Maghrib dimatikan'
+                      : 'Notifikasi Maghrib aktif',
+                  isSuccess: !prefs.maghrib,
+                );
+              },
             ),
             _InternalDivider(isDark: isDark),
             NotifToggleTile(
               label: 'Isya',
               icon: Icons.dark_mode_rounded,
               value: prefs.isya,
-              onChanged: (_) => cubit.toggleIsya(),
+              onChanged: (_) {
+                unawaited(cubit.toggleIsya());
+                showSettingsToast(
+                  context,
+                  prefs.isya
+                      ? 'Notifikasi Isya dimatikan'
+                      : 'Notifikasi Isya aktif',
+                  isSuccess: !prefs.isya,
+                );
+              },
             ),
             _InternalDivider(isDark: isDark),
             // Menit sebelum
@@ -115,11 +161,18 @@ class SettingsShalatNotifSection extends StatelessWidget {
                     children: [
                       _StepButton(
                         icon: Icons.remove_rounded,
-                        onTap: () => unawaited(
-                          cubit.setMenitSebelum(
-                            (prefs.menitSebelum - 5).clamp(0, 60),
-                          ),
-                        ),
+                        onTap: () {
+                          final newVal = (prefs.menitSebelum - 5).clamp(0, 60);
+                          unawaited(cubit.setMenitSebelum(newVal));
+                          if (newVal < prefs.menitSebelum) {
+                            showSettingsToast(
+                              context,
+                              newVal == 0
+                                  ? 'Notifikasi tepat saat adzan'
+                                  : 'Notifikasi $newVal menit sebelum adzan',
+                            );
+                          }
+                        },
                         isDark: isDark,
                       ),
                       Padding(
@@ -139,11 +192,16 @@ class SettingsShalatNotifSection extends StatelessWidget {
                       ),
                       _StepButton(
                         icon: Icons.add_rounded,
-                        onTap: () => unawaited(
-                          cubit.setMenitSebelum(
-                            (prefs.menitSebelum + 5).clamp(0, 60),
-                          ),
-                        ),
+                        onTap: () {
+                          final newVal = (prefs.menitSebelum + 5).clamp(0, 60);
+                          unawaited(cubit.setMenitSebelum(newVal));
+                          if (newVal > prefs.menitSebelum) {
+                            showSettingsToast(
+                              context,
+                              'Notifikasi $newVal menit sebelum adzan',
+                            );
+                          }
+                        },
                         isDark: isDark,
                       ),
                     ],

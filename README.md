@@ -1,167 +1,217 @@
 # 📖 eQuran App
 
-Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan mengutamakan performa, estetika modern, dan arsitektur yang bersih (**Clean Architecture**). Aplikasi ini memadukan kemudahan membaca Al-Quran, mendengarkan lantunan murattal ayat demi ayat, mempelajari tafsir Kemenag RI, membaca kumpulan doa harian, hingga fitur ibadah lengkap kapan saja dan di mana saja.
+Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan mengutamakan performa, estetika premium, dan arsitektur yang bersih (**Clean Architecture**). Aplikasi ini memadukan kemudahan membaca Al-Quran, mendengarkan lantunan murattal ayat demi ayat, mempelajari tafsir Kemenag RI, membaca doa harian, hingga pelacakan statistik ibadah yang lengkap.
 
 ---
 
 ## ✨ Fitur Utama
 
-### 📖 Al-Quran
-
-- **Daftar & Detail Surat** — 114 surat dengan pencarian instan. Teks Arab menggunakan font premium **Amiri**, lengkap dengan transliterasi latin dan terjemahan.
-- **Tafsir Lengkap** — Pelajari makna mendalam setiap ayat melalui tafsir Kementerian Agama RI (Kemenag RI).
-- **Pemutar Audio Murattal** — Dengarkan lantunan Al-Quran per-ayat maupun per-surat dari qori ternama. Dilengkapi fitur download per-ayat dan per-surat untuk didengar secara offline, serta manajemen storage untuk file audio lokal.
-- **Catatan Ayat** — Tulis catatan pribadi yang terikat langsung ke ayat tertentu. Tersimpan lokal, bisa diedit, dihapus, dan dibagikan.
-- **Berbagi Ayat** — Generate gambar indah dari ayat pilihan untuk dibagikan ke media sosial via WhatsApp, Instagram, dan lainnya.
-- **Hafalan Tracker** — Lacak progress hafalan Al-Quran per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test), spaced repetition muraja'ah otomatis (interval 1→3→7→30→90 hari), dan notifikasi pengingat muraja'ah.
+### 📖 Al-Quran & Tafsir
+- **Daftar & Detail Surat** — 114 surat dengan pencarian instan yang responsif. Teks Arab menggunakan font premium **Amiri** dan **KFGQPC Uthmanic Script HAFS** (font mushaf standar Arab Saudi) yang sangat nyaman dibaca, lengkap dengan transliterasi latin serta terjemahan bahasa Indonesia.
+- **Tafsir Lengkap Kemenag RI** — Pelajari makna mendalam setiap ayat melalui tafsir Kementerian Agama Republik Indonesia (Kemenag RI) yang tersedia langsung per-ayat.
+- **Pemutar Audio Murattal Ter-Agregasi** — Dengarkan lantunan Al-Quran per-ayat maupun per-surat penuh dari qori ternama. Indikator durasi dan progress pemutaran telah ter-agregasi secara mulus agar tidak berkedip atau mereset saat berpindah ayat dalam mode playlist.
+- **Auto-Sync Last Read** — Sinkronisasi posisi membaca terakhir (*last read*) secara real-time saat audio murattal berpindah ayat secara otomatis.
+- **Offline Audio & Storage Manager** — Download file audio murattal secara terpisah (per ayat maupun per surat) untuk diputar secara offline. Dilengkapi manajemen penyimpanan (*audio storage manager*) untuk memantau kapasitas memori dan menghapus cache audio lokal secara dinamis.
+- **Catatan Ayat** — Tulis catatan spiritual pribadi yang terikat langsung pada ayat tertentu. Catatan tersimpan secara lokal dan aman via database offline (bisa diedit, dihapus, dan dibagikan).
+- **Berbagi Ayat Premium** — Generate gambar indah dengan desain elegan dari ayat pilihan untuk dibagikan secara instan ke media sosial seperti WhatsApp, Instagram, Telegram, dan lainnya.
 
 ### 🕌 Ibadah & Spiritual
+- **Jadwal Shalat Otomatis** — Waktu shalat fardhu lima waktu akurat sesuai koordinat GPS real-time. Dilengkapi nama wilayah yang ter-reverse secara dinamis menggunakan *geocoding*.
+- **Timezone Tangguh & Notifikasi Adzan** — Inisialisasi timezone otomatis yang beradaptasi dengan nama zona waktu lokal (WIB, WITA, WIT, dll.). Notifikasi adzan latar belakang berjalan andal pada Android dan iOS tanpa terputus ketika user berinteraksi dengan notification shade.
+- **Alarm Sahur & Imsak Independen** — Pengaturan alarm sahur (default 60 menit sebelum imsak) dan alarm imsak yang terjadwal secara terpisah dari notifikasi shalat, menghindari resiko bentrok atau terhapus saat proses sinkronisasi ulang.
+- **Kompas Kiblat Offline (Qibla Finder)** — Kompas penunjuk arah kiblat real-time yang bekerja 100% offline dengan memanfaatkan sensor magnetometer perangkat fisik.
+- **Tasbih Digital Interaktif** — Penghitung zikir yang dilengkapi dengan feedback getar (*haptic feedback*), target hitungan fleksibel (33, 99, atau custom), serta pencatatan riwayat sesi zikir yang lengkap.
+- **Kumpulan Doa Harian** — Doa-doa pilihan lengkap dengan teks Arab, latin, terjemahan, dan bookmark doa, serta rekomendasi cerdas sesuai waktu hari (Pagi, Siang, Malam).
 
-- **Jadwal Shalat & Notifikasi** — Waktu shalat fardhu lima waktu sesuai lokasi GPS, lengkap dengan notifikasi adzan otomatis yang bisa dikonfigurasi per waktu shalat. Dilengkapi inisialisasi timezone tangguh yang auto-adaptasi dengan nama zona waktu lokal (WIB, WITA, WIT, dll.) serta pemutaran audio adzan latar belakang yang andal pada Android dan iOS.
-- **Imsakiyah & Alarm Sahur/Imsak** — Jadwal imsakiyah bulanan dengan alarm sahur (default 60 menit sebelum imsak) dan alarm imsak yang bisa diatur sesuai kebutuhan. Sistem alarm dipisahkan secara independen dari notifikasi shalat agar tidak saling menghapus saat proses penjadwalan ulang.
-- **Kompas Arah Kiblat (Qibla Finder)** — Arah kiblat real-time menggunakan sensor kompas fisik perangkat. Bekerja 100% offline.
-- **Tasbih Digital** — Penghitung zikir dengan haptic feedback, target hitungan (33, 99, atau custom), dan riwayat sesi zikir.
-- **Kumpulan Doa Harian** — Doa-doa pilihan dengan rekomendasi cerdas sesuai waktu (pagi, siang, malam).
+### 📊 Progres & Statistik Ibadah
+- **Statistik Baca (Reading Progress)** — Lacak progress tilawah secara otomatis melalui deteksi scroll aktif (*viewport detection*). Menampilkan visualisasi premium berupa heatmap aktivitas 90 hari (GitHub-style), progress bar juz (30 juz), surat yang paling sering dibaca, dan grafik membaca harian.
+- **Statistik Shalat Harian** — Pencatatan mandiri (*self-logging*) shalat fardhu dengan status shalat (Tepat Waktu, Qadha, Tidak Shalat). Dilengkapi kalender interaktif bulanan, streak shalat berturut-turut, grafik batang (bar chart) mingguan, checklist reminder otomatis, serta fitur export log data shalat ke format CSV.
+- **Hafalan Tracker & Spaced Repetition** — Lacak progres hafalan per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test mode dengan menyembunyikan teks Arab), pengingat muraja'ah otomatis berbasis metode *spaced repetition* (interval 1 → 3 → 7 → 30 → 90 hari), dan notifikasi muraja'ah harian.
+- **Quran Daily Streak & Bookmark** — Hitung konsistensi membaca Al-Quran harian dengan streak counter serta sistem penanda halaman/bookmark multi-kategori yang aman.
 
-### 📊 Progres & Statistik
-
-- **Statistik Shalat** — Log manual shalat 5 waktu per hari dengan status (Tepat Waktu / Qadha / Tidak Shalat). Dilengkapi kalender bulanan, streak shalat, grafik mingguan (bar chart), reminder checklist otomatis, dan export data ke CSV.
-- **Statistik Baca (Reading Progress)** — Lacak ayat yang dibaca secara otomatis via viewport detection saat scroll. Menampilkan heatmap aktivitas 90 hari (GitHub-style), progress per juz (30 progress bar), top surat terbanyak dibaca, dan statistik harian.
-- **Hafalan Tracker** — Lacak progress hafalan Al-Quran per ayat, per surat, dan per juz dengan spaced repetition muraja'ah.
-- **Quran Daily Streak** — Pantau konsistensi membaca Al-Quran dengan streak harian.
-- **Sistem Bookmark & Terakhir Dibaca** — Simpan ayat penting dan lanjutkan tilawah dari posisi terakhir dengan satu ketukan.
-
-### ⚙️ Kustomisasi & UX
-
-- **Tema Terang, Gelap & Sepia** — Mode Sepia nyaman untuk membaca malam hari, seperti membaca di atas kertas.
-- **Pengaturan Font Arab** — Atur ukuran font Arab sesuai kenyamanan visual.
-- **Lokalisasi 3 Bahasa** — Bahasa Indonesia, English, dan العربية.
-- **Reminder Baca Quran** — Pengingat harian dengan jam yang bisa dikustomisasi.
+### ⚙️ Kustomisasi Premium & UX Modern
+- **Slide Onboarding Premium** — Pengenalan aplikasi interaktif sebanyak 6 slide untuk memandu konfigurasi awal (izin lokasi, notifikasi, pengenalan fitur Al-Quran, Jadwal Shalat, Hafalan, hingga inisialisasi aplikasi).
+- **Desain Adaptif Multi-Tema** — Mode Terang, Gelap, dan **Sepia** (mode membaca khusus yang dirancang dengan temperatur warna hangat untuk mengurangi kelelahan mata di malam hari).
+- **Pilihan Font & Ukuran Kustom** — Pengaturan fleksibel ukuran teks Arab, serta pemilihan tipe font Mushaf premium (font mushaf standar **Amiri** atau **KFGQPC**).
+- **Lokalisasi Multi-Bahasa** — Bahasa Indonesia, English, dan العربية.
+- **Branding Elegan & Optimalisasi RAM** — Integrasi ikon resmi eQuran di berbagai area (Welcome Slide, Success Slide, Home AppBar, App Drawer Header, Loading State, dll.). Menggunakan *pre-caching* gambar dinamis dan pembatasan RAM (`cacheWidth`/`cacheHeight`) pada pemrosesan aset gambar agar memori tetap ringan dan performa anti-lag yang mulus.
 
 ---
 
 ## 🏗️ Arsitektur & Teknologi
 
+eQuran dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang.
+
 ```mermaid
-graph TD
-    A[Presentation Layer] -->|Uses| B[Domain Layer]
-    C[Data Layer] -->|Implements| B[Domain Layer]
-    A -->|State Management| D[BLoC / Cubit]
-    C -->|Local Database| E[Hive Database]
-    C -->|Network| F[Dio / HTTP Client]
+flowchart TB
+    subgraph UI ["Presentation Layer (Flutter UI)"]
+        Widgets["🎨 Widgets & Pages"]
+        Blocs["⚙️ BLoC / Cubit (State Management)"]
+    end
+
+    subgraph Domain ["Domain Layer (Pure Dart)"]
+        Usecases["🎯 Use Cases (Business Logic)"]
+        Entities["📦 Entities (Immutable Models)"]
+        ReposInterface["🔑 Repository Interfaces"]
+    end
+
+    subgraph Data ["Data Layer (Infrastructure)"]
+        ReposImpl["📂 Repository Implementations"]
+        LocalDS["💾 Local Data Sources (Hive CE)"]
+        RemoteDS["🌐 Remote Data Sources (Dio HTTP)"]
+        External["🔔 Platform Services (Notifications, GPS, Alarms)"]
+    end
+
+    %% presentation using domain
+    Widgets --> Blocs
+    Blocs --> Usecases
+    
+    %% domain relationships
+    Usecases --> Entities
+    Usecases --> ReposInterface
+    
+    %% data implementing domain
+    ReposImpl -.->|Implements| ReposInterface
+    ReposImpl --> LocalDS
+    ReposImpl --> RemoteDS
+    ReposImpl --> External
+    
+    %% external packages mapping
+    LocalDS --> HiveCE["Hive Database"]
+    RemoteDS --> Dio["Dio HTTP Client"]
+    External --> System["AndroidAlarmManager / Notifications / Location"]
+
+    classDef presentation fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px;
+    classDef domain fill:#efebe9,stroke:#795548,stroke-width:2px;
+    classDef data fill:#e8f5e9,stroke:#4caf50,stroke-width:2px;
+    classDef external fill:#fff3e0,stroke:#ff9800,stroke-width:2px;
+    
+    class Widgets,Blocs presentation;
+    class Usecases,Entities,ReposInterface domain;
+    class ReposImpl,LocalDS,RemoteDS,External data;
+    class HiveCE,Dio,System external;
 ```
 
-- **Clean Architecture** — Kode dipisahkan ke 3 layer: **Data**, **Domain**, dan **Presentation**.
-- **State Management** — **BLoC / Cubit** (`flutter_bloc`) untuk unidirectional data flow yang mudah diuji.
-- **Dependency Injection** — **GetIt** & **Injectable** untuk loose coupling dan inisialisasi dependensi otomatis.
-- **Declarative Routing** — **GoRouter** untuk navigasi berbasis rute yang aman dan modular.
-- **Local Caching** — **Hive CE** untuk penyimpanan data lokal super cepat (bookmarks, cache, settings, catatan, alarm prefs, statistik shalat, reading history).
+### Penjelasan Arsitektur:
+1. **Presentation Layer**: Menangani visualisasi antarmuka dan interaksi pengguna. Menggunakan **BLoC & Cubit** (`flutter_bloc`) untuk *state management* reaktif yang bersih dan terisolasi dengan aliran data searah (*unidirectional data flow*).
+2. **Domain Layer**: Merupakan inti (core) dari bisnis logik aplikasi yang bersifat murni (Pure Dart) dan tidak memiliki ketergantungan terhadap external packages, library, atau UI framework. Terdiri dari Entities (termasuk immutable data model dengan Freezed & Equatable) dan Usecases.
+3. **Data Layer**: Mengimplementasikan kontrak repositori dari Domain Layer. Menangani data lokal (Hive boxes) dan data remote (Dio HTTP client dengan interceptor & auto-retry), serta layanan sistem platform (AlarmManager, Notifications, Location Services).
+4. **Dependency Injection**: Menggunakan **GetIt** & **Injectable** untuk pendaftaran dependensi secara otomatis melalui *code generation*.
+5. **Declarative Routing**: Menggunakan **GoRouter** untuk navigasi berbasis rute aman, modular, dan mendukung parameter dinamis serta redirect logic (misal: onboarding state redirection).
 
 ---
 
 ## 📦 Paket & Dependensi Utama
 
-| Nama Package                          |        Versi        | Kegunaan                                                             |
-| :------------------------------------ | :-----------------: | :------------------------------------------------------------------- |
-| **`flutter_bloc`**                    |      `^9.1.1`       | State management BLoC/Cubit                                          |
-| **`just_audio`**                      |      `^0.9.40`      | Pemutar audio murattal                                               |
-| **`audio_session`**                   |      `^0.1.21`      | Manajemen sesi audio perangkat                                       |
-| **`dio`**                             |      `^5.5.0`       | HTTP Client dengan Interceptor                                       |
-| **`hive_ce`** & **`hive_ce_flutter`** |      `^2.7.0`       | Database NoSQL lokal                                                 |
-| **`go_router`**                       |      `^17.2.3`      | Declarative routing                                                  |
-| **`get_it`** & **`injectable`**       | `^9.2.1` / `^3.0.0` | Dependency Injection                                                 |
-| **`flutter_local_notifications`**     |      `^18.0.0`      | Notifikasi lokal (adzan, alarm, reminder, hafalan, shalat checklist) |
-| **`timezone`**                        |      `^0.9.4`       | Timezone support untuk scheduling notifikasi                         |
-| **`geolocator`**                      |      `^13.0.4`      | Lokasi GPS untuk jadwal shalat & kiblat                              |
-| **`geocoding`**                       |      `^3.0.0`       | Konversi koordinat ke nama wilayah                                   |
-| **`flutter_compass`**                 |      `^0.8.1`       | Sensor kompas untuk Qibla Finder                                     |
-| **`share_plus`**                      |      `^10.1.4`      | Berbagi konten (teks & gambar ayat)                                  |
-| **`table_calendar`**                  |      `^3.1.2`       | Kalender bulanan untuk Statistik Shalat                              |
-| **`fpdart`**                          |      `^1.1.0`       | Functional Programming (`Either`, `Option`)                          |
-| **`freezed_annotation`**              |      `^3.1.0`       | Immutable class & union types                                        |
-| **`equatable`**                       |      `^2.0.5`       | Perbandingan nilai objek                                             |
-| **`path_provider`**                   |      `^2.1.4`       | Akses direktori penyimpanan lokal                                    |
-| **`intl`**                            |      `^0.20.1`      | Internasionalisasi & format tanggal                                  |
-| **`url_launcher`**                    |      `^6.3.2`       | Membuka URL eksternal                                                |
-| **`synchronized`**                    |     `^3.1.0+1`      | Mutex lock untuk concurrent write operations                         |
+| Nama Package | Versi | Kegunaan |
+| :--- | :---: | :--- |
+| **`flutter_bloc`** | `^9.1.1` | State management berbasis BLoC & Cubit |
+| **`just_audio`** | `^0.9.40` | Pemutar audio murattal |
+| **`audio_session`** | `^0.1.21` | Manajemen sesi audio perangkat |
+| **`audio_service`** | `^0.18.0` | Pemutaran audio latar belakang |
+| **`dio`** | `^5.5.0` | HTTP Client dengan Interceptor dan penanganan error |
+| **`hive_ce`** & **`hive_ce_flutter`** | `^2.7.0` / `^2.2.0` | Database NoSQL lokal super cepat untuk caching & local preferences |
+| **`go_router`** | `^17.2.3` | Declarative routing system |
+| **`get_it`** & **`injectable`** | `^9.2.1` / `^3.0.0` | Dependency Injection & Auto service registration |
+| **`flutter_local_notifications`** | `^18.0.0` | Notifikasi lokal (adzan, alarm, reminder baca, dll.) |
+| **`android_alarm_manager_plus`** | `^4.0.7` | Penjadwalan latar belakang (Background alarm scheduler) di Android |
+| **`timezone`** | `^0.9.4` | Konfigurasi timezone untuk notifikasi terjadwal |
+| **`geolocator`** | `^13.0.4` | Mengakses lokasi GPS untuk jadwal shalat & kiblat |
+| **`geocoding`** | `^3.0.0` | Konversi koordinat lokasi GPS ke nama kota/wilayah |
+| **`flutter_compass`** | `^0.8.1` | Sensor kompas fisik untuk Qibla Finder |
+| **`share_plus`** | `^10.1.4` | Berbagi konten (teks & gambar ayat) ke media sosial |
+| **`table_calendar`** | `^3.1.2` | Kalender bulanan interaktif untuk log Statistik Shalat |
+| **`fpdart`** | `^1.1.0` | Penerapan Functional Programming (`Either`, `Option`) |
+| **`freezed_annotation`** | `^3.1.0` | Code generation untuk immutable class & union types |
+| **`equatable`** | `^2.0.5` | Perbandingan nilai objek |
+| **`path_provider`** | `^2.1.4` | Akses direktori penyimpanan lokal (audio download & Hive db) |
+| **`intl`** | `^0.20.1` | Format tanggal, waktu, dan lokalisasi bahasa |
+| **`url_launcher`** | `^6.3.2` | Membuka tautan URL eksternal |
+| **`synchronized`** | `^3.1.0+1` | Mutex lock untuk penulisan data bersama secara aman |
+| **`gal`** | `^2.3.2` | Menyimpan gambar ayat hasil generate ke galeri perangkat |
+| **`google_fonts`** | `^8.1.0` | Integrasi font premium tambahan secara dinamis |
+| **`package_info_plus`** | `^8.1.2` | Informasi info aplikasi (versi, nama build, dll.) |
 
 ---
 
 ## 🎗️ Kredit & Apresiasi API
 
 ### **[equran.id](https://equran.id)** 🌟
-
-Seluruh data surat, teks Arab, terjemahan, audio murattal, tafsir, hingga doa harian bersumber dari API gratis yang disediakan oleh **equran.id**.
+Seluruh data surat, teks Arab, terjemahan, audio murattal, tafsir, hingga kumpulan doa harian bersumber dari API gratis yang disediakan oleh **equran.id**.
 
 > [!NOTE]
 > Dukung keberlangsungan penyedia API ini dengan mengunjungi [equran.id](https://equran.id).
 
 ### **[IslamDownload.net](https://islamdownload.net)** 🎧
-
-Suara adzan yang digunakan untuk notifikasi waktu shalat fardhu dan adzan Subuh bersumber dari koleksi audio adzan gratis di **[IslamDownload.net](https://islamdownload.net/123801-download-suara-adzan.html)**.
+Suara adzan gratis yang digunakan untuk notifikasi waktu shalat fardhu dan adzan Subuh bersumber dari koleksi audio adzan di **[IslamDownload.net](https://islamdownload.net/123801-download-suara-adzan.html)**.
 
 ---
 
 ## 🚀 Cara Memulai
 
 ### 1. Prasyarat
-
 - **Flutter SDK**: `>=3.22.0`
 - **Dart SDK**: `>=3.8.0 <4.0.0`
 
 ### 2. Kloning Repositori
-
 ```bash
 git clone https://github.com/Udean777/equran-app.git
 cd equran-app
 ```
 
 ### 3. Instal Dependensi
-
 ```bash
 flutter pub get
 ```
 
 ### 4. Jalankan Code Generator
-
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### 5. Jalankan Aplikasi
-
 ```bash
 flutter run
 ```
 
 ---
 
-## 🏗️ Build Production
+## 🏗️ Build Production (Makefile)
+
+Aplikasi ini dilengkapi dengan **Makefile** untuk memudahkan proses kompilasi production:
 
 ```bash
-# APK per ABI (distribusi langsung)
+# APK per ABI (arm64, armv7, x86_64 — ukuran optimal & ringan)
 make build-android-apk
 
-# App Bundle (Google Play Store)
+# App Bundle (untuk upload ke Google Play Store)
 make build-android-aab
 
-# iOS IPA (perlu Mac + Xcode)
+# iOS IPA (membutuhkan Mac dengan Xcode)
 make build-ios
 
-# Analisis ukuran APK
+# Web Build (CanvasKit renderer dengan PWA offline-first strategy)
+make build-web
+
+# Analisis detail ukuran APK
 make analyze-size
+
+# Bersihkan build artifacts
+make clean
 ```
 
 ---
 
 ## 🧪 Menjalankan Pengujian
 
+Aplikasi ini dilengkapi dengan pengujian unit dan integrasi yang menyeluruh:
+
 ```bash
 flutter test
 ```
 
-> 545 test — semua passed ✅
+> **545 tests — semua passed ✅**
 
 ---
 
-_Dibuat dengan penuh rasa cinta dan dedikasi untuk kemudahan membaca serta mempelajari Al-Quran secara digital. Semoga menjadi amal jariyah._ 🤲✨
+_Dibuat dengan penuh rasa cinta dan dedikasi untuk memudahkan umat Islam dalam membaca, menghafal, serta mempelajari Al-Quran secara digital. Semoga menjadi amal jariyah._ 🤲✨

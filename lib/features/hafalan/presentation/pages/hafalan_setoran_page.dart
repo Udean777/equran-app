@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
@@ -7,6 +8,7 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
@@ -17,39 +19,38 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class HafalanSetoranPage extends StatelessWidget {
-  const HafalanSetoranPage({required this.suratNomor, super.key});
+  const HafalanSetoranPage({
+    required this.suratNomor,
+    this.juzNomor,
+    super.key,
+  });
 
   final int suratNomor;
+  final int? juzNomor;
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<SuratDetailCubit>();
-            unawaited(cubit.load(suratNomor));
-            return cubit;
-          },
-        ),
-        // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
-        BlocProvider.value(
-          value: () {
-            final cubit = getIt<HafalanCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          }(),
-        ),
-      ],
-      child: _HafalanSetoranView(suratNomor: suratNomor),
+    return HafalanProviders(
+      child: BlocProvider(
+        create: (_) {
+          final cubit = getIt<SuratDetailCubit>();
+          unawaited(cubit.load(suratNomor));
+          return cubit;
+        },
+        child: _HafalanSetoranView(suratNomor: suratNomor, juzNomor: juzNomor),
+      ),
     );
   }
 }
 
 class _HafalanSetoranView extends StatelessWidget {
-  const _HafalanSetoranView({required this.suratNomor});
+  const _HafalanSetoranView({
+    required this.suratNomor,
+    this.juzNomor,
+  });
 
   final int suratNomor;
+  final int? juzNomor;
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +62,13 @@ class _HafalanSetoranView extends StatelessWidget {
           appBar: const LuxuryAppBar(title: 'Mode Setoran'),
           body: ErrorStateWidget(
             message: failure.toUserMessage(),
-            onRetry: () =>
-                context.read<SuratDetailCubit>().retry(suratNomor),
+            onRetry: () => context.read<SuratDetailCubit>().retry(suratNomor),
           ),
         ),
         SuratDetailSuccess(:final detail) => _SetoranSession(
           detail: detail,
           suratNomor: suratNomor,
+          juzNomor: juzNomor,
         ),
       },
     );
@@ -80,10 +81,12 @@ class _SetoranSession extends StatefulWidget {
   const _SetoranSession({
     required this.detail,
     required this.suratNomor,
+    this.juzNomor,
   });
 
   final SuratDetail detail;
   final int suratNomor;
+  final int? juzNomor;
 
   @override
   State<_SetoranSession> createState() => _SetoranSessionState();
@@ -99,7 +102,21 @@ class _SetoranSessionState extends State<_SetoranSession> {
   @override
   void initState() {
     super.initState();
-    _ayatList = widget.detail.ayatList;
+
+    // Ambil range ayat untuk surat ini di juz yang aktif
+    final range = widget.juzNomor != null
+        ? kJuzSurahVerseRanges['${widget.juzNomor}:${widget.suratNomor}']
+        : null;
+
+    if (range != null) {
+      final startAyat = range.$1;
+      final endAyat = range.$2;
+      _ayatList = widget.detail.ayatList
+          .where((a) => a.nomorAyat >= startAyat && a.nomorAyat <= endAyat)
+          .toList();
+    } else {
+      _ayatList = widget.detail.ayatList;
+    }
   }
 
   Ayat get _currentAyat => _ayatList[_currentIndex];
@@ -182,17 +199,12 @@ class _SetoranSessionState extends State<_SetoranSession> {
       jumlahAyat: widget.detail.info.jumlahAyat,
     );
 
-    for (final entry in _hasil.entries) {
-      final wasHafal = existing?.ayatHafal.contains(entry.key) ?? false;
-      final isHafalNow = entry.value;
-      if (wasHafal != isHafalNow) {
-        await hafalanCubit.toggleAyat(
-          suratNomor: widget.suratNomor,
-          ayatNomor: entry.key,
-          suratInfo: suratInfo,
-        );
-      }
-    }
+    // Simpan seluruh daftar ayat hafal sekaligus untuk mencegah race condition
+    await hafalanCubit.saveAyatHafalList(
+      suratNomor: widget.suratNomor,
+      newAyatHafal: ayatHafalBaru.toList()..sort(),
+      suratInfo: suratInfo,
+    );
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

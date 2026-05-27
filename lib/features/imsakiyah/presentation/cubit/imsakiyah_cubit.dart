@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/core/location/location_selection_mixin.dart';
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/core/utils/string_utils.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart';
@@ -17,14 +17,15 @@ part 'imsakiyah_cubit.freezed.dart';
 part 'imsakiyah_state.dart';
 
 @injectable
-class ImsakiyahCubit extends Cubit<ImsakiyahState> {
+class ImsakiyahCubit extends Cubit<ImsakiyahState>
+    with LocationSelectionMixin<ImsakiyahState> {
   ImsakiyahCubit(
     this._getProvinsi,
     this._getKabkota,
     this._getImsakiyah,
     this._getLastLocation,
     this._saveLastLocation,
-    this._locationService,
+    this.locationService,
   ) : super(const ImsakiyahState.initial());
 
   final GetProvinsi _getProvinsi;
@@ -32,7 +33,48 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
   final GetImsakiyah _getImsakiyah;
   final GetLastLocationImsakiyah _getLastLocation;
   final SaveLastLocationImsakiyah _saveLastLocation;
-  final LocationService _locationService;
+  @override
+  final LocationService locationService;
+
+  // ─── LocationSelectionMixin overrides ────────────────────────────────────────
+
+  @override
+  Future<List<String>?> getKabkotaList(String provinsi) async {
+    final result = await _getKabkota(provinsi);
+    return result.fold((_) => null, (list) => list);
+  }
+
+  @override
+  Future<void> saveLocation({
+    required String provinsi,
+    required String kabkota,
+  }) =>
+      _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
+
+  @override
+  Future<void> onLocationDetected({
+    required List<String> provinsiList,
+    required String selectedProvinsi,
+    required String selectedKabkota,
+    List<String>? kabkotaList,
+  }) =>
+      _autoLoadJadwal(
+        provinsiList: provinsiList,
+        selectedProvinsi: selectedProvinsi,
+        selectedKabkota: selectedKabkota,
+        kabkotaList: kabkotaList,
+      );
+
+  @override
+  void onDetectingLocation() {
+    emit(const ImsakiyahState.detectingLocation());
+  }
+
+  @override
+  Future<void> onLocationDetectFailed(List<String> provinsiList) =>
+      loadDefaultJakarta(provinsiList);
+
+  // ─── Public API ──────────────────────────────────────────────────────────────
 
   /// Load provinsi list + restore last location jika ada,
   /// atau auto-detect dari GPS jika belum pernah dipilih.
@@ -43,7 +85,7 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
     await result.fold(
       (failure) async => emit(ImsakiyahState.failure(failure: failure)),
       (provinsi) async {
-        // 1. Coba restore lokasi terakhir (saved preference)
+        // 1. Coba restore lokasi terakhir
         final lastLocationResult = await _getLastLocation();
         final lastProvinsi = lastLocationResult.fold(
           (_) => null,
@@ -65,153 +107,12 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
           return;
         }
 
-        // 2. Belum ada riwayat → coba auto-detect dari GPS
-        emit(const ImsakiyahState.detectingLocation());
-        final detected = await _locationService.detectCurrentLocation();
-
-        if (detected != null) {
-          // Cocokkan dengan daftar provinsi (case-insensitive partial match)
-          final matchedProvinsi = fuzzyMatch(detected.provinsi, provinsi);
-
-          if (matchedProvinsi != null) {
-            final kabkotaResult = await _getKabkota(matchedProvinsi);
-            await kabkotaResult.fold(
-              (failure) async =>
-                  emit(ImsakiyahState.provinsiLoaded(provinsi: provinsi)),
-              (kabkota) async {
-                final matchedKabkota = fuzzyMatch(detected.kabkota, kabkota);
-
-                if (matchedKabkota != null) {
-                  // Simpan preferensi dan langsung load jadwal
-                  unawaited(
-                    _saveLastLocation(
-                      provinsi: matchedProvinsi,
-                      kabkota: matchedKabkota,
-                    ),
-                  );
-                  await _autoLoadJadwal(
-                    provinsiList: provinsi,
-                    selectedProvinsi: matchedProvinsi,
-                    selectedKabkota: matchedKabkota,
-                    kabkotaList: kabkota,
-                  );
-                } else {
-                  // Provinsi cocok tapi kabkota tidak → pre-select provinsi
-                  emit(
-                    ImsakiyahState.kabkotaLoaded(
-                      provinsi: provinsi,
-                      selectedProvinsi: matchedProvinsi,
-                      kabkota: kabkota,
-                    ),
-                  );
-                }
-              },
-            );
-            return;
-          }
-        }
-
-        // 3. GPS gagal / tidak cocok → default Jakarta
-        await _loadDefaultJakarta(provinsiList: provinsi);
+        // 2. Belum ada riwayat → auto-detect GPS (mixin)
+        await autoDetectLocation(provinsi);
       },
     );
   }
 
-  static const _defaultProvinsi = 'DKI Jakarta';
-  static const _defaultKabkota = 'Kota Jakarta Pusat';
-
-  /// Fallback: load jadwal dengan lokasi default Jakarta Pusat.
-  Future<void> _loadDefaultJakarta({required List<String> provinsiList}) async {
-    final kabkotaResult = await _getKabkota(_defaultProvinsi);
-    await kabkotaResult.fold(
-      (failure) async =>
-          emit(ImsakiyahState.provinsiLoaded(provinsi: provinsiList)),
-      (kabkota) async {
-        // Cari kabkota Jakarta Pusat, fallback ke first jika tidak ada
-        final matched = kabkota.contains(_defaultKabkota)
-            ? _defaultKabkota
-            : kabkota.first;
-        unawaited(
-          _saveLastLocation(
-            provinsi: _defaultProvinsi,
-            kabkota: matched,
-          ),
-        );
-        await _autoLoadJadwal(
-          provinsiList: provinsiList,
-          selectedProvinsi: _defaultProvinsi,
-          selectedKabkota: matched,
-          kabkotaList: kabkota,
-        );
-      },
-    );
-  }
-
-  /// Auto-load jadwal dengan provinsi & kabkota yang sudah diketahui.
-  Future<void> _autoLoadJadwal({
-    required List<String> provinsiList,
-    required String selectedProvinsi,
-    required String selectedKabkota,
-    List<String>? kabkotaList,
-  }) async {
-    // Jika kabkotaList belum tersedia, load dulu
-    final kabkota = kabkotaList ?? await _fetchKabkotaList(selectedProvinsi);
-    if (kabkota == null) {
-      emit(ImsakiyahState.provinsiLoaded(provinsi: provinsiList));
-      return;
-    }
-
-    // Validasi kabkota ada di dalam list
-    if (!kabkota.contains(selectedKabkota)) {
-      emit(ImsakiyahState.provinsiLoaded(provinsi: provinsiList));
-      return;
-    }
-
-    emit(
-      ImsakiyahState.loadingJadwal(
-        provinsi: provinsiList,
-        selectedProvinsi: selectedProvinsi,
-        kabkota: kabkota,
-        selectedKabkota: selectedKabkota,
-      ),
-    );
-
-    final jadwalResult = await _getImsakiyah(
-      provinsi: selectedProvinsi,
-      kabkota: selectedKabkota,
-    );
-    jadwalResult.fold(
-      (failure) => emit(
-        ImsakiyahState.failure(
-          failure: failure,
-          provinsi: provinsiList,
-          selectedProvinsi: selectedProvinsi,
-          kabkota: kabkota,
-          selectedKabkota: selectedKabkota,
-        ),
-      ),
-      (jadwal) => emit(
-        ImsakiyahState.success(
-          provinsi: provinsiList,
-          selectedProvinsi: selectedProvinsi,
-          kabkota: kabkota,
-          selectedKabkota: selectedKabkota,
-          jadwal: jadwal,
-        ),
-      ),
-    );
-  }
-
-  /// Fetch kabkota list, return null jika gagal.
-  Future<List<String>?> _fetchKabkotaList(String provinsi) async {
-    final result = await _getKabkota(provinsi);
-    return result.fold((_) => null, (list) => list);
-  }
-
-  /// Fuzzy match: cari item dalam candidates yang paling mendekati query.
-  ///
-  /// Geocoding sering mengembalikan nama tanpa prefix (e.g. "Medan", "Deli Serdang")
-  /// sedangkan API mengembalikan "Kota Medan" atau "Kab. Deli Serdang".
   /// User memilih provinsi → load kabkota
   Future<void> selectProvinsi(String provinsi) async {
     final currentProvinsiList = _extractProvinsiList();
@@ -258,9 +159,8 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
       ),
     );
 
-    // Simpan preferensi
     unawaited(
-      _saveLastLocation(
+      saveLocation(
         provinsi: selectedProvinsi,
         kabkota: kabkota,
       ),
@@ -311,7 +211,60 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState> {
     }
   }
 
-  // --- helpers ---
+  // ─── Private helpers ─────────────────────────────────────────────────────────
+
+  /// Auto-load jadwal dengan provinsi & kabkota yang sudah diketahui.
+  Future<void> _autoLoadJadwal({
+    required List<String> provinsiList,
+    required String selectedProvinsi,
+    required String selectedKabkota,
+    List<String>? kabkotaList,
+  }) async {
+    final kabkota = kabkotaList ?? await getKabkotaList(selectedProvinsi);
+    if (kabkota == null) {
+      emit(ImsakiyahState.provinsiLoaded(provinsi: provinsiList));
+      return;
+    }
+
+    if (!kabkota.contains(selectedKabkota)) {
+      emit(ImsakiyahState.provinsiLoaded(provinsi: provinsiList));
+      return;
+    }
+
+    emit(
+      ImsakiyahState.loadingJadwal(
+        provinsi: provinsiList,
+        selectedProvinsi: selectedProvinsi,
+        kabkota: kabkota,
+        selectedKabkota: selectedKabkota,
+      ),
+    );
+
+    final jadwalResult = await _getImsakiyah(
+      provinsi: selectedProvinsi,
+      kabkota: selectedKabkota,
+    );
+    jadwalResult.fold(
+      (failure) => emit(
+        ImsakiyahState.failure(
+          failure: failure,
+          provinsi: provinsiList,
+          selectedProvinsi: selectedProvinsi,
+          kabkota: kabkota,
+          selectedKabkota: selectedKabkota,
+        ),
+      ),
+      (jadwal) => emit(
+        ImsakiyahState.success(
+          provinsi: provinsiList,
+          selectedProvinsi: selectedProvinsi,
+          kabkota: kabkota,
+          selectedKabkota: selectedKabkota,
+          jadwal: jadwal,
+        ),
+      ),
+    );
+  }
 
   List<String> _extractProvinsiList() {
     final s = state;

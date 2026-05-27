@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
+import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
@@ -42,8 +43,8 @@ class _CatatanAyatView extends StatelessWidget {
         builder: (context, state) => switch (state) {
           CatatanAyatInitial() => const LoadingWidget(),
           CatatanAyatLoading() => const LoadingWidget(),
-          CatatanAyatFailure(:final message) => ErrorStateWidget(
-            message: message,
+          CatatanAyatFailure(:final failure) => ErrorStateWidget(
+            message: failure.toUserMessage(),
             onRetry: () => context.read<CatatanAyatCubit>().load(),
           ),
           CatatanAyatSuccess(:final catatan) =>

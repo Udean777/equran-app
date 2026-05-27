@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -9,20 +10,43 @@ import 'package:go_router/go_router.dart';
 class HafalanSuratCard extends StatelessWidget {
   const HafalanSuratCard({
     required this.hafalan,
+    this.juzNomor,
     super.key,
   });
 
   final HafalanSurat hafalan;
+  final int? juzNomor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final persen = (hafalan.progressAyat * 100).toStringAsFixed(0);
+
+    // Cari range ayat untuk surat ini di juz yang aktif jika ada
+    final range = juzNomor != null
+        ? kJuzSurahVerseRanges['$juzNomor:${hafalan.suratNomor}']
+        : null;
+
+    final startAyat = range?.$1 ?? 1;
+    final endAyat = range?.$2 ?? hafalan.jumlahAyat;
+    final totalAyatInRange = endAyat - startAyat + 1;
+
+    // Filter ayat yang dihafal hanya yang berada di range juz aktif
+    final ayatHafalInRange = hafalan.ayatHafal
+        .where((a) => a >= startAyat && a <= endAyat)
+        .toList();
+
+    final progress = totalAyatInRange > 0
+        ? ayatHafalInRange.length / totalAyatInRange
+        : 0.0;
+    final persen = (progress * 100).toStringAsFixed(0);
+    final displayedStatus = _juzStatus(progress, hafalan.status);
 
     return Card(
       margin: EdgeInsets.zero,
       child: InkWell(
-        onTap: () => context.push(AppRoutes.hafalanSurat(hafalan.suratNomor)),
+        onTap: () => context.push(
+          AppRoutes.hafalanSurat(hafalan.suratNomor, juzNomor: juzNomor),
+        ),
         borderRadius: BorderRadius.circular(AppDimens.radiusMD),
         child: Padding(
           padding: const EdgeInsets.all(AppDimens.cardPadding),
@@ -63,7 +87,7 @@ class HafalanSuratCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${hafalan.ayatHafal.length}/${hafalan.jumlahAyat} ayat · $persen%',
+                          '${ayatHafalInRange.length}/$totalAyatInRange ayat · $persen%',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey[500],
                           ),
@@ -73,7 +97,7 @@ class HafalanSuratCard extends StatelessWidget {
                   ),
 
                   // Status badge + arrow
-                  HafalanStatusBadge(status: hafalan.status),
+                  HafalanStatusBadge(status: displayedStatus),
                   const SizedBox(width: AppDimens.spaceXS),
                   Icon(
                     Icons.chevron_right_rounded,
@@ -84,23 +108,23 @@ class HafalanSuratCard extends StatelessWidget {
               ),
 
               // Progress bar — hanya tampil jika sudah ada progress
-              if (hafalan.ayatHafal.isNotEmpty) ...[
+              if (ayatHafalInRange.isNotEmpty) ...[
                 const SizedBox(height: AppDimens.spaceSM),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   child: LinearProgressIndicator(
-                    value: hafalan.progressAyat,
+                    value: progress,
                     minHeight: 4,
                     backgroundColor: Colors.grey[200],
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _progressColor(hafalan.status),
+                      _progressColor(displayedStatus),
                     ),
                   ),
                 ),
               ],
 
               // Muraja'ah jatuh tempo — warning kecil
-              if (hafalan.status == HafalanStatus.perluMurajaah &&
+              if (displayedStatus == HafalanStatus.perluMurajaah &&
                   hafalan.tanggalMurajaahBerikutnya != null) ...[
                 const SizedBox(height: AppDimens.spaceXS),
                 Row(
@@ -126,6 +150,16 @@ class HafalanSuratCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  HafalanStatus _juzStatus(double progress, HafalanStatus overallStatus) {
+    if (progress == 0.0) return HafalanStatus.belum;
+    if (progress == 1.0) {
+      return overallStatus == HafalanStatus.perluMurajaah
+          ? HafalanStatus.perluMurajaah
+          : HafalanStatus.sudahHafal;
+    }
+    return HafalanStatus.sedangDihafal;
   }
 
   Color _progressColor(HafalanStatus status) {

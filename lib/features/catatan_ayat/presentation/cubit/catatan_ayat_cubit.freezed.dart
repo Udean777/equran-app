@@ -125,13 +125,13 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<CatatanAyat> catatan)?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<CatatanAyat> catatan)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CatatanAyatInitial() when initial != null:
 return initial();case CatatanAyatLoading() when loading != null:
 return loading();case CatatanAyatSuccess() when success != null:
 return success(_that.catatan);case CatatanAyatFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.failure);case _:
   return orElse();
 
 }
@@ -149,13 +149,13 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<CatatanAyat> catatan)  success,required TResult Function( String message)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<CatatanAyat> catatan)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case CatatanAyatInitial():
 return initial();case CatatanAyatLoading():
 return loading();case CatatanAyatSuccess():
 return success(_that.catatan);case CatatanAyatFailure():
-return failure(_that.message);}
+return failure(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +169,13 @@ return failure(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<CatatanAyat> catatan)?  success,TResult? Function( String message)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<CatatanAyat> catatan)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case CatatanAyatInitial() when initial != null:
 return initial();case CatatanAyatLoading() when loading != null:
 return loading();case CatatanAyatSuccess() when success != null:
 return success(_that.catatan);case CatatanAyatFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.failure);case _:
   return null;
 
 }
@@ -323,10 +323,10 @@ as List<CatatanAyat>,
 
 
 class CatatanAyatFailure implements CatatanAyatState {
-  const CatatanAyatFailure(this.message);
+  const CatatanAyatFailure(this.failure);
   
 
- final  String message;
+ final  Failure failure;
 
 /// Create a copy of CatatanAyatState
 /// with the given fields replaced by the non-null parameter values.
@@ -338,16 +338,16 @@ $CatatanAyatFailureCopyWith<CatatanAyatFailure> get copyWith => _$CatatanAyatFai
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CatatanAyatFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CatatanAyatFailure&&(identical(other.failure, failure) || other.failure == failure));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,failure);
 
 @override
 String toString() {
-  return 'CatatanAyatState.failure(message: $message)';
+  return 'CatatanAyatState.failure(failure: $failure)';
 }
 
 
@@ -358,11 +358,11 @@ abstract mixin class $CatatanAyatFailureCopyWith<$Res> implements $CatatanAyatSt
   factory $CatatanAyatFailureCopyWith(CatatanAyatFailure value, $Res Function(CatatanAyatFailure) _then) = _$CatatanAyatFailureCopyWithImpl;
 @useResult
 $Res call({
- String message
+ Failure failure
 });
 
 
-
+$FailureCopyWith<$Res> get failure;
 
 }
 /// @nodoc
@@ -375,14 +375,23 @@ class _$CatatanAyatFailureCopyWithImpl<$Res>
 
 /// Create a copy of CatatanAyatState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? failure = null,}) {
   return _then(CatatanAyatFailure(
-null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
+as Failure,
   ));
 }
 
-
+/// Create a copy of CatatanAyatState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FailureCopyWith<$Res> get failure {
+  
+  return $FailureCopyWith<$Res>(_self.failure, (value) {
+    return _then(_self.copyWith(failure: value));
+  });
+}
 }
 
 // dart format on

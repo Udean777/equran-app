@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:flutter/foundation.dart';
@@ -16,13 +17,13 @@ class QuranReminderScheduler {
   /// Jika false → cancel notifikasi.
   Future<void> apply(QuranReminderPrefs prefs) async {
     if (!prefs.enabled) {
-      await _notificationService.cancelById(kNotifIdQuranReminder);
+      await _notificationService.cancelById(NotificationIds.quranReminder);
       debugPrint('QuranReminderScheduler: cancelled');
       return;
     }
 
     await _notificationService.scheduleDaily(
-      id: kNotifIdQuranReminder,
+      id: NotificationIds.quranReminder,
       title: 'Waktunya Baca Al-Quran',
       body: 'Luangkan waktu sejenak untuk membaca Al-Quran hari ini.',
       hour: prefs.hour,
@@ -38,5 +39,5 @@ class QuranReminderScheduler {
 
   /// Cancel notifikasi reminder.
   Future<void> cancel() =>
-      _notificationService.cancelById(kNotifIdQuranReminder);
+      _notificationService.cancelById(NotificationIds.quranReminder);
 }

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/core/location/location_selection_mixin.dart';
 import 'package:equran_app/core/location/location_service.dart';
 import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
 import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
-import 'package:equran_app/core/utils/string_utils.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
@@ -26,14 +26,15 @@ part 'jadwal_shalat_cubit.freezed.dart';
 part 'jadwal_shalat_state.dart';
 
 @injectable
-class JadwalShalatCubit extends Cubit<JadwalShalatState> {
+class JadwalShalatCubit extends Cubit<JadwalShalatState>
+    with LocationSelectionMixin<JadwalShalatState> {
   JadwalShalatCubit(
     this._getProvinsi,
     this._getKabkota,
     this._getJadwalShalat,
     this._getLastLocation,
     this._saveLastLocation,
-    this._locationService,
+    this.locationService,
     this._scheduler,
     this._getNotifPrefs,
     this._saveNotifPrefs,
@@ -45,14 +46,51 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
   final GetJadwalShalat _getJadwalShalat;
   final GetLastLocationShalat _getLastLocation;
   final SaveLastLocationShalat _saveLastLocation;
-  final LocationService _locationService;
+  @override
+  final LocationService locationService;
   final ShalatNotificationScheduler _scheduler;
   final GetShalatNotifPrefs _getNotifPrefs;
   final SaveShalatNotifPrefs _saveNotifPrefs;
   final ShalatNotifCubit _shalatNotifCubit;
+  // ─── LocationSelectionMixin overrides ────────────────────────────────────────
 
-  static const _defaultProvinsi = 'DKI Jakarta';
-  static const _defaultKabkota = 'Kota Jakarta';
+  @override
+  Future<List<String>?> getKabkotaList(String provinsi) async {
+    final result = await _getKabkota(provinsi);
+    return result.fold((_) => null, (list) => list);
+  }
+
+  @override
+  Future<void> saveLocation({
+    required String provinsi,
+    required String kabkota,
+  }) =>
+      _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
+
+  @override
+  Future<void> onLocationDetected({
+    required List<String> provinsiList,
+    required String selectedProvinsi,
+    required String selectedKabkota,
+    List<String>? kabkotaList,
+  }) =>
+      _autoLoadJadwal(
+        provinsiList: provinsiList,
+        selectedProvinsi: selectedProvinsi,
+        selectedKabkota: selectedKabkota,
+        kabkotaList: kabkotaList,
+      );
+
+  @override
+  void onDetectingLocation() {
+    emit(const JadwalShalatState.detectingLocation());
+  }
+
+  @override
+  Future<void> onLocationDetectFailed(List<String> provinsiList) =>
+      loadDefaultJakarta(provinsiList);
+
+  // ─── Public API ──────────────────────────────────────────────────────────────
 
   /// Load provinsi list + restore last location jika ada,
   /// atau auto-detect dari GPS, fallback ke Jakarta.
@@ -85,160 +123,10 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
           return;
         }
 
-        // 2. Belum ada riwayat → coba auto-detect dari GPS
-        emit(const JadwalShalatState.detectingLocation());
-        final detected = await _locationService.detectCurrentLocation();
-
-        if (detected != null) {
-          final matchedProvinsi = fuzzyMatch(detected.provinsi, provinsi);
-
-          if (matchedProvinsi != null) {
-            final kabkotaResult = await _getKabkota(matchedProvinsi);
-            await kabkotaResult.fold(
-              (failure) async =>
-                  emit(JadwalShalatState.provinsiLoaded(provinsi: provinsi)),
-              (kabkota) async {
-                final matchedKabkota = fuzzyMatch(detected.kabkota, kabkota);
-
-                if (matchedKabkota != null) {
-                  unawaited(
-                    _saveLastLocation(
-                      provinsi: matchedProvinsi,
-                      kabkota: matchedKabkota,
-                    ),
-                  );
-                  await _autoLoadJadwal(
-                    provinsiList: provinsi,
-                    selectedProvinsi: matchedProvinsi,
-                    selectedKabkota: matchedKabkota,
-                    kabkotaList: kabkota,
-                  );
-                } else {
-                  emit(
-                    JadwalShalatState.kabkotaLoaded(
-                      provinsi: provinsi,
-                      selectedProvinsi: matchedProvinsi,
-                      kabkota: kabkota,
-                    ),
-                  );
-                }
-              },
-            );
-            return;
-          }
-        }
-
-        // 3. GPS gagal / tidak cocok → default Jakarta
-        await _loadDefaultJakarta(provinsiList: provinsi);
+        // 2. Belum ada riwayat → auto-detect GPS (mixin)
+        await autoDetectLocation(provinsi);
       },
     );
-  }
-
-  /// Fallback: load jadwal dengan lokasi default Jakarta.
-  Future<void> _loadDefaultJakarta({required List<String> provinsiList}) async {
-    final kabkotaResult = await _getKabkota(_defaultProvinsi);
-    await kabkotaResult.fold(
-      (failure) async =>
-          emit(JadwalShalatState.provinsiLoaded(provinsi: provinsiList)),
-      (kabkota) async {
-        final matched = kabkota.contains(_defaultKabkota)
-            ? _defaultKabkota
-            : kabkota.first;
-        unawaited(
-          _saveLastLocation(
-            provinsi: _defaultProvinsi,
-            kabkota: matched,
-          ),
-        );
-        await _autoLoadJadwal(
-          provinsiList: provinsiList,
-          selectedProvinsi: _defaultProvinsi,
-          selectedKabkota: matched,
-          kabkotaList: kabkota,
-        );
-      },
-    );
-  }
-
-  /// Auto-load jadwal dengan provinsi & kabkota yang sudah diketahui.
-  /// Bulan & tahun default = sekarang (UTC+7).
-  Future<void> _autoLoadJadwal({
-    required List<String> provinsiList,
-    required String selectedProvinsi,
-    required String selectedKabkota,
-    List<String>? kabkotaList,
-    int? bulan,
-    int? tahun,
-  }) async {
-    final now = DateTime.now();
-    final targetBulan = bulan ?? now.month;
-    final targetTahun = tahun ?? now.year;
-
-    final kabkota = kabkotaList ?? await _fetchKabkotaList(selectedProvinsi);
-    if (kabkota == null) {
-      emit(JadwalShalatState.provinsiLoaded(provinsi: provinsiList));
-      return;
-    }
-
-    if (!kabkota.contains(selectedKabkota)) {
-      emit(JadwalShalatState.provinsiLoaded(provinsi: provinsiList));
-      return;
-    }
-
-    emit(
-      JadwalShalatState.loadingJadwal(
-        provinsi: provinsiList,
-        selectedProvinsi: selectedProvinsi,
-        kabkota: kabkota,
-        selectedKabkota: selectedKabkota,
-        bulan: targetBulan,
-        tahun: targetTahun,
-      ),
-    );
-
-    final jadwalResult = await _getJadwalShalat(
-      provinsi: selectedProvinsi,
-      kabkota: selectedKabkota,
-      bulan: targetBulan,
-      tahun: targetTahun,
-    );
-    jadwalResult.fold(
-      (failure) => emit(
-        JadwalShalatState.failure(
-          failure: failure,
-          provinsi: provinsiList,
-          selectedProvinsi: selectedProvinsi,
-          kabkota: kabkota,
-          selectedKabkota: selectedKabkota,
-          bulan: targetBulan,
-          tahun: targetTahun,
-        ),
-      ),
-      (jadwal) {
-        emit(
-          JadwalShalatState.success(
-            provinsi: provinsiList,
-            selectedProvinsi: selectedProvinsi,
-            kabkota: kabkota,
-            selectedKabkota: selectedKabkota,
-            jadwal: jadwal,
-            bulan: targetBulan,
-            tahun: targetTahun,
-          ),
-        );
-        // Schedule notifikasi untuk hari ini jika bulan = bulan ini
-        final now = DateTime.now();
-        if (targetBulan == now.month && targetTahun == now.year) {
-          _scheduleNotifications(jadwal);
-        }
-      },
-    );
-  }
-
-  /// Fetch kabkota list, return null jika gagal.
-  Future<List<String>?> _fetchKabkotaList(String provinsi) async {
-    final result = await _getKabkota(provinsi);
-    return result.fold((_) => null, (list) => list);
   }
 
   /// User memilih provinsi → load kabkota
@@ -279,7 +167,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     if (selectedProvinsi == null) return;
 
     unawaited(
-      _saveLastLocation(
+      saveLocation(
         provinsi: selectedProvinsi,
         kabkota: kabkota,
       ),
@@ -345,6 +233,81 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     }
   }
 
+  // ─── Private helpers ─────────────────────────────────────────────────────────
+
+  /// Auto-load jadwal dengan provinsi & kabkota yang sudah diketahui.
+  Future<void> _autoLoadJadwal({
+    required List<String> provinsiList,
+    required String selectedProvinsi,
+    required String selectedKabkota,
+    List<String>? kabkotaList,
+    int? bulan,
+    int? tahun,
+  }) async {
+    final now = DateTime.now();
+    final targetBulan = bulan ?? now.month;
+    final targetTahun = tahun ?? now.year;
+
+    final kabkota = kabkotaList ?? await getKabkotaList(selectedProvinsi);
+    if (kabkota == null) {
+      emit(JadwalShalatState.provinsiLoaded(provinsi: provinsiList));
+      return;
+    }
+
+    if (!kabkota.contains(selectedKabkota)) {
+      emit(JadwalShalatState.provinsiLoaded(provinsi: provinsiList));
+      return;
+    }
+
+    emit(
+      JadwalShalatState.loadingJadwal(
+        provinsi: provinsiList,
+        selectedProvinsi: selectedProvinsi,
+        kabkota: kabkota,
+        selectedKabkota: selectedKabkota,
+        bulan: targetBulan,
+        tahun: targetTahun,
+      ),
+    );
+
+    final jadwalResult = await _getJadwalShalat(
+      provinsi: selectedProvinsi,
+      kabkota: selectedKabkota,
+      bulan: targetBulan,
+      tahun: targetTahun,
+    );
+    jadwalResult.fold(
+      (failure) => emit(
+        JadwalShalatState.failure(
+          failure: failure,
+          provinsi: provinsiList,
+          selectedProvinsi: selectedProvinsi,
+          kabkota: kabkota,
+          selectedKabkota: selectedKabkota,
+          bulan: targetBulan,
+          tahun: targetTahun,
+        ),
+      ),
+      (jadwal) {
+        emit(
+          JadwalShalatState.success(
+            provinsi: provinsiList,
+            selectedProvinsi: selectedProvinsi,
+            kabkota: kabkota,
+            selectedKabkota: selectedKabkota,
+            jadwal: jadwal,
+            bulan: targetBulan,
+            tahun: targetTahun,
+          ),
+        );
+        final now = DateTime.now();
+        if (targetBulan == now.month && targetTahun == now.year) {
+          _scheduleNotifications(jadwal);
+        }
+      },
+    );
+  }
+
   /// Schedule notifikasi untuk entry hari ini dari [jadwal].
   void _scheduleNotifications(JadwalShalat jadwal) {
     final now = DateTime.now();
@@ -355,8 +318,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     if (todayEntry == null) return;
 
     final entry = _toScheduleEntry(todayEntry);
-
-    // Beritahu ShalatNotifCubit agar bisa reschedule saat prefs berubah
     _shalatNotifCubit.setTodayEntry(entry);
 
     unawaited(
@@ -379,7 +340,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     );
   }
 
-  /// Map [JadwalShalatEntry] ke core [ShalatScheduleEntry].
   ShalatScheduleEntry _toScheduleEntry(JadwalShalatEntry entry) =>
       ShalatScheduleEntry(
         subuh: entry.subuh,
@@ -389,7 +349,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
         isya: entry.isya,
       );
 
-  /// Map [ShalatNotifPrefs] ke core [ShalatNotifConfig].
   ShalatNotifConfig _toNotifConfig(ShalatNotifPrefs prefs) => ShalatNotifConfig(
     subuh: prefs.subuh,
     dzuhur: prefs.dzuhur,
@@ -398,8 +357,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState> {
     isya: prefs.isya,
     menitSebelum: prefs.menitSebelum,
   );
-
-  // --- helpers ---
 
   List<String> _extractProvinsiList() {
     final s = state;

@@ -40,6 +40,10 @@
 }
 -dontwarn com.hivedb.**
 
+# ─── android_alarm_manager_plus ──────────
+-keep class dev.fluttercommunity.plus.androidalarmmanager.** { *; }
+-dontwarn dev.fluttercommunity.plus.androidalarmmanager.**
+
 # ─── just_audio ───────────────────────────
 -keep class com.ryanheise.just_audio.** { *; }
 -dontwarn com.ryanheise.**

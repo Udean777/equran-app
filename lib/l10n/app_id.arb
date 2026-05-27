@@ -298,5 +298,41 @@
   "bulanBerikutnya": "Bulan Berikutnya",
   "@bulanBerikutnya": {
     "description": "Tooltip navigasi bulan berikutnya"
+  },
+  "tasbihNav": "Tasbih",
+  "@tasbihNav": {
+    "description": "Label tab navigasi tasbih"
+  },
+  "qiblaNav": "Qibla",
+  "@qiblaNav": {
+    "description": "Label tab navigasi qibla"
+  },
+  "hafalanDrawer": "Hafalan Quran",
+  "@hafalanDrawer": {
+    "description": "Label menu drawer hafalan"
+  },
+  "doaHarianDrawer": "Doa Harian",
+  "@doaHarianDrawer": {
+    "description": "Label menu drawer doa harian"
+  },
+  "catatanDrawer": "Catatan Saya",
+  "@catatanDrawer": {
+    "description": "Label menu drawer catatan"
+  },
+  "statistikBacaDrawer": "Statistik Baca",
+  "@statistikBacaDrawer": {
+    "description": "Label menu drawer statistik baca"
+  },
+  "statistikShalatDrawer": "Statistik Shalat",
+  "@statistikShalatDrawer": {
+    "description": "Label menu drawer statistik shalat"
+  },
+  "manajemenAudioDrawer": "Manajemen Audio",
+  "@manajemenAudioDrawer": {
+    "description": "Label menu drawer manajemen audio"
+  },
+  "pengaturanDrawer": "Pengaturan",
+  "@pengaturanDrawer": {
+    "description": "Label menu drawer pengaturan"
   }
 }

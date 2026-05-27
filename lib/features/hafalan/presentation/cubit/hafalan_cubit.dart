@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/constants/murajaah_intervals.dart';
 import 'package:equran_app/core/notifications/hafalan_reminder_scheduler.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
@@ -41,6 +42,7 @@ class HafalanCubit extends Cubit<HafalanState> {
   /// Set daftar semua surat — dipanggil dari HafalanPage saat SuratListCubit success.
   /// Trigger recompute mergedList + filteredList jika state sudah success.
   void setAllSurat(List<Surat> allSurat) {
+    if (_allSurat.isNotEmpty) return;
     _allSurat = allSurat;
     final current = _currentState;
     if (current != null) {
@@ -60,11 +62,13 @@ class HafalanCubit extends Cubit<HafalanState> {
       (list) => statsResult.fold(
         (failure) => emit(HafalanState.failure(failure.toUserMessage())),
         (stats) {
-          final base = HafalanState.success(
-            hafalanList: list,
-            stats: stats,
-            filter: _currentState?.filter ?? HafalanFilter.semua,
-          ) as HafalanSuccess;
+          final base =
+              HafalanState.success(
+                    hafalanList: list,
+                    stats: stats,
+                    filter: _currentState?.filter ?? HafalanFilter.semua,
+                  )
+                  as HafalanSuccess;
           emit(_withComputedLists(base));
         },
       ),
@@ -94,14 +98,32 @@ class HafalanCubit extends Cubit<HafalanState> {
           tanggalMulai: DateTime.now(),
         );
 
-    final ayatHafal = List<int>.from(existing.ayatHafal);
-    if (ayatHafal.contains(ayatNomor)) {
-      ayatHafal.remove(ayatNomor);
-    } else {
-      ayatHafal.add(ayatNomor);
-    }
+    final updated = existing.withToggledAyat(ayatNomor);
+    await _saveAndReload(updated);
+  }
 
-    final updated = _computeAfterToggle(existing, ayatHafal);
+  /// Update seluruh list ayat hafal untuk surat tertentu dalam satu operasi.
+  /// Dipanggil saat menyimpan hasil setoran untuk mencegah race condition.
+  Future<void> saveAyatHafalList({
+    required int suratNomor,
+    required List<int> newAyatHafal,
+    required HafalanSurat suratInfo,
+  }) async {
+    final current = _currentState;
+    if (current == null) return;
+
+    final existing =
+        getSurat(suratNomor) ??
+        HafalanSurat(
+          suratNomor: suratInfo.suratNomor,
+          namaLatin: suratInfo.namaLatin,
+          nama: suratInfo.nama,
+          jumlahAyat: suratInfo.jumlahAyat,
+          status: HafalanStatus.sedangDihafal,
+          tanggalMulai: DateTime.now(),
+        );
+
+    final updated = existing.withAyatHafalList(newAyatHafal);
     await _saveAndReload(updated);
   }
 
@@ -124,7 +146,7 @@ class HafalanCubit extends Cubit<HafalanState> {
             murajaahLevel: existing.murajaahLevel,
             tanggalMurajaahBerikutnya:
                 existing.tanggalMurajaahBerikutnya ??
-                _nextMurajaahDate(existing.murajaahLevel),
+                existing.nextMurajaahDate(existing.murajaahLevel),
           )
         : existing.copyWith(status: status);
 
@@ -141,7 +163,7 @@ class HafalanCubit extends Cubit<HafalanState> {
     final newLevel = (existing.murajaahLevel + 1).clamp(0, kMurajaahMaxLevel);
     final nextDate = newLevel >= kMurajaahMaxLevel
         ? null
-        : _nextMurajaahDate(newLevel);
+        : existing.nextMurajaahDate(newLevel);
 
     final updated = existing.copyWith(
       status: HafalanStatus.sudahHafal,
@@ -187,11 +209,25 @@ class HafalanCubit extends Cubit<HafalanState> {
 
   // ─── Filter ──────────────────────────────────────────────────────────────────
 
-  /// Set filter tampilan list hafalan — recompute filteredList di cubit.
+  /// Set filter tampilan list hafalan — recompute filteredList + juzGroups di cubit.
   void setFilter(HafalanFilter filter) {
     final current = _currentState;
     if (current == null) return;
     emit(_withComputedLists(current.copyWith(filter: filter)));
+  }
+
+  /// Set search query — recompute filteredList + juzGroups di cubit.
+  void setSearchQuery(String query) {
+    final current = _currentState;
+    if (current == null) return;
+    emit(_withComputedLists(current.copyWith(searchQuery: query)));
+  }
+
+  /// Set juz yang dipilih — null berarti semua juz.
+  void setSelectedJuz(int? juz) {
+    final current = _currentState;
+    if (current == null) return;
+    emit(_withComputedLists(current.copyWith(selectedJuz: juz)));
   }
 
   // ─── Helpers (public) ────────────────────────────────────────────────────────
@@ -226,11 +262,17 @@ class HafalanCubit extends Cubit<HafalanState> {
     }
   }
 
-  /// Hitung mergedList + filteredList dan kembalikan state baru.
+  /// Hitung mergedList + filteredList + juzGroups dan kembalikan state baru.
   HafalanSuccess _withComputedLists(HafalanSuccess base) {
     final merged = _mergeWithAllSurat(base.hafalanList);
-    final filtered = _applyFilter(merged, base.filter);
-    return base.copyWith(mergedList: merged, filteredList: filtered);
+    final filtered = _applyFilters(merged, base.filter, base.searchQuery);
+    final juzGroups = _groupByJuz(filtered, base.selectedJuz);
+    return base.copyWith(
+      mergedList: merged,
+      filteredList: filtered,
+      juzGroups: juzGroups,
+      sortedJuz: juzGroups.keys.toList()..sort(),
+    );
   }
 
   /// Merge hafalanList dengan semua 114 surat dari [_allSurat].
@@ -249,76 +291,59 @@ class HafalanCubit extends Cubit<HafalanState> {
     }).toList();
   }
 
-  /// Filter mergedList berdasarkan [filter].
-  List<HafalanSurat> _applyFilter(
+  /// Filter mergedList berdasarkan [filter] dan [searchQuery].
+  List<HafalanSurat> _applyFilters(
     List<HafalanSurat> list,
     HafalanFilter filter,
+    String searchQuery,
   ) {
-    switch (filter) {
-      case HafalanFilter.semua:
-        return list;
-      case HafalanFilter.sedangDihafal:
-        return list
-            .where((h) => h.status == HafalanStatus.sedangDihafal)
-            .toList();
-      case HafalanFilter.sudahHafal:
-        return list
-            .where((h) => h.status == HafalanStatus.sudahHafal)
-            .toList();
-      case HafalanFilter.perluMurajaah:
-        return list
-            .where((h) => h.status == HafalanStatus.perluMurajaah)
-            .toList();
+    var result = switch (filter) {
+      HafalanFilter.semua => list,
+      HafalanFilter.sedangDihafal =>
+        list.where((h) => h.status == HafalanStatus.sedangDihafal).toList(),
+      HafalanFilter.sudahHafal =>
+        list.where((h) => h.status == HafalanStatus.sudahHafal).toList(),
+      HafalanFilter.perluMurajaah =>
+        list.where((h) => h.status == HafalanStatus.perluMurajaah).toList(),
+    };
+
+    if (searchQuery.isNotEmpty) {
+      final query = searchQuery.toLowerCase();
+      result = result.where((h) {
+        return h.namaLatin.toLowerCase().contains(query) ||
+            h.nama.toLowerCase().contains(query) ||
+            h.suratNomor.toString().contains(query);
+      }).toList();
     }
+
+    return result;
   }
 
-  /// Hitung tanggal muraja'ah berikutnya berdasarkan level.
-  DateTime _nextMurajaahDate(int level) {
-    final days = level < kMurajaahIntervalDays.length
-        ? kMurajaahIntervalDays[level]
-        : kMurajaahIntervalDays.last;
-    return DateTime.now().add(Duration(days: days));
-  }
-
-  /// Compute status dan field muraja'ah setelah toggle ayat.
-  HafalanSurat _computeAfterToggle(
-    HafalanSurat existing,
-    List<int> ayatHafal,
+  /// Group filteredList berdasarkan juz menggunakan [kJuzToSurahMapping].
+  /// Jika [selectedJuz] tidak null, hanya tampilkan juz tersebut.
+  Map<int, List<HafalanSurat>> _groupByJuz(
+    List<HafalanSurat> list,
+    int? selectedJuz,
   ) {
-    final isSelesai =
-        ayatHafal.length >= existing.jumlahAyat && existing.jumlahAyat > 0;
+    final hafalanMap = {for (final h in list) h.suratNomor: h};
+    final juzGroups = <int, List<HafalanSurat>>{};
 
-    // Baru selesai: set tanggalSelesai + jadwal muraja'ah pertama
-    if (isSelesai && !existing.isSelesai) {
-      return existing.copyWith(
-        ayatHafal: ayatHafal,
-        status: HafalanStatus.sudahHafal,
-        tanggalSelesai: DateTime.now(),
-        murajaahLevel: 0,
-        tanggalMurajaahBerikutnya: _nextMurajaahDate(0),
-      );
+    for (final entry in kJuzToSurahMapping.entries) {
+      final juzNomor = entry.key;
+      if (selectedJuz != null && selectedJuz != juzNomor) continue;
+
+      final suratsInJuz = <HafalanSurat>[];
+      for (final nomor in entry.value) {
+        final hafalan = hafalanMap[nomor];
+        if (hafalan != null) suratsInJuz.add(hafalan);
+      }
+
+      if (suratsInJuz.isNotEmpty) {
+        juzGroups[juzNomor] = suratsInJuz;
+      }
     }
 
-    // Tidak lagi selesai: batalkan muraja'ah
-    if (!isSelesai && existing.isSelesai) {
-      return existing.copyWith(
-        ayatHafal: ayatHafal,
-        status: ayatHafal.isEmpty
-            ? HafalanStatus.belum
-            : HafalanStatus.sedangDihafal,
-        tanggalSelesai: null,
-        murajaahLevel: 0,
-        tanggalMurajaahBerikutnya: null,
-      );
-    }
-
-    // Masih dalam proses
-    return existing.copyWith(
-      ayatHafal: ayatHafal,
-      status: ayatHafal.isEmpty
-          ? HafalanStatus.belum
-          : HafalanStatus.sedangDihafal,
-    );
+    return juzGroups;
   }
 
   /// Simpan hafalan ke Hive lalu reload state + schedule/cancel notifikasi.
@@ -334,7 +359,7 @@ class HafalanCubit extends Cubit<HafalanState> {
         } else {
           await _reminderScheduler.cancelReminder(hafalan.suratNomor);
         }
-        unawaited(load());
+        if (!isClosed) await load();
       },
     );
   }

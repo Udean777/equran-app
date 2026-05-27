@@ -22,38 +22,38 @@ void main() {
       QuranStreakCubit(mockGetStreakCount, mockRecordQuranRead);
 
   group('load()', () {
-    blocTest<QuranStreakCubit, int>(
-      'emit count dari use case',
+    blocTest<QuranStreakCubit, QuranStreakState>(
+      'emit loaded(7) dari use case',
       build: buildCubit,
       setUp: () {
         when(() => mockGetStreakCount()).thenAnswer((_) async => 7);
       },
       act: (cubit) => cubit.load(),
-      expect: () => [7],
+      expect: () => [const QuranStreakState.loaded(7)],
     );
   });
 
   group('recordRead()', () {
-    blocTest<QuranStreakCubit, int>(
-      'emit new count jika streak berubah',
+    blocTest<QuranStreakCubit, QuranStreakState>(
+      'emit loaded(4) jika streak berubah',
       build: buildCubit,
-      seed: () => 3,
+      seed: () => const QuranStreakState.loaded(3),
       setUp: () {
         when(() => mockRecordQuranRead(3)).thenAnswer((_) async => 4);
       },
       act: (cubit) => cubit.recordRead(),
-      expect: () => [4],
+      expect: () => [const QuranStreakState.loaded(4)],
     );
 
-    blocTest<QuranStreakCubit, int>(
+    blocTest<QuranStreakCubit, QuranStreakState>(
       'tidak emit jika streak tidak berubah (sudah baca hari ini)',
       build: buildCubit,
-      seed: () => 3,
+      seed: () => const QuranStreakState.loaded(3),
       setUp: () {
         when(() => mockRecordQuranRead(3)).thenAnswer((_) async => 3);
       },
       act: (cubit) => cubit.recordRead(),
-      expect: () => <int>[],
+      expect: () => <QuranStreakState>[],
     );
   });
 }

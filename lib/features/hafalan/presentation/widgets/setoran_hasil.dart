@@ -21,7 +21,7 @@ class SetoranHasil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalAyat = detail.ayatList.length;
+    final totalAyat = hasil.length;
     final hafalCount = hasil.values.where((v) => v).length;
     final belumCount = totalAyat - hafalCount;
     final persen = totalAyat > 0

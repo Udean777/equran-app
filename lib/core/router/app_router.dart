@@ -22,17 +22,21 @@ import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart'
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/injection/injection_container.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class AppRouter {
+  AppRouter(this._onboardingService);
+
+  final OnboardingService _onboardingService;
+
   late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.home,
     errorBuilder: (context, state) => const NotFoundPage(),
     redirect: (context, state) {
-      final onboardingService = getIt<OnboardingService>();
       final location = state.matchedLocation;
       final isOnboarding = location == AppRoutes.onboarding;
 
@@ -40,7 +44,7 @@ class AppRouter {
       if (isOnboarding) return null;
 
       // Jangan redirect jika onboarding sudah selesai
-      if (onboardingService.isDone) return null;
+      if (_onboardingService.isDone) return null;
 
       // Redirect ke onboarding hanya untuk route yang valid (bukan error/not found)
       return AppRoutes.onboarding;
@@ -107,7 +111,8 @@ class AppRouter {
         },
         builder: (context, state) {
           final nomor = int.parse(state.pathParameters['suratNomor']!);
-          return HafalanDetailPage(suratNomor: nomor);
+          final juzNomor = int.tryParse(state.uri.queryParameters['juz'] ?? '');
+          return HafalanDetailPage(suratNomor: nomor, juzNomor: juzNomor);
         },
       ),
       GoRoute(
@@ -119,7 +124,8 @@ class AppRouter {
         },
         builder: (context, state) {
           final nomor = int.parse(state.pathParameters['suratNomor']!);
-          return HafalanSetoranPage(suratNomor: nomor);
+          final juzNomor = int.tryParse(state.uri.queryParameters['juz'] ?? '');
+          return HafalanSetoranPage(suratNomor: nomor, juzNomor: juzNomor);
         },
       ),
 
@@ -169,10 +175,11 @@ class AppRouter {
         path: AppRoutes.readingStats,
         builder: (context, state) => const ReadingStatsPage(),
       ),
-      GoRoute(
-        path: AppRoutes.notificationTest,
-        builder: (context, state) => const NotificationTestPage(),
-      ),
+      if (kDebugMode)
+        GoRoute(
+          path: AppRoutes.notificationTest,
+          builder: (context, state) => const NotificationTestPage(),
+        ),
     ],
   );
 }

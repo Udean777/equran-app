@@ -1,4 +1,3 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/hafalan/data/datasources/hafalan_local_datasource.dart';
 import 'package:equran_app/features/hafalan/data/repositories/hafalan_repository_impl.dart';
@@ -162,7 +161,7 @@ void main() {
         result.fold(
           (_) => fail('should be right'),
           (stats) {
-            final juz = kJuzMapping[1]!;
+            const juz = 1;
             expect(stats.progressPerJuz[juz], greaterThan(0));
           },
         );

@@ -149,16 +149,25 @@ class ReadingProgressRepositoryImpl implements ReadingProgressRepository {
         continue;
       }
 
-      // Surat yang masuk juz ini
-      final suratDiJuz = kJuzMapping.entries
-          .where((e) => e.value == juz)
-          .map((e) => e.key)
-          .toSet();
-
-      // Hitung total ayat dibaca di juz ini
+      // Cari semua surat yang berada di juz ini
+      final suratList = kJuzToSurahMapping[juz] ?? [];
       var ayatDibacaJuz = 0;
-      for (final suratNomor in suratDiJuz) {
-        ayatDibacaJuz += ayatPerSurat[suratNomor]?.length ?? 0;
+
+      for (final suratNomor in suratList) {
+        final readSet = ayatPerSurat[suratNomor];
+        if (readSet == null || readSet.isEmpty) continue;
+
+        // Cari range untuk surat ini di juz ini
+        final range = kJuzSurahVerseRanges['$juz:$suratNomor'];
+        final start = range?.$1 ?? 1;
+        final end = range?.$2 ?? 9999; // Fallback ke angka besar
+
+        // Hitung berapa ayat yang dibaca di range tersebut
+        for (final a in readSet) {
+          if (a >= start && a <= end) {
+            ayatDibacaJuz++;
+          }
+        }
       }
 
       progressPerJuz[juz] = (ayatDibacaJuz / totalAyatJuz).clamp(0.0, 1.0);

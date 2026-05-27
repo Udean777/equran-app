@@ -91,5 +91,14 @@
   "jadwalShalatNav": "الصلاة",
   "jadwalShalat": "مواقيت الصلاة",
   "bulanSebelumnya": "الشهر السابق",
-  "bulanBerikutnya": "الشهر التالي"
+  "bulanBerikutnya": "الشهر التالي",
+  "tasbihNav": "التسبيح",
+  "qiblaNav": "القبلة",
+  "hafalanDrawer": "حفظ القرآن",
+  "doaHarianDrawer": "الأدعية اليومية",
+  "catatanDrawer": "ملاحظاتي",
+  "statistikBacaDrawer": "إحصائيات القراءة",
+  "statistikShalatDrawer": "إحصائيات الصلاة",
+  "manajemenAudioDrawer": "إدارة الصوت",
+  "pengaturanDrawer": "الإعدادات"
 }

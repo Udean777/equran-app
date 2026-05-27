@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/audio/domain/entities/download_state.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -21,6 +21,7 @@ class AudioDownloadState {
     this.suratDownloadTotal = 0,
     this.suratDownloadDone = 0,
     this.isDownloadingSurat = false,
+    this.loadError,
   });
 
   /// Status download per ayat. Key: '$suratNomor:$ayatNomor:$qariId'
@@ -35,17 +36,22 @@ class AudioDownloadState {
   /// Apakah sedang download surat penuh
   final bool isDownloadingSurat;
 
+  /// Error saat load status download — null jika tidak ada error
+  final Failure? loadError;
+
   AudioDownloadState copyWith({
     Map<String, DownloadState>? downloadStates,
     int? suratDownloadTotal,
     int? suratDownloadDone,
     bool? isDownloadingSurat,
+    Failure? loadError,
   }) {
     return AudioDownloadState(
       downloadStates: downloadStates ?? this.downloadStates,
       suratDownloadTotal: suratDownloadTotal ?? this.suratDownloadTotal,
       suratDownloadDone: suratDownloadDone ?? this.suratDownloadDone,
       isDownloadingSurat: isDownloadingSurat ?? this.isDownloadingSurat,
+      loadError: loadError,
     );
   }
 
@@ -96,7 +102,7 @@ class AudioDownloadCubit extends Cubit<AudioDownloadState> {
 
     final result = await _getDownloadedAyats();
     result.fold(
-      (failure) => debugPrint('AudioDownloadCubit: load error: $failure'),
+      (failure) => emit(state.copyWith(loadError: failure)),
       (files) {
         final downloaded = <String>{
           for (final f in files)

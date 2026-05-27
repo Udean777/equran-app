@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:equran_app/core/constants/network_config.dart';
 import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -17,8 +18,8 @@ class DioClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 15),
+        connectTimeout: NetworkConfig.connectTimeout,
+        receiveTimeout: NetworkConfig.receiveTimeout,
         headers: {HttpHeaders.acceptHeader: 'application/json'},
       ),
     );

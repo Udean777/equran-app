@@ -1,3 +1,5 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
+import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
@@ -13,44 +15,46 @@ class ShalatNotificationScheduler {
 
   /// Schedule notifikasi untuk semua waktu shalat hari ini
   /// berdasarkan [entry] dan [config].
+  /// Android: pakai AndroidAlarmManager untuk audio playback via background isolate.
+  /// iOS: pakai flutter_local_notifications dengan sound .caf.
   Future<void> scheduleForToday(
     ShalatScheduleEntry entry,
     ShalatNotifConfig config,
   ) async {
-    // Cancel semua notifikasi lama sebelum reschedule
-    await _notificationService.cancelAll();
+    // Cancel semua alarm + notifikasi lama
+    await cancelAll();
 
     final waktuList = [
       _WaktuShalat(
-        id: kNotifIdSubuh,
+        id: NotificationIds.subuh,
         nama: 'Subuh',
         waktu: entry.subuh,
         enabled: config.subuh,
         isSubuh: true,
       ),
       _WaktuShalat(
-        id: kNotifIdDzuhur,
+        id: NotificationIds.dzuhur,
         nama: 'Dzuhur',
         waktu: entry.dzuhur,
         enabled: config.dzuhur,
         isSubuh: false,
       ),
       _WaktuShalat(
-        id: kNotifIdAshar,
+        id: NotificationIds.ashar,
         nama: 'Ashar',
         waktu: entry.ashar,
         enabled: config.ashar,
         isSubuh: false,
       ),
       _WaktuShalat(
-        id: kNotifIdMaghrib,
+        id: NotificationIds.maghrib,
         nama: 'Maghrib',
         waktu: entry.maghrib,
         enabled: config.maghrib,
         isSubuh: false,
       ),
       _WaktuShalat(
-        id: kNotifIdIsya,
+        id: NotificationIds.isya,
         nama: 'Isya',
         waktu: entry.isya,
         enabled: config.isya,
@@ -74,12 +78,13 @@ class ShalatNotificationScheduler {
         continue;
       }
 
-      await _notificationService.scheduleNotification(
+      // Android: schedule via AlarmManager → audio playback di background isolate
+      // iOS: schedule via flutter_local_notifications dengan .caf sound
+      await _scheduleForPlatform(
         id: waktu.id,
-        title: 'Waktu ${waktu.nama}',
-        body: 'Sudah masuk waktu shalat ${waktu.nama}',
-        scheduledTime: scheduledTime,
+        nama: waktu.nama,
         isSubuh: waktu.isSubuh,
+        scheduledTime: scheduledTime,
       );
 
       debugPrint(
@@ -89,17 +94,57 @@ class ShalatNotificationScheduler {
     }
   }
 
-  /// Cancel semua notifikasi shalat.
-  Future<void> cancelAll() => _notificationService.cancelAll();
+  /// Cancel semua alarm adzan (Android AlarmManager + iOS notif).
+  Future<void> cancelAll() async {
+    for (final id in [
+      NotificationIds.subuh,
+      NotificationIds.dzuhur,
+      NotificationIds.ashar,
+      NotificationIds.maghrib,
+      NotificationIds.isya,
+    ]) {
+      // Cancel AlarmManager (Android)
+      await cancelAdzanAlarm(id);
+      // Cancel flutter_local_notifications (iOS fallback)
+      await _notificationService.cancelById(id);
+    }
+  }
 
   /// Cancel notifikasi untuk waktu shalat tertentu.
-  Future<void> cancelById(int id) => _notificationService.cancelById(id);
+  Future<void> cancelById(int id) async {
+    await cancelAdzanAlarm(id);
+    await _notificationService.cancelById(id);
+  }
 
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  /// Parse string waktu format "HH:mm" (contoh: "04:32") ke [tz.TZDateTime].
+  Future<void> _scheduleForPlatform({
+    required int id,
+    required String nama,
+    required bool isSubuh,
+    required tz.TZDateTime scheduledTime,
+  }) async {
+    // Android: AlarmManager → playAdzanCallback → AudioCompositeHandler.playAdzan
+    await scheduleAdzanAlarm(
+      id: id,
+      scheduledTime: scheduledTime.toLocal(),
+      isSubuh: isSubuh,
+      nama: nama,
+    );
+
+    // iOS: flutter_local_notifications dengan .caf sound (max ~30 detik)
+    await _notificationService.scheduleNotification(
+      id: id,
+      title: 'Waktu $nama',
+      body: 'Sudah masuk waktu shalat $nama',
+      scheduledTime: scheduledTime,
+      isSubuh: isSubuh,
+    );
+  }
+
+  /// Parse string waktu format "HH:mm" ke [tz.TZDateTime].
   /// Kurangi [menitSebelum] dari waktu yang diparsing.
   /// Return null jika format tidak valid.
   tz.TZDateTime? _parseWaktu({

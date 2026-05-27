@@ -14,6 +14,4 @@ abstract interface class AudioRepository {
   Future<Either<Failure, Unit>> stop();
   Future<Either<Failure, Unit>> seek(Duration position);
   Stream<AudioPlayerState> get stateStream;
-
-  Future<Either<Failure, Unit>> deleteAllAudio();
 }

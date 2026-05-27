@@ -2,7 +2,6 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/bookmark/data/datasources/bookmark_local_data_source.dart';
 import 'package:equran_app/features/bookmark/data/mappers/bookmark_mapper.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
-import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
@@ -60,48 +59,6 @@ class BookmarkRepositoryImpl implements BookmarkRepository {
         ayatNomor: ayatNomor,
       );
       return right(result);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, LastRead?>> getLastRead() async {
-    try {
-      final dto = await _local.getLastRead();
-      return right(dto?.toEntity());
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> saveLastRead(LastRead lastRead) async {
-    try {
-      await _local.saveLastRead(lastRead.toDto());
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Either<Failure, Map<int, double>> getAllSuratProgress() {
-    try {
-      return right(_local.getAllSuratProgress());
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> saveSuratProgress(
-    int suratNomor,
-    double maxProgress,
-  ) async {
-    try {
-      await _local.saveSuratProgress(suratNomor, maxProgress);
-      return right(unit);
     } on Object catch (e) {
       return left(Failure.unknown(message: e.toString()));
     }

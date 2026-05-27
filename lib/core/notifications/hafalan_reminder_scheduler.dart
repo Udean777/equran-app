@@ -1,3 +1,5 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
+import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:flutter/foundation.dart';
@@ -82,7 +84,11 @@ class HafalanReminderScheduler {
 
   /// Cancel semua notifikasi muraja'ah (ID 20–133).
   Future<void> cancelAll() async {
-    for (var suratNomor = 1; suratNomor <= 114; suratNomor++) {
+    for (
+      var suratNomor = 1;
+      suratNomor <= QuranConstants.totalSurat;
+      suratNomor++
+    ) {
       await _notificationService.cancelById(_notifId(suratNomor));
     }
     debugPrint('HafalanReminderScheduler: cancelled all hafalan reminders');
@@ -94,7 +100,8 @@ class HafalanReminderScheduler {
 
   /// Hitung notification ID dari nomor surat.
   /// Range: 20 (surat 1) – 133 (surat 114).
-  int _notifId(int suratNomor) => kNotifIdHafalanBase + suratNomor;
+  int _notifId(int suratNomor) =>
+      NotificationIds.hafalanReminderBase + suratNomor;
 
   /// Konversi DateTime ke tz.TZDateTime pada jam 08:00.
   tz.TZDateTime _toTZDateTime(DateTime date) {

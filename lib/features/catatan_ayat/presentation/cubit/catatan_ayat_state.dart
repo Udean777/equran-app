@@ -6,5 +6,5 @@ sealed class CatatanAyatState with _$CatatanAyatState {
   const factory CatatanAyatState.loading() = CatatanAyatLoading;
   const factory CatatanAyatState.success(List<CatatanAyat> catatan) =
       CatatanAyatSuccess;
-  const factory CatatanAyatState.failure(String message) = CatatanAyatFailure;
+  const factory CatatanAyatState.failure(Failure failure) = CatatanAyatFailure;
 }

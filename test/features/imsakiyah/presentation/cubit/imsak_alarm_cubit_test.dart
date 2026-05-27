@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/imsak_alarm_config.dart';
 import 'package:equran_app/core/notifications/imsak_alarm_scheduler.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
@@ -95,8 +96,8 @@ void main() {
     test('cancelAll hanya cancel ID 6 dan 7', () async {
       await scheduler.cancelAll();
 
-      verify(() => mockNotif.cancelById(kNotifIdImsak)).called(1);
-      verify(() => mockNotif.cancelById(kNotifIdSahur)).called(1);
+      verify(() => mockNotif.cancelById(NotificationIds.imsak)).called(1);
+      verify(() => mockNotif.cancelById(NotificationIds.sahur)).called(1);
       verifyNever(() => mockNotif.cancelById(1));
       verifyNever(() => mockNotif.cancelById(2));
       verifyNever(() => mockNotif.cancelById(10));
@@ -105,8 +106,8 @@ void main() {
     test('scheduleForToday tidak schedule jika semua disabled', () async {
       await scheduler.scheduleForToday(tEntry, const ImsakAlarmConfig());
 
-      verify(() => mockNotif.cancelById(kNotifIdImsak)).called(1);
-      verify(() => mockNotif.cancelById(kNotifIdSahur)).called(1);
+      verify(() => mockNotif.cancelById(NotificationIds.imsak)).called(1);
+      verify(() => mockNotif.cancelById(NotificationIds.sahur)).called(1);
       verifyNever(
         () => mockNotif.scheduleNotificationRaw(
           id: any(named: 'id'),
@@ -126,7 +127,7 @@ void main() {
 
       verify(
         () => mockNotif.scheduleNotificationRaw(
-          id: kNotifIdImsak,
+          id: NotificationIds.imsak,
           title: any(named: 'title'),
           body: any(named: 'body'),
           scheduledTime: any(named: 'scheduledTime'),
@@ -143,7 +144,7 @@ void main() {
 
       verify(
         () => mockNotif.scheduleNotificationRaw(
-          id: kNotifIdSahur,
+          id: NotificationIds.sahur,
           title: any(named: 'title'),
           body: any(named: 'body'),
           scheduledTime: any(named: 'scheduledTime'),
@@ -160,7 +161,7 @@ void main() {
 
       verify(
         () => mockNotif.scheduleNotificationRaw(
-          id: kNotifIdImsak,
+          id: NotificationIds.imsak,
           title: any(named: 'title'),
           body: any(named: 'body'),
           scheduledTime: any(named: 'scheduledTime'),
@@ -170,7 +171,7 @@ void main() {
 
       verify(
         () => mockNotif.scheduleNotificationRaw(
-          id: kNotifIdSahur,
+          id: NotificationIds.sahur,
           title: any(named: 'title'),
           body: any(named: 'body'),
           scheduledTime: any(named: 'scheduledTime'),

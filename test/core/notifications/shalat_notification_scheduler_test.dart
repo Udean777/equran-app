@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
@@ -131,6 +132,7 @@ void main() {
 
     void stubMocks() {
       when(() => mockService.cancelAll()).thenAnswer((_) async {});
+      when(() => mockService.cancelById(any())).thenAnswer((_) async {});
       when(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),
@@ -147,7 +149,7 @@ void main() {
 
       await scheduler.scheduleForToday(entry, const ShalatNotifConfig());
 
-      verify(() => mockService.cancelAll()).called(1);
+      verify(() => mockService.cancelById(any())).called(5);
       verify(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),
@@ -170,7 +172,7 @@ void main() {
 
       await scheduler.scheduleForToday(entry, prefs);
 
-      verify(() => mockService.cancelAll()).called(1);
+      verify(() => mockService.cancelById(any())).called(5);
       verify(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),
@@ -196,7 +198,7 @@ void main() {
 
       verify(
         () => mockService.scheduleNotification(
-          id: kNotifIdSubuh,
+          id: NotificationIds.subuh,
           title: any(named: 'title'),
           body: any(named: 'body'),
           scheduledTime: any(named: 'scheduledTime'),
@@ -207,6 +209,7 @@ void main() {
 
     test('cancelAll dipanggil meski semua prefs disabled', () async {
       when(() => mockService.cancelAll()).thenAnswer((_) async {});
+      when(() => mockService.cancelById(any())).thenAnswer((_) async {});
 
       const prefs = ShalatNotifConfig(
         subuh: false,
@@ -218,7 +221,7 @@ void main() {
 
       await scheduler.scheduleForToday(entry, prefs);
 
-      verify(() => mockService.cancelAll()).called(1);
+      verify(() => mockService.cancelById(any())).called(5);
       verifyNever(
         () => mockService.scheduleNotification(
           id: any(named: 'id'),

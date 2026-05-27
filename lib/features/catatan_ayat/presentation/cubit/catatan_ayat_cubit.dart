@@ -1,3 +1,4 @@
+import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
 import 'package:equran_app/features/catatan_ayat/domain/usecases/delete_catatan.dart';
 import 'package:equran_app/features/catatan_ayat/domain/usecases/get_all_catatan.dart';
@@ -26,7 +27,7 @@ class CatatanAyatCubit extends Cubit<CatatanAyatState> {
     emit(const CatatanAyatState.loading());
     final result = await _getAll();
     result.fold(
-      (failure) => emit(const CatatanAyatState.failure('Gagal memuat catatan')),
+      (failure) => emit(CatatanAyatState.failure(failure)),
       (list) => emit(CatatanAyatState.success(list)),
     );
   }
@@ -35,7 +36,7 @@ class CatatanAyatCubit extends Cubit<CatatanAyatState> {
   Future<void> save(CatatanAyat catatan) async {
     final result = await _save(catatan);
     result.fold(
-      (_) => emit(const CatatanAyatState.failure('Gagal menyimpan catatan')),
+      (failure) => emit(CatatanAyatState.failure(failure)),
       (_) => load(),
     );
   }
@@ -50,7 +51,7 @@ class CatatanAyatCubit extends Cubit<CatatanAyatState> {
       ayatNomor: ayatNomor,
     );
     result.fold(
-      (_) => emit(const CatatanAyatState.failure('Gagal menghapus catatan')),
+      (failure) => emit(CatatanAyatState.failure(failure)),
       (_) => load(),
     );
   }

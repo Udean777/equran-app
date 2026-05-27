@@ -1,94 +1,193 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:audio_session/audio_session.dart';
+import 'package:equran_app/features/audio/data/datasources/adzan_player_delegate.dart';
+import 'package:equran_app/features/audio/data/datasources/quran_player_delegate.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:flutter/foundation.dart';
-import 'package:just_audio/just_audio.dart';
 
-/// AudioHandler yang wrap just_audio untuk background playback.
-/// Diregister via [AudioService.init()] di main.dart.
-class AudioBackgroundHandler extends BaseAudioHandler {
-  AudioBackgroundHandler() {
+/// Composite AudioHandler yang mengelola dua delegate:
+/// - [QuranPlayerDelegate] untuk playback ayat Al-Quran
+/// - [AdzanPlayerDelegate] untuk playback adzan dari local asset
+///
+/// Saat adzan fire:
+///   1. Quran di-pause + posisi disimpan
+///   2. Adzan play
+///   3. Setelah adzan selesai → Quran auto-resume
+///
+/// Saat user tap Stop di notif adzan:
+///   1. Adzan stop
+///   2. Quran TIDAK auto-resume (user ingin silent)
+class AudioCompositeHandler extends BaseAudioHandler {
+  AudioCompositeHandler() {
     unawaited(_init());
   }
 
-  final AudioPlayer _player = AudioPlayer();
-  final _stateController = StreamController<AudioPlayerState>.broadcast();
+  late final QuranPlayerDelegate _quranDelegate;
+  late final AdzanPlayerDelegate _adzanDelegate;
 
-  int? _currentAyat;
-  Qari _currentQari = Qari.misyariRasyidAlAfasi;
+  final _stateController = StreamController<AudioPlayerState>.broadcast();
 
   /// Stream state audio untuk dikonsumsi AudioCubit.
   Stream<AudioPlayerState> get audioStateStream => _stateController.stream;
 
   Future<void> _init() async {
-    // Setup audio session untuk music (background support)
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.music());
+    _quranDelegate = QuranPlayerDelegate(
+      onStateChanged: (state) {
+        if (!_stateController.isClosed) {
+          _stateController.add(state);
+        }
+      },
+      onPlaybackStateChanged: _updatePlaybackState,
+      onMediaItemChanged: mediaItem.add,
+    );
 
-    // Handle audio interruption (telepon masuk, dll)
-    session.interruptionEventStream.listen((event) {
-      if (event.begin) unawaited(pause());
-    });
+    _adzanDelegate = AdzanPlayerDelegate(
+      onPlaybackStateChanged: ({required playing, required position}) {
+        _updateAdzanPlaybackState(playing: playing);
+      },
+      onMediaItemChanged: mediaItem.add,
+      onAdzanCompleted: _onAdzanCompleted,
+      onAdzanPlayingChanged: ({required isPlaying}) =>
+          _onAdzanPlayingChanged(isPlaying),
+    );
 
-    // Listen player state → emit ke stateController + update playbackState
-    _player.playerStateStream.listen(_onPlayerStateChanged);
-
-    // Listen position updates untuk progress bar
-    _player.positionStream.listen(_onPositionChanged);
+    await _quranDelegate.init();
   }
 
-  void _onPlayerStateChanged(PlayerState playerState) {
-    final ayat = _currentAyat;
-    if (ayat == null) return;
+  // ---------------------------------------------------------------------------
+  // Adzan control (dipanggil dari AdzanAlarmCallback)
+  // ---------------------------------------------------------------------------
 
-    final position = _player.position;
-    final duration = _player.duration ?? Duration.zero;
+  /// Play adzan. Pause Quran dulu jika sedang playing.
+  Future<void> playAdzan({
+    required bool isSubuh,
+    required String waktuNama,
+  }) async {
+    // Simpan state Quran sebelum di-interrupt
+    _quranDelegate.saveStateForInterrupt();
 
-    if (playerState.processingState == ProcessingState.loading ||
-        playerState.processingState == ProcessingState.buffering) {
-      _stateController.add(
-        AudioPlayerState.loading(ayatNomor: ayat, qari: _currentQari),
-      );
-      _updatePlaybackState(playing: false, position: position);
-    } else if (playerState.processingState == ProcessingState.completed) {
-      _stateController.add(const AudioPlayerState.idle());
-      _currentAyat = null;
-      _updatePlaybackState(playing: false, position: Duration.zero);
-    } else if (playerState.playing) {
-      _stateController.add(
-        AudioPlayerState.playing(
-          ayatNomor: ayat,
-          qari: _currentQari,
-          position: position,
-          duration: duration,
-        ),
-      );
-      _updatePlaybackState(playing: true, position: position);
-    } else {
-      _stateController.add(
-        AudioPlayerState.paused(
-          ayatNomor: ayat,
-          qari: _currentQari,
-          position: position,
-          duration: duration,
-        ),
-      );
-      _updatePlaybackState(playing: false, position: position);
+    // Pause Quran jika sedang playing
+    if (_quranDelegate.isPlaying) {
+      await _quranDelegate.pause();
+    }
+
+    // Play adzan
+    await _adzanDelegate.playAdzan(
+      isSubuh: isSubuh,
+      waktuNama: waktuNama,
+    );
+  }
+
+  /// Stop adzan manual (user tap "Hentikan").
+  /// Quran TIDAK di-resume.
+  Future<void> stopAdzan() async {
+    await _adzanDelegate.stop();
+    // Reset media item ke Quran jika ada
+    if (_quranDelegate.currentAyat != null) {
+      mediaItem.add(null);
     }
   }
 
-  void _onPositionChanged(Duration position) {
-    final ayat = _currentAyat;
-    if (ayat == null || !_player.playing) return;
-    final duration = _player.duration ?? Duration.zero;
-    _stateController.add(
-      AudioPlayerState.playing(
-        ayatNomor: ayat,
-        qari: _currentQari,
-        position: position,
-        duration: duration,
+  bool get isAdzanPlaying => _adzanDelegate.isPlaying;
+
+  // ---------------------------------------------------------------------------
+  // Quran control (existing API — tidak berubah)
+  // ---------------------------------------------------------------------------
+
+  Future<void> playUrl({
+    required String url,
+    required int ayatNomor,
+    required Qari qari,
+    String? suratName,
+    String? ayatText,
+  }) async {
+    await _quranDelegate.playUrl(
+      url: url,
+      ayatNomor: ayatNomor,
+      qari: qari,
+      suratName: suratName,
+      ayatText: ayatText,
+    );
+  }
+
+  @override
+  Future<void> play() async {
+    if (_adzanDelegate.isPlaying) return; // Adzan prioritas
+    await _quranDelegate.play();
+  }
+
+  @override
+  Future<void> pause() async {
+    if (_adzanDelegate.isPlaying) {
+      await _adzanDelegate.stop();
+      return;
+    }
+    await _quranDelegate.pause();
+  }
+
+  @override
+  Future<void> stop() async {
+    await _adzanDelegate.stop();
+    await _quranDelegate.stop();
+    if (!_stateController.isClosed) {
+      _stateController.add(const AudioPlayerState.idle());
+    }
+    await super.stop();
+  }
+
+  @override
+  Future<void> seek(Duration position) async {
+    if (_adzanDelegate.isPlaying) return;
+    await _quranDelegate.seek(position);
+  }
+
+  @override
+  Future<void> skipToNext() async {
+    // Diimplementasi di Phase A4 (playlist mode)
+  }
+
+  @override
+  Future<void> skipToPrevious() async {
+    // Diimplementasi di Phase A4 (playlist mode)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  /// Dipanggil saat adzan selesai natural → auto-resume Quran.
+  void _onAdzanCompleted() {
+    debugPrint('AudioCompositeHandler: adzan selesai, resume Quran');
+    unawaited(_quranDelegate.resumeAfterInterrupt());
+  }
+
+  /// Dipanggil saat state adzan berubah → switch controls di notif.
+  void _onAdzanPlayingChanged(bool isPlaying) {
+    if (isPlaying) {
+      _updateAdzanPlaybackState(playing: true);
+    } else {
+      _updatePlaybackState(
+        playing: _quranDelegate.isPlaying,
+        position: Duration.zero,
+      );
+    }
+  }
+
+  /// Update playback state khusus adzan — hanya tombol Stop.
+  void _updateAdzanPlaybackState({required bool playing}) {
+    playbackState.add(
+      playbackState.value.copyWith(
+        controls: playing ? [MediaControl.stop] : [],
+        systemActions: const {},
+        androidCompactActionIndices: const [0],
+        processingState: playing
+            ? AudioProcessingState.ready
+            : AudioProcessingState.idle,
+        playing: playing,
+        updatePosition: Duration.zero,
+        bufferedPosition: Duration.zero,
+        speed: 1,
       ),
     );
   }
@@ -122,94 +221,10 @@ class AudioBackgroundHandler extends BaseAudioHandler {
     );
   }
 
-  /// Play audio dari URL atau file lokal.
-  Future<void> playUrl({
-    required String url,
-    required int ayatNomor,
-    required Qari qari,
-    String? suratName,
-    String? ayatText,
-  }) async {
-    try {
-      _currentAyat = ayatNomor;
-      _currentQari = qari;
-
-      // Update media item untuk lock screen / notification
-      mediaItem.add(
-        MediaItem(
-          id: url,
-          title: 'Ayat $ayatNomor',
-          artist: qari.name,
-          album: suratName ?? 'Al-Quran',
-          displayTitle: 'Ayat $ayatNomor',
-          displaySubtitle: qari.name,
-        ),
-      );
-
-      _stateController.add(
-        AudioPlayerState.loading(ayatNomor: ayatNomor, qari: qari),
-      );
-
-      await _player.setUrl(url);
-      await _player.play();
-    } on Object catch (e) {
-      _stateController.add(AudioPlayerState.error(message: e.toString()));
-      debugPrint('AudioBackgroundHandler playUrl error: $e');
-    }
-  }
-
-  @override
-  Future<void> play() async {
-    try {
-      await _player.play();
-    } on Object catch (e) {
-      debugPrint('AudioBackgroundHandler play error: $e');
-    }
-  }
-
-  @override
-  Future<void> pause() async {
-    try {
-      await _player.pause();
-    } on Object catch (e) {
-      debugPrint('AudioBackgroundHandler pause error: $e');
-    }
-  }
-
-  @override
-  Future<void> stop() async {
-    try {
-      await _player.stop();
-      _currentAyat = null;
-      _stateController.add(const AudioPlayerState.idle());
-      await super.stop();
-    } on Object catch (e) {
-      debugPrint('AudioBackgroundHandler stop error: $e');
-    }
-  }
-
-  @override
-  Future<void> seek(Duration position) async {
-    try {
-      await _player.seek(position);
-    } on Object catch (e) {
-      debugPrint('AudioBackgroundHandler seek error: $e');
-    }
-  }
-
-  @override
-  Future<void> skipToNext() async {
-    // Diimplementasi di Phase A4 (playlist mode)
-  }
-
-  @override
-  Future<void> skipToPrevious() async {
-    // Diimplementasi di Phase A4 (playlist mode)
-  }
-
-  /// Dispose resources.
+  /// Dispose semua resources.
   Future<void> disposeHandler() async {
-    await _player.dispose();
+    await _quranDelegate.dispose();
+    await _adzanDelegate.dispose();
     await _stateController.close();
   }
 }

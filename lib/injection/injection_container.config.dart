@@ -38,8 +38,12 @@ import 'package:equran_app/features/audio/data/datasources/audio_player_data_sou
     as _i945;
 import 'package:equran_app/features/audio/data/datasources/audio_service_module.dart'
     as _i718;
+import 'package:equran_app/features/audio/data/repositories/audio_download_repository_impl.dart'
+    as _i937;
 import 'package:equran_app/features/audio/data/repositories/audio_repository_impl.dart'
     as _i550;
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
+    as _i965;
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart'
     as _i451;
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart'
@@ -72,10 +76,20 @@ import 'package:equran_app/features/bookmark/data/datasources/bookmark_local_dat
     as _i701;
 import 'package:equran_app/features/bookmark/data/repositories/bookmark_repository_impl.dart'
     as _i720;
+import 'package:equran_app/features/bookmark/data/repositories/last_read_repository_impl.dart'
+    as _i955;
+import 'package:equran_app/features/bookmark/data/repositories/reading_progress_repository_impl.dart'
+    as _i822;
 import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart'
     as _i182;
+import 'package:equran_app/features/bookmark/domain/repositories/last_read_repository.dart'
+    as _i1019;
+import 'package:equran_app/features/bookmark/domain/repositories/reading_progress_repository.dart'
+    as _i952;
 import 'package:equran_app/features/bookmark/domain/usecases/add_bookmark.dart'
     as _i749;
+import 'package:equran_app/features/bookmark/domain/usecases/get_all_surat_progress.dart'
+    as _i1030;
 import 'package:equran_app/features/bookmark/domain/usecases/get_bookmarks.dart'
     as _i1008;
 import 'package:equran_app/features/bookmark/domain/usecases/get_last_read.dart'
@@ -84,6 +98,8 @@ import 'package:equran_app/features/bookmark/domain/usecases/remove_bookmark.dar
     as _i778;
 import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart'
     as _i187;
+import 'package:equran_app/features/bookmark/domain/usecases/save_surat_progress.dart'
+    as _i135;
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
     as _i194;
 import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_datasource.dart'
@@ -120,6 +136,8 @@ import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart'
     as _i254;
 import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart'
     as _i107;
+import 'package:equran_app/features/doa/presentation/cubit/doa_bookmark_cubit.dart'
+    as _i552;
 import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart'
     as _i290;
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
@@ -336,14 +354,13 @@ extension GetItInjectableX on _i174.GetIt {
     final notificationModule = _$NotificationModule();
     final hiveModule = _$HiveModule();
     gh.singleton<_i870.DioClient>(() => _i870.DioClient());
-    await gh.singletonAsync<_i813.AudioBackgroundHandler>(
-      () => audioServiceModule.audioBackgroundHandler(),
+    await gh.singletonAsync<_i813.AudioCompositeHandler>(
+      () => audioServiceModule.audioCompositeHandler(),
       preResolve: true,
     );
     gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
       () => notificationModule.flutterLocalNotificationsPlugin,
     );
-    gh.lazySingleton<_i222.AppRouter>(() => _i222.AppRouter());
     gh.lazySingleton<_i372.GetAvailableQari>(
       () => const _i372.GetAvailableQari(),
     );
@@ -377,15 +394,6 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i177.LocationService>(() => _i177.LocationServiceImpl());
-    gh.lazySingleton<_i380.DeleteAyatAudio>(
-      () => _i380.DeleteAyatAudio(gh<_i503.AudioDownloadDataSource>()),
-    );
-    gh.lazySingleton<_i434.DownloadAyatAudio>(
-      () => _i434.DownloadAyatAudio(gh<_i503.AudioDownloadDataSource>()),
-    );
-    gh.lazySingleton<_i232.GetDownloadedAyats>(
-      () => _i232.GetDownloadedAyats(gh<_i503.AudioDownloadDataSource>()),
-    );
     await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.readingHistoryBox(),
       instanceName: 'readingHistoryBox',
@@ -409,9 +417,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1015.OnboardingService(
         gh<_i738.Box<String>>(instanceName: 'settingsBox'),
       ),
-    );
-    gh.singleton<_i945.AudioPlayerDataSource>(
-      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
     );
     await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.shalatBox(),
@@ -476,6 +481,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i182.BookmarkRepository>(
       () => _i720.BookmarkRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
     );
+    gh.lazySingleton<_i965.AudioDownloadRepository>(
+      () => _i937.AudioDownloadRepositoryImpl(
+        gh<_i503.AudioDownloadDataSource>(),
+      ),
+    );
     await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.hafalanBox(),
       instanceName: 'hafalanBox',
@@ -495,20 +505,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1008.GetBookmarks>(
       () => _i1008.GetBookmarks(gh<_i182.BookmarkRepository>()),
     );
-    gh.factory<_i994.GetLastRead>(
-      () => _i994.GetLastRead(gh<_i182.BookmarkRepository>()),
-    );
     gh.factory<_i778.RemoveBookmark>(
       () => _i778.RemoveBookmark(gh<_i182.BookmarkRepository>()),
     );
-    gh.factory<_i187.SaveLastRead>(
-      () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
+    gh.lazySingleton<_i425.DeleteAllAudio>(
+      () => _i425.DeleteAllAudio(gh<_i965.AudioDownloadRepository>()),
     );
-    gh.singleton<_i451.AudioRepository>(
-      () => _i550.AudioRepositoryImpl(
-        gh<_i945.AudioPlayerDataSource>(),
-        gh<_i503.AudioDownloadDataSource>(),
-      ),
+    gh.lazySingleton<_i380.DeleteAyatAudio>(
+      () => _i380.DeleteAyatAudio(gh<_i965.AudioDownloadRepository>()),
+    );
+    gh.lazySingleton<_i434.DownloadAyatAudio>(
+      () => _i434.DownloadAyatAudio(gh<_i965.AudioDownloadRepository>()),
+    );
+    gh.lazySingleton<_i232.GetDownloadedAyats>(
+      () => _i232.GetDownloadedAyats(gh<_i965.AudioDownloadRepository>()),
+    );
+    gh.singleton<_i945.AudioPlayerDataSource>(
+      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioCompositeHandler>()),
     );
     gh.lazySingleton<_i289.CatatanAyatLocalDatasource>(
       () => _i289.CatatanAyatLocalDatasourceImpl(
@@ -571,6 +584,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
       () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
     );
+    gh.lazySingleton<_i222.AppRouter>(
+      () => _i222.AppRouter(gh<_i1015.OnboardingService>()),
+    );
     gh.lazySingleton<_i1011.QuranStreakRepository>(
       () => _i54.QuranStreakRepositoryImpl(
         gh<_i770.QuranStreakLocalDataSource>(),
@@ -627,6 +643,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.LazyBox<String>>(instanceName: 'suratBox'),
       ),
     );
+    gh.lazySingleton<_i952.ReadingProgressRepository>(
+      () => _i822.ReadingProgressRepositoryImpl(
+        gh<_i701.BookmarkLocalDataSource>(),
+      ),
+    );
     gh.factory<_i254.GetDoaBookmarks>(
       () => _i254.GetDoaBookmarks(gh<_i553.DoaBookmarkDataSource>()),
     );
@@ -668,24 +689,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.LazyBox<String>>(instanceName: 'doaBox'),
       ),
     );
-    gh.lazySingleton<_i425.DeleteAllAudio>(
-      () => _i425.DeleteAllAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i665.PauseAudio>(
-      () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i556.PlayAudio>(
-      () => _i556.PlayAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i748.ResumeAudio>(
-      () => _i748.ResumeAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i637.SeekAudio>(
-      () => _i637.SeekAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i710.StopAudio>(
-      () => _i710.StopAudio(gh<_i451.AudioRepository>()),
-    );
     gh.lazySingleton<_i414.JadwalShalatRepository>(
       () => _i443.JadwalShalatRepositoryImpl(
         gh<_i264.JadwalShalatRemoteDataSource>(),
@@ -697,6 +700,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i659.RecordQuranRead>(
       () => _i659.RecordQuranRead(gh<_i1011.QuranStreakRepository>()),
+    );
+    gh.lazySingleton<_i1019.LastReadRepository>(
+      () => _i955.LastReadRepositoryImpl(gh<_i701.BookmarkLocalDataSource>()),
+    );
+    gh.factory<_i994.GetLastRead>(
+      () => _i994.GetLastRead(gh<_i1019.LastReadRepository>()),
+    );
+    gh.factory<_i187.SaveLastRead>(
+      () => _i187.SaveLastRead(gh<_i1019.LastReadRepository>()),
     );
     gh.lazySingleton<_i1042.GetJadwalShalat>(
       () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
@@ -723,16 +735,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i607.ReadingHistoryLocalDataSource>(),
       ),
     );
-    gh.singleton<_i729.AudioCubit>(
-      () => _i729.AudioCubit(
-        gh<_i556.PlayAudio>(),
-        gh<_i665.PauseAudio>(),
-        gh<_i748.ResumeAudio>(),
-        gh<_i710.StopAudio>(),
-        gh<_i637.SeekAudio>(),
-        gh<_i451.AudioRepository>(),
-      ),
-    );
     gh.factory<_i330.AudioStorageCubit>(
       () => _i330.AudioStorageCubit(
         gh<_i232.GetDownloadedAyats>(),
@@ -751,6 +753,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i413.SaveShalatLog>(
       () => _i413.SaveShalatLog(gh<_i278.StatistikShalatRepository>()),
+    );
+    gh.singleton<_i451.AudioRepository>(
+      () => _i550.AudioRepositoryImpl(
+        gh<_i945.AudioPlayerDataSource>(),
+        gh<_i503.AudioDownloadDataSource>(),
+      ),
     );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
@@ -797,6 +805,12 @@ extension GetItInjectableX on _i174.GetIt {
         watchQiblaDirection: gh<_i247.WatchQiblaDirection>(),
       ),
     );
+    gh.factory<_i1030.GetAllSuratProgress>(
+      () => _i1030.GetAllSuratProgress(gh<_i952.ReadingProgressRepository>()),
+    );
+    gh.factory<_i135.SaveSuratProgress>(
+      () => _i135.SaveSuratProgress(gh<_i952.ReadingProgressRepository>()),
+    );
     gh.lazySingleton<_i647.SuratRepository>(
       () => _i291.SuratRepositoryImpl(
         gh<_i1071.SuratRemoteDataSource>(),
@@ -831,6 +845,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i451.DeleteCatatan>(),
       ),
     );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
+        gh<_i177.LocationService>(),
+        gh<_i804.ShalatNotificationScheduler>(),
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i615.ShalatNotifCubit>(),
+      ),
+    );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
     );
@@ -857,6 +885,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i413.SaveShalatLog>(),
       ),
     );
+    gh.factory<_i194.BookmarkCubit>(
+      () => _i194.BookmarkCubit(
+        gh<_i1008.GetBookmarks>(),
+        gh<_i749.AddBookmark>(),
+        gh<_i778.RemoveBookmark>(),
+        gh<_i994.GetLastRead>(),
+        gh<_i187.SaveLastRead>(),
+        gh<_i1030.GetAllSuratProgress>(),
+        gh<_i135.SaveSuratProgress>(),
+      ),
+    );
     gh.lazySingleton<_i1068.TasbihCubit>(
       () => _i1068.TasbihCubit(
         gh<_i998.GetTasbihSessions>(),
@@ -864,6 +903,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1029.DeleteTasbihSession>(),
         gh<_i603.ClearTasbihSessions>(),
       ),
+    );
+    gh.factory<_i665.PauseAudio>(
+      () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i556.PlayAudio>(
+      () => _i556.PlayAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i748.ResumeAudio>(
+      () => _i748.ResumeAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i637.SeekAudio>(
+      () => _i637.SeekAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i710.StopAudio>(
+      () => _i710.StopAudio(gh<_i451.AudioRepository>()),
     );
     gh.singleton<_i69.QuranStreakCubit>(
       () => _i69.QuranStreakCubit(
@@ -908,14 +962,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i663.HafalanRepository>(
       () => _i804.HafalanRepositoryImpl(gh<_i445.HafalanLocalDatasource>()),
     );
-    gh.factory<_i165.ImsakiyahCubit>(
-      () => _i165.ImsakiyahCubit(
-        gh<_i410.GetProvinsi>(),
-        gh<_i815.GetKabkota>(),
-        gh<_i28.GetImsakiyah>(),
-        gh<_i387.GetLastLocationImsakiyah>(),
-        gh<_i1070.SaveLastLocationImsakiyah>(),
-        gh<_i177.LocationService>(),
+    gh.singleton<_i729.AudioCubit>(
+      () => _i729.AudioCubit(
+        gh<_i556.PlayAudio>(),
+        gh<_i665.PauseAudio>(),
+        gh<_i748.ResumeAudio>(),
+        gh<_i710.StopAudio>(),
+        gh<_i637.SeekAudio>(),
+        gh<_i451.AudioRepository>(),
       ),
     );
     gh.factory<_i345.DoaListCubit>(
@@ -934,18 +988,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i230.CleanupOldReadingData>(),
       ),
     );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
-        gh<_i1042.GetJadwalShalat>(),
-        gh<_i88.GetLastLocationShalat>(),
-        gh<_i584.SaveLastLocationShalat>(),
-        gh<_i177.LocationService>(),
-        gh<_i804.ShalatNotificationScheduler>(),
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-        gh<_i615.ShalatNotifCubit>(),
+    gh.lazySingleton<_i552.DoaBookmarkCubit>(
+      () => _i552.DoaBookmarkCubit(
+        gh<_i254.GetDoaBookmarks>(),
+        gh<_i107.ToggleDoaBookmark>(),
+        gh<_i254.GetDoaList>(),
       ),
     );
     gh.factory<_i29.DeleteHafalanSurat>(
@@ -963,17 +1010,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i702.SaveHafalanSurat>(
       () => _i702.SaveHafalanSurat(gh<_i663.HafalanRepository>()),
     );
-    gh.factory<_i194.BookmarkCubit>(
-      () => _i194.BookmarkCubit(
-        gh<_i1008.GetBookmarks>(),
-        gh<_i749.AddBookmark>(),
-        gh<_i778.RemoveBookmark>(),
-        gh<_i994.GetLastRead>(),
-        gh<_i187.SaveLastRead>(),
-        gh<_i254.GetDoaBookmarks>(),
-        gh<_i254.GetDoaList>(),
-        gh<_i107.ToggleDoaBookmark>(),
-        gh<_i182.BookmarkRepository>(),
+    gh.factory<_i165.ImsakiyahCubit>(
+      () => _i165.ImsakiyahCubit(
+        gh<_i410.GetProvinsi>(),
+        gh<_i815.GetKabkota>(),
+        gh<_i28.GetImsakiyah>(),
+        gh<_i387.GetLastLocationImsakiyah>(),
+        gh<_i1070.SaveLastLocationImsakiyah>(),
+        gh<_i177.LocationService>(),
       ),
     );
     gh.lazySingleton<_i538.HafalanCubit>(

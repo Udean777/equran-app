@@ -1,18 +1,19 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/card_swipe_config.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
-import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
-import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/controllers/auto_read_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_completion_card.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_app_bar.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_card.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/juz_aware_app_bar.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/surat_action_bar.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/surat_card_stack.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/swipe_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,6 +44,7 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _snapAnimation;
+  late AutoReadController _autoReadController;
   bool _isAnimating = false;
 
   @override
@@ -56,13 +58,63 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
       CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
     );
     widget.controller.addListener(_onControllerChanged);
+
+    // AutoReadController dibuat di initState — AudioCubit sudah tersedia via context
+    // karena initState dipanggil setelah widget tree terbentuk.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      _autoReadController = AutoReadController(
+        audioCubit: context.read<AudioCubit>(),
+        cardController: widget.controller,
+      );
+      _autoReadController.addListener(_onAutoReadChanged);
+      _isAutoReadControllerInitialized = true;
+
+      // Sync card ke audio aktif saat page pertama kali mount.
+      // Kasus: user tap LastReadCard dari luar saat audio playlist masih berjalan
+      // untuk surat yang sama — card harus langsung ke ayat audio terkini.
+      final audioCubit = context.read<AudioCubit>();
+      if (!audioCubit.isPlaylistMode) return;
+      if (audioCubit.playlistSuratNomor != widget.suratNomor) return;
+
+      final currentAyat = audioCubit.state.currentAyat;
+      if (currentAyat == null) return;
+
+      // Jump langsung tanpa animasi — ini initial sync, bukan advance
+      if (widget.controller.currentIndex != currentAyat) {
+        widget.controller.jumpTo(currentAyat);
+      }
+
+      // Aktifkan auto-read mode agar BlocListener mulai sync selanjutnya
+      _autoReadController.activateWithoutPlay(
+        onCompleted: () {
+          if (!mounted) return;
+          _animateToIndex(widget.controller.totalCards - 1);
+        },
+      );
+    });
   }
 
   @override
   void dispose() {
     _animController.dispose();
     widget.controller.removeListener(_onControllerChanged);
+    // AutoReadController mungkin belum diinisialisasi jika addPostFrameCallback
+    // belum dipanggil saat dispose (edge case unmount sangat cepat).
+    if (_isAutoReadControllerInitialized) {
+      _autoReadController
+        ..removeListener(_onAutoReadChanged)
+        ..dispose();
+    }
     super.dispose();
+  }
+
+  // Guard untuk edge case dispose sebelum postFrameCallback
+  bool _isAutoReadControllerInitialized = false;
+
+  void _onAutoReadChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onControllerChanged() {
@@ -81,7 +133,10 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     // Dan jika sudah mentok di card selesai membaca (completion card), berarti gabisa di swipe lagi ke kiri
     if (widget.controller.isLast && newOffset < 0) {
       // Kita beri rubber band effect (resistance) agar kerasa mental/mentok, batas max -60
-      newOffset = (widget.controller.dragOffset + details.delta.dx * 0.2).clamp(-60.0, 0.0);
+      newOffset = (widget.controller.dragOffset + details.delta.dx * 0.2).clamp(
+        -60.0,
+        0.0,
+      );
     }
 
     widget.controller.updateDrag(newOffset);
@@ -94,19 +149,28 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     final offset = widget.controller.dragOffset;
 
     // Threshold: 30% layar atau velocity > 500
-    const threshold = 0.3;
     final ratio = offset / screenWidth;
 
-    if (ratio < -threshold || velocity < -500) {
+    if (ratio < -CardSwipeConfig.swipeThreshold ||
+        velocity < -CardSwipeConfig.velocityThreshold) {
       // Halaman selanjutnya (jika ada)
       if (!widget.controller.isLast) {
+        // Matikan auto-read jika user swipe manual
+        if (_isAutoReadControllerInitialized && _autoReadController.isActive) {
+          _stopAutoRead();
+        }
         _animateOut(toLeft: true);
       } else {
         _snapBack();
       }
-    } else if (ratio > threshold || velocity > 500) {
+    } else if (ratio > CardSwipeConfig.swipeThreshold ||
+        velocity > CardSwipeConfig.velocityThreshold) {
       // Halaman sebelumnya (jika ada)
       if (!widget.controller.isFirst) {
+        // Matikan auto-read jika user swipe manual
+        if (_isAutoReadControllerInitialized && _autoReadController.isActive) {
+          _stopAutoRead();
+        }
         _animateOut(toLeft: false);
       } else {
         _snapBack();
@@ -143,6 +207,33 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     );
   }
 
+  /// Animasi tumble ke index tertentu — dipakai oleh auto-read mode.
+  /// Selalu animasi ke kiri (next card).
+  void _animateToIndex(int targetIndex) {
+    if (_isAnimating) return;
+    if (targetIndex <= widget.controller.currentIndex) return;
+
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final step = screenWidth - AppDimens.pagePadding;
+
+    _isAnimating = true;
+    _snapAnimation =
+        Tween<double>(
+          begin: 0,
+          end: -step,
+        ).animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
+
+    _animController.reset();
+    unawaited(
+      _animController.forward().then((_) {
+        _isAnimating = false;
+        widget.controller.jumpTo(targetIndex);
+      }),
+    );
+  }
+
   void _snapBack() {
     _isAnimating = true;
     _snapAnimation =
@@ -163,247 +254,143 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
   }
 
   void _showSuccessDialog() {
-    context.go('/');
+    context.go(AppRoutes.home);
+  }
+
+  void _startAutoRead() {
+    if (!_isAutoReadControllerInitialized) return;
+    showSettingsToast(context, 'Mode Baca Otomatis aktif');
+    _autoReadController.start(widget.detail);
+  }
+
+  void _stopAutoRead({bool showToast = true}) {
+    if (!_isAutoReadControllerInitialized) return;
+    if (!_autoReadController.isActive) return;
+    _autoReadController.stop();
+    if (showToast && mounted) {
+      showSettingsToast(
+        context,
+        'Mode Baca Otomatis dimatikan',
+        isSuccess: false,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final detail = widget.detail;
     final controller = widget.controller;
+    final isAutoRead =
+        _isAutoReadControllerInitialized && _autoReadController.isActive;
 
-    return BlocBuilder<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, next) =>
-          prev.isPlaying != next.isPlaying ||
-          prev.isPaused != next.isPaused ||
-          prev.currentQari != next.currentQari,
-      builder: (context, audioState) {
-        return Scaffold(
-          appBar: SuratDetailAppBar(
-            detail: detail,
-            autoScrollEnabled: widget.autoScrollEnabled,
-            onToggleAutoScroll: widget.onToggleAutoScroll,
-            onDownloadTap: () {},
-            scrollProgress: controller.currentProgress,
-          ),
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListenableBuilder(
-                listenable: controller,
-                builder: (_, _) => SwipeNavBar(
-                  controller: controller,
-                  onComplete: _showSuccessDialog,
-                ),
-              ),
-              AudioPlayerBar(audioMap: detail.audioFull),
-            ],
-          ),
-          body: GestureDetector(
-            onHorizontalDragUpdate: _onHorizontalDragUpdate,
-            onHorizontalDragEnd: _onHorizontalDragEnd,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppDimens.pagePadding,
-                AppDimens.spaceMD,
-                AppDimens.pagePadding,
-                AppDimens.spaceMD,
-              ),
-              child: AnimatedBuilder(
-                animation: _animController,
-                builder: (context, _) {
-                  final offset = _isAnimating
-                      ? _snapAnimation.value
-                      : controller.dragOffset;
-                  return _CardStack(
-                    detail: detail,
-                    controller: controller,
-                    dragOffset: offset,
-                  );
-                },
-              ),
-            ),
-          ),
+    return BlocListener<AudioCubit, AudioPlayerState>(
+      // Sync card swipe dengan audio advance saat auto-read aktif
+      listenWhen: (prev, curr) =>
+          isAutoRead && prev.currentAyat != curr.currentAyat,
+      listener: (context, audioState) {
+        if (!isAutoRead) return;
+
+        // Sync card ke ayat yang sedang diplay dengan animasi tumble
+        final currentAyat = audioState.currentAyat;
+        if (currentAyat == null) return;
+        final targetIndex = currentAyat; // index 1-based = ayat nomor
+        if (widget.controller.currentIndex != targetIndex) {
+          _animateToIndex(targetIndex);
+        }
+
+        // Buffer ayat ke reading progress saat auto-read advance
+        context.read<ReadingProgressCubit>().bufferAyat(
+          widget.detail.info.nomor,
+          currentAyat,
         );
       },
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Side-by-Side Horizontal Card View
-// ---------------------------------------------------------------------------
-
-class _CardStack extends StatelessWidget {
-  const _CardStack({
-    required this.detail,
-    required this.controller,
-    required this.dragOffset,
-  });
-
-  final SuratDetail detail;
-  final CardStackController controller;
-  final double dragOffset;
-
-  @override
-  Widget build(BuildContext context) {
-    final currentIndex = controller.currentIndex;
-    final totalCards = controller.totalCards;
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Previous card (left)
-        if (currentIndex > 0)
-          _buildSideCard(context, currentIndex - 1, isLeft: true),
-
-        // Next card (right)
-        if (currentIndex < totalCards - 1)
-          _buildSideCard(context, currentIndex + 1, isLeft: false),
-
-        // Current card (center)
-        _buildActiveCard(context, currentIndex),
-      ],
-    );
-  }
-
-  Widget _buildActiveCard(BuildContext context, int index) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final dragRatio = (dragOffset / screenWidth).clamp(-1.0, 1.0);
-    
-    // Tumble rotation: tilt as it moves
-    final rotationAngle = dragRatio * 0.3; // max ~17 degrees
-    
-    // Tumble scale: shrink slightly
-    final scale = 1.0 - dragRatio.abs() * 0.08;
-    
-    // Tumble opacity: fade slightly
-    final opacity = (1.0 - dragRatio.abs() * 0.4).clamp(0.0, 1.0);
-    
-    // Tumble translation: horizontal + slight downward drop
-    final translateY = dragRatio.abs() * 24.0;
-
-    return Transform(
-      transform: Matrix4.translationValues(dragOffset, translateY, 0)
-        ..rotateZ(rotationAngle),
-      alignment: Alignment.center,
-      child: Transform.scale(
-        scale: scale,
-        child: Opacity(
-          opacity: opacity,
-          child: _buildCard(context, index),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSideCard(BuildContext context, int index, {required bool isLeft}) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final step = screenWidth - AppDimens.pagePadding;
-    final baseOffset = isLeft ? -step : step;
-    final offset = baseOffset + dragOffset;
-    
-    // progress: 0.0 when fully centered, 1.0 when fully off-screen
-    final progress = (offset.abs() / step).clamp(0.0, 1.0);
-    final activeFactor = 1.0 - progress; // 1.0 when centered, 0.0 when off-screen
-
-    // Tumble rotation for side card: tilts when off-screen, upright when centered
-    final tiltSign = isLeft ? -1.0 : 1.0;
-    final rotationAngle = tiltSign * 0.2 * (1.0 - activeFactor); // ~11 degrees off-screen tilt
-
-    // Tumble scale: 0.92 when off-screen, 1.0 when centered
-    final scale = 0.92 + 0.08 * activeFactor;
-
-    // Tumble opacity: 0.6 when off-screen, 1.0 when centered
-    final opacity = (0.6 + 0.4 * activeFactor).clamp(0.0, 1.0);
-
-    // Tumble translation: horizontal + slight vertical position adjustment
-    final translateY = 20.0 * (1.0 - activeFactor);
-
-    return Transform(
-      transform: Matrix4.translationValues(offset, translateY, 0)
-        ..rotateZ(rotationAngle),
-      alignment: Alignment.center,
-      child: Transform.scale(
-        scale: scale,
-        child: Opacity(
-          opacity: opacity,
-          child: _buildCard(context, index),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCard(BuildContext context, int index) {
-    Widget card;
-    if (index == 0) {
-      card = SuratInfoCard(detail: detail);
-    } else if (index == controller.totalCards - 1) {
-      card = SuratCompletionCard(
-        detail: detail,
-        onBackToHome: () {
-    context.go(AppRoutes.home);
-        },
-        onRestart: () {
-          controller.jumpTo(0);
-        },
-      );
-    } else {
-      final ayatIndex = index - 1;
-      if (ayatIndex >= detail.ayatList.length) return const SizedBox.shrink();
-
-      final ayat = detail.ayatList[ayatIndex];
-
-      card = BlocBuilder<BookmarkCubit, BookmarkState>(
+      child: BlocBuilder<AudioCubit, AudioPlayerState>(
         buildWhen: (prev, next) =>
-            prev.mapOrNull(success: (s) => s.bookmarks) !=
-            next.mapOrNull(success: (s) => s.bookmarks),
-        builder: (context, bookmarkState) {
-          final bookmarks =
-              bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
-          final isBookmarked = bookmarks.any(
-            (b) =>
-                b.suratNomor == detail.info.nomor &&
-                b.ayatNomor == ayat.nomorAyat,
-          );
+            prev.isPlaying != next.isPlaying ||
+            prev.isPaused != next.isPaused ||
+            prev.isIdle != next.isIdle ||
+            prev.currentQari != next.currentQari,
+        builder: (context, audioState) {
+          final audioCubit = context.read<AudioCubit>();
+          final isCompletionCard = controller.isLast;
 
-          return AyatSwipeCard(
-            ayat: ayat,
-            suratDetail: detail,
-            isBookmarked: isBookmarked,
-            onBookmarkToggle: () {
-              if (isBookmarked) {
-                unawaited(
-                  context.read<BookmarkCubit>().removeBookmark(
-                    suratNomor: detail.info.nomor,
-                    ayatNomor: ayat.nomorAyat,
+          return Scaffold(
+            appBar: JuzAwareAppBar(
+              detail: detail,
+              controller: controller,
+            ),
+            bottomNavigationBar: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Action bar — tombol berlabel untuk Hafalan, Download, Play
+                SuratActionBar(
+                  detail: detail,
+                  autoScrollEnabled: widget.autoScrollEnabled,
+                  onToggleAutoScroll: widget.onToggleAutoScroll,
+                ),
+                ListenableBuilder(
+                  listenable: controller,
+                  builder: (_, _) => SwipeNavBar(
+                    controller: controller,
+                    onComplete: _showSuccessDialog,
                   ),
-                );
-              } else {
-                unawaited(
-                  context.read<BookmarkCubit>().addBookmark(
-                    Bookmark(
-                      suratNomor: detail.info.nomor,
-                      ayatNomor: ayat.nomorAyat,
-                      namaLatin: detail.info.namaLatin,
-                      teksArab: ayat.teksArab,
-                      teksIndonesia: ayat.teksIndonesia,
-                      savedAt: DateTime.now(),
-                    ),
+                ),
+                // Sembunyikan AudioPlayerBar di completion card
+                if (!isCompletionCard)
+                  AudioPlayerBar(
+                    audioMap: detail.audioFull,
+                    // Stop: jika auto-read aktif, matikan mode juga
+                    onStop: isAutoRead ? _stopAutoRead : null,
+                    // Prev: swipe card + audio prev
+                    onPrevCard:
+                        audioCubit.isPlaylistMode &&
+                            audioCubit.playlistIndex > 0
+                        ? () {
+                            unawaited(audioCubit.previousAyat());
+                            controller.goPrev();
+                          }
+                        : null,
+                    // Next: swipe card + audio next
+                    onNextCard:
+                        audioCubit.isPlaylistMode &&
+                            audioCubit.playlistIndex <
+                                audioCubit.playlist.length - 1
+                        ? () {
+                            unawaited(audioCubit.nextAyat());
+                            controller.goNext();
+                          }
+                        : null,
                   ),
-                );
-              }
-            },
+              ],
+            ),
+            body: GestureDetector(
+              onHorizontalDragUpdate: _onHorizontalDragUpdate,
+              onHorizontalDragEnd: _onHorizontalDragEnd,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppDimens.pagePadding,
+                  AppDimens.spaceMD,
+                  AppDimens.pagePadding,
+                  AppDimens.spaceMD,
+                ),
+                child: AnimatedBuilder(
+                  animation: _animController,
+                  builder: (context, _) {
+                    final offset = _isAnimating
+                        ? _snapAnimation.value
+                        : controller.dragOffset;
+                    return SuratCardStack(
+                      detail: detail,
+                      controller: controller,
+                      dragOffset: offset,
+                      onStartAutoRead: _startAutoRead,
+                    );
+                  },
+                ),
+              ),
+            ),
           );
         },
-      );
-    }
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.65,
-        ),
-        child: card,
       ),
     );
   }

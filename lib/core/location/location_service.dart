@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/network_config.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
@@ -49,18 +50,19 @@ class LocationServiceImpl implements LocationService {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.low,
-          timeLimit: Duration(seconds: 10),
+          timeLimit: NetworkConfig.locationTimeout,
         ),
       );
 
       // 4. Reverse geocode dengan timeout
-      final placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      ).timeout(
-        const Duration(seconds: 8),
-        onTimeout: () => [],
-      );
+      final placemarks =
+          await placemarkFromCoordinates(
+            position.latitude,
+            position.longitude,
+          ).timeout(
+            NetworkConfig.locationFallbackTimeout,
+            onTimeout: () => [],
+          );
 
       if (placemarks.isEmpty) return null;
 

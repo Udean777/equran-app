@@ -11,6 +11,8 @@ import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/bookmark_card.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
+import 'package:equran_app/features/doa/domain/entities/doa.dart';
+import 'package:equran_app/features/doa/presentation/cubit/doa_bookmark_cubit.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_card.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -68,70 +70,78 @@ class _BookmarkContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final lastRead = state.lastRead;
     final bookmarks = state.bookmarks;
-    final doaBookmarks = state.bookmarkedDoas;
 
-    final isEmpty =
-        lastRead == null && bookmarks.isEmpty && doaBookmarks.isEmpty;
+    return BlocBuilder<DoaBookmarkCubit, DoaBookmarkState>(
+      builder: (context, doaState) {
+        final doaBookmarks = doaState is DoaBookmarkSuccess
+            ? doaState.bookmarkedDoas
+            : <Doa>[];
 
-    if (isEmpty) {
-      return EmptyStateWidget(message: l10n.bookmarkEmpty);
-    }
+        final isEmpty =
+            lastRead == null && bookmarks.isEmpty && doaBookmarks.isEmpty;
 
-    return ListView(
-      children: [
-        // Terakhir Dibaca
-        if (lastRead != null) ...[
-          const SectionHeader(label: 'Terakhir Dibaca'),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.pagePadding,
-            ),
-            child: LastReadCard(lastRead: lastRead),
-          ),
-        ],
+        if (isEmpty) {
+          return EmptyStateWidget(message: l10n.bookmarkEmpty);
+        }
 
-        // Bookmark Ayat
-        if (bookmarks.isNotEmpty) ...[
-          const SectionHeader(label: 'Bookmark Ayat'),
-          ...bookmarks.map(
-            (b) => Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.pagePadding,
-                vertical: AppDimens.spaceXS,
-              ),
-              child: BookmarkCard(
-                bookmark: b,
-                onTap: () => context.push(
-                  AppRoutes.suratWithAyat(b.suratNomor, b.ayatNomor),
+        return ListView(
+          children: [
+            // Terakhir Dibaca
+            if (lastRead != null) ...[
+              const SectionHeader(label: 'Terakhir Dibaca'),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.pagePadding,
                 ),
-                onRemove: () => context.read<BookmarkCubit>().removeBookmark(
-                  suratNomor: b.suratNomor,
-                  ayatNomor: b.ayatNomor,
+                child: LastReadCard(lastRead: lastRead),
+              ),
+            ],
+
+            // Bookmark Ayat
+            if (bookmarks.isNotEmpty) ...[
+              const SectionHeader(label: 'Bookmark Ayat'),
+              ...bookmarks.map(
+                (b) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding,
+                    vertical: AppDimens.spaceXS,
+                  ),
+                  child: BookmarkCard(
+                    bookmark: b,
+                    onTap: () => context.push(
+                      AppRoutes.suratWithAyat(b.suratNomor, b.ayatNomor),
+                    ),
+                    onRemove: () =>
+                        context.read<BookmarkCubit>().removeBookmark(
+                          suratNomor: b.suratNomor,
+                          ayatNomor: b.ayatNomor,
+                        ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
 
-        // Bookmark Doa
-        if (doaBookmarks.isNotEmpty) ...[
-          const SectionHeader(label: 'Bookmark Doa'),
-          ...doaBookmarks.map(
-            (d) => Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.pagePadding,
-                vertical: AppDimens.spaceXS,
+            // Bookmark Doa
+            if (doaBookmarks.isNotEmpty) ...[
+              const SectionHeader(label: 'Bookmark Doa'),
+              ...doaBookmarks.map(
+                (d) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.pagePadding,
+                    vertical: AppDimens.spaceXS,
+                  ),
+                  child: DoaCard(
+                    doa: d,
+                    onTap: () => context.push(AppRoutes.doa(d.id)),
+                  ),
+                ),
               ),
-              child: DoaCard(
-                doa: d,
-                onTap: () => context.push(AppRoutes.doa(d.id)),
-              ),
-            ),
-          ),
-        ],
+            ],
 
-        const SizedBox(height: AppDimens.spaceXL),
-      ],
+            const SizedBox(height: AppDimens.spaceXL),
+          ],
+        );
+      },
     );
   }
 }
