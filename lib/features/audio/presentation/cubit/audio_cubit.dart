@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/audio_constants.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart';
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart';
@@ -12,7 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-part 'audio_cubit_state.dart';
+part 'audio_state.dart';
 
 /// AudioCubit bersifat singleton — audio tetap play saat navigasi antar screen.
 @singleton
@@ -51,9 +52,9 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   /// Seek pending — diapply saat audio ayat target pertama kali playing.
   Duration? _pendingSeek;
 
-  static const double _msPerArabChar = 220;
-  static const Duration _minAyatDuration = Duration(seconds: 2);
-  static const Duration _maxAyatDuration = Duration(seconds: 30);
+  static const double _msPerArabChar = AudioConstants.msPerArabChar;
+  static const Duration _minAyatDuration = AudioConstants.minAyatDuration;
+  static const Duration _maxAyatDuration = AudioConstants.maxAyatDuration;
 
   /// Callback dipanggil saat playlist selesai semua ayat.
   /// Diset oleh UI yang membutuhkan notifikasi selesai (misal auto-read mode).

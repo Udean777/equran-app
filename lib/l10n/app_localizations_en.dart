@@ -227,4 +227,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bulanBerikutnya => 'Next Month';
+
+  @override
+  String get tasbihNav => 'Tasbih';
+
+  @override
+  String get qiblaNav => 'Qibla';
+
+  @override
+  String get hafalanDrawer => 'Quran Memorization';
+
+  @override
+  String get doaHarianDrawer => 'Daily Duas';
+
+  @override
+  String get catatanDrawer => 'My Notes';
+
+  @override
+  String get statistikBacaDrawer => 'Reading Stats';
+
+  @override
+  String get statistikShalatDrawer => 'Prayer Stats';
+
+  @override
+  String get manajemenAudioDrawer => 'Audio Management';
+
+  @override
+  String get pengaturanDrawer => 'Settings';
 }

@@ -59,7 +59,7 @@ class _ReadingStatsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final streak = context.watch<QuranStreakCubit>().state;
+    final streak = context.watch<QuranStreakCubit>().state.mapOrNull(loaded: (s) => s.streak) ?? 0;
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 32),

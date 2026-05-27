@@ -9,5 +9,6 @@ class GetAllSuratProgress {
 
   final ReadingProgressRepository _repository;
 
-  Either<Failure, Map<int, double>> call() => _repository.getAllSuratProgress();
+  Future<Either<Failure, Map<int, double>>> call() =>
+      _repository.getAllSuratProgress();
 }

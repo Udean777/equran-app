@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:equran_app/core/constants/network_config.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -17,7 +18,9 @@ Future<Either<Failure, T>> executeRequest<T>(
       return left(const Failure.network());
     }
     return left(
-      Failure.server(statusCode: e.response?.statusCode ?? 0),
+      Failure.server(
+        statusCode: e.response?.statusCode ?? NetworkConfig.unknownStatusCode,
+      ),
     );
   } on Object catch (e) {
     return left(Failure.unknown(message: e.toString()));

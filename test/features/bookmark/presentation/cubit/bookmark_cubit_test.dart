@@ -55,7 +55,7 @@ void main() {
     // Stubs default
     when(
       () => mockGetAllSuratProgress(),
-    ).thenReturn(right(<int, double>{}));
+    ).thenAnswer((_) async => right(<int, double>{}));
     when(
       () => mockSaveSuratProgress(any(), any()),
     ).thenAnswer((_) async => right(unit));

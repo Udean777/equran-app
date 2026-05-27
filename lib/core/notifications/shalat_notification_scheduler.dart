@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_notif_config.dart';
@@ -25,35 +26,35 @@ class ShalatNotificationScheduler {
 
     final waktuList = [
       _WaktuShalat(
-        id: kNotifIdSubuh,
+        id: NotificationIds.subuh,
         nama: 'Subuh',
         waktu: entry.subuh,
         enabled: config.subuh,
         isSubuh: true,
       ),
       _WaktuShalat(
-        id: kNotifIdDzuhur,
+        id: NotificationIds.dzuhur,
         nama: 'Dzuhur',
         waktu: entry.dzuhur,
         enabled: config.dzuhur,
         isSubuh: false,
       ),
       _WaktuShalat(
-        id: kNotifIdAshar,
+        id: NotificationIds.ashar,
         nama: 'Ashar',
         waktu: entry.ashar,
         enabled: config.ashar,
         isSubuh: false,
       ),
       _WaktuShalat(
-        id: kNotifIdMaghrib,
+        id: NotificationIds.maghrib,
         nama: 'Maghrib',
         waktu: entry.maghrib,
         enabled: config.maghrib,
         isSubuh: false,
       ),
       _WaktuShalat(
-        id: kNotifIdIsya,
+        id: NotificationIds.isya,
         nama: 'Isya',
         waktu: entry.isya,
         enabled: config.isya,
@@ -96,11 +97,11 @@ class ShalatNotificationScheduler {
   /// Cancel semua alarm adzan (Android AlarmManager + iOS notif).
   Future<void> cancelAll() async {
     for (final id in [
-      kNotifIdSubuh,
-      kNotifIdDzuhur,
-      kNotifIdAshar,
-      kNotifIdMaghrib,
-      kNotifIdIsya,
+      NotificationIds.subuh,
+      NotificationIds.dzuhur,
+      NotificationIds.ashar,
+      NotificationIds.maghrib,
+      NotificationIds.isya,
     ]) {
       // Cancel AlarmManager (Android)
       await cancelAdzanAlarm(id);

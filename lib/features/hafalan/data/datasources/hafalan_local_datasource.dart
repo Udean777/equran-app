@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/core/error/exceptions.dart';
 import 'package:equran_app/features/hafalan/data/mappers/hafalan_mapper.dart';
 import 'package:equran_app/features/hafalan/data/models/hafalan_surat_dto.dart';
@@ -29,7 +30,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
     try {
       // Iterasi key surat_1 s/d surat_114 — lebih efisien dari box.values
       final results = <HafalanSurat>[];
-      for (var i = 1; i <= 114; i++) {
+      for (var i = 1; i <= QuranConstants.totalSurat; i++) {
         final raw = _box.get(_key(i));
         if (raw == null) continue;
         try {

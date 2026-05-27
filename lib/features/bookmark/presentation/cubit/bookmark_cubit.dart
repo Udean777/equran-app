@@ -42,7 +42,7 @@ class BookmarkCubit extends Cubit<BookmarkState> {
 
     final bookmarksResult = await _getBookmarks();
     final lastReadResult = await _getLastRead();
-    final suratProgressResult = _getAllSuratProgress();
+    final suratProgressResult = await _getAllSuratProgress();
 
     Failure? firstFailure;
     List<Bookmark>? bookmarks;

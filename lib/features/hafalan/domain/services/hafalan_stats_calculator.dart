@@ -1,4 +1,5 @@
 import 'package:equran_app/core/constants/juz_mapping.dart';
+import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 
@@ -6,7 +7,7 @@ import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 class HafalanStatsCalculator {
   const HafalanStatsCalculator._();
 
-  static const _totalAyatQuran = 6236;
+  static const int _totalAyatQuran = QuranConstants.totalAyat;
 
   /// Compute [HafalanStats] dari list hafalan yang sudah di-resolve statusnya.
   static HafalanStats compute(List<HafalanSurat> list) {

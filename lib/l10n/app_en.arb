@@ -91,5 +91,14 @@
   "jadwalShalatNav": "Prayer",
   "jadwalShalat": "Prayer Times",
   "bulanSebelumnya": "Previous Month",
-  "bulanBerikutnya": "Next Month"
+  "bulanBerikutnya": "Next Month",
+  "tasbihNav": "Tasbih",
+  "qiblaNav": "Qibla",
+  "hafalanDrawer": "Quran Memorization",
+  "doaHarianDrawer": "Daily Duas",
+  "catatanDrawer": "My Notes",
+  "statistikBacaDrawer": "Reading Stats",
+  "statistikShalatDrawer": "Prayer Stats",
+  "manajemenAudioDrawer": "Audio Management",
+  "pengaturanDrawer": "Settings"
 }

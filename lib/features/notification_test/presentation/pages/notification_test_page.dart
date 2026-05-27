@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_checklist_reminder_scheduler.dart';
@@ -248,7 +249,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
     final key = isSubuh ? 'adzan_subuh' : 'adzan_dzuhur';
     await _schedule(key, () async {
       await _service.scheduleNotification(
-        id: isSubuh ? 901 : 902,
+        id: isSubuh ? NotificationIds.testSubuh : NotificationIds.testDzuhur,
         title: isSubuh ? '🌅 Waktu Subuh' : '☀️ Waktu Dzuhur',
         body: isSubuh
             ? 'Sudah masuk waktu shalat Subuh'
@@ -269,7 +270,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           await androidPlugin?.canScheduleExactNotifications() ?? false;
 
       await _plugin.zonedSchedule(
-        903,
+        NotificationIds.testImsak,
         '🌙 Waktu Imsak',
         'Sudah masuk waktu imsak, hentikan makan dan minum',
         _soon,
@@ -306,7 +307,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           await androidPlugin?.canScheduleExactNotifications() ?? false;
 
       await _plugin.zonedSchedule(
-        904,
+        NotificationIds.testSahur,
         '🍽️ Alarm Sahur',
         'Sahur sekarang! Imsak 30 menit lagi',
         _soon,
@@ -343,7 +344,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           await androidPlugin?.canScheduleExactNotifications() ?? false;
 
       await _plugin.zonedSchedule(
-        905,
+        NotificationIds.testQuranReminder,
         '📖 Waktunya Baca Al-Quran',
         'Luangkan waktu sejenak untuk membaca Al-Quran hari ini.',
         _soon,
@@ -378,7 +379,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           await androidPlugin?.canScheduleExactNotifications() ?? false;
 
       await _plugin.zonedSchedule(
-        906,
+        NotificationIds.testAshar,
         '✅ Sudah shalat Dzuhur?',
         'Catat status shalat Dzuhur hari ini di Statistik Shalat.',
         _soon,
@@ -413,7 +414,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           await androidPlugin?.canScheduleExactNotifications() ?? false;
 
       await _plugin.zonedSchedule(
-        907,
+        NotificationIds.testMaghrib,
         '📿 Murajaah Al-Fatihah',
         'Sudah waktunya murajaah. Jangan sampai lupa!',
         _soon,

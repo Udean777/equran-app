@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
@@ -197,7 +198,7 @@ void main() {
 
       verify(
         () => mockService.scheduleNotification(
-          id: kNotifIdSubuh,
+          id: NotificationIds.subuh,
           title: any(named: 'title'),
           body: any(named: 'body'),
           scheduledTime: any(named: 'scheduledTime'),

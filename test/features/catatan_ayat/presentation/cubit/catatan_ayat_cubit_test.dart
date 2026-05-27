@@ -93,7 +93,7 @@ void main() {
       act: (cubit) => cubit.load(),
       expect: () => [
         const CatatanAyatState.loading(),
-        const CatatanAyatState.failure('Gagal memuat catatan'),
+        const CatatanAyatState.failure(Failure.unknown(message: 'error')),
       ],
     );
 
@@ -131,7 +131,7 @@ void main() {
       },
       act: (cubit) => cubit.save(tCatatan),
       expect: () => [
-        const CatatanAyatState.failure('Gagal menyimpan catatan'),
+        const CatatanAyatState.failure(Failure.unknown(message: 'error')),
       ],
     );
 
@@ -171,7 +171,7 @@ void main() {
       },
       act: (cubit) => cubit.delete(suratNomor: 1, ayatNomor: 1),
       expect: () => [
-        const CatatanAyatState.failure('Gagal menghapus catatan'),
+        const CatatanAyatState.failure(Failure.unknown(message: 'error')),
       ],
     );
 

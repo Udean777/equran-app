@@ -105,9 +105,10 @@ class _SuratListViewState extends State<_SuratListView> {
                   ),
 
                   // Streak chip
-                  BlocBuilder<QuranStreakCubit, int>(
+                  BlocBuilder<QuranStreakCubit, QuranStreakState>(
                     buildWhen: (prev, curr) => prev != curr,
-                    builder: (context, streak) {
+                    builder: (context, state) {
+                      final streak = state.mapOrNull(loaded: (s) => s.streak) ?? 0;
                       if (streak == 0) return const SizedBox.shrink();
                       return StreakChip(streak: streak);
                     },

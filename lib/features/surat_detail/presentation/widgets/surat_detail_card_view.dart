@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/card_swipe_config.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -153,10 +154,10 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     final offset = widget.controller.dragOffset;
 
     // Threshold: 30% layar atau velocity > 500
-    const threshold = 0.3;
     final ratio = offset / screenWidth;
 
-    if (ratio < -threshold || velocity < -500) {
+    if (ratio < -CardSwipeConfig.swipeThreshold ||
+        velocity < -CardSwipeConfig.velocityThreshold) {
       // Halaman selanjutnya (jika ada)
       if (!widget.controller.isLast) {
         // Matikan auto-read jika user swipe manual
@@ -167,7 +168,8 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
       } else {
         _snapBack();
       }
-    } else if (ratio > threshold || velocity > 500) {
+    } else if (ratio > CardSwipeConfig.swipeThreshold ||
+        velocity > CardSwipeConfig.velocityThreshold) {
       // Halaman sebelumnya (jika ada)
       if (!widget.controller.isFirst) {
         // Matikan auto-read jika user swipe manual
@@ -723,16 +725,16 @@ class _CardStack extends StatelessWidget {
     final dragRatio = (dragOffset / screenWidth).clamp(-1.0, 1.0);
 
     // Tumble rotation: tilt as it moves
-    final rotationAngle = dragRatio * 0.3; // max ~17 degrees
+    final rotationAngle = dragRatio * CardSwipeConfig.rotationFactor; // max ~17 degrees
 
     // Tumble scale: shrink slightly
-    final scale = 1.0 - dragRatio.abs() * 0.08;
+    final scale = 1.0 - dragRatio.abs() * CardSwipeConfig.scaleFactor;
 
     // Tumble opacity: fade slightly
-    final opacity = (1.0 - dragRatio.abs() * 0.4).clamp(0.0, 1.0);
+    final opacity = (1.0 - dragRatio.abs() * CardSwipeConfig.opacityFactor).clamp(0.0, 1.0);
 
     // Tumble translation: horizontal + slight downward drop
-    final translateY = dragRatio.abs() * 24.0;
+    final translateY = dragRatio.abs() * CardSwipeConfig.translateYFactor;
 
     return Transform(
       transform: Matrix4.translationValues(dragOffset, translateY, 0)
@@ -766,16 +768,16 @@ class _CardStack extends StatelessWidget {
     // Tumble rotation for side card: tilts when off-screen, upright when centered
     final tiltSign = isLeft ? -1.0 : 1.0;
     final rotationAngle =
-        tiltSign * 0.2 * (1.0 - activeFactor); // ~11 degrees off-screen tilt
+        tiltSign * CardSwipeConfig.sideCardRotation * (1.0 - activeFactor); // ~11 degrees off-screen tilt
 
     // Tumble scale: 0.92 when off-screen, 1.0 when centered
-    final scale = 0.92 + 0.08 * activeFactor;
+    final scale = CardSwipeConfig.sideCardScale + CardSwipeConfig.scaleFactor * activeFactor;
 
     // Tumble opacity: 0.6 when off-screen, 1.0 when centered
-    final opacity = (0.6 + 0.4 * activeFactor).clamp(0.0, 1.0);
+    final opacity = (CardSwipeConfig.sideCardOpacity + CardSwipeConfig.opacityFactor * activeFactor).clamp(0.0, 1.0);
 
     // Tumble translation: horizontal + slight vertical position adjustment
-    final translateY = 20.0 * (1.0 - activeFactor);
+    final translateY = CardSwipeConfig.sideCardTranslateY * (1.0 - activeFactor);
 
     return Transform(
       transform: Matrix4.translationValues(offset, translateY, 0)
@@ -868,7 +870,7 @@ class _CardStack extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.65,
+          maxHeight: MediaQuery.of(context).size.height * CardSwipeConfig.cardMaxHeightRatio,
         ),
         child: card,
       ),

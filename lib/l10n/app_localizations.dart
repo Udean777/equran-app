@@ -525,6 +525,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bulan Berikutnya'**
   String get bulanBerikutnya;
+
+  /// Label tab navigasi tasbih
+  ///
+  /// In id, this message translates to:
+  /// **'Tasbih'**
+  String get tasbihNav;
+
+  /// Label tab navigasi qibla
+  ///
+  /// In id, this message translates to:
+  /// **'Qibla'**
+  String get qiblaNav;
+
+  /// Label menu drawer hafalan
+  ///
+  /// In id, this message translates to:
+  /// **'Hafalan Quran'**
+  String get hafalanDrawer;
+
+  /// Label menu drawer doa harian
+  ///
+  /// In id, this message translates to:
+  /// **'Doa Harian'**
+  String get doaHarianDrawer;
+
+  /// Label menu drawer catatan
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan Saya'**
+  String get catatanDrawer;
+
+  /// Label menu drawer statistik baca
+  ///
+  /// In id, this message translates to:
+  /// **'Statistik Baca'**
+  String get statistikBacaDrawer;
+
+  /// Label menu drawer statistik shalat
+  ///
+  /// In id, this message translates to:
+  /// **'Statistik Shalat'**
+  String get statistikShalatDrawer;
+
+  /// Label menu drawer manajemen audio
+  ///
+  /// In id, this message translates to:
+  /// **'Manajemen Audio'**
+  String get manajemenAudioDrawer;
+
+  /// Label menu drawer pengaturan
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get pengaturanDrawer;
 }
 
 class _AppLocalizationsDelegate

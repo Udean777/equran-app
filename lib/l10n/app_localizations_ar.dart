@@ -228,4 +228,31 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bulanBerikutnya => 'الشهر التالي';
+
+  @override
+  String get tasbihNav => 'التسبيح';
+
+  @override
+  String get qiblaNav => 'القبلة';
+
+  @override
+  String get hafalanDrawer => 'حفظ القرآن';
+
+  @override
+  String get doaHarianDrawer => 'الأدعية اليومية';
+
+  @override
+  String get catatanDrawer => 'ملاحظاتي';
+
+  @override
+  String get statistikBacaDrawer => 'إحصائيات القراءة';
+
+  @override
+  String get statistikShalatDrawer => 'إحصائيات الصلاة';
+
+  @override
+  String get manajemenAudioDrawer => 'إدارة الصوت';
+
+  @override
+  String get pengaturanDrawer => 'الإعدادات';
 }

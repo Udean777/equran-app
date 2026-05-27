@@ -11,7 +11,7 @@ class ReadingProgressRepositoryImpl implements ReadingProgressRepository {
   final BookmarkLocalDataSource _local;
 
   @override
-  Either<Failure, Map<int, double>> getAllSuratProgress() {
+  Future<Either<Failure, Map<int, double>>> getAllSuratProgress() async {
     try {
       return right(_local.getAllSuratProgress());
     } on Object catch (e) {

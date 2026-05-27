@@ -1,3 +1,6 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
+import 'package:equran_app/core/constants/quran_constants.dart';
+import 'package:equran_app/core/constants/timezone_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
@@ -9,24 +12,6 @@ const String kAdzanPlaybackChannelId = 'adzan_playback_channel';
 const String kQuranReminderChannelId = 'quran_reminder_channel';
 const String kImsakChannelId = 'imsak_channel';
 const String kHafalanChannelId = 'hafalan_channel';
-
-/// Notification IDs per waktu shalat
-const int kNotifIdSubuh = 1;
-const int kNotifIdDzuhur = 2;
-const int kNotifIdAshar = 3;
-const int kNotifIdMaghrib = 4;
-const int kNotifIdIsya = 5;
-
-/// Notification ID untuk alarm imsak & sahur
-const int kNotifIdImsak = 6;
-const int kNotifIdSahur = 7;
-
-/// Notification ID untuk reminder baca Quran
-const int kNotifIdQuranReminder = 10;
-
-/// Notification ID base untuk hafalan muraja'ah.
-/// ID range: 20–133 (satu per surat, suratNomor 1–114).
-const int kNotifIdHafalanBase = 20;
 
 @lazySingleton
 class NotificationService {
@@ -48,7 +33,7 @@ class NotificationService {
         'falling back to Asia/Jakarta. Error: $e',
       );
       try {
-        tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
+        tz.setLocalLocation(tz.getLocation(TimezoneConstants.wib));
       } on Object catch (err) {
         debugPrint('NotificationService: fallback timezone failed: $err');
       }
@@ -278,19 +263,19 @@ class NotificationService {
   /// Cancel semua notifikasi (shalat, imsak, quran reminder, hafalan).
   Future<void> cancelAll() async {
     // Shalat
-    await _plugin.cancel(kNotifIdSubuh);
-    await _plugin.cancel(kNotifIdDzuhur);
-    await _plugin.cancel(kNotifIdAshar);
-    await _plugin.cancel(kNotifIdMaghrib);
-    await _plugin.cancel(kNotifIdIsya);
+    await _plugin.cancel(NotificationIds.subuh);
+    await _plugin.cancel(NotificationIds.dzuhur);
+    await _plugin.cancel(NotificationIds.ashar);
+    await _plugin.cancel(NotificationIds.maghrib);
+    await _plugin.cancel(NotificationIds.isya);
     // Imsak & sahur
-    await _plugin.cancel(kNotifIdImsak);
-    await _plugin.cancel(kNotifIdSahur);
+    await _plugin.cancel(NotificationIds.imsak);
+    await _plugin.cancel(NotificationIds.sahur);
     // Quran reminder
-    await _plugin.cancel(kNotifIdQuranReminder);
+    await _plugin.cancel(NotificationIds.quranReminder);
     // Hafalan muraja'ah (ID range 20–133, satu per surat 1–114)
-    for (var i = 0; i < 114; i++) {
-      await _plugin.cancel(kNotifIdHafalanBase + i);
+    for (var i = 0; i < QuranConstants.totalSurat; i++) {
+      await _plugin.cancel(NotificationIds.hafalanReminderBase + i);
     }
   }
 
@@ -364,29 +349,35 @@ class NotificationService {
       final tzName = DateTime.now().timeZoneName.toUpperCase();
 
       // Coba match dari offset dulu (paling reliable di Android)
-      if (offsetHours == 7) return 'Asia/Jakarta'; // WIB
-      if (offsetHours == 8) return 'Asia/Makassar'; // WITA
-      if (offsetHours == 9) return 'Asia/Jayapura'; // WIT
+      if (offsetHours == TimezoneConstants.wibOffsetHours) {
+        return TimezoneConstants.wib;
+      }
+      if (offsetHours == TimezoneConstants.witaOffsetHours) {
+        return TimezoneConstants.wita;
+      }
+      if (offsetHours == TimezoneConstants.witOffsetHours) {
+        return TimezoneConstants.wit;
+      }
 
       // Fallback: coba match dari nama timezone string
       if (tzName.contains('WIB') || tzName.contains('JAKARTA')) {
-        return 'Asia/Jakarta';
+        return TimezoneConstants.wib;
       }
       if (tzName.contains('WITA') || tzName.contains('MAKASSAR')) {
-        return 'Asia/Makassar';
+        return TimezoneConstants.wita;
       }
       if (tzName.contains('WIT') || tzName.contains('JAYAPURA')) {
-        return 'Asia/Jayapura';
+        return TimezoneConstants.wit;
       }
 
       // Coba pakai langsung jika sudah IANA format (misal dari flutter_timezone)
       final raw = DateTime.now().timeZoneName;
       if (raw.contains('/')) return raw;
 
-      return 'Asia/Jakarta';
+      return TimezoneConstants.wib;
     } on Object catch (_) {
       debugPrint('NotificationService: timezone resolve failed, using WIB');
-      return 'Asia/Jakarta';
+      return TimezoneConstants.wib;
     }
   }
 }

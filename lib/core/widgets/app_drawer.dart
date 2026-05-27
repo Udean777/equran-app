@@ -11,9 +11,28 @@ import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadVersion());
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _version = 'eQuran v${info.version}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +75,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.auto_stories_outlined,
                   selectedIcon: Icons.auto_stories_rounded,
-                  label: 'Hafalan Quran',
+                  label: l10n.hafalanDrawer,
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(context.push(AppRoutes.hafalan));
@@ -65,7 +84,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.auto_stories_outlined,
                   selectedIcon: Icons.auto_stories_rounded,
-                  label: 'Doa Harian',
+                  label: l10n.doaHarianDrawer,
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(context.push(AppRoutes.doaHarian));
@@ -86,7 +105,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.edit_note_outlined,
                   selectedIcon: Icons.edit_note_rounded,
-                  label: 'Catatan Saya',
+                  label: l10n.catatanDrawer,
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(context.push(AppRoutes.catatan));
@@ -95,7 +114,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.bar_chart_outlined,
                   selectedIcon: Icons.bar_chart_rounded,
-                  label: 'Statistik Baca',
+                  label: l10n.statistikBacaDrawer,
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(context.push(AppRoutes.readingStats));
@@ -104,7 +123,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.mosque_outlined,
                   selectedIcon: Icons.mosque_rounded,
-                  label: 'Statistik Shalat',
+                  label: l10n.statistikShalatDrawer,
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(context.push(AppRoutes.statistikShalat));
@@ -116,7 +135,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.audio_file_outlined,
                   selectedIcon: Icons.audio_file_rounded,
-                  label: 'Manajemen Audio',
+                  label: l10n.manajemenAudioDrawer,
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(context.push(AppRoutes.audioStorage));
@@ -125,7 +144,7 @@ class AppDrawer extends StatelessWidget {
                 _DrawerItem(
                   icon: Icons.settings_outlined,
                   selectedIcon: Icons.settings_rounded,
-                  label: 'Pengaturan',
+                  label: l10n.pengaturanDrawer,
                   onTap: () async {
                     Navigator.pop(context);
                     await context.push(AppRoutes.settings);
@@ -135,7 +154,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
 
-          // Footer
+          // Footer — versi app dynamic
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppDimens.spaceMD,
@@ -144,7 +163,7 @@ class AppDrawer extends StatelessWidget {
               AppDimens.spaceLG,
             ),
             child: Text(
-              'eQuran v1.0.0',
+              _version,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: isDark
                     ? AppColors.onSurfaceDarkVariant
@@ -225,8 +244,9 @@ class _DrawerHeader extends StatelessWidget {
               const SizedBox(height: AppDimens.spaceSM),
 
               // Streak chip
-              BlocBuilder<QuranStreakCubit, int>(
-                builder: (context, streak) {
+              BlocBuilder<QuranStreakCubit, QuranStreakState>(
+                builder: (context, state) {
+                  final streak = state.mapOrNull(loaded: (s) => s.streak) ?? 0;
                   if (streak == 0) return const SizedBox.shrink();
                   return StreakBadge(streak: streak);
                 },
