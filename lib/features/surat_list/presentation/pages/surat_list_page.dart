@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/app_search_bar.dart';
@@ -21,6 +22,7 @@ import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class SuratListPage extends StatelessWidget {
   const SuratListPage({super.key});
@@ -97,9 +99,9 @@ class _SuratListViewState extends State<_SuratListView> {
                       if (murajaahList.isEmpty) return const SizedBox.shrink();
                       return MurajaahReminderCard(
                         suratList: murajaahList,
-                        onTap: () => unawaited(
-                          context.read<HafalanCubit>().load(),
-                        ),
+                        onTap: () {
+                          unawaited(context.push(AppRoutes.hafalan));
+                        },
                       );
                     },
                   ),
