@@ -37,6 +37,7 @@ Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan 
 - **Pengaturan Font Arab** — Atur ukuran font Arab sesuai kenyamanan visual.
 - **Lokalisasi 3 Bahasa** — Bahasa Indonesia, English, dan العربية.
 - **Reminder Baca Quran** — Pengingat harian dengan jam yang bisa dikustomisasi.
+- **Integrasi Merek & Optimasi Memori Pintar** — Mengintegrasikan ikon eQuran resmi secara minimalis dan elegan di seluruh penjuru aplikasi (Welcome Slide, Success Slide, Home AppBar, Header App Drawer, Loading State, serta Brand Header Pengaturan). Dilengkapi dengan optimasi decoding gambar via pembatasan RAM (`cacheWidth`/`cacheHeight`) serta mekanisme *pre-caching* dinamis saat inisialisasi aplikasi untuk performa anti-lag yang mulus.
 
 ---
 
