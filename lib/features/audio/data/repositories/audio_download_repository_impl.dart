@@ -69,4 +69,14 @@ class AudioDownloadRepositoryImpl implements AudioDownloadRepository {
       return left(Failure.unknown(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> deleteAll() async {
+    try {
+      await _dataSource.deleteAll();
+      return right(unit);
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
 }

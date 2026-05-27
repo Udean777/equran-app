@@ -87,14 +87,4 @@ class AudioRepositoryImpl implements AudioRepository {
 
   @override
   Stream<AudioPlayerState> get stateStream => _dataSource.stateStream;
-
-  @override
-  Future<Either<Failure, Unit>> deleteAllAudio() async {
-    try {
-      await _downloadDataSource.deleteAll();
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
 }

@@ -1,3 +1,4 @@
+import 'package:equran_app/core/constants/murajaah_intervals.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'hafalan_surat.freezed.dart';
@@ -62,4 +63,67 @@ abstract class HafalanSurat with _$HafalanSurat {
 
   /// True jika sudah mencapai level muraja'ah maksimum.
   bool get isMurajaahSelesai => murajaahLevel >= 5;
+}
+
+/// Domain logic untuk [HafalanSurat] — business rules yang tidak bergantung
+/// pada layer presentation atau data.
+extension HafalanSuratX on HafalanSurat {
+  /// Hitung tanggal muraja'ah berikutnya berdasarkan level spaced repetition.
+  DateTime nextMurajaahDate(int level) {
+    final days = level < kMurajaahIntervalDays.length
+        ? kMurajaahIntervalDays[level]
+        : kMurajaahIntervalDays.last;
+    return DateTime.now().add(Duration(days: days));
+  }
+
+  /// Buat salinan setelah toggle satu ayat hafal/belum hafal.
+  /// Otomatis compute status, tanggalSelesai, dan jadwal muraja'ah.
+  HafalanSurat withToggledAyat(int ayatNomor) {
+    final newAyatHafal = List<int>.from(ayatHafal);
+    if (newAyatHafal.contains(ayatNomor)) {
+      newAyatHafal.remove(ayatNomor);
+    } else {
+      newAyatHafal.add(ayatNomor);
+    }
+    return withAyatHafalList(newAyatHafal);
+  }
+
+  /// Buat salinan dengan list ayat hafal baru.
+  /// Otomatis compute status, tanggalSelesai, dan jadwal muraja'ah.
+  HafalanSurat withAyatHafalList(List<int> newAyatHafal) {
+    final nowSelesai =
+        newAyatHafal.length >= jumlahAyat && jumlahAyat > 0;
+
+    // Baru selesai: set tanggalSelesai + jadwal muraja'ah pertama
+    if (nowSelesai && !isSelesai) {
+      return copyWith(
+        ayatHafal: newAyatHafal,
+        status: HafalanStatus.sudahHafal,
+        tanggalSelesai: DateTime.now(),
+        murajaahLevel: 0,
+        tanggalMurajaahBerikutnya: nextMurajaahDate(0),
+      );
+    }
+
+    // Tidak lagi selesai: batalkan muraja'ah
+    if (!nowSelesai && isSelesai) {
+      return copyWith(
+        ayatHafal: newAyatHafal,
+        status: newAyatHafal.isEmpty
+            ? HafalanStatus.belum
+            : HafalanStatus.sedangDihafal,
+        tanggalSelesai: null,
+        murajaahLevel: 0,
+        tanggalMurajaahBerikutnya: null,
+      );
+    }
+
+    // Masih dalam proses
+    return copyWith(
+      ayatHafal: newAyatHafal,
+      status: newAyatHafal.isEmpty
+          ? HafalanStatus.belum
+          : HafalanStatus.sedangDihafal,
+    );
+  }
 }

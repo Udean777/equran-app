@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
-import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/add_bookmark.dart';
+import 'package:equran_app/features/bookmark/domain/usecases/get_all_surat_progress.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/get_bookmarks.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/get_last_read.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/remove_bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart';
-import 'package:equran_app/features/doa/domain/entities/doa.dart';
-import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart';
-import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart';
-import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart';
+import 'package:equran_app/features/bookmark/domain/usecases/save_surat_progress.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -28,10 +25,8 @@ class BookmarkCubit extends Cubit<BookmarkState> {
     this._removeBookmark,
     this._getLastRead,
     this._saveLastRead,
-    this._getDoaBookmarks,
-    this._getDoaList,
-    this._toggleDoaBookmark,
-    this._repository,
+    this._getAllSuratProgress,
+    this._saveSuratProgress,
   ) : super(const BookmarkState.initial());
 
   final GetBookmarks _getBookmarks;
@@ -39,34 +34,23 @@ class BookmarkCubit extends Cubit<BookmarkState> {
   final RemoveBookmark _removeBookmark;
   final GetLastRead _getLastRead;
   final SaveLastRead _saveLastRead;
-  final GetDoaBookmarks _getDoaBookmarks;
-  final GetDoaList _getDoaList;
-  final ToggleDoaBookmark _toggleDoaBookmark;
-  final BookmarkRepository _repository;
+  final GetAllSuratProgress _getAllSuratProgress;
+  final SaveSuratProgress _saveSuratProgress;
 
   Future<void> load() async {
     emit(const BookmarkState.loading());
 
     final bookmarksResult = await _getBookmarks();
     final lastReadResult = await _getLastRead();
-    final doaBookmarksResult = await _getDoaBookmarks();
-    final doaListResult = await _getDoaList();
-    final suratProgressResult = _repository.getAllSuratProgress();
+    final suratProgressResult = _getAllSuratProgress();
 
     Failure? firstFailure;
     List<Bookmark>? bookmarks;
     LastRead? lastRead;
-    Set<int>? bookmarkedDoaIds;
-    List<Doa>? allDoas;
     var suratProgressMap = <int, double>{};
 
     bookmarksResult.fold((f) => firstFailure ??= f, (r) => bookmarks = r);
     lastReadResult.fold((f) => firstFailure ??= f, (r) => lastRead = r);
-    doaBookmarksResult.fold(
-      (f) => firstFailure ??= f,
-      (r) => bookmarkedDoaIds = r,
-    );
-    doaListResult.fold((f) => firstFailure ??= f, (r) => allDoas = r);
     suratProgressResult.fold((_) {}, (r) => suratProgressMap = r);
 
     if (firstFailure != null) {
@@ -74,14 +58,9 @@ class BookmarkCubit extends Cubit<BookmarkState> {
       return;
     }
 
-    final bookmarkedDoas = allDoas!
-        .where((doa) => bookmarkedDoaIds!.contains(doa.id))
-        .toList();
-
     emit(
       BookmarkState.success(
         bookmarks: bookmarks!,
-        bookmarkedDoas: bookmarkedDoas,
         lastRead: lastRead,
         suratProgressMap: suratProgressMap,
       ),
@@ -109,22 +88,11 @@ class BookmarkCubit extends Cubit<BookmarkState> {
     );
   }
 
-  Future<void> removeDoaBookmark(int id) async {
-    final result = await _toggleDoaBookmark(id);
-    result.fold(
-      (failure) => emit(BookmarkState.failure(failure: failure)),
-      (_) => load(),
-    );
-  }
-
   Future<void> saveLastRead(LastRead lastRead) async {
     await _saveLastRead(lastRead);
     // Simpan progress per surat sekaligus (fire and forget)
     unawaited(
-      _repository.saveSuratProgress(
-        lastRead.suratNomor,
-        lastRead.maxScrollPercent,
-      ),
+      _saveSuratProgress(lastRead.suratNomor, lastRead.maxScrollPercent),
     );
     // Emit state baru agar LastReadCard di home update realtime.
     // Guard isClosed — bisa dipanggil dari dispose() saat cubit sudah ditutup.
@@ -167,8 +135,8 @@ class BookmarkCubit extends Cubit<BookmarkState> {
         // jika ganti surat, reset ke scrollPercent saat ini
         final maxScrollPercent = current?.suratNomor == suratNomor
             ? scrollPercent > (current?.maxScrollPercent ?? 0.0)
-                ? scrollPercent
-                : current!.maxScrollPercent
+                  ? scrollPercent
+                  : current!.maxScrollPercent
             : scrollPercent;
 
         emit(

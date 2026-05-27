@@ -1,5 +1,5 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart';
+import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 class DeleteAllAudio {
   const DeleteAllAudio(this._repository);
 
-  final AudioRepository _repository;
+  final AudioDownloadRepository _repository;
 
-  Future<Either<Failure, Unit>> call() => _repository.deleteAllAudio();
+  Future<Either<Failure, Unit>> call() => _repository.deleteAll();
 }

@@ -1,16 +1,13 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/add_bookmark.dart';
+import 'package:equran_app/features/bookmark/domain/usecases/get_all_surat_progress.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/get_bookmarks.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/get_last_read.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/remove_bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/usecases/save_last_read.dart';
+import 'package:equran_app/features/bookmark/domain/usecases/save_surat_progress.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
-import 'package:equran_app/features/doa/domain/entities/doa.dart';
-import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart';
-import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart';
-import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -27,24 +24,9 @@ class MockGetLastRead extends Mock implements GetLastRead {}
 
 class MockSaveLastRead extends Mock implements SaveLastRead {}
 
-class MockGetDoaBookmarks extends Mock implements GetDoaBookmarks {}
+class MockGetAllSuratProgress extends Mock implements GetAllSuratProgress {}
 
-class MockGetDoaList extends Mock implements GetDoaList {}
-
-class MockToggleDoaBookmark extends Mock implements ToggleDoaBookmark {}
-
-class MockBookmarkRepository extends Mock implements BookmarkRepository {}
-
-const tDoa = Doa(
-  id: 1,
-  grup: 'Pagi & Petang',
-  nama: 'Doa Sebelum Tidur',
-  ar: 'بِاسْمِكَ اللّهُمَّ أَحْيَا وَأَمُوتُ',
-  tr: 'Bismika allahumma ahya wa amut',
-  idn: 'Dengan nama-Mu ya Allah aku hidup dan aku mati.',
-  tentang: 'Dibaca sebelum tidur',
-  tag: ['tidur', 'malam'],
-);
+class MockSaveSuratProgress extends Mock implements SaveSuratProgress {}
 
 void main() {
   late MockGetBookmarks mockGetBookmarks;
@@ -52,10 +34,8 @@ void main() {
   late MockRemoveBookmark mockRemoveBookmark;
   late MockGetLastRead mockGetLastRead;
   late MockSaveLastRead mockSaveLastRead;
-  late MockGetDoaBookmarks mockGetDoaBookmarks;
-  late MockGetDoaList mockGetDoaList;
-  late MockToggleDoaBookmark mockToggleDoaBookmark;
-  late MockBookmarkRepository mockRepository;
+  late MockGetAllSuratProgress mockGetAllSuratProgress;
+  late MockSaveSuratProgress mockSaveSuratProgress;
 
   setUp(() {
     mockGetBookmarks = MockGetBookmarks();
@@ -63,10 +43,8 @@ void main() {
     mockRemoveBookmark = MockRemoveBookmark();
     mockGetLastRead = MockGetLastRead();
     mockSaveLastRead = MockSaveLastRead();
-    mockGetDoaBookmarks = MockGetDoaBookmarks();
-    mockGetDoaList = MockGetDoaList();
-    mockToggleDoaBookmark = MockToggleDoaBookmark();
-    mockRepository = MockBookmarkRepository();
+    mockGetAllSuratProgress = MockGetAllSuratProgress();
+    mockSaveSuratProgress = MockSaveSuratProgress();
 
     registerFallbackValue(tBookmark);
     registerFallbackValue(tLastRead);
@@ -74,14 +52,12 @@ void main() {
       const RemoveBookmarkParams(suratNomor: 1, ayatNomor: 1),
     );
 
-    // Stubs default agar test eksisting tidak rusak
-    when(() => mockGetDoaBookmarks()).thenAnswer((_) async => right(<int>{}));
-    when(() => mockGetDoaList()).thenAnswer((_) async => right(<Doa>[]));
+    // Stubs default
     when(
-      () => mockRepository.getAllSuratProgress(),
+      () => mockGetAllSuratProgress(),
     ).thenReturn(right(<int, double>{}));
     when(
-      () => mockRepository.saveSuratProgress(any(), any()),
+      () => mockSaveSuratProgress(any(), any()),
     ).thenAnswer((_) async => right(unit));
   });
 
@@ -91,10 +67,8 @@ void main() {
     mockRemoveBookmark,
     mockGetLastRead,
     mockSaveLastRead,
-    mockGetDoaBookmarks,
-    mockGetDoaList,
-    mockToggleDoaBookmark,
-    mockRepository,
+    mockGetAllSuratProgress,
+    mockSaveSuratProgress,
   );
 
   group('BookmarkCubit', () {
@@ -128,25 +102,6 @@ void main() {
       expect: () => [
         const BookmarkState.loading(),
         const BookmarkState.success(bookmarks: []),
-      ],
-    );
-
-    blocTest<BookmarkCubit, BookmarkState>(
-      'emits [loading, success] saat load() memuat bookmark doa dengan sukses',
-      build: () {
-        when(() => mockGetBookmarks()).thenAnswer((_) async => right([]));
-        when(() => mockGetLastRead()).thenAnswer((_) async => right(null));
-        when(() => mockGetDoaBookmarks()).thenAnswer((_) async => right({1}));
-        when(() => mockGetDoaList()).thenAnswer((_) async => right([tDoa]));
-        return buildCubit();
-      },
-      act: (cubit) => cubit.load(),
-      expect: () => [
-        const BookmarkState.loading(),
-        const BookmarkState.success(
-          bookmarks: [],
-          bookmarkedDoas: [tDoa],
-        ),
       ],
     );
 
@@ -207,26 +162,6 @@ void main() {
             const RemoveBookmarkParams(suratNomor: 1, ayatNomor: 1),
           ),
         ).called(1);
-      },
-    );
-
-    blocTest<BookmarkCubit, BookmarkState>(
-      'removeDoaBookmark() memanggil usecase toggleDoaBookmark dan reload',
-      build: () {
-        when(
-          () => mockToggleDoaBookmark(any()),
-        ).thenAnswer((_) async => right(false));
-        when(() => mockGetBookmarks()).thenAnswer((_) async => right([]));
-        when(() => mockGetLastRead()).thenAnswer((_) async => right(null));
-        return buildCubit();
-      },
-      act: (cubit) => cubit.removeDoaBookmark(1),
-      expect: () => [
-        const BookmarkState.loading(),
-        const BookmarkState.success(bookmarks: []),
-      ],
-      verify: (_) {
-        verify(() => mockToggleDoaBookmark(1)).called(1);
       },
     );
 

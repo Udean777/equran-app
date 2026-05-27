@@ -95,14 +95,7 @@ class HafalanCubit extends Cubit<HafalanState> {
           tanggalMulai: DateTime.now(),
         );
 
-    final ayatHafal = List<int>.from(existing.ayatHafal);
-    if (ayatHafal.contains(ayatNomor)) {
-      ayatHafal.remove(ayatNomor);
-    } else {
-      ayatHafal.add(ayatNomor);
-    }
-
-    final updated = _computeAfterToggle(existing, ayatHafal);
+    final updated = existing.withToggledAyat(ayatNomor);
     await _saveAndReload(updated);
   }
 
@@ -127,7 +120,7 @@ class HafalanCubit extends Cubit<HafalanState> {
           tanggalMulai: DateTime.now(),
         );
 
-    final updated = _computeAfterToggle(existing, newAyatHafal);
+    final updated = existing.withAyatHafalList(newAyatHafal);
     await _saveAndReload(updated);
   }
 
@@ -150,7 +143,7 @@ class HafalanCubit extends Cubit<HafalanState> {
             murajaahLevel: existing.murajaahLevel,
             tanggalMurajaahBerikutnya:
                 existing.tanggalMurajaahBerikutnya ??
-                _nextMurajaahDate(existing.murajaahLevel),
+                existing.nextMurajaahDate(existing.murajaahLevel),
           )
         : existing.copyWith(status: status);
 
@@ -167,7 +160,7 @@ class HafalanCubit extends Cubit<HafalanState> {
     final newLevel = (existing.murajaahLevel + 1).clamp(0, kMurajaahMaxLevel);
     final nextDate = newLevel >= kMurajaahMaxLevel
         ? null
-        : _nextMurajaahDate(newLevel);
+        : existing.nextMurajaahDate(newLevel);
 
     final updated = existing.copyWith(
       status: HafalanStatus.sudahHafal,
@@ -296,55 +289,6 @@ class HafalanCubit extends Cubit<HafalanState> {
             .where((h) => h.status == HafalanStatus.perluMurajaah)
             .toList();
     }
-  }
-
-  /// Hitung tanggal muraja'ah berikutnya berdasarkan level.
-  DateTime _nextMurajaahDate(int level) {
-    final days = level < kMurajaahIntervalDays.length
-        ? kMurajaahIntervalDays[level]
-        : kMurajaahIntervalDays.last;
-    return DateTime.now().add(Duration(days: days));
-  }
-
-  /// Compute status dan field muraja'ah setelah toggle ayat.
-  HafalanSurat _computeAfterToggle(
-    HafalanSurat existing,
-    List<int> ayatHafal,
-  ) {
-    final isSelesai =
-        ayatHafal.length >= existing.jumlahAyat && existing.jumlahAyat > 0;
-
-    // Baru selesai: set tanggalSelesai + jadwal muraja'ah pertama
-    if (isSelesai && !existing.isSelesai) {
-      return existing.copyWith(
-        ayatHafal: ayatHafal,
-        status: HafalanStatus.sudahHafal,
-        tanggalSelesai: DateTime.now(),
-        murajaahLevel: 0,
-        tanggalMurajaahBerikutnya: _nextMurajaahDate(0),
-      );
-    }
-
-    // Tidak lagi selesai: batalkan muraja'ah
-    if (!isSelesai && existing.isSelesai) {
-      return existing.copyWith(
-        ayatHafal: ayatHafal,
-        status: ayatHafal.isEmpty
-            ? HafalanStatus.belum
-            : HafalanStatus.sedangDihafal,
-        tanggalSelesai: null,
-        murajaahLevel: 0,
-        tanggalMurajaahBerikutnya: null,
-      );
-    }
-
-    // Masih dalam proses
-    return existing.copyWith(
-      ayatHafal: ayatHafal,
-      status: ayatHafal.isEmpty
-          ? HafalanStatus.belum
-          : HafalanStatus.sedangDihafal,
-    );
   }
 
   /// Simpan hafalan ke Hive lalu reload state + schedule/cancel notifikasi.
