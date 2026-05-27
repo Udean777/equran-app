@@ -26,6 +26,7 @@ abstract class LastReadDto with _$LastReadDto {
     required String namaLatin,
     required String readAt,
     @Default(0.0) double scrollPercent,
+    @Default(0.0) double maxScrollPercent,
     @Default(0) int totalAyat,
   }) = _LastReadDto;
 

@@ -28,8 +28,6 @@ build-android-apk: ## Build APK per ABI (arm64, armv7, x86_64) — ukuran kecil
 	flutter build apk \
 		--release \
 		--split-per-abi \
-		--obfuscate \
-		--split-debug-info=$(DEBUG_INFO_DIR)/android \
 		--no-tree-shake-icons
 	@echo ""
 	@echo "📦 Ukuran APK:"
@@ -42,8 +40,6 @@ build-android-aab: ## Build Android App Bundle (AAB) untuk Google Play
 	@mkdir -p $(DEBUG_INFO_DIR)/android
 	flutter build appbundle \
 		--release \
-		--obfuscate \
-		--split-debug-info=$(DEBUG_INFO_DIR)/android \
 		--no-tree-shake-icons
 	@echo ""
 	@echo "📦 Ukuran AAB:"

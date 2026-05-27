@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.existing != null;
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: EdgeInsets.only(
         left: AppDimens.spaceMD,
@@ -61,16 +62,7 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
+          const Center(child: BottomSheetHandle()),
           const SizedBox(height: AppDimens.spaceMD),
 
           // Header
@@ -95,7 +87,9 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
                     Text(
                       '${widget.namaLatin} : ${widget.ayatNomor}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -140,7 +134,12 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: 'Tulis catatan, tafsir pribadi, atau refleksi...',
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+              hintStyle: TextStyle(
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textTertiary,
+                fontSize: 14,
+              ),
             ),
           ),
           const SizedBox(height: AppDimens.spaceMD),
@@ -174,8 +173,8 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
               icon: const Icon(Icons.delete_outline_rounded),
               label: const Text('Hapus Catatan'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
+                foregroundColor: AppColors.error,
+                side: const BorderSide(color: AppColors.error),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),

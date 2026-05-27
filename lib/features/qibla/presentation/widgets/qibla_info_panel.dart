@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:flutter/material.dart';
 
 /// Panel info: bearing, arah, dan status aligned.
@@ -58,21 +59,7 @@ class QiblaInfoPanel extends StatelessWidget {
                   isDark: isDark,
                 ),
               ),
-              Container(
-                width: 1,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.gold.withValues(alpha: 0),
-                      AppColors.gold.withValues(alpha: 0.4),
-                      AppColors.gold.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-              ),
+              const GoldDivider.vertical(height: 48),
               Expanded(
                 child: _InfoItem(
                   label: 'Dari Utara',
@@ -81,21 +68,7 @@ class QiblaInfoPanel extends StatelessWidget {
                   isDark: isDark,
                 ),
               ),
-              Container(
-                width: 1,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.gold.withValues(alpha: 0),
-                      AppColors.gold.withValues(alpha: 0.4),
-                      AppColors.gold.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-              ),
+              const GoldDivider.vertical(height: 48),
               Expanded(
                 child: _InfoItem(
                   label: 'Status',

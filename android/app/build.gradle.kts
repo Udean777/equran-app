@@ -32,9 +32,11 @@ android {
         release {
             signingConfig = signingConfigs.getByName("debug")
 
-            // --- OPTIMASI: Aktifkan R8 code shrinking & obfuscation ---
+            // --- OPTIMASI: Aktifkan R8 code shrinking ---
+            // isShrinkResources dimatikan karena R8 me-rename res/raw/*.ogg
+            // sehingga custom notification sound tidak bisa di-resolve Android
             isMinifyEnabled = true
-            isShrinkResources = true
+            isShrinkResources = false
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

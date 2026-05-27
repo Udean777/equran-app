@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/detecting_location_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
-import 'package:equran_app/core/widgets/location/location_change_prompt_widget.dart';
-import 'package:equran_app/core/widgets/location/location_initial_prompt_widget.dart';
+import 'package:equran_app/core/widgets/loading_widget.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
+import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart';
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsak_alarm_toggle_card.dart';
@@ -51,134 +50,104 @@ class ImsakiyahPage extends StatelessWidget {
 class _ImsakiyahView extends StatelessWidget {
   const _ImsakiyahView();
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: LuxuryAppBar(
+        title: 'Imsakiyah',
+        actions: [
+          BlocBuilder<ImsakiyahCubit, ImsakiyahState>(
+            builder: (context, state) {
+              final hasLocation = state is ImsakiyahSuccess;
+              if (!hasLocation) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.location_on_outlined),
+                tooltip: 'Ganti lokasi',
+                onPressed: () => _showLocationSheet(context),
+              );
+            },
+          ),
+        ],
+      ),
+      body: BlocBuilder<ImsakiyahCubit, ImsakiyahState>(
+        builder: (context, state) => switch (state) {
+          ImsakiyahInitial() => const LoadingWidget(),
+          ImsakiyahLoadingProvinsi() => const LoadingWidget(),
+          ImsakiyahLoadingKabkota() => const LoadingWidget(),
+          ImsakiyahLoadingJadwal() => const LoadingWidget(),
+          ImsakiyahDetectingLocation() => const DetectingLocationWidget(),
+          ImsakiyahProvinsiLoaded() => const LoadingWidget(),
+          ImsakiyahKabkotaLoaded() => const LoadingWidget(),
+          ImsakiyahFailure(:final failure) => ErrorStateWidget(
+            message: failure.toUserMessage(),
+            onRetry: () => unawaited(context.read<ImsakiyahCubit>().init()),
+          ),
+          ImsakiyahSuccess(:final jadwal) => _ImsakiyahContent(jadwal: jadwal),
+        },
+      ),
+    );
+  }
+
   void _showLocationSheet(BuildContext context) {
     unawaited(
       showAppBottomSheet<void>(
         context,
         builder: (_) => BlocProvider.value(
           value: context.read<ImsakiyahCubit>(),
-          child: const LocationSelectorSheet(),
+          child: const ImsakiyahLocationSelectorSheet(),
         ),
       ),
     );
   }
+}
+
+class _ImsakiyahContent extends StatelessWidget {
+  const _ImsakiyahContent({required this.jadwal});
+
+  final Imsakiyah jadwal;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final today = DateTime.now();
+    final todayTanggal = today.day;
+    final todayEntry = jadwal.imsakiyah.where(
+      (e) => e.tanggal == todayTanggal,
+    );
+    final entry = todayEntry.isNotEmpty ? todayEntry.first : null;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: surfaceColor,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        surfaceTintColor: Colors.transparent,
-        toolbarHeight: AppDimens.appBarHeightLG,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: iconColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Imsakiyah',
-              style: AppTypography.serifHeadingMedium.copyWith(
-                color: iconColor,
-                height: 1,
-                fontSize: 20,
+    return ListView(
+      padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
+      children: [
+        ImsakiyahHeaderCard(
+          jadwal: jadwal,
+          onChangeLocation: () => unawaited(
+            showAppBottomSheet<void>(
+              context,
+              builder: (_) => BlocProvider.value(
+                value: context.read<ImsakiyahCubit>(),
+                child: const ImsakiyahLocationSelectorSheet(),
               ),
             ),
-            const SizedBox(height: 3),
-            Container(
-              width: 20,
-              height: 1.5,
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              ),
-            ),
-          ],
+          ),
         ),
-        centerTitle: true,
-      ),
-      body: BlocBuilder<ImsakiyahCubit, ImsakiyahState>(
-        builder: (context, state) => switch (state) {
-          ImsakiyahInitial() => _buildInitialPrompt(context),
-          ImsakiyahLoadingProvinsi() => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+        if (entry != null)
+          ImsakiyahTodayCard(entry: entry, tanggal: todayTanggal),
+        if (entry != null) ...[
+          const SectionHeader(
+            label: 'Alarm Imsak',
+            icon: Icons.alarm_rounded,
           ),
-          ImsakiyahDetectingLocation() => _buildDetectingLocation(),
-          ImsakiyahProvinsiLoaded() => _buildLocationPrompt(context),
-          ImsakiyahLoadingKabkota() => _buildLocationPrompt(context),
-          ImsakiyahKabkotaLoaded() => _buildLocationPrompt(context),
-          ImsakiyahLoadingJadwal() => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          ),
-          ImsakiyahSuccess() => _buildSuccess(context, state),
-          ImsakiyahFailure() => ErrorStateWidget(
-            message: state.failure.toUserMessage(),
-            onRetry: () => context.read<ImsakiyahCubit>().retry(),
-          ),
-        },
-      ),
-    );
-  }
-
-  Widget _buildDetectingLocation() => const DetectingLocationWidget();
-
-  Widget _buildInitialPrompt(BuildContext context) =>
-      LocationInitialPromptWidget(
-        icon: Icons.mosque_outlined,
-        message: 'Pilih lokasi untuk melihat jadwal imsakiyah',
-        onSelectLocation: () => _showLocationSheet(context),
-      );
-
-  Widget _buildLocationPrompt(BuildContext context) {
-    final state = context.read<ImsakiyahCubit>().state;
-    final isLoading =
-        state is ImsakiyahLoadingKabkota || state is ImsakiyahLoadingJadwal;
-    return LocationChangePromptWidget(
-      message: 'Pilih lokasi untuk melihat jadwal imsakiyah',
-      onSelectLocation: () => _showLocationSheet(context),
-      isLoading: isLoading,
-    );
-  }
-
-  Widget _buildSuccess(BuildContext context, ImsakiyahSuccess state) {
-    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
-    final todayTanggal = now.day;
-
-    final todayEntry =
-        state.jadwal.imsakiyah
-            .where((e) => e.tanggal == todayTanggal)
-            .firstOrNull ??
-        state.jadwal.imsakiyah.first;
-
-    return RefreshIndicator(
-      color: AppColors.primary,
-      onRefresh: () async =>
-          context.read<ImsakiyahCubit>().selectKabkota(state.selectedKabkota),
-      child: ListView(
-        children: [
-          ImsakiyahHeaderCard(
-            jadwal: state.jadwal,
-            onChangeLocation: () => _showLocationSheet(context),
-          ),
-          ImsakiyahTodayCard(
-            entry: todayEntry,
-            tanggal: todayEntry.tanggal,
-          ),
-          ImsakAlarmToggleCard(todayEntry: todayEntry),
-          const SectionHeader(label: 'Jadwal Bulan Ini'),
-          ImsakiyahTable(
-            entries: state.jadwal.imsakiyah,
-            todayTanggal: todayTanggal,
-          ),
+          ImsakAlarmToggleCard(todayEntry: entry),
         ],
-      ),
+        const SectionHeader(
+          label: 'Jadwal Lengkap',
+          icon: Icons.table_rows_rounded,
+        ),
+        ImsakiyahTable(
+          entries: jadwal.imsakiyah,
+          todayTanggal: todayTanggal,
+        ),
+      ],
     );
   }
 }

@@ -141,11 +141,10 @@ void main() {
     blocTest<QiblaCubit, QiblaState>(
       'start() tidak melakukan apapun jika sudah loading',
       build: () {
-        // init tidak pernah resolve → tetap loading
-        when(() => mockInitQibla.call()).thenAnswer((_) async {
-          await Future<void>.delayed(const Duration(seconds: 10));
-          return right(unit);
-        });
+        when(() => mockInitQibla.call()).thenAnswer((_) async => right(unit));
+        when(() => mockWatchQiblaDirection.call()).thenReturn(
+          right(StreamController<QiblaDirection>.broadcast().stream),
+        );
         return buildCubit();
       },
       act: (cubit) async {

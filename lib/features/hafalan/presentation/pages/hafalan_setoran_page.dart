@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
+import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
@@ -59,13 +58,11 @@ class _HafalanSetoranView extends StatelessWidget {
         SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
         SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
         SuratDetailFailure(:final failure) => Scaffold(
-          appBar: _buildSetoranAppBar(
-            context: context,
-            title: 'Mode Setoran',
-          ),
+          appBar: const LuxuryAppBar(title: 'Mode Setoran'),
           body: ErrorStateWidget(
             message: failure.toUserMessage(),
-            onRetry: () => context.read<SuratDetailCubit>().retry(suratNomor),
+            onRetry: () =>
+                context.read<SuratDetailCubit>().retry(suratNomor),
           ),
         ),
         SuratDetailSuccess(:final detail) => _SetoranSession(
@@ -75,54 +72,6 @@ class _HafalanSetoranView extends StatelessWidget {
       },
     );
   }
-}
-
-PreferredSizeWidget _buildSetoranAppBar({
-  required BuildContext context,
-  required String title,
-  VoidCallback? onClose,
-}) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-  final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-
-  return AppBar(
-    backgroundColor: surfaceColor,
-    elevation: 0,
-    scrolledUnderElevation: 0.5,
-    surfaceTintColor: Colors.transparent,
-    toolbarHeight: AppDimens.appBarHeightLG,
-    leading: IconButton(
-      icon: Icon(Icons.close_rounded, color: iconColor),
-      tooltip: 'Keluar',
-      onPressed: onClose ?? () => Navigator.pop(context),
-    ),
-    title: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          title,
-          style: AppTypography.serifHeadingMedium.copyWith(
-            color: iconColor,
-            height: 1,
-            fontSize: 18,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 3),
-        Container(
-          width: 20,
-          height: 1.5,
-          decoration: BoxDecoration(
-            color: AppColors.gold,
-            borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-          ),
-        ),
-      ],
-    ),
-    centerTitle: true,
-  );
 }
 
 // ─── Sesi Setoran ─────────────────────────────────────────────────────────────
@@ -159,13 +108,18 @@ class _SetoranSessionState extends State<_SetoranSession> {
 
   @override
   Widget build(BuildContext context) {
+    final title = _isSelesai
+        ? 'Hasil Setoran'
+        : 'Setoran: ${widget.detail.info.namaLatin}';
+
     return Scaffold(
-      appBar: _buildSetoranAppBar(
-        context: context,
-        title: _isSelesai
-            ? 'Hasil Setoran'
-            : 'Setoran: ${widget.detail.info.namaLatin}',
-        onClose: () => _confirmExit(context),
+      appBar: LuxuryAppBar(
+        title: title,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          tooltip: 'Keluar',
+          onPressed: () => _confirmExit(context),
+        ),
       ),
       body: _isSelesai
           ? SetoranHasil(
@@ -257,53 +211,13 @@ class _SetoranSessionState extends State<_SetoranSession> {
       context.pop();
       return;
     }
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor:
-            isDark ? AppColors.surfaceDark : AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
-          side: BorderSide(
-            color: isDark ? AppColors.outlineDark : AppColors.outline,
-          ),
-        ),
-        title: Text(
-          'Keluar Setoran?',
-          style: AppTypography.serifHeadingSmall.copyWith(
-            color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
-          ),
-        ),
-        content: Text(
-          'Progress setoran akan hilang jika keluar sekarang.',
-          style: TextStyle(
-            color: isDark
-                ? AppColors.onSurfaceDarkVariant
-                : AppColors.textSecondary,
-            fontSize: 14,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              'Lanjutkan',
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textSecondary,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Keluar Setoran?',
+      content: 'Progress setoran akan hilang jika keluar sekarang.',
+      confirmLabel: 'Keluar',
+      cancelLabel: 'Lanjutkan',
     );
-    if ((confirmed ?? false) && context.mounted) context.pop();
+    if (confirmed && context.mounted) context.pop();
   }
 }

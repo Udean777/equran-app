@@ -27,6 +27,7 @@ import 'package:equran_app/core/notifications/shalat_checklist_reminder_schedule
     as _i1057;
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart'
     as _i804;
+import 'package:equran_app/core/router/app_router.dart' as _i222;
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart' as _i205;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
@@ -195,6 +196,8 @@ import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shal
     as _i83;
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart'
     as _i615;
+import 'package:equran_app/features/onboarding/data/onboarding_service.dart'
+    as _i1015;
 import 'package:equran_app/features/qibla/data/datasources/qibla_data_source.dart'
     as _i473;
 import 'package:equran_app/features/qibla/data/repositories/qibla_repository_impl.dart'
@@ -340,6 +343,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
       () => notificationModule.flutterLocalNotificationsPlugin,
     );
+    gh.lazySingleton<_i222.AppRouter>(() => _i222.AppRouter());
     gh.lazySingleton<_i372.GetAvailableQari>(
       () => const _i372.GetAvailableQari(),
     );
@@ -400,6 +404,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i729.ThemeCubit>(
       () =>
           _i729.ThemeCubit(gh<_i738.Box<String>>(instanceName: 'settingsBox')),
+    );
+    gh.lazySingleton<_i1015.OnboardingService>(
+      () => _i1015.OnboardingService(
+        gh<_i738.Box<String>>(instanceName: 'settingsBox'),
+      ),
     );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
@@ -805,20 +814,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i8.GetShalatNotifPrefs>(),
         gh<_i69.SaveShalatNotifPrefs>(),
         gh<_i804.ShalatNotificationScheduler>(),
-      ),
-    );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
         gh<_i1042.GetJadwalShalat>(),
         gh<_i88.GetLastLocationShalat>(),
-        gh<_i584.SaveLastLocationShalat>(),
-        gh<_i177.LocationService>(),
-        gh<_i804.ShalatNotificationScheduler>(),
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-        gh<_i615.ShalatNotifCubit>(),
       ),
     );
     gh.lazySingleton<_i420.DoaRepository>(
@@ -937,16 +934,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i230.CleanupOldReadingData>(),
       ),
     );
-    gh.factory<_i194.BookmarkCubit>(
-      () => _i194.BookmarkCubit(
-        gh<_i1008.GetBookmarks>(),
-        gh<_i749.AddBookmark>(),
-        gh<_i778.RemoveBookmark>(),
-        gh<_i994.GetLastRead>(),
-        gh<_i187.SaveLastRead>(),
-        gh<_i254.GetDoaBookmarks>(),
-        gh<_i254.GetDoaList>(),
-        gh<_i107.ToggleDoaBookmark>(),
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
+        gh<_i177.LocationService>(),
+        gh<_i804.ShalatNotificationScheduler>(),
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i615.ShalatNotifCubit>(),
       ),
     );
     gh.factory<_i29.DeleteHafalanSurat>(
@@ -963,6 +962,19 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i702.SaveHafalanSurat>(
       () => _i702.SaveHafalanSurat(gh<_i663.HafalanRepository>()),
+    );
+    gh.factory<_i194.BookmarkCubit>(
+      () => _i194.BookmarkCubit(
+        gh<_i1008.GetBookmarks>(),
+        gh<_i749.AddBookmark>(),
+        gh<_i778.RemoveBookmark>(),
+        gh<_i994.GetLastRead>(),
+        gh<_i187.SaveLastRead>(),
+        gh<_i254.GetDoaBookmarks>(),
+        gh<_i254.GetDoaList>(),
+        gh<_i107.ToggleDoaBookmark>(),
+        gh<_i182.BookmarkRepository>(),
+      ),
     );
     gh.lazySingleton<_i538.HafalanCubit>(
       () => _i538.HafalanCubit(

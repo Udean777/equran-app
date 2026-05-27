@@ -96,6 +96,10 @@ Seluruh data surat, teks Arab, terjemahan, audio murattal, tafsir, hingga doa ha
 > [!NOTE]
 > Dukung keberlangsungan penyedia API ini dengan mengunjungi [equran.id](https://equran.id).
 
+### **[IslamDownload.net](https://islamdownload.net)** 🎧
+
+Suara adzan yang digunakan untuk notifikasi waktu shalat fardhu dan adzan Subuh bersumber dari koleksi audio adzan gratis di **[IslamDownload.net](https://islamdownload.net/123801-download-suara-adzan.html)**.
+
 ---
 
 ## 🚀 Cara Memulai

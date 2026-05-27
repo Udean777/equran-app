@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,7 +73,7 @@ class SettingsAboutSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Data Al-Quran dari equran.id',
+                        'Data Al-Quran & Audio Pendukung',
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark
@@ -88,18 +89,7 @@ class SettingsAboutSection extends StatelessWidget {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.gold.withValues(alpha: 0),
-                    AppColors.gold.withValues(alpha: 0.3),
-                    AppColors.gold.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
+            const GoldDivider(verticalMargin: 0),
 
             const SizedBox(height: AppDimens.spaceMD),
 
@@ -123,6 +113,14 @@ class SettingsAboutSection extends StatelessWidget {
               url: 'https://api.myquran.com',
               isDark: isDark,
             ),
+            const SizedBox(height: AppDimens.spaceXS),
+            _LinkTile(
+              icon: Icons.volume_up_outlined,
+              label: 'Audio Adzan (IslamDownload)',
+              url: 'https://islamdownload.net/123801-download-suara-adzan.html',
+              displayUrl: 'islamdownload.net',
+              isDark: isDark,
+            ),
           ],
         ),
       ),
@@ -136,12 +134,14 @@ class _LinkTile extends StatelessWidget {
     required this.label,
     required this.url,
     required this.isDark,
+    this.displayUrl,
   });
 
   final IconData icon;
   final String label;
   final String url;
   final bool isDark;
+  final String? displayUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +173,7 @@ class _LinkTile extends StatelessWidget {
               ),
             ),
             Text(
-              url.replaceFirst('https://', ''),
+              displayUrl ?? url.replaceFirst('https://', ''),
               style: TextStyle(
                 fontSize: 11,
                 color: isDark ? AppColors.primaryLighter : AppColors.primary,

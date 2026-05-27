@@ -27,8 +27,9 @@ class SuratCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimens.spaceSM),
@@ -43,7 +44,14 @@ class SuratCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-              border: Border.all(color: borderColor),
+              border: Border.all(
+                color: scrollPercent == 1.0
+                    ? (isDark
+                          ? AppColors.gold.withValues(alpha: 0.3)
+                          : AppColors.gold.withValues(alpha: 0.5))
+                    : borderColor,
+                width: scrollPercent == 1.0 ? 1.5 : 1.0,
+              ),
             ),
             child: Column(
               children: [
@@ -63,15 +71,27 @@ class SuratCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              surat.namaLatin,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? AppColors.onSurfaceDark
-                                    : AppColors.textPrimary,
-                                fontSize: 15,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  surat.namaLatin,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark
+                                        ? AppColors.onSurfaceDark
+                                        : AppColors.textPrimary,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                if (scrollPercent == 1.0) ...[
+                                  const SizedBox(width: AppDimens.spaceXS),
+                                  const Icon(
+                                    Icons.verified_rounded,
+                                    color: AppColors.gold,
+                                    size: 16,
+                                  ),
+                                ],
+                              ],
                             ),
                             const SizedBox(height: 3),
                             Row(
@@ -174,7 +194,11 @@ class SuratCard extends StatelessWidget {
                           ? AppColors.primaryDark
                           : AppColors.primaryContainer,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        isDark ? AppColors.primaryLighter : AppColors.primary,
+                        scrollPercent == 1.0
+                            ? AppColors.gold
+                            : (isDark
+                                  ? AppColors.primaryLighter
+                                  : AppColors.primary),
                       ),
                     ),
                   ),

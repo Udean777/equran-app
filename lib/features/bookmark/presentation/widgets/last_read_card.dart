@@ -1,3 +1,4 @@
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
@@ -30,7 +31,7 @@ class LastReadCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimens.radiusXL),
         child: InkWell(
           onTap: () => context.push(
-            '/surat/${lastRead.suratNomor}?ayat=${lastRead.ayatNomor}',
+            AppRoutes.suratWithAyat(lastRead.suratNomor, lastRead.ayatNomor),
           ),
           borderRadius: BorderRadius.circular(AppDimens.radiusXL),
           child: Container(
@@ -185,7 +186,7 @@ class LastReadCard extends StatelessWidget {
                                   AppDimens.radiusFull,
                                 ),
                                 child: LinearProgressIndicator(
-                                  value: lastRead.scrollPercent,
+                                  value: lastRead.maxScrollPercent,
                                   minHeight: 3,
                                   backgroundColor: AppColors.onPrimary
                                       .withValues(alpha: 0.2),
@@ -198,7 +199,7 @@ class LastReadCard extends StatelessWidget {
                             ),
                             const SizedBox(width: AppDimens.spaceSM),
                             Text(
-                              '${(lastRead.scrollPercent * 100).round()}%',
+                              '${(lastRead.maxScrollPercent * 100).round()}%',
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color:
                                     AppColors.onPrimary.withValues(alpha: 0.7),

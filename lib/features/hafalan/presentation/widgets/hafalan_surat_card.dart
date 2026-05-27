@@ -1,3 +1,4 @@
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
@@ -21,7 +22,7 @@ class HafalanSuratCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: InkWell(
-        onTap: () => context.push('/hafalan/${hafalan.suratNomor}'),
+        onTap: () => context.push(AppRoutes.hafalanSurat(hafalan.suratNomor)),
         borderRadius: BorderRadius.circular(AppDimens.radiusMD),
         child: Padding(
           padding: const EdgeInsets.all(AppDimens.cardPadding),

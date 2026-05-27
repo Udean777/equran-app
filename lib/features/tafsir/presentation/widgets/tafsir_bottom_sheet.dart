@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/tafsir/presentation/cubit/tafsir_cubit.dart';
@@ -44,7 +45,10 @@ class _TafsirBottomSheetContent extends StatelessWidget {
       builder: (context, scrollController) => Column(
         children: [
           // Handle bar
-          _BottomSheetHandle(),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppDimens.spaceSM),
+            child: BottomSheetHandle(),
+          ),
           // Header
           _TafsirHeader(),
           // Content
@@ -74,22 +78,7 @@ class _TafsirBottomSheetContent extends StatelessWidget {
   }
 }
 
-class _BottomSheetHandle extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceSM),
-      child: Container(
-        width: 40,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-        ),
-      ),
-    );
-  }
-}
+
 
 class _TafsirHeader extends StatelessWidget {
   @override
@@ -110,7 +99,11 @@ class _TafsirHeader extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: Colors.grey[200]!),
+              bottom: BorderSide(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.outlineDark
+                    : AppColors.outlineVariant,
+              ),
             ),
           ),
           child: Column(
@@ -127,7 +120,9 @@ class _TafsirHeader extends StatelessWidget {
                 Text(
                   namaLatin,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.onSurfaceDarkVariant
+                        : AppColors.textSecondary,
                   ),
                 ),
             ],

@@ -77,7 +77,6 @@ class ShalatChecklistReminderScheduler {
           kShalatChecklistChannelId,
           'Reminder Checklist Shalat',
           channelDescription: 'Pengingat untuk mencatat status shalat harian',
-          icon: '@mipmap/ic_launcher',
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,
@@ -92,6 +91,7 @@ class ShalatChecklistReminderScheduler {
         body: 'Catat status shalat ${info.nama} hari ini di Statistik Shalat.',
         scheduledTime: scheduledTime,
         details: details,
+        matchDateTimeComponents: null, // one-shot, tidak repeat harian
       );
 
       debugPrint(

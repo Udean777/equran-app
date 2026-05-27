@@ -1,5 +1,8 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
+import 'package:equran_app/core/widgets/gradient_button.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -73,16 +76,9 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
       builder: (context, scrollController) => Column(
         children: [
           // Handle
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceSM),
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              ),
-            ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppDimens.spaceSM),
+            child: BottomSheetHandle(),
           ),
           // Header
           Padding(
@@ -106,7 +102,7 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
               ],
             ),
           ),
-          const Divider(height: 1),
+          const LuxuryDivider(),
           // Scrollable content
           Expanded(
             child: ListView(
@@ -166,12 +162,9 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(AppDimens.spaceMD),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _apply,
-                  child: Text(l10n.applyFilter),
-                ),
+              child: GradientButton(
+                label: l10n.applyFilter,
+                onTap: _apply,
               ),
             ),
           ),
@@ -198,7 +191,7 @@ class _FilterChip extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final borderColor = selected
         ? AppColors.primary
-        : (isDark ? Colors.grey[600]! : Colors.grey[400]!);
+        : (isDark ? AppColors.outlineDark : AppColors.outline);
 
     return GestureDetector(
       onTap: onTap,

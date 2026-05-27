@@ -16,4 +16,11 @@ abstract interface class BookmarkRepository {
   });
   Future<Either<Failure, LastRead?>> getLastRead();
   Future<Either<Failure, Unit>> saveLastRead(LastRead lastRead);
+  /// Ambil progress semua surat — key: suratNomor, value: maxScrollPercent
+  Either<Failure, Map<int, double>> getAllSuratProgress();
+  /// Simpan progress satu surat (hanya update jika lebih tinggi)
+  Future<Either<Failure, Unit>> saveSuratProgress(
+    int suratNomor,
+    double maxProgress,
+  );
 }

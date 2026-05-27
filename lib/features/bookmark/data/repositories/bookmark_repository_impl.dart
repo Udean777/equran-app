@@ -84,4 +84,26 @@ class BookmarkRepositoryImpl implements BookmarkRepository {
       return left(Failure.unknown(message: e.toString()));
     }
   }
+
+  @override
+  Either<Failure, Map<int, double>> getAllSuratProgress() {
+    try {
+      return right(_local.getAllSuratProgress());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> saveSuratProgress(
+    int suratNomor,
+    double maxProgress,
+  ) async {
+    try {
+      await _local.saveSuratProgress(suratNomor, maxProgress);
+      return right(unit);
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
 }

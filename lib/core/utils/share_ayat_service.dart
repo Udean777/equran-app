@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -21,31 +22,76 @@ abstract final class ShareAyatService {
     await Share.share(text);
   }
 
+  /// Render [cardKey] menjadi bytes PNG.
+  static Future<List<int>?> _renderCardBytes(GlobalKey cardKey) async {
+    final boundary =
+        cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return null;
+    final image = await boundary.toImage(pixelRatio: 3);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData?.buffer.asUint8List();
+  }
+
   /// Render [cardKey] menjadi gambar lalu share sebagai file.
+  /// [shareButtonKey] digunakan untuk sharePositionOrigin di iOS/iPad.
   static Future<void> shareImage({
     required GlobalKey cardKey,
     required String namaLatin,
     required int suratNomor,
     required int nomorAyat,
+    GlobalKey? shareButtonKey,
   }) async {
-    final boundary =
-        cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (boundary == null) return;
+    final bytes = await _renderCardBytes(cardKey);
+    if (bytes == null) return;
 
-    final image = await boundary.toImage(pixelRatio: 3);
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    if (byteData == null) return;
-
-    final bytes = byteData.buffer.asUint8List();
     final dir = await getTemporaryDirectory();
-    final file = File(
-      '${dir.path}/ayat_${suratNomor}_$nomorAyat.png',
-    );
+    final file = File('${dir.path}/ayat_${suratNomor}_$nomorAyat.png');
     await file.writeAsBytes(bytes);
+
+    // Hitung posisi tombol untuk sharePositionOrigin (wajib di iOS/iPad)
+    Rect? shareOrigin;
+    if (shareButtonKey != null) {
+      final box =
+          shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
+      if (box != null) {
+        final pos = box.localToGlobal(Offset.zero);
+        shareOrigin = pos & box.size;
+      }
+    }
+    shareOrigin ??= const Rect.fromLTWH(0, 100, 100, 100);
 
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'image/png')],
       text: 'Q.S. $namaLatin ($suratNomor): $nomorAyat',
+      sharePositionOrigin: shareOrigin,
     );
+  }
+
+  /// Render [cardKey] menjadi gambar lalu simpan ke gallery.
+  /// Return true jika berhasil, false jika gagal atau permission ditolak.
+  static Future<bool> saveToGallery({
+    required GlobalKey cardKey,
+    required int suratNomor,
+    required int nomorAyat,
+  }) async {
+    try {
+      final bytes = await _renderCardBytes(cardKey);
+      if (bytes == null) return false;
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/ayat_${suratNomor}_$nomorAyat.png');
+      await file.writeAsBytes(bytes);
+
+      // Langsung putImage — gal handle permission secara internal di Android 10+
+      // Tidak pakai album agar tidak butuh permission WRITE_EXTERNAL_STORAGE
+      await Gal.putImage(file.path);
+      return true;
+    } on GalException catch (e) {
+      debugPrint('ShareAyatService.saveToGallery GalException: ${e.type}');
+      return false;
+    } on Object catch (e) {
+      debugPrint('ShareAyatService.saveToGallery error: $e');
+      return false;
+    }
   }
 }

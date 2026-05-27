@@ -5,6 +5,8 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/widgets/audio_control_buttons.dart';
+import 'package:equran_app/features/audio/presentation/widgets/audio_progress_bar.dart';
 import 'package:equran_app/features/audio/presentation/widgets/qari_selector_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -196,7 +198,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
 
               // Controls
               if (isPlaylist)
-                _IconBtn(
+                AudioIconBtn(
                   icon: Icons.skip_previous_rounded,
                   color: cubit.playlistIndex > 0
                       ? primaryColor
@@ -208,7 +210,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
                       : null,
                 ),
 
-              _IconBtn(
+              AudioIconBtn(
                 icon: Icons.stop_rounded,
                 color: isDark
                     ? AppColors.onSurfaceDarkVariant
@@ -216,10 +218,10 @@ class _AudioPlayerBarContent extends StatelessWidget {
                 onPressed: () => unawaited(cubit.stop()),
               ),
 
-              _PlayPauseButton(state: state, isDark: isDark),
+              AudioPlayPauseButton(state: state, isDark: isDark),
 
               if (isPlaylist)
-                _IconBtn(
+                AudioIconBtn(
                   icon: Icons.skip_next_rounded,
                   color: cubit.playlistIndex < cubit.playlist.length - 1
                       ? primaryColor
@@ -236,7 +238,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceXS),
 
           // Progress bar
-          _ProgressBar(isDark: isDark),
+          AudioProgressBar(isDark: isDark),
         ],
       ),
     );
@@ -264,176 +266,6 @@ class _AudioPlayerBarContent extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Progress bar
-// ---------------------------------------------------------------------------
-
-class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.isDark});
-
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, curr) =>
-          prev.position != curr.position || prev.duration != curr.duration,
-      builder: (context, posState) {
-        final position = posState.position;
-        final duration = posState.duration;
-        final progress = duration.inMilliseconds > 0
-            ? position.inMilliseconds / duration.inMilliseconds
-            : 0.0;
-        final primaryColor = isDark
-            ? AppColors.primaryLighter
-            : AppColors.primary;
-
-        return Column(
-          children: [
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 2.5,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
-                activeTrackColor: primaryColor,
-                inactiveTrackColor: isDark
-                    ? AppColors.outlineDark
-                    : AppColors.primaryContainer,
-                thumbColor: primaryColor,
-                overlayColor: primaryColor.withValues(alpha: 0.12),
-              ),
-              child: Slider(
-                value: progress.clamp(0.0, 1.0),
-                onChanged: (value) {
-                  final seekTo = Duration(
-                    milliseconds: (value * duration.inMilliseconds).round(),
-                  );
-                  unawaited(context.read<AudioCubit>().seek(seekTo));
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.spaceSM,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _formatDuration(position),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
-                      fontSize: 10,
-                    ),
-                  ),
-                  Text(
-                    _formatDuration(duration),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  String _formatDuration(Duration d) {
-    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Play/Pause button
-// ---------------------------------------------------------------------------
-
-class _PlayPauseButton extends StatelessWidget {
-  const _PlayPauseButton({required this.state, required this.isDark});
-
-  final AudioPlayerState state;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
-
-    if (state.isLoading) {
-      return SizedBox(
-        width: 40,
-        height: 40,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: primaryColor,
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(
-          state.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-          color: primaryColor,
-          size: 22,
-        ),
-        onPressed: () {
-          final cubit = context.read<AudioCubit>();
-          if (state.isPlaying) {
-            unawaited(cubit.pause());
-          } else if (state.isPaused) {
-            unawaited(cubit.resume());
-          }
-        },
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Icon button helper
-// ---------------------------------------------------------------------------
-
-class _IconBtn extends StatelessWidget {
-  const _IconBtn({
-    required this.icon,
-    required this.color,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(icon, color: color, size: AppDimens.iconMD),
-      onPressed: onPressed,
-      padding: const EdgeInsets.all(AppDimens.spaceXS),
-      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
     );
   }
 }

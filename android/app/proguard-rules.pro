@@ -56,6 +56,15 @@
 -keep class com.dexterous.** { *; }
 -dontwarn com.dexterous.**
 
+# ─── Gson TypeToken (dipakai flutter_local_notifications) ─────────────────
+# R8 strip generic type parameter dari TypeToken anonymous subclass → crash
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
 # ─── geolocator ───────────────────────────
 -keep class com.baseflow.geolocator.** { *; }
 -dontwarn com.baseflow.geolocator.**

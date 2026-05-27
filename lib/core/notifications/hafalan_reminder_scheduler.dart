@@ -62,6 +62,7 @@ class HafalanReminderScheduler {
       body: 'Sudah waktunya murajaah. Jangan sampai lupa!',
       scheduledTime: scheduledTime,
       details: details,
+      matchDateTimeComponents: null, // one-shot, tidak repeat harian
     );
 
     debugPrint(

@@ -14,9 +14,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LastRead {
 
- int get suratNomor; int get ayatNomor; String get namaLatin; DateTime get readAt;/// Progress membaca: 0.0 (awal) – 1.0 (selesai).
+ int get suratNomor; int get ayatNomor; String get namaLatin; DateTime get readAt;/// Progress membaca saat ini: 0.0 (awal) – 1.0 (selesai).
 /// Dihitung otomatis: ayatNomor / totalAyat.
- double get scrollPercent;/// Total ayat dalam surat — digunakan untuk hitung scrollPercent.
+ double get scrollPercent;/// Nilai tertinggi scrollPercent yang pernah dicapai.
+/// Tidak turun saat user scroll ke atas — digunakan di home card.
+ double get maxScrollPercent;/// Total ayat dalam surat — digunakan untuk hitung scrollPercent.
  int get totalAyat;
 /// Create a copy of LastRead
 /// with the given fields replaced by the non-null parameter values.
@@ -28,16 +30,16 @@ $LastReadCopyWith<LastRead> get copyWith => _$LastReadCopyWithImpl<LastRead>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LastRead&&(identical(other.suratNomor, suratNomor) || other.suratNomor == suratNomor)&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.readAt, readAt) || other.readAt == readAt)&&(identical(other.scrollPercent, scrollPercent) || other.scrollPercent == scrollPercent)&&(identical(other.totalAyat, totalAyat) || other.totalAyat == totalAyat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LastRead&&(identical(other.suratNomor, suratNomor) || other.suratNomor == suratNomor)&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.readAt, readAt) || other.readAt == readAt)&&(identical(other.scrollPercent, scrollPercent) || other.scrollPercent == scrollPercent)&&(identical(other.maxScrollPercent, maxScrollPercent) || other.maxScrollPercent == maxScrollPercent)&&(identical(other.totalAyat, totalAyat) || other.totalAyat == totalAyat));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,suratNomor,ayatNomor,namaLatin,readAt,scrollPercent,totalAyat);
+int get hashCode => Object.hash(runtimeType,suratNomor,ayatNomor,namaLatin,readAt,scrollPercent,maxScrollPercent,totalAyat);
 
 @override
 String toString() {
-  return 'LastRead(suratNomor: $suratNomor, ayatNomor: $ayatNomor, namaLatin: $namaLatin, readAt: $readAt, scrollPercent: $scrollPercent, totalAyat: $totalAyat)';
+  return 'LastRead(suratNomor: $suratNomor, ayatNomor: $ayatNomor, namaLatin: $namaLatin, readAt: $readAt, scrollPercent: $scrollPercent, maxScrollPercent: $maxScrollPercent, totalAyat: $totalAyat)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $LastReadCopyWith<$Res>  {
   factory $LastReadCopyWith(LastRead value, $Res Function(LastRead) _then) = _$LastReadCopyWithImpl;
 @useResult
 $Res call({
- int suratNomor, int ayatNomor, String namaLatin, DateTime readAt, double scrollPercent, int totalAyat
+ int suratNomor, int ayatNomor, String namaLatin, DateTime readAt, double scrollPercent, double maxScrollPercent, int totalAyat
 });
 
 
@@ -65,13 +67,14 @@ class _$LastReadCopyWithImpl<$Res>
 
 /// Create a copy of LastRead
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? suratNomor = null,Object? ayatNomor = null,Object? namaLatin = null,Object? readAt = null,Object? scrollPercent = null,Object? totalAyat = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? suratNomor = null,Object? ayatNomor = null,Object? namaLatin = null,Object? readAt = null,Object? scrollPercent = null,Object? maxScrollPercent = null,Object? totalAyat = null,}) {
   return _then(_self.copyWith(
 suratNomor: null == suratNomor ? _self.suratNomor : suratNomor // ignore: cast_nullable_to_non_nullable
 as int,ayatNomor: null == ayatNomor ? _self.ayatNomor : ayatNomor // ignore: cast_nullable_to_non_nullable
 as int,namaLatin: null == namaLatin ? _self.namaLatin : namaLatin // ignore: cast_nullable_to_non_nullable
 as String,readAt: null == readAt ? _self.readAt : readAt // ignore: cast_nullable_to_non_nullable
 as DateTime,scrollPercent: null == scrollPercent ? _self.scrollPercent : scrollPercent // ignore: cast_nullable_to_non_nullable
+as double,maxScrollPercent: null == maxScrollPercent ? _self.maxScrollPercent : maxScrollPercent // ignore: cast_nullable_to_non_nullable
 as double,totalAyat: null == totalAyat ? _self.totalAyat : totalAyat // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -158,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int suratNomor,  int ayatNomor,  String namaLatin,  DateTime readAt,  double scrollPercent,  int totalAyat)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int suratNomor,  int ayatNomor,  String namaLatin,  DateTime readAt,  double scrollPercent,  double maxScrollPercent,  int totalAyat)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LastRead() when $default != null:
-return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_that.scrollPercent,_that.totalAyat);case _:
+return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_that.scrollPercent,_that.maxScrollPercent,_that.totalAyat);case _:
   return orElse();
 
 }
@@ -179,10 +182,10 @@ return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int suratNomor,  int ayatNomor,  String namaLatin,  DateTime readAt,  double scrollPercent,  int totalAyat)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int suratNomor,  int ayatNomor,  String namaLatin,  DateTime readAt,  double scrollPercent,  double maxScrollPercent,  int totalAyat)  $default,) {final _that = this;
 switch (_that) {
 case _LastRead():
-return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_that.scrollPercent,_that.totalAyat);case _:
+return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_that.scrollPercent,_that.maxScrollPercent,_that.totalAyat);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +202,10 @@ return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int suratNomor,  int ayatNomor,  String namaLatin,  DateTime readAt,  double scrollPercent,  int totalAyat)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int suratNomor,  int ayatNomor,  String namaLatin,  DateTime readAt,  double scrollPercent,  double maxScrollPercent,  int totalAyat)?  $default,) {final _that = this;
 switch (_that) {
 case _LastRead() when $default != null:
-return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_that.scrollPercent,_that.totalAyat);case _:
+return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_that.scrollPercent,_that.maxScrollPercent,_that.totalAyat);case _:
   return null;
 
 }
@@ -214,16 +217,19 @@ return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.readAt,_t
 
 
 class _LastRead implements LastRead {
-  const _LastRead({required this.suratNomor, required this.ayatNomor, required this.namaLatin, required this.readAt, this.scrollPercent = 0.0, this.totalAyat = 0});
+  const _LastRead({required this.suratNomor, required this.ayatNomor, required this.namaLatin, required this.readAt, this.scrollPercent = 0.0, this.maxScrollPercent = 0.0, this.totalAyat = 0});
   
 
 @override final  int suratNomor;
 @override final  int ayatNomor;
 @override final  String namaLatin;
 @override final  DateTime readAt;
-/// Progress membaca: 0.0 (awal) – 1.0 (selesai).
+/// Progress membaca saat ini: 0.0 (awal) – 1.0 (selesai).
 /// Dihitung otomatis: ayatNomor / totalAyat.
 @override@JsonKey() final  double scrollPercent;
+/// Nilai tertinggi scrollPercent yang pernah dicapai.
+/// Tidak turun saat user scroll ke atas — digunakan di home card.
+@override@JsonKey() final  double maxScrollPercent;
 /// Total ayat dalam surat — digunakan untuk hitung scrollPercent.
 @override@JsonKey() final  int totalAyat;
 
@@ -237,16 +243,16 @@ _$LastReadCopyWith<_LastRead> get copyWith => __$LastReadCopyWithImpl<_LastRead>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LastRead&&(identical(other.suratNomor, suratNomor) || other.suratNomor == suratNomor)&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.readAt, readAt) || other.readAt == readAt)&&(identical(other.scrollPercent, scrollPercent) || other.scrollPercent == scrollPercent)&&(identical(other.totalAyat, totalAyat) || other.totalAyat == totalAyat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LastRead&&(identical(other.suratNomor, suratNomor) || other.suratNomor == suratNomor)&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.readAt, readAt) || other.readAt == readAt)&&(identical(other.scrollPercent, scrollPercent) || other.scrollPercent == scrollPercent)&&(identical(other.maxScrollPercent, maxScrollPercent) || other.maxScrollPercent == maxScrollPercent)&&(identical(other.totalAyat, totalAyat) || other.totalAyat == totalAyat));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,suratNomor,ayatNomor,namaLatin,readAt,scrollPercent,totalAyat);
+int get hashCode => Object.hash(runtimeType,suratNomor,ayatNomor,namaLatin,readAt,scrollPercent,maxScrollPercent,totalAyat);
 
 @override
 String toString() {
-  return 'LastRead(suratNomor: $suratNomor, ayatNomor: $ayatNomor, namaLatin: $namaLatin, readAt: $readAt, scrollPercent: $scrollPercent, totalAyat: $totalAyat)';
+  return 'LastRead(suratNomor: $suratNomor, ayatNomor: $ayatNomor, namaLatin: $namaLatin, readAt: $readAt, scrollPercent: $scrollPercent, maxScrollPercent: $maxScrollPercent, totalAyat: $totalAyat)';
 }
 
 
@@ -257,7 +263,7 @@ abstract mixin class _$LastReadCopyWith<$Res> implements $LastReadCopyWith<$Res>
   factory _$LastReadCopyWith(_LastRead value, $Res Function(_LastRead) _then) = __$LastReadCopyWithImpl;
 @override @useResult
 $Res call({
- int suratNomor, int ayatNomor, String namaLatin, DateTime readAt, double scrollPercent, int totalAyat
+ int suratNomor, int ayatNomor, String namaLatin, DateTime readAt, double scrollPercent, double maxScrollPercent, int totalAyat
 });
 
 
@@ -274,13 +280,14 @@ class __$LastReadCopyWithImpl<$Res>
 
 /// Create a copy of LastRead
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? suratNomor = null,Object? ayatNomor = null,Object? namaLatin = null,Object? readAt = null,Object? scrollPercent = null,Object? totalAyat = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? suratNomor = null,Object? ayatNomor = null,Object? namaLatin = null,Object? readAt = null,Object? scrollPercent = null,Object? maxScrollPercent = null,Object? totalAyat = null,}) {
   return _then(_LastRead(
 suratNomor: null == suratNomor ? _self.suratNomor : suratNomor // ignore: cast_nullable_to_non_nullable
 as int,ayatNomor: null == ayatNomor ? _self.ayatNomor : ayatNomor // ignore: cast_nullable_to_non_nullable
 as int,namaLatin: null == namaLatin ? _self.namaLatin : namaLatin // ignore: cast_nullable_to_non_nullable
 as String,readAt: null == readAt ? _self.readAt : readAt // ignore: cast_nullable_to_non_nullable
 as DateTime,scrollPercent: null == scrollPercent ? _self.scrollPercent : scrollPercent // ignore: cast_nullable_to_non_nullable
+as double,maxScrollPercent: null == maxScrollPercent ? _self.maxScrollPercent : maxScrollPercent // ignore: cast_nullable_to_non_nullable
 as double,totalAyat: null == totalAyat ? _self.totalAyat : totalAyat // ignore: cast_nullable_to_non_nullable
 as int,
   ));

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
@@ -12,12 +13,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// AppBar untuk SuratDetailPage — luxury style, putih, serif title.
+/// Menampilkan progress bar scroll di bagian bawah AppBar.
 class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SuratDetailAppBar({
     required this.detail,
     required this.autoScrollEnabled,
     required this.onToggleAutoScroll,
     required this.onDownloadTap,
+    this.scrollProgress = 0.0,
     super.key,
   });
 
@@ -26,8 +29,11 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onToggleAutoScroll;
   final VoidCallback onDownloadTap;
 
+  /// Progress scroll saat ini (0.0–1.0).
+  final double scrollProgress;
+
   @override
-  Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG);
+  Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG + 3);
 
   @override
   Widget build(BuildContext context) {
@@ -56,159 +62,179 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
               qari.id,
             );
 
-            return AppBar(
-              backgroundColor: surfaceColor,
-              elevation: 0,
-              scrolledUnderElevation: 0.5,
-              shadowColor: AppColors.outline,
-              surfaceTintColor: Colors.transparent,
-              toolbarHeight: AppDimens.appBarHeightLG,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_rounded, color: iconColor),
-                onPressed: () => context.pop(),
-              ),
-              title: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    detail.info.namaLatin,
-                    style: AppTypography.serifHeadingSmall.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDark
-                          : AppColors.textPrimary,
-                      fontSize: 17,
-                      height: 1,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppBar(
+                  backgroundColor: surfaceColor,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  shadowColor: Colors.transparent,
+                  surfaceTintColor: Colors.transparent,
+                  toolbarHeight: AppDimens.appBarHeightLG,
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back_rounded, color: iconColor),
+                    onPressed: () => context.pop(),
                   ),
-                  const SizedBox(height: 3),
-                  Container(
-                    width: 20,
-                    height: 1.5,
-                    decoration: BoxDecoration(
-                      color: AppColors.gold,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusFull),
-                    ),
-                  ),
-                ],
-              ),
-              centerTitle: true,
-              actions: [
-                // Hafalan
-                IconButton(
-                  icon: Icon(
-                    Icons.auto_stories_outlined,
-                    color: isDark ? AppColors.primaryLighter : AppColors.primary,
-                  ),
-                  tooltip: 'Hafalan',
-                  onPressed: () => unawaited(
-                    context.push('/hafalan/${detail.info.nomor}'),
-                  ),
-                ),
-
-                // Download
-                if (downloadState.isDownloadingSurat)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Center(
-                      child: SizedBox(
+                  title: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        detail.info.namaLatin,
+                        style: AppTypography.serifHeadingSmall.copyWith(
+                          color: isDark
+                              ? AppColors.onSurfaceDark
+                              : AppColors.textPrimary,
+                          fontSize: 17,
+                          height: 1,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Container(
                         width: 20,
-                        height: 20,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              strokeWidth: 2,
-                              value: downloadState.suratDownloadTotal > 0
-                                  ? downloadState.suratDownloadDone /
-                                        downloadState.suratDownloadTotal
-                                  : null,
-                              color: isDark
-                                  ? AppColors.primaryLighter
-                                  : AppColors.primary,
-                            ),
-                            GestureDetector(
-                              onTap: downloadCubit.cancelSuratDownload,
-                              child: Icon(
-                                Icons.close,
-                                size: 10,
-                                color: isDark
-                                    ? AppColors.primaryLighter
-                                    : AppColors.primary,
-                              ),
-                            ),
-                          ],
+                        height: 1.5,
+                        decoration: BoxDecoration(
+                          color: AppColors.gold,
+                          borderRadius:
+                              BorderRadius.circular(AppDimens.radiusFull),
                         ),
                       ),
-                    ),
-                  )
-                else
-                  IconButton(
-                    icon: Icon(
-                      isAllDownloaded
-                          ? Icons.download_done_rounded
-                          : Icons.download_for_offline_outlined,
-                      color: isAllDownloaded
-                          ? AppColors.success
-                          : (isDark
-                              ? AppColors.primaryLighter
-                              : AppColors.primary),
-                    ),
-                    tooltip: isAllDownloaded
-                        ? 'Semua ayat sudah didownload'
-                        : 'Download surat',
-                    onPressed: isAllDownloaded ? null : onDownloadTap,
+                    ],
                   ),
+                  centerTitle: true,
+                  actions: [
+                    // Hafalan
+                    IconButton(
+                      icon: Icon(
+                        Icons.auto_stories_outlined,
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                      ),
+                      tooltip: 'Hafalan',
+                      onPressed: () => unawaited(
+                        context.push(AppRoutes.hafalanSurat(detail.info.nomor)),
+                      ),
+                    ),
 
-                // Auto-scroll toggle
-                if (cubit.isPlaylistMode)
-                  IconButton(
-                    icon: Icon(
-                      autoScrollEnabled
-                          ? Icons.gps_fixed_rounded
-                          : Icons.gps_not_fixed_rounded,
-                      color: autoScrollEnabled
-                          ? (isDark
-                              ? AppColors.primaryLighter
-                              : AppColors.primary)
-                          : iconColor.withValues(alpha: 0.4),
-                    ),
-                    tooltip: autoScrollEnabled
-                        ? 'Auto-Scroll Aktif'
-                        : 'Auto-Scroll Nonaktif',
-                    onPressed: onToggleAutoScroll,
-                  ),
-
-                // Play/Pause
-                IconButton(
-                  icon: Icon(
-                    cubit.isPlaylistMode && audioState.isPlaying
-                        ? Icons.pause_circle_outline_rounded
-                        : Icons.play_circle_outline_rounded,
-                    color: isDark
-                        ? AppColors.primaryLighter
-                        : AppColors.primary,
-                  ),
-                  tooltip: 'Play Surat',
-                  onPressed: () {
-                    if (cubit.isPlaylistMode && audioState.isPlaying) {
-                      unawaited(cubit.pause());
-                    } else if (cubit.isPlaylistMode && audioState.isPaused) {
-                      unawaited(cubit.resume());
-                    } else {
-                      unawaited(
-                        cubit.playFullSurat(
-                          ayatList: detail.ayatList,
-                          startIndex: 0,
-                          qari: audioState.currentQari,
-                          suratNomor: detail.info.nomor,
-                          suratName: detail.info.namaLatin,
-                          audioMap: detail.audioFull,
+                    // Download
+                    if (downloadState.isDownloadingSurat)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  value: downloadState.suratDownloadTotal > 0
+                                      ? downloadState.suratDownloadDone /
+                                            downloadState.suratDownloadTotal
+                                      : null,
+                                  color: isDark
+                                      ? AppColors.primaryLighter
+                                      : AppColors.primary,
+                                ),
+                                GestureDetector(
+                                  onTap: downloadCubit.cancelSuratDownload,
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 10,
+                                    color: isDark
+                                        ? AppColors.primaryLighter
+                                        : AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      );
-                    }
-                  },
+                      )
+                    else
+                      IconButton(
+                        icon: Icon(
+                          isAllDownloaded
+                              ? Icons.download_done_rounded
+                              : Icons.download_for_offline_outlined,
+                          color: isAllDownloaded
+                              ? AppColors.success
+                              : (isDark
+                                  ? AppColors.primaryLighter
+                                  : AppColors.primary),
+                        ),
+                        tooltip: isAllDownloaded
+                            ? 'Semua ayat sudah didownload'
+                            : 'Download surat',
+                        onPressed: isAllDownloaded ? null : onDownloadTap,
+                      ),
+
+                    // Auto-scroll toggle
+                    if (cubit.isPlaylistMode)
+                      IconButton(
+                        icon: Icon(
+                          autoScrollEnabled
+                              ? Icons.gps_fixed_rounded
+                              : Icons.gps_not_fixed_rounded,
+                          color: autoScrollEnabled
+                              ? (isDark
+                                  ? AppColors.primaryLighter
+                                  : AppColors.primary)
+                              : iconColor.withValues(alpha: 0.4),
+                        ),
+                        tooltip: autoScrollEnabled
+                            ? 'Auto-Scroll Aktif'
+                            : 'Auto-Scroll Nonaktif',
+                        onPressed: onToggleAutoScroll,
+                      ),
+
+                    // Play/Pause
+                    IconButton(
+                      icon: Icon(
+                        cubit.isPlaylistMode && audioState.isPlaying
+                            ? Icons.pause_circle_outline_rounded
+                            : Icons.play_circle_outline_rounded,
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                      ),
+                      tooltip: 'Play Surat',
+                      onPressed: () {
+                        if (cubit.isPlaylistMode && audioState.isPlaying) {
+                          unawaited(cubit.pause());
+                        } else if (cubit.isPlaylistMode &&
+                            audioState.isPaused) {
+                          unawaited(cubit.resume());
+                        } else {
+                          unawaited(
+                            cubit.playFullSurat(
+                              ayatList: detail.ayatList,
+                              startIndex: 0,
+                              qari: audioState.currentQari,
+                              suratNomor: detail.info.nomor,
+                              suratName: detail.info.namaLatin,
+                              audioMap: detail.audioFull,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+
+                // Progress bar scroll — naik saat scroll bawah, turun saat scroll atas
+                LinearProgressIndicator(
+                  value: scrollProgress,
+                  minHeight: 3,
+                  backgroundColor: isDark
+                      ? AppColors.primaryDark
+                      : AppColors.primaryContainer,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isDark ? AppColors.primaryLighter : AppColors.primary,
+                  ),
                 ),
               ],
             );

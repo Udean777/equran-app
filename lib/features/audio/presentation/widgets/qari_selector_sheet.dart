@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,7 @@ class QariSelectorSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     // Hanya tampilkan qari yang URL-nya tersedia di audioMap
     final availableQaris = Qari.values
         .where((q) => audioMap.containsKey(q.id))
@@ -29,66 +31,95 @@ class QariSelectorSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: AppDimens.spaceMD),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-            ),
-          ),
+          const BottomSheetHandle(),
+          const SizedBox(height: AppDimens.spaceMD),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceMD),
-            child: Text(
-              'Pilih Qari',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Pilih Qari',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                ),
               ),
             ),
           ),
           const SizedBox(height: AppDimens.spaceSM),
           ...availableQaris.map(
-            (qari) => ListTile(
-              leading: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: qari == selectedQari
-                      ? AppColors.primary
-                      : AppColors.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  qari.id,
-                  style: TextStyle(
-                    color: qari == selectedQari
-                        ? AppColors.onPrimary
-                        : AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+            (qari) {
+              final isSelected = qari == selectedQari;
+              return InkWell(
+                onTap: () => onQariSelected(qari),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.spaceMD,
+                    vertical: AppDimens.spaceMD,
+                  ),
+                  child: Row(
+                    children: [
+                      // Avatar with initials
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark
+                                    ? AppColors.primaryDark
+                                    : AppColors.primaryContainer),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.radiusSM,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          qari.id.toUpperCase(),
+                          style: TextStyle(
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark
+                                      ? AppColors.primaryLighter
+                                      : AppColors.primary),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppDimens.spaceMD),
+                      // Name
+                      Expanded(
+                        child: Text(
+                          qari.name,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? (isDark
+                                      ? AppColors.primaryLighter
+                                      : AppColors.primary)
+                                : (isDark
+                                      ? AppColors.onSurfaceDark
+                                      : AppColors.textPrimary),
+                          ),
+                        ),
+                      ),
+                      // Checkmark
+                      if (isSelected)
+                        Icon(
+                          Icons.check_circle_rounded,
+                          color: isDark
+                              ? AppColors.primaryLighter
+                              : AppColors.primary,
+                          size: 20,
+                        ),
+                    ],
                   ),
                 ),
-              ),
-              title: Text(
-                qari.name,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: qari == selectedQari
-                      ? FontWeight.w600
-                      : FontWeight.normal,
-                  color: qari == selectedQari ? AppColors.primary : null,
-                ),
-              ),
-              trailing: qari == selectedQari
-                  ? const Icon(
-                      Icons.check_rounded,
-                      color: AppColors.primary,
-                    )
-                  : null,
-              onTap: () => onQariSelected(qari),
-            ),
+              );
+            },
           ),
           const SizedBox(height: AppDimens.spaceMD),
         ],

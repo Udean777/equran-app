@@ -56,7 +56,7 @@ class NotificationService {
     }
 
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+      'ic_notif',
     );
 
     const iosSettings = DarwinInitializationSettings(
@@ -74,9 +74,6 @@ class NotificationService {
 
     // Buat notification channels Android
     await _createAndroidChannels();
-
-    // Request permission
-    await requestPermission();
   }
 
   /// Request permission notifikasi (Android 13+ / iOS).
@@ -92,7 +89,17 @@ class NotificationService {
       granted = result ?? false;
 
       // Request exact alarm permission (Android 12+)
-      await androidPlugin.requestExactAlarmsPermission();
+      try {
+        final isExactPermitted =
+            await androidPlugin.canScheduleExactNotifications() ?? false;
+        if (!isExactPermitted) {
+          await androidPlugin.requestExactAlarmsPermission();
+        }
+      } on Object catch (e) {
+        debugPrint(
+          'NotificationService: requestExactAlarmsPermission failed: $e',
+        );
+      }
     }
 
     final iosPlugin = _plugin
@@ -100,12 +107,16 @@ class NotificationService {
           IOSFlutterLocalNotificationsPlugin
         >();
     if (iosPlugin != null) {
-      final result = await iosPlugin.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      granted = result ?? false;
+      try {
+        final result = await iosPlugin.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        granted = result ?? false;
+      } on Object catch (e) {
+        debugPrint('NotificationService: iOS requestPermissions failed: $e');
+      }
     }
 
     return granted;
@@ -128,6 +139,8 @@ class NotificationService {
           : 'Notifikasi adzan waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
+      groupKey: isSubuh ? 'adzan_subuh_group' : 'adzan_group',
+      audioAttributesUsage: AudioAttributesUsage.alarm,
       sound: RawResourceAndroidNotificationSound(
         isSubuh ? 'adzan_subuh' : 'adzan',
       ),
@@ -145,13 +158,22 @@ class NotificationService {
       iOS: iosDetails,
     );
 
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       scheduledTime,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -199,13 +221,22 @@ class NotificationService {
       iOS: iosDetails,
     );
 
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       scheduled,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -214,36 +245,58 @@ class NotificationService {
 
   /// Schedule notifikasi dengan [NotificationDetails] custom.
   /// Digunakan oleh scheduler yang butuh channel spesifik (misal imsak).
+  /// [matchDateTimeComponents] — null untuk one-shot, DateTimeComponents.time
+  /// untuk repeat harian.
   Future<void> scheduleNotificationRaw({
     required int id,
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
     required NotificationDetails details,
+    DateTimeComponents? matchDateTimeComponents = DateTimeComponents.time,
   }) async {
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       scheduledTime,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+      matchDateTimeComponents: matchDateTimeComponents,
     );
   }
 
   /// Cancel notifikasi berdasarkan [id].
   Future<void> cancelById(int id) => _plugin.cancel(id);
 
-  /// Cancel semua notifikasi shalat.
+  /// Cancel semua notifikasi (shalat, imsak, quran reminder, hafalan).
   Future<void> cancelAll() async {
+    // Shalat
     await _plugin.cancel(kNotifIdSubuh);
     await _plugin.cancel(kNotifIdDzuhur);
     await _plugin.cancel(kNotifIdAshar);
     await _plugin.cancel(kNotifIdMaghrib);
     await _plugin.cancel(kNotifIdIsya);
+    // Imsak & sahur
+    await _plugin.cancel(kNotifIdImsak);
+    await _plugin.cancel(kNotifIdSahur);
+    // Quran reminder
+    await _plugin.cancel(kNotifIdQuranReminder);
+    // Hafalan muraja'ah (ID range 20–133, satu per surat 1–114)
+    for (var i = 0; i < 114; i++) {
+      await _plugin.cancel(kNotifIdHafalanBase + i);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -256,6 +309,15 @@ class NotificationService {
           AndroidFlutterLocalNotificationsPlugin
         >();
     if (androidPlugin == null) return;
+
+    // Delete channel lama dulu agar sound bisa di-update.
+    // Android tidak mengizinkan update sound pada channel yang sudah ada.
+    await androidPlugin.deleteNotificationChannel(kAdzanChannelId);
+    await androidPlugin.deleteNotificationChannel(kAdzanSubuhChannelId);
+    await androidPlugin.deleteNotificationChannel(kQuranReminderChannelId);
+    await androidPlugin.deleteNotificationChannel(kImsakChannelId);
+    await androidPlugin.deleteNotificationChannel(kHafalanChannelId);
+    await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
 
     // Channel adzan biasa (Dzuhur, Ashar, Maghrib, Isya)
     await androidPlugin.createNotificationChannel(
@@ -318,9 +380,9 @@ class NotificationService {
       final tzName = DateTime.now().timeZoneName.toUpperCase();
 
       // Coba match dari offset dulu (paling reliable di Android)
-      if (offsetHours == 7) return 'Asia/Jakarta';   // WIB
-      if (offsetHours == 8) return 'Asia/Makassar';  // WITA
-      if (offsetHours == 9) return 'Asia/Jayapura';  // WIT
+      if (offsetHours == 7) return 'Asia/Jakarta'; // WIB
+      if (offsetHours == 8) return 'Asia/Makassar'; // WITA
+      if (offsetHours == 9) return 'Asia/Jayapura'; // WIT
 
       // Fallback: coba match dari nama timezone string
       if (tzName.contains('WIB') || tzName.contains('JAKARTA')) {

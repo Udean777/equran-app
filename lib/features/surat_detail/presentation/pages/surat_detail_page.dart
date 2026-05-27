@@ -1,27 +1,20 @@
 import 'dart:async';
 
-import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
-import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/viewport_detection_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_list_view.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/download_surat_sheet.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_app_bar.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_header.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/surat_nav_button.dart';
-import 'package:equran_app/features/tafsir/presentation/widgets/tafsir_bottom_sheet.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_card_view.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,13 +42,8 @@ class SuratDetailPage extends StatelessWidget {
             return cubit;
           },
         ),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<BookmarkCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
+        // BookmarkCubit dari root — pakai BlocProvider.value agar update realtime di home
+        BlocProvider.value(value: context.read<BookmarkCubit>()),
         BlocProvider(
           create: (_) {
             final cubit = getIt<CatatanAyatCubit>();
@@ -95,11 +83,8 @@ class _SuratDetailView extends StatefulWidget {
 }
 
 class _SuratDetailViewState extends State<_SuratDetailView> {
-  final _scrollController = ScrollController();
-  late final ViewportDetectionController _viewportController;
-  bool _hasScrolled = false;
+  CardStackController? _cardController;
   bool _autoScrollEnabled = true;
-  Timer? _saveDebouncer;
   SuratDetail? _currentDetail;
   BookmarkCubit? _bookmarkCubit;
   ReadingProgressCubit? _readingProgressCubit;
@@ -107,126 +92,89 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   @override
   void initState() {
     super.initState();
-    _viewportController = ViewportDetectionController(
-      onAyatRead: (suratNomor, ayatNomor) {
-        _readingProgressCubit?.bufferAyat(suratNomor, ayatNomor);
-      },
-    );
     unawaited(context.read<QuranStreakCubit>().recordRead());
     _bookmarkCubit = context.read<BookmarkCubit>();
     _readingProgressCubit = context.read<ReadingProgressCubit>();
-    if (widget.initialAyat != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_hasScrolled) {
-          _hasScrolled = true;
-          _scrollToAyat(widget.initialAyat!);
-        }
-      });
-    }
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _saveDebouncer?.cancel();
-    _viewportController.dispose();
+    _cardController?.removeListener(_onCardProgress);
+    _saveLastRead();
+    _cardController?.dispose();
     final readingCubit = _readingProgressCubit;
     if (readingCubit != null) {
       unawaited(readingCubit.flushBuffer());
     }
-    final detail = _currentDetail;
-    final cubit = _bookmarkCubit;
-    if (detail != null && cubit != null) {
-      final totalAyat = detail.ayatList.length;
-      final ayatNomor = _viewportController.keys.isNotEmpty
-          ? _viewportController.keys.keys.first
-          : (widget.initialAyat ?? 1);
-      final scrollPercent = totalAyat > 0
-          ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
-          : 0.0;
-      unawaited(
-        cubit.saveLastRead(
-          LastRead(
-            suratNomor: detail.info.nomor,
-            ayatNomor: ayatNomor,
-            namaLatin: detail.info.namaLatin,
-            readAt: DateTime.now(),
-            scrollPercent: scrollPercent,
-            totalAyat: totalAyat,
-          ),
-        ),
-      );
-    }
-    _scrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    _saveDebouncer?.cancel();
-    _saveDebouncer = Timer(const Duration(seconds: 1), _detectVisibleAyat);
-    if (mounted) {
-      final screenH = MediaQuery.of(context).size.height;
-      _viewportController.scheduleCheck(screenH);
-    }
-  }
-
-  void _detectVisibleAyat() {
-    if (!mounted) return;
+  void _onCardProgress() {
+    final controller = _cardController;
     final detail = _currentDetail;
-    if (detail == null) return;
+    if (controller == null || detail == null) return;
 
-    final screenH = MediaQuery.of(context).size.height;
-    int? bestAyat;
-    var bestDy = double.negativeInfinity;
-
-    for (final entry in _viewportController.keys.entries) {
-      final ctx = entry.value.currentContext;
-      if (ctx == null) continue;
-      final box = ctx.findRenderObject();
-      if (box == null || box is! RenderBox) continue;
-      final pos = box.localToGlobal(Offset.zero);
-      if (pos.dy <= screenH * 0.5 && pos.dy > bestDy) {
-        bestDy = pos.dy;
-        bestAyat = entry.key;
-      }
-    }
-
-    if (bestAyat != null) {
-      _saveLastRead(context, detail, bestAyat);
+    // Buffer ayat yang sedang dibaca ke ReadingProgressCubit
+    final ayatNomor = controller.currentAyatNomor;
+    if (ayatNomor > 0) {
+      _readingProgressCubit?.bufferAyat(detail.info.nomor, ayatNomor);
     }
   }
 
-  void _scrollToAyat(int ayatNomor) {
-    final key = _viewportController.keys[ayatNomor];
-    if (key?.currentContext != null) {
-      unawaited(
-        Scrollable.ensureVisible(
-          key!.currentContext!,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-          alignment: 0.1,
-        ),
-      );
-    }
-  }
+  void _saveLastRead() {
+    final controller = _cardController;
+    final detail = _currentDetail;
+    final cubit = _bookmarkCubit;
+    if (controller == null || detail == null || cubit == null) return;
 
-  void _saveLastRead(BuildContext context, SuratDetail detail, int ayatNomor) {
     final totalAyat = detail.ayatList.length;
+    final ayatNomor = controller.lastReadAyatNomor.clamp(1, totalAyat);
     final scrollPercent = totalAyat > 0
         ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
         : 0.0;
+    final maxScrollPercent = controller.maxProgress.clamp(0.0, 1.0);
+
     unawaited(
-      context.read<BookmarkCubit>().saveLastRead(
+      cubit.saveLastRead(
         LastRead(
           suratNomor: detail.info.nomor,
           ayatNomor: ayatNomor,
           namaLatin: detail.info.namaLatin,
           readAt: DateTime.now(),
           scrollPercent: scrollPercent,
+          maxScrollPercent: maxScrollPercent,
           totalAyat: totalAyat,
         ),
       ),
     );
+  }
+
+  void _initCardController(SuratDetail detail) {
+    if (_cardController != null) return;
+
+    // Prioritas initial index:
+    // 1. initialAyat dari route param (misal dari bookmark tap)
+    // 2. lastRead.ayatNomor dari BookmarkCubit (resume saat reload)
+    // 3. 0 (info card)
+    var initialIndex = 0;
+
+    if (widget.initialAyat != null) {
+      initialIndex = widget.initialAyat!.clamp(1, detail.ayatList.length);
+    } else {
+      final lastRead = context.read<BookmarkCubit>().state.mapOrNull(
+        success: (s) => s.lastRead,
+      );
+      if (lastRead != null && lastRead.suratNomor == detail.info.nomor) {
+        initialIndex = lastRead.ayatNomor.clamp(1, detail.ayatList.length);
+      }
+    }
+
+    _cardController = CardStackController(
+      totalAyat: detail.ayatList.length,
+      initialIndex: initialIndex,
+      onProgressUpdate: (_) {},
+    );
+    _cardController!.addListener(_onCardProgress);
   }
 
   @override
@@ -248,13 +196,14 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   }
 
   Widget _buildSuccess(BuildContext context, SuratDetail detail) {
-    final isFirstLoad = _currentDetail == null;
     _currentDetail = detail;
-    _viewportController.setSurat(detail.info.nomor);
+    final isFirstLoad = _cardController == null;
+    _initCardController(detail);
 
+    // Load audio download status + autoPlay — hanya sekali saat first load
     if (isFirstLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _detectVisibleAyat();
+        if (!mounted) return;
         final audioCubit = context.read<AudioCubit>();
         final qari = audioCubit.state.currentQari;
         unawaited(
@@ -279,94 +228,13 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
       });
     }
 
-    return BlocConsumer<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, next) =>
-          prev.currentAyat != next.currentAyat ||
-          prev.isPlaying != next.isPlaying ||
-          prev.isLoading != next.isLoading ||
-          prev.isPaused != next.isPaused ||
-          prev.currentQari != next.currentQari,
-      listenWhen: (prev, next) => prev.currentAyat != next.currentAyat,
-      listener: (context, audioState) {
-        final cubit = context.read<AudioCubit>();
-        if (_autoScrollEnabled &&
-            cubit.isPlaylistMode &&
-            audioState.currentAyat != null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _scrollToAyat(audioState.currentAyat!);
-          });
-        }
-      },
-      builder: (context, audioState) {
-        final qari = audioState.currentQari;
-
-        return Scaffold(
-          appBar: SuratDetailAppBar(
-            detail: detail,
-            autoScrollEnabled: _autoScrollEnabled,
-            onToggleAutoScroll: () =>
-                setState(() => _autoScrollEnabled = !_autoScrollEnabled),
-            onDownloadTap: () => _showDownloadSuratSheet(context, detail, qari),
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _showTafsirBottomSheet(context, widget.nomor),
-            icon: const Icon(Icons.menu_book_rounded),
-            label: const Text('Lihat Tafsir'),
-          ),
-          bottomNavigationBar: AudioPlayerBar(audioMap: detail.audioFull),
-          body: RefreshIndicator(
-            onRefresh: () async =>
-                context.read<SuratDetailCubit>().load(widget.nomor),
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: SuratInfoHeader(detail: detail),
-                ),
-                AyatListView(
-                  detail: detail,
-                  viewportController: _viewportController,
-                  onSaveLastRead: (d, ayatNomor) =>
-                      _saveLastRead(context, d, ayatNomor),
-                ),
-                SliverToBoxAdapter(
-                  child: SuratNavButton(
-                    suratSebelumnya: detail.suratSebelumnya,
-                    suratSelanjutnya: detail.suratSelanjutnya,
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 80)),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showTafsirBottomSheet(BuildContext context, int nomor) {
-    unawaited(
-      showAppBottomSheet<void>(
-        context,
-        builder: (_) => TafsirBottomSheet(nomor: nomor),
-      ),
-    );
-  }
-
-  void _showDownloadSuratSheet(
-    BuildContext context,
-    SuratDetail detail,
-    Qari qari,
-  ) {
-    unawaited(
-      showAppBottomSheet<void>(
-        context,
-        builder: (_) => DownloadSuratSheet(
-          detail: detail,
-          qari: qari,
-          downloadCubit: context.read<AudioDownloadCubit>(),
-        ),
-      ),
+    return SuratDetailCardView(
+      detail: detail,
+      controller: _cardController!,
+      autoScrollEnabled: _autoScrollEnabled,
+      onToggleAutoScroll: () =>
+          setState(() => _autoScrollEnabled = !_autoScrollEnabled),
+      suratNomor: widget.nomor,
     );
   }
 }
