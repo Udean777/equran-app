@@ -1,7 +1,6 @@
 import 'package:equran_app/core/router/app_routes.dart';
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/widgets/empty_state_widget.dart';
+import 'package:equran_app/core/widgets/widgets.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
@@ -30,8 +29,9 @@ class SuratListContent extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final allCount = surats.length;
-    final completedCount =
-        surats.where((s) => suratProgressMap[s.nomor] == 1.0).length;
+    final completedCount = surats
+        .where((s) => suratProgressMap[s.nomor] == 1.0)
+        .length;
     final incompleteCount = surats.where((s) {
       final progress = suratProgressMap[s.nomor];
       return progress != null && progress > 0.0 && progress < 1.0;
@@ -40,8 +40,7 @@ class SuratListContent extends StatelessWidget {
     final filteredSurats = surats.where((s) {
       final progress = suratProgressMap[s.nomor];
       final isCompleted = progress == 1.0;
-      final isInProgress =
-          progress != null && progress > 0.0 && progress < 1.0;
+      final isInProgress = progress != null && progress > 0.0 && progress < 1.0;
       return switch (activeFilter) {
         SuratCompletionFilter.all => true,
         SuratCompletionFilter.incomplete => isInProgress,
@@ -76,8 +75,7 @@ class SuratListContent extends StatelessWidget {
 
           if (filteredSurats.isEmpty) {
             return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: AppDimens.spaceXXL),
+              padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceXXL),
               child: EmptyStateWidget(
                 message: activeFilter == SuratCompletionFilter.completed
                     ? 'Belum ada surat yang selesai dibaca'
@@ -108,7 +106,7 @@ class SuratListContent extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Filter row — horizontal scrollable chips
+// Filter row — custom select selector
 // ---------------------------------------------------------------------------
 
 class _SuratFilterRow extends StatelessWidget {
@@ -130,99 +128,30 @@ class _SuratFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: [
-          _SuratChip(
-            label: 'Semua ($allCount)',
-            isActive: activeFilter == SuratCompletionFilter.all,
-            onTap: () => onFilterChanged(SuratCompletionFilter.all),
-            activeColor:
-                isDark ? AppColors.primaryLighter : AppColors.primary,
-            isDark: isDark,
-          ),
-          const SizedBox(width: AppDimens.spaceSM),
-          _SuratChip(
-            label: 'Sedang Dibaca ($incompleteCount)',
-            isActive: activeFilter == SuratCompletionFilter.incomplete,
-            onTap: () => onFilterChanged(SuratCompletionFilter.incomplete),
-            activeColor:
-                isDark ? AppColors.primaryLighter : AppColors.primary,
-            isDark: isDark,
-          ),
-          const SizedBox(width: AppDimens.spaceSM),
-          _SuratChip(
-            label: 'Selesai ($completedCount)',
-            isActive: activeFilter == SuratCompletionFilter.completed,
-            onTap: () => onFilterChanged(SuratCompletionFilter.completed),
-            activeColor: AppColors.gold,
-            isDark: isDark,
-          ),
-        ],
+    final statusOptions = [
+      AppSelectOption<SuratCompletionFilter>(
+        value: SuratCompletionFilter.all,
+        label: 'Semua ($allCount)',
+        icon: Icons.layers_rounded,
       ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Chip — styled filter chip untuk surat list
-// ---------------------------------------------------------------------------
-
-class _SuratChip extends StatelessWidget {
-  const _SuratChip({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-    required this.activeColor,
-    required this.isDark,
-  });
-
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-  final Color activeColor;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppDimens.spaceMD,
-          vertical: AppDimens.spaceSM,
-        ),
-        decoration: BoxDecoration(
-          color: isActive
-              ? activeColor
-              : (isDark
-                    ? AppColors.surfaceDarkVariant
-                    : AppColors.surfaceVariant),
-          borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-          border: Border.all(
-            color: isActive
-                ? activeColor
-                : (isDark ? AppColors.outlineDark : AppColors.outline),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive
-                ? (activeColor == AppColors.gold
-                      ? AppColors.onGold
-                      : Colors.white)
-                : (isDark
-                      ? AppColors.onSurfaceDark
-                      : AppColors.textSecondary),
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-            fontSize: 12,
-          ),
-        ),
+      AppSelectOption<SuratCompletionFilter>(
+        value: SuratCompletionFilter.incomplete,
+        label: 'Sedang Dibaca ($incompleteCount)',
+        icon: Icons.play_circle_outline_rounded,
       ),
+      AppSelectOption<SuratCompletionFilter>(
+        value: SuratCompletionFilter.completed,
+        label: 'Selesai ($completedCount)',
+        icon: Icons.check_circle_rounded,
+      ),
+    ];
+
+    return AppSelect<SuratCompletionFilter>(
+      title: 'Filter Status Membaca',
+      options: statusOptions,
+      selectedValue: activeFilter,
+      leadingIcon: Icons.filter_list_rounded,
+      onChanged: onFilterChanged,
     );
   }
 }
