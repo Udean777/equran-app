@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 class SwipeNavBar extends StatelessWidget {
   const SwipeNavBar({
     required this.controller,
+    this.onComplete,
     super.key,
   });
 
   final CardStackController controller;
+  final VoidCallback? onComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -113,9 +115,11 @@ class SwipeNavBar extends StatelessWidget {
 
               // Next button
               _NavButton(
-                icon: Icons.arrow_forward_ios_rounded,
-                onPressed: isLast ? null : controller.goNext,
-                color: isLast ? disabledColor : primaryColor,
+                icon: isLast ? Icons.check_rounded : Icons.arrow_forward_ios_rounded,
+                onPressed: isLast ? onComplete : controller.goNext,
+                color: isLast
+                    ? (isDark ? AppColors.goldLight : AppColors.goldDark)
+                    : primaryColor,
                 isDark: isDark,
               ),
             ],

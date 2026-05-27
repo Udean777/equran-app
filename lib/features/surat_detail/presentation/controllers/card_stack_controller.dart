@@ -9,11 +9,11 @@ class CardStackController extends ChangeNotifier {
     required int totalAyat,
     int initialIndex = 0,
     this.onProgressUpdate,
-  })  : _currentIndex = initialIndex.clamp(0, totalAyat),
-        _totalCards = totalAyat + 1, // +1 untuk info card
-        _maxReachedIndex = initialIndex.clamp(0, totalAyat);
+  })  : _currentIndex = initialIndex.clamp(0, totalAyat + 1),
+        _totalCards = totalAyat + 2, // +1 untuk info card, +1 untuk completion card
+        _maxReachedIndex = initialIndex.clamp(0, totalAyat + 1);
 
-  /// Total cards = totalAyat + 1 (info card)
+  /// Total cards = totalAyat + 2 (info card + completion card)
   final int _totalCards;
 
   /// Callback saat progress berubah (0.0–1.0)
@@ -27,12 +27,15 @@ class CardStackController extends ChangeNotifier {
 
   int get currentIndex => _currentIndex;
   int get totalCards => _totalCards;
-  int get totalAyat => _totalCards - 1;
+  int get totalAyat => _totalCards - 2; // -2 karena info & completion
   double get dragOffset => _dragOffset;
 
   /// Index ayat saat ini (0 = info card, 1+ = ayat)
-  int get currentAyatNomor =>
-      _currentIndex == 0 ? 0 : _currentIndex;
+  int get currentAyatNomor {
+    if (_currentIndex == 0) return 0;
+    if (_currentIndex > totalAyat) return totalAyat;
+    return _currentIndex;
+  }
 
   /// Progress 0.0–1.0 berdasarkan index tertinggi yang pernah dicapai
   double get maxProgress =>

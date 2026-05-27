@@ -16,6 +16,7 @@ import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
+import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/murajaah_reminder_card.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_delegate.dart';
@@ -49,8 +50,17 @@ class SuratListPage extends StatelessWidget {
   }
 }
 
-class _SuratListView extends StatelessWidget {
+enum SuratCompletionFilter { all, incomplete, completed }
+
+class _SuratListView extends StatefulWidget {
   const _SuratListView();
+
+  @override
+  State<_SuratListView> createState() => _SuratListViewState();
+}
+
+class _SuratListViewState extends State<_SuratListView> {
+  SuratCompletionFilter _activeFilter = SuratCompletionFilter.all;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +168,20 @@ class _SuratListView extends StatelessWidget {
                   hasScrollBody: false,
                   child: LoadingWidget(),
                 ),
-                SuratListSuccess() => _SuratListContent(state: state),
+                SuratListSuccess() => _SuratListContent(
+                  surats: state.filtered,
+                  suratProgressMap:
+                      context.watch<BookmarkCubit>().state.mapOrNull(
+                        success: (s) => s.suratProgressMap,
+                      ) ??
+                      const <int, double>{},
+                  activeFilter: _activeFilter,
+                  onFilterChanged: (filter) {
+                    setState(() {
+                      _activeFilter = filter;
+                    });
+                  },
+                ),
                 SuratListFailure(:final failure) => SliverFillRemaining(
                   hasScrollBody: false,
                   child: ErrorStateWidget(
@@ -258,26 +281,47 @@ class _SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
 // ── Surat list content ────────────────────────────────────────────────────────
 
 class _SuratListContent extends StatelessWidget {
-  const _SuratListContent({required this.state});
+  const _SuratListContent({
+    required this.surats,
+    required this.suratProgressMap,
+    required this.activeFilter,
+    required this.onFilterChanged,
+  });
 
-  final SuratListSuccess state;
+  final List<Surat> surats;
+  final Map<int, double> suratProgressMap;
+  final SuratCompletionFilter activeFilter;
+  final ValueChanged<SuratCompletionFilter> onFilterChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final surats = state.filtered;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (surats.isEmpty) {
-      return SliverFillRemaining(
-        hasScrollBody: false,
-        child: EmptyStateWidget(message: l10n.emptySearch),
-      );
-    }
+    // Hitung count dinamis berdasarkan pencarian
+    final allCount = surats.length;
+    final completedCount = surats
+        .where((s) => suratProgressMap[s.nomor] == 1.0)
+        .length;
+    final incompleteCount = surats.where((s) {
+      final progress = suratProgressMap[s.nomor];
+      return progress != null && progress > 0.0 && progress < 1.0;
+    }).length;
 
-    final suratProgressMap = context.watch<BookmarkCubit>().state.mapOrNull(
-          success: (s) => s.suratProgressMap,
-        ) ??
-        const <int, double>{};
+    // Filter list surah
+    final filteredSurats = surats.where((s) {
+      final progress = suratProgressMap[s.nomor];
+      final isCompleted = progress == 1.0;
+      final isInProgress = progress != null && progress > 0.0 && progress < 1.0;
+      return switch (activeFilter) {
+        SuratCompletionFilter.all => true,
+        SuratCompletionFilter.incomplete => isInProgress, // Sedang Dibaca
+        SuratCompletionFilter.completed => isCompleted,
+      };
+    }).toList();
+
+    // Jumlah item di list = chips row (indeks 0) + (empty state atau daftar surah)
+    final listLength = filteredSurats.isEmpty ? 2 : filteredSurats.length + 1;
 
     return SliverPadding(
       padding: const EdgeInsets.only(
@@ -286,9 +330,70 @@ class _SuratListContent extends StatelessWidget {
         bottom: AppDimens.spaceLG,
       ),
       sliver: SliverList.builder(
-        itemCount: surats.length,
-        itemBuilder: (_, i) {
-          final surat = surats[i];
+        itemCount: listLength,
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            // Horizontal scrollable filter chips
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppDimens.spaceMD),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: [
+                    _FilterChip(
+                      label: 'Semua',
+                      count: allCount,
+                      isActive: activeFilter == SuratCompletionFilter.all,
+                      onTap: () => onFilterChanged(SuratCompletionFilter.all),
+                      activeColor: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(width: 8),
+                    _FilterChip(
+                      label: 'Sedang Dibaca',
+                      count: incompleteCount,
+                      isActive:
+                          activeFilter == SuratCompletionFilter.incomplete,
+                      onTap: () =>
+                          onFilterChanged(SuratCompletionFilter.incomplete),
+                      activeColor: isDark
+                          ? AppColors.primaryLighter
+                          : AppColors.primary,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(width: 8),
+                    _FilterChip(
+                      label: 'Selesai',
+                      count: completedCount,
+                      isActive: activeFilter == SuratCompletionFilter.completed,
+                      onTap: () =>
+                          onFilterChanged(SuratCompletionFilter.completed),
+                      activeColor: AppColors.gold,
+                      isDark: isDark,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          if (filteredSurats.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceXXL),
+              child: EmptyStateWidget(
+                message: activeFilter == SuratCompletionFilter.completed
+                    ? 'Belum ada surat yang selesai dibaca'
+                    : (activeFilter == SuratCompletionFilter.incomplete
+                          ? 'Belum ada surat yang sedang dibaca'
+                          : l10n.emptySearch),
+              ),
+            );
+          }
+
+          final surat = filteredSurats[i - 1];
           final progress = suratProgressMap[surat.nomor];
           return SuratCard(
             key: ValueKey(surat.nomor),
@@ -299,6 +404,96 @@ class _SuratListContent extends StatelessWidget {
             scrollPercent: progress,
           );
         },
+      ),
+    );
+  }
+}
+
+// ── Filter Chip Widget ────────────────────────────────────────────────────────
+
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.count,
+    required this.isActive,
+    required this.onTap,
+    required this.activeColor,
+    required this.isDark,
+  });
+
+  final String label;
+  final int count;
+  final bool isActive;
+  final VoidCallback onTap;
+  final Color activeColor;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDimens.spaceMD,
+          vertical: AppDimens.spaceSM,
+        ),
+        decoration: BoxDecoration(
+          color: isActive
+              ? activeColor
+              : (isDark
+                    ? AppColors.surfaceDarkVariant
+                    : AppColors.surfaceVariant),
+          borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+          border: Border.all(
+            color: isActive
+                ? activeColor
+                : (isDark ? AppColors.outlineDark : AppColors.outline),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive
+                    ? (activeColor == AppColors.gold
+                          ? AppColors.onGold
+                          : Colors.white)
+                    : (isDark
+                          ? AppColors.onSurfaceDarkVariant
+                          : AppColors.textSecondary),
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: isActive
+                    ? Colors.black.withValues(alpha: 0.1)
+                    : (isDark
+                          ? AppColors.primaryDark.withValues(alpha: 0.3)
+                          : AppColors.primaryContainer.withValues(alpha: 0.6)),
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  color: isActive
+                      ? (activeColor == AppColors.gold
+                            ? AppColors.onGold
+                            : Colors.white)
+                      : (isDark ? AppColors.primaryLighter : AppColors.primary),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

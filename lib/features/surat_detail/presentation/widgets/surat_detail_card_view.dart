@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
@@ -10,11 +9,13 @@ import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.d
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/surat_completion_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_app_bar.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/swipe_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 /// Scaffold utama SuratDetailPage — card stack Tinder-style per ayat.
 class SuratDetailCardView extends StatefulWidget {
@@ -69,9 +70,20 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
 
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
     if (_isAnimating) return;
-    widget.controller.updateDrag(
-      widget.controller.dragOffset + details.delta.dx,
-    );
+    var newOffset = widget.controller.dragOffset + details.delta.dx;
+
+    // Begitu juga pada info card, berarti dia gabisa swipe ke kanan, karna gaada card sebelum dia
+    if (widget.controller.isFirst && newOffset > 0) {
+      newOffset = 0;
+    }
+
+    // Dan jika sudah mentok di card selesai membaca (completion card), berarti gabisa di swipe lagi ke kiri
+    if (widget.controller.isLast && newOffset < 0) {
+      // Kita beri rubber band effect (resistance) agar kerasa mental/mentok, batas max -60
+      newOffset = (widget.controller.dragOffset + details.delta.dx * 0.2).clamp(-60.0, 0.0);
+    }
+
+    widget.controller.updateDrag(newOffset);
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
@@ -85,9 +97,19 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     final ratio = offset / screenWidth;
 
     if (ratio < -threshold || velocity < -500) {
-      _animateOut(toLeft: true);
+      // Halaman selanjutnya (jika ada)
+      if (!widget.controller.isLast) {
+        _animateOut(toLeft: true);
+      } else {
+        _snapBack();
+      }
     } else if (ratio > threshold || velocity > 500) {
-      _animateOut(toLeft: false);
+      // Halaman sebelumnya (jika ada)
+      if (!widget.controller.isFirst) {
+        _animateOut(toLeft: false);
+      } else {
+        _snapBack();
+      }
     } else {
       _snapBack();
     }
@@ -95,7 +117,8 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
 
   void _animateOut({required bool toLeft}) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final target = toLeft ? -screenWidth * 1.5 : screenWidth * 1.5;
+    final step = screenWidth - AppDimens.pagePadding;
+    final target = toLeft ? -step : step;
 
     _isAnimating = true;
     _snapAnimation =
@@ -103,7 +126,7 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
           begin: widget.controller.dragOffset,
           end: target,
         ).animate(
-          CurvedAnimation(parent: _animController, curve: Curves.easeInCubic),
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
         );
 
     _animController.reset();
@@ -138,6 +161,10 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     );
   }
 
+  void _showSuccessDialog() {
+    context.go('/');
+  }
+
   @override
   Widget build(BuildContext context) {
     final detail = widget.detail;
@@ -162,7 +189,10 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
             children: [
               ListenableBuilder(
                 listenable: controller,
-                builder: (_, _) => SwipeNavBar(controller: controller),
+                builder: (_, _) => SwipeNavBar(
+                  controller: controller,
+                  onComplete: _showSuccessDialog,
+                ),
               ),
               AudioPlayerBar(audioMap: detail.audioFull),
             ],
@@ -199,7 +229,7 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
 }
 
 // ---------------------------------------------------------------------------
-// Card Stack — render 3 cards (current + 2 behind)
+// Side-by-Side Horizontal Card View
 // ---------------------------------------------------------------------------
 
 class _CardStack extends StatelessWidget {
@@ -218,55 +248,84 @@ class _CardStack extends StatelessWidget {
     final currentIndex = controller.currentIndex;
     final totalCards = controller.totalCards;
 
-    // Render max 3 cards: current + 2 behind
-    final cardCount = math.min(3, totalCards - currentIndex);
-
     return Stack(
+      clipBehavior: Clip.none,
       children: [
-        // Cards behind (index +2, +1) — rendered first (bottom of stack)
-        for (var i = cardCount - 1; i >= 1; i--)
-          _buildBehindCard(context, currentIndex + i, i),
+        // Previous card (left)
+        if (currentIndex > 0)
+          _buildSideCard(context, currentIndex - 1, isLeft: true),
 
-        // Current card (top of stack)
-        _buildCurrentCard(context, currentIndex),
+        // Next card (right)
+        if (currentIndex < totalCards - 1)
+          _buildSideCard(context, currentIndex + 1, isLeft: false),
+
+        // Current card (center)
+        _buildActiveCard(context, currentIndex),
       ],
     );
   }
 
-  Widget _buildCurrentCard(BuildContext context, int index) {
-    final rotationAngle = dragOffset / 1200;
+  Widget _buildActiveCard(BuildContext context, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
     final dragRatio = (dragOffset / screenWidth).clamp(-1.0, 1.0);
+    
+    // Tumble rotation: tilt as it moves
+    final rotationAngle = dragRatio * 0.3; // max ~17 degrees
+    
+    // Tumble scale: shrink slightly
+    final scale = 1.0 - dragRatio.abs() * 0.08;
+    
+    // Tumble opacity: fade slightly
+    final opacity = (1.0 - dragRatio.abs() * 0.4).clamp(0.0, 1.0);
+    
+    // Tumble translation: horizontal + slight downward drop
+    final translateY = dragRatio.abs() * 24.0;
 
     return Transform(
-      transform: Matrix4.translationValues(dragOffset, dragRatio.abs() * 8, 0)
+      transform: Matrix4.translationValues(dragOffset, translateY, 0)
         ..rotateZ(rotationAngle),
-      alignment: Alignment.bottomCenter,
-      child: _buildCard(context, index),
+      alignment: Alignment.center,
+      child: Transform.scale(
+        scale: scale,
+        child: Opacity(
+          opacity: opacity,
+          child: _buildCard(context, index),
+        ),
+      ),
     );
   }
 
-  Widget _buildBehindCard(BuildContext context, int index, int depth) {
-    // Cards behind: sedikit lebih kecil dan offset ke bawah
-    final scale = 1.0 - depth * 0.04;
-    final translateY = depth * 12.0;
-    // Saat drag, card belakang sedikit "naik" mendekati posisi aktif
-    final dragRatio =
-        (dragOffset.abs() / (MediaQuery.of(context).size.width * 0.5)).clamp(
-          0.0,
-          1.0,
-        );
-    final animatedScale = scale + (1.0 - scale) * dragRatio * 0.5;
-    final animatedTranslateY = translateY * (1 - dragRatio * 0.3);
+  Widget _buildSideCard(BuildContext context, int index, {required bool isLeft}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final step = screenWidth - AppDimens.pagePadding;
+    final baseOffset = isLeft ? -step : step;
+    final offset = baseOffset + dragOffset;
+    
+    // progress: 0.0 when fully centered, 1.0 when fully off-screen
+    final progress = (offset.abs() / step).clamp(0.0, 1.0);
+    final activeFactor = 1.0 - progress; // 1.0 when centered, 0.0 when off-screen
+
+    // Tumble rotation for side card: tilts when off-screen, upright when centered
+    final tiltSign = isLeft ? -1.0 : 1.0;
+    final rotationAngle = tiltSign * 0.2 * (1.0 - activeFactor); // ~11 degrees off-screen tilt
+
+    // Tumble scale: 0.92 when off-screen, 1.0 when centered
+    final scale = 0.92 + 0.08 * activeFactor;
+
+    // Tumble opacity: 0.6 when off-screen, 1.0 when centered
+    final opacity = (0.6 + 0.4 * activeFactor).clamp(0.0, 1.0);
+
+    // Tumble translation: horizontal + slight vertical position adjustment
+    final translateY = 20.0 * (1.0 - activeFactor);
 
     return Transform(
-      transform: Matrix4.translationValues(0, animatedTranslateY, 0),
-      alignment: Alignment.topCenter,
+      transform: Matrix4.translationValues(offset, translateY, 0)
+        ..rotateZ(rotationAngle),
+      alignment: Alignment.center,
       child: Transform.scale(
-        scale: animatedScale,
-        alignment: Alignment.topCenter,
+        scale: scale,
         child: Opacity(
-          opacity: 1.0 - depth * 0.15,
+          opacity: opacity,
           child: _buildCard(context, index),
         ),
       ),
@@ -274,57 +333,77 @@ class _CardStack extends StatelessWidget {
   }
 
   Widget _buildCard(BuildContext context, int index) {
+    Widget card;
     if (index == 0) {
-      return SuratInfoCard(detail: detail);
-    }
+      card = SuratInfoCard(detail: detail);
+    } else if (index == controller.totalCards - 1) {
+      card = SuratCompletionCard(
+        detail: detail,
+        onBackToHome: () {
+          context.go('/');
+        },
+        onRestart: () {
+          controller.jumpTo(0);
+        },
+      );
+    } else {
+      final ayatIndex = index - 1;
+      if (ayatIndex >= detail.ayatList.length) return const SizedBox.shrink();
 
-    final ayatIndex = index - 1;
-    if (ayatIndex >= detail.ayatList.length) return const SizedBox.shrink();
+      final ayat = detail.ayatList[ayatIndex];
 
-    final ayat = detail.ayatList[ayatIndex];
+      card = BlocBuilder<BookmarkCubit, BookmarkState>(
+        buildWhen: (prev, next) =>
+            prev.mapOrNull(success: (s) => s.bookmarks) !=
+            next.mapOrNull(success: (s) => s.bookmarks),
+        builder: (context, bookmarkState) {
+          final bookmarks =
+              bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
+          final isBookmarked = bookmarks.any(
+            (b) =>
+                b.suratNomor == detail.info.nomor &&
+                b.ayatNomor == ayat.nomorAyat,
+          );
 
-    return BlocBuilder<BookmarkCubit, BookmarkState>(
-      buildWhen: (prev, next) =>
-          prev.mapOrNull(success: (s) => s.bookmarks) !=
-          next.mapOrNull(success: (s) => s.bookmarks),
-      builder: (context, bookmarkState) {
-        final bookmarks =
-            bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
-        final isBookmarked = bookmarks.any(
-          (b) =>
-              b.suratNomor == detail.info.nomor &&
-              b.ayatNomor == ayat.nomorAyat,
-        );
-
-        return AyatSwipeCard(
-          ayat: ayat,
-          suratDetail: detail,
-          isBookmarked: isBookmarked,
-          onBookmarkToggle: () {
-            if (isBookmarked) {
-              unawaited(
-                context.read<BookmarkCubit>().removeBookmark(
-                  suratNomor: detail.info.nomor,
-                  ayatNomor: ayat.nomorAyat,
-                ),
-              );
-            } else {
-              unawaited(
-                context.read<BookmarkCubit>().addBookmark(
-                  Bookmark(
+          return AyatSwipeCard(
+            ayat: ayat,
+            suratDetail: detail,
+            isBookmarked: isBookmarked,
+            onBookmarkToggle: () {
+              if (isBookmarked) {
+                unawaited(
+                  context.read<BookmarkCubit>().removeBookmark(
                     suratNomor: detail.info.nomor,
                     ayatNomor: ayat.nomorAyat,
-                    namaLatin: detail.info.namaLatin,
-                    teksArab: ayat.teksArab,
-                    teksIndonesia: ayat.teksIndonesia,
-                    savedAt: DateTime.now(),
                   ),
-                ),
-              );
-            }
-          },
-        );
-      },
+                );
+              } else {
+                unawaited(
+                  context.read<BookmarkCubit>().addBookmark(
+                    Bookmark(
+                      suratNomor: detail.info.nomor,
+                      ayatNomor: ayat.nomorAyat,
+                      namaLatin: detail.info.namaLatin,
+                      teksArab: ayat.teksArab,
+                      teksIndonesia: ayat.teksIndonesia,
+                      savedAt: DateTime.now(),
+                    ),
+                  ),
+                );
+              }
+            },
+          );
+        },
+      );
+    }
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.65,
+        ),
+        child: card,
+      ),
     );
   }
 }
