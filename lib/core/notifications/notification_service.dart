@@ -56,7 +56,7 @@ class NotificationService {
     }
 
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+      'ic_notif',
     );
 
     const iosSettings = DarwinInitializationSettings(
@@ -92,7 +92,17 @@ class NotificationService {
       granted = result ?? false;
 
       // Request exact alarm permission (Android 12+)
-      await androidPlugin.requestExactAlarmsPermission();
+      try {
+        final isExactPermitted =
+            await androidPlugin.canScheduleExactNotifications() ?? false;
+        if (!isExactPermitted) {
+          await androidPlugin.requestExactAlarmsPermission();
+        }
+      } on Object catch (e) {
+        debugPrint(
+          'NotificationService: requestExactAlarmsPermission failed: $e',
+        );
+      }
     }
 
     final iosPlugin = _plugin
@@ -145,13 +155,22 @@ class NotificationService {
       iOS: iosDetails,
     );
 
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       scheduledTime,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -199,13 +218,22 @@ class NotificationService {
       iOS: iosDetails,
     );
 
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       scheduled,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -221,13 +249,22 @@ class NotificationService {
     required tz.TZDateTime scheduledTime,
     required NotificationDetails details,
   }) async {
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       scheduledTime,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -328,9 +365,9 @@ class NotificationService {
       final tzName = DateTime.now().timeZoneName.toUpperCase();
 
       // Coba match dari offset dulu (paling reliable di Android)
-      if (offsetHours == 7) return 'Asia/Jakarta';   // WIB
-      if (offsetHours == 8) return 'Asia/Makassar';  // WITA
-      if (offsetHours == 9) return 'Asia/Jayapura';  // WIT
+      if (offsetHours == 7) return 'Asia/Jakarta'; // WIB
+      if (offsetHours == 8) return 'Asia/Makassar'; // WITA
+      if (offsetHours == 9) return 'Asia/Jayapura'; // WIT
 
       // Fallback: coba match dari nama timezone string
       if (tzName.contains('WIB') || tzName.contains('JAKARTA')) {

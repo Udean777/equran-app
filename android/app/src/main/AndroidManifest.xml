@@ -20,7 +20,7 @@
     <application
         android:label="eQuran"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -66,6 +66,9 @@
         </receiver>
 
         <!-- flutter_local_notifications scheduled alarms -->
+        <meta-data
+            android:name="flutter_local_notifications.default_icon"
+            android:resource="@drawable/ic_notif" />
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="false" />

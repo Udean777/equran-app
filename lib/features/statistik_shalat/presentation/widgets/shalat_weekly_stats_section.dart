@@ -26,8 +26,9 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
@@ -39,8 +40,7 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color:
-                  AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -57,8 +57,7 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
                   height: 16,
                   decoration: BoxDecoration(
                     color: AppColors.gold,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.radiusFull),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
@@ -208,7 +207,7 @@ class _BarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100,
+      height: 110,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -254,9 +253,7 @@ class _Bar extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: isDark
-                  ? AppColors.onSurfaceDark
-                  : AppColors.textPrimary,
+              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
             ),
           ),
         const SizedBox(height: 2),
@@ -302,8 +299,7 @@ class _Bar extends StatelessWidget {
                     color: isDark
                         ? AppColors.outlineDark
                         : AppColors.outlineVariant,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.radiusSM),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                   ),
                 ),
             ],

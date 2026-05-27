@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
@@ -114,10 +115,8 @@ class _StatistikContent extends StatelessWidget {
     ShalatDayStats dayStats,
   ) {
     unawaited(
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
+      showAppBottomSheet<void>(
+        context,
         builder: (_) => BlocProvider.value(
           value: context.read<StatistikShalatCubit>(),
           child: ShalatDetailSheet(date: date, dayStats: dayStats),

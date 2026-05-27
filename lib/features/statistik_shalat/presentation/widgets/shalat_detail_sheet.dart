@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/cubit/statistik_shalat_cubit.dart';
 import 'package:flutter/material.dart';
@@ -26,14 +27,8 @@ class ShalatDetailSheet extends StatelessWidget {
     required DateTime date,
     required ShalatDayStats dayStats,
   }) {
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppDimens.radiusLG),
-        ),
-      ),
+    return showAppBottomSheet<void>(
+      context,
       builder: (sheetCtx) => BlocProvider.value(
         value: context.read<StatistikShalatCubit>(),
         child: ShalatDetailSheet(date: date, dayStats: dayStats),
