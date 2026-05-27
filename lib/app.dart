@@ -7,6 +7,7 @@ import 'package:equran_app/core/theme/app_theme.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/widgets/app_logo.dart';
+import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
@@ -54,36 +55,57 @@ class App extends StatelessWidget {
           },
         ),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, themeState) => BlocBuilder<LanguageCubit, LanguageState>(
-          builder: (context, langState) => MaterialApp.router(
-            title: 'eQuran',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-            themeMode: themeState.themeMode,
-            locale: langState.locale,
-            // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
-            // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
-            supportedLocales: const [
-              Locale('id'), // Indonesia (default)
-              Locale('en'), // English
-              Locale('ar'), // Arabic
-            ],
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            routerConfig: getIt<AppRouter>().router,
-            // DebugOverlay di dalam MaterialApp agar punya Directionality context
-            builder: (context, child) {
-              unawaited(AppLogo.precache(context));
-              return DebugOverlay(
-                child: child ?? const SizedBox.shrink(),
+      child: BlocListener<AudioCubit, AudioPlayerState>(
+        // Update lastRead realtime saat audio advance ke ayat baru di playlist mode.
+        // Hanya trigger saat currentAyat berubah dan audio sedang playlist mode.
+        listenWhen: (prev, curr) =>
+            prev.currentAyat != curr.currentAyat && curr.currentAyat != null,
+        listener: (context, state) {
+          final audioCubit = context.read<AudioCubit>();
+          if (!audioCubit.isPlaylistMode) return;
+          final suratNomor = audioCubit.playlistSuratNomor;
+          final suratName = audioCubit.playlistSuratName;
+          if (suratNomor == null || suratName == null) return;
+
+          context.read<BookmarkCubit>().updateLastReadFromAudio(
+                suratNomor: suratNomor,
+                namaLatin: suratName,
+                ayatNomor: state.currentAyat!,
+                totalAyat: audioCubit.playlist.length,
               );
-            },
+        },
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, themeState) =>
+              BlocBuilder<LanguageCubit, LanguageState>(
+            builder: (context, langState) => MaterialApp.router(
+              title: 'eQuran',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: themeState.themeMode,
+              locale: langState.locale,
+              // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
+              // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
+              supportedLocales: const [
+                Locale('id'), // Indonesia (default)
+                Locale('en'), // English
+                Locale('ar'), // Arabic
+              ],
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              routerConfig: getIt<AppRouter>().router,
+              // DebugOverlay di dalam MaterialApp agar punya Directionality context
+              builder: (context, child) {
+                unawaited(AppLogo.precache(context));
+                return DebugOverlay(
+                  child: child ?? const SizedBox.shrink(),
+                );
+              },
+            ),
           ),
         ),
       ),

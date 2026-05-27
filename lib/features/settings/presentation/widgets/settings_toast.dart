@@ -52,3 +52,46 @@ void showSettingsToast(
       ),
     );
 }
+
+/// Toast khusus untuk fitur yang terkunci — icon gembok, warna gold gelap.
+/// Durasi sedikit lebih lama (3 detik) agar user sempat membaca pesan.
+///
+/// Contoh:
+/// ```dart
+/// showLockedToast(context, 'Selesaikan membaca semua ayat untuk membuka fitur ini');
+/// ```
+void showLockedToast(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.lock_outline_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.goldDark,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+}

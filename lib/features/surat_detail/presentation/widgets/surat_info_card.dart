@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,17 @@ import 'package:flutter/material.dart';
 class SuratInfoCard extends StatelessWidget {
   const SuratInfoCard({
     required this.detail,
+    this.onStartAutoRead,
+    this.isCompleted = false,
     super.key,
   });
 
   final SuratDetail detail;
+  final VoidCallback? onStartAutoRead;
+
+  /// Apakah semua ayat surat ini sudah dibaca.
+  /// Jika false, tombol Baca Otomatis ditampilkan disabled dengan toast locked.
+  final bool isCompleted;
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +174,51 @@ class SuratInfoCard extends StatelessWidget {
                   ),
                 ],
 
+                const SizedBox(height: AppDimens.spaceMD),
+
+                // Tombol Baca Otomatis — selalu tampil, disabled jika belum selesai baca
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: isCompleted
+                        ? onStartAutoRead
+                        : () => showLockedToast(
+                              context,
+                              'Selesaikan membaca semua ayat terlebih dahulu untuk membuka Baca Otomatis',
+                            ),
+                    icon: Icon(
+                      isCompleted
+                          ? Icons.auto_stories_rounded
+                          : Icons.lock_outline_rounded,
+                      size: 18,
+                    ),
+                    label: const Text(
+                      'Baca Otomatis',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCompleted
+                          ? AppColors.gold
+                          : AppColors.gold.withValues(alpha: 0.35),
+                      foregroundColor: isCompleted
+                          ? AppColors.onGold
+                          : AppColors.onGold.withValues(alpha: 0.6),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppDimens.spaceSM + 2,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppDimens.radiusLG,
+                        ),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: AppDimens.spaceMD),
 
                 // Hint swipe

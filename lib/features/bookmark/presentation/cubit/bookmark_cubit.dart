@@ -146,4 +146,45 @@ class BookmarkCubit extends Cubit<BookmarkState> {
       },
     );
   }
+
+  /// Update lastRead realtime saat audio advance ke ayat baru di playlist mode.
+  /// Hanya update state in-memory — tidak persist ke Hive.
+  /// Persist terjadi saat user kembali ke detail page (dispose → _saveLastRead).
+  void updateLastReadFromAudio({
+    required int suratNomor,
+    required String namaLatin,
+    required int ayatNomor,
+    required int totalAyat,
+  }) {
+    if (isClosed) return;
+    state.mapOrNull(
+      success: (s) {
+        final scrollPercent = totalAyat > 0
+            ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
+            : 0.0;
+        final current = s.lastRead;
+        // maxScrollPercent hanya dipertahankan jika suratnya sama
+        // jika ganti surat, reset ke scrollPercent saat ini
+        final maxScrollPercent = current?.suratNomor == suratNomor
+            ? scrollPercent > (current?.maxScrollPercent ?? 0.0)
+                ? scrollPercent
+                : current!.maxScrollPercent
+            : scrollPercent;
+
+        emit(
+          s.copyWith(
+            lastRead: LastRead(
+              suratNomor: suratNomor,
+              ayatNomor: ayatNomor,
+              namaLatin: namaLatin,
+              readAt: current?.readAt ?? DateTime.now(),
+              scrollPercent: scrollPercent,
+              maxScrollPercent: maxScrollPercent,
+              totalAyat: totalAyat,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

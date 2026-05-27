@@ -12,22 +12,36 @@ class AudioPlayPauseButton extends StatelessWidget {
   const AudioPlayPauseButton({
     required this.state,
     required this.isDark,
+    this.size = 40.0,
+    this.iconSize = 22.0,
+    this.showLoadingIndicator = false,
     super.key,
   });
 
   final AudioPlayerState state;
   final bool isDark;
 
+  /// Diameter tombol play/pause.
+  final double size;
+
+  /// Ukuran icon di dalam tombol.
+  final double iconSize;
+
+  /// Jika true, tampilkan spinner saat isLoading.
+  /// Mini bar: false (tetap tampil play/pause).
+  /// Full player: true (boleh tampil spinner).
+  final bool showLoadingIndicator;
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
 
-    if (state.isLoading) {
+    if (showLoadingIndicator && state.isLoading) {
       return SizedBox(
-        width: 40,
-        height: 40,
+        width: size,
+        height: size,
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(size * 0.25),
           child: CircularProgressIndicator(
             strokeWidth: 2,
             color: primaryColor,
@@ -37,8 +51,8 @@ class AudioPlayPauseButton extends StatelessWidget {
     }
 
     return Container(
-      width: 40,
-      height: 40,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
         shape: BoxShape.circle,
@@ -48,7 +62,7 @@ class AudioPlayPauseButton extends StatelessWidget {
         icon: Icon(
           state.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
           color: primaryColor,
-          size: 22,
+          size: iconSize,
         ),
         onPressed: () {
           final cubit = context.read<AudioCubit>();
@@ -69,6 +83,8 @@ class AudioIconBtn extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onPressed,
+    this.iconSize = AppDimens.iconMD,
+    this.buttonSize = 36.0,
     super.key,
   });
 
@@ -76,13 +92,19 @@ class AudioIconBtn extends StatelessWidget {
   final Color color;
   final VoidCallback? onPressed;
 
+  /// Ukuran icon.
+  final double iconSize;
+
+  /// Ukuran minimum area tap (width & height).
+  final double buttonSize;
+
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(icon, color: color, size: AppDimens.iconMD),
+      icon: Icon(icon, color: color, size: iconSize),
       onPressed: onPressed,
       padding: const EdgeInsets.all(AppDimens.spaceXS),
-      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      constraints: BoxConstraints(minWidth: buttonSize, minHeight: buttonSize),
     );
   }
 }

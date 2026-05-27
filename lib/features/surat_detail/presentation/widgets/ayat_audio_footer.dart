@@ -70,7 +70,7 @@ class AyatAudioFooter extends StatelessWidget {
                   ),
                 )
               else
-                AyatAudioButton(
+                  AyatAudioButton(
                   isPlaying: isPlaying,
                   isLoading: isLoading,
                   primaryColor: primaryColor,
@@ -83,17 +83,17 @@ class AyatAudioFooter extends StatelessWidget {
                         unawaited(cubit.resume());
                       }
                     } else {
+                      // Single ayat mode — tidak playlist
                       unawaited(
-                        cubit.playFullSurat(
-                          ayatList: suratDetail.ayatList,
-                          startIndex: ayat.nomorAyat - 1,
+                        cubit.playOrToggle(
+                          url: audioUrl,
+                          ayatNomor: ayat.nomorAyat,
                           qari: qari,
                           suratNomor: suratDetail.info.nomor,
-                          suratName: suratDetail.info.namaLatin,
                           audioMap: suratDetail.audioFull,
                         ),
                       );
-                    }
+                                        }
                   },
                 ),
             ],

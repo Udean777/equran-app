@@ -7,6 +7,8 @@ import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
@@ -44,6 +46,7 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
   late AnimationController _animController;
   late Animation<double> _snapAnimation;
   bool _isAnimating = false;
+  bool _isAutoReadMode = false;
 
   @override
   void initState() {
@@ -56,6 +59,35 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
       CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
     );
     widget.controller.addListener(_onControllerChanged);
+
+    // Sync card ke audio aktif saat page pertama kali mount.
+    // Kasus: user tap LastReadCard dari luar saat audio playlist masih berjalan
+    // untuk surat yang sama — card harus langsung ke ayat audio terkini.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final audioCubit = context.read<AudioCubit>();
+      if (!audioCubit.isPlaylistMode) return;
+      if (audioCubit.playlistSuratNomor != widget.suratNomor) return;
+
+      final currentAyat = audioCubit.state.currentAyat;
+      if (currentAyat == null) return;
+
+      // Jump langsung tanpa animasi — ini initial sync, bukan advance
+      if (widget.controller.currentIndex != currentAyat) {
+        widget.controller.jumpTo(currentAyat);
+      }
+
+      // Aktifkan auto-read mode agar BlocListener mulai sync selanjutnya
+      setState(() => _isAutoReadMode = true);
+
+      // Re-register onPlaylistCompleted callback yang mungkin hilang
+      audioCubit.onPlaylistCompleted = () {
+        if (!mounted) return;
+        setState(() => _isAutoReadMode = false);
+        _animateToIndex(widget.controller.totalCards - 1);
+        audioCubit.onPlaylistCompleted = null;
+      };
+    });
   }
 
   @override
@@ -81,7 +113,10 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     // Dan jika sudah mentok di card selesai membaca (completion card), berarti gabisa di swipe lagi ke kiri
     if (widget.controller.isLast && newOffset < 0) {
       // Kita beri rubber band effect (resistance) agar kerasa mental/mentok, batas max -60
-      newOffset = (widget.controller.dragOffset + details.delta.dx * 0.2).clamp(-60.0, 0.0);
+      newOffset = (widget.controller.dragOffset + details.delta.dx * 0.2).clamp(
+        -60.0,
+        0.0,
+      );
     }
 
     widget.controller.updateDrag(newOffset);
@@ -100,6 +135,8 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     if (ratio < -threshold || velocity < -500) {
       // Halaman selanjutnya (jika ada)
       if (!widget.controller.isLast) {
+        // Matikan auto-read jika user swipe manual
+        if (_isAutoReadMode) _stopAutoRead();
         _animateOut(toLeft: true);
       } else {
         _snapBack();
@@ -107,6 +144,8 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     } else if (ratio > threshold || velocity > 500) {
       // Halaman sebelumnya (jika ada)
       if (!widget.controller.isFirst) {
+        // Matikan auto-read jika user swipe manual
+        if (_isAutoReadMode) _stopAutoRead();
         _animateOut(toLeft: false);
       } else {
         _snapBack();
@@ -143,6 +182,33 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     );
   }
 
+  /// Animasi tumble ke index tertentu — dipakai oleh auto-read mode.
+  /// Selalu animasi ke kiri (next card).
+  void _animateToIndex(int targetIndex) {
+    if (_isAnimating) return;
+    if (targetIndex <= widget.controller.currentIndex) return;
+
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final step = screenWidth - AppDimens.pagePadding;
+
+    _isAnimating = true;
+    _snapAnimation =
+        Tween<double>(
+          begin: 0,
+          end: -step,
+        ).animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
+
+    _animController.reset();
+    unawaited(
+      _animController.forward().then((_) {
+        _isAnimating = false;
+        widget.controller.jumpTo(targetIndex);
+      }),
+    );
+  }
+
   void _snapBack() {
     _isAnimating = true;
     _snapAnimation =
@@ -166,65 +232,165 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     context.go('/');
   }
 
+  void _startAutoRead() {
+    final detail = widget.detail;
+    final audioCubit = context.read<AudioCubit>();
+    final qari = audioCubit.state.currentQari;
+
+    setState(() => _isAutoReadMode = true);
+    showSettingsToast(context, 'Mode Baca Otomatis aktif');
+
+    // Pindah ke ayat pertama
+    widget.controller.goNext();
+
+    // Callback saat semua ayat selesai — animasi ke completion card
+    audioCubit.onPlaylistCompleted = () {
+      if (!mounted) return;
+      setState(() => _isAutoReadMode = false);
+      _animateToIndex(widget.controller.totalCards - 1);
+      // Bersihkan callback setelah dipakai
+      audioCubit.onPlaylistCompleted = null;
+    };
+
+    // Play full surat dari awal — AudioCubit handle auto-advance antar ayat
+    unawaited(
+      audioCubit.playFullSurat(
+        ayatList: detail.ayatList,
+        startIndex: 0,
+        qari: qari,
+        suratNomor: detail.info.nomor,
+        suratName: detail.info.namaLatin,
+        audioMap: detail.audioFull,
+      ),
+    );
+  }
+
+  void _stopAutoRead({bool showToast = true}) {
+    if (!_isAutoReadMode) return;
+    setState(() => _isAutoReadMode = false);
+    final audioCubit = context.read<AudioCubit>()
+      // Bersihkan callback agar tidak trigger saat stop manual
+      ..onPlaylistCompleted = null;
+    unawaited(audioCubit.stop());
+    if (showToast && mounted) {
+      showSettingsToast(
+        context,
+        'Mode Baca Otomatis dimatikan',
+        isSuccess: false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final detail = widget.detail;
     final controller = widget.controller;
 
-    return BlocBuilder<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, next) =>
-          prev.isPlaying != next.isPlaying ||
-          prev.isPaused != next.isPaused ||
-          prev.currentQari != next.currentQari,
-      builder: (context, audioState) {
-        return Scaffold(
-          appBar: SuratDetailAppBar(
-            detail: detail,
-            autoScrollEnabled: widget.autoScrollEnabled,
-            onToggleAutoScroll: widget.onToggleAutoScroll,
-            onDownloadTap: () {},
-            scrollProgress: controller.currentProgress,
-          ),
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListenableBuilder(
-                listenable: controller,
-                builder: (_, _) => SwipeNavBar(
-                  controller: controller,
-                  onComplete: _showSuccessDialog,
-                ),
-              ),
-              AudioPlayerBar(audioMap: detail.audioFull),
-            ],
-          ),
-          body: GestureDetector(
-            onHorizontalDragUpdate: _onHorizontalDragUpdate,
-            onHorizontalDragEnd: _onHorizontalDragEnd,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppDimens.pagePadding,
-                AppDimens.spaceMD,
-                AppDimens.pagePadding,
-                AppDimens.spaceMD,
-              ),
-              child: AnimatedBuilder(
-                animation: _animController,
-                builder: (context, _) {
-                  final offset = _isAnimating
-                      ? _snapAnimation.value
-                      : controller.dragOffset;
-                  return _CardStack(
-                    detail: detail,
-                    controller: controller,
-                    dragOffset: offset,
-                  );
-                },
-              ),
-            ),
-          ),
+    return BlocListener<AudioCubit, AudioPlayerState>(
+      // Sync card swipe dengan audio advance saat auto-read aktif
+      listenWhen: (prev, curr) =>
+          _isAutoReadMode && prev.currentAyat != curr.currentAyat,
+      listener: (context, audioState) {
+        if (!_isAutoReadMode) return;
+
+        // Sync card ke ayat yang sedang diplay dengan animasi tumble
+        final currentAyat = audioState.currentAyat;
+        if (currentAyat == null) return;
+        final targetIndex = currentAyat; // index 1-based = ayat nomor
+        if (widget.controller.currentIndex != targetIndex) {
+          _animateToIndex(targetIndex);
+        }
+
+        // Buffer ayat ke reading progress saat auto-read advance
+        context.read<ReadingProgressCubit>().bufferAyat(
+          widget.detail.info.nomor,
+          currentAyat,
         );
       },
+      child: BlocBuilder<AudioCubit, AudioPlayerState>(
+        buildWhen: (prev, next) =>
+            prev.isPlaying != next.isPlaying ||
+            prev.isPaused != next.isPaused ||
+            prev.isIdle != next.isIdle ||
+            prev.currentQari != next.currentQari,
+        builder: (context, audioState) {
+          final audioCubit = context.read<AudioCubit>();
+          final isCompletionCard = controller.isLast;
+
+          return Scaffold(
+            appBar: SuratDetailAppBar(
+              detail: detail,
+              autoScrollEnabled: widget.autoScrollEnabled,
+              onToggleAutoScroll: widget.onToggleAutoScroll,
+              onDownloadTap: () {},
+            ),
+            bottomNavigationBar: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListenableBuilder(
+                  listenable: controller,
+                  builder: (_, _) => SwipeNavBar(
+                    controller: controller,
+                    onComplete: _showSuccessDialog,
+                  ),
+                ),
+                // Sembunyikan AudioPlayerBar di completion card
+                if (!isCompletionCard)
+                  AudioPlayerBar(
+                    audioMap: detail.audioFull,
+                    // Stop: jika auto-read aktif, matikan mode juga
+                    onStop: _isAutoReadMode ? _stopAutoRead : null,
+                    // Prev: swipe card + audio prev
+                    onPrevCard:
+                        audioCubit.isPlaylistMode &&
+                            audioCubit.playlistIndex > 0
+                        ? () {
+                            unawaited(audioCubit.previousAyat());
+                            controller.goPrev();
+                          }
+                        : null,
+                    // Next: swipe card + audio next
+                    onNextCard:
+                        audioCubit.isPlaylistMode &&
+                            audioCubit.playlistIndex <
+                                audioCubit.playlist.length - 1
+                        ? () {
+                            unawaited(audioCubit.nextAyat());
+                            controller.goNext();
+                          }
+                        : null,
+                  ),
+              ],
+            ),
+            body: GestureDetector(
+              onHorizontalDragUpdate: _onHorizontalDragUpdate,
+              onHorizontalDragEnd: _onHorizontalDragEnd,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppDimens.pagePadding,
+                  AppDimens.spaceMD,
+                  AppDimens.pagePadding,
+                  AppDimens.spaceMD,
+                ),
+                child: AnimatedBuilder(
+                  animation: _animController,
+                  builder: (context, _) {
+                    final offset = _isAnimating
+                        ? _snapAnimation.value
+                        : controller.dragOffset;
+                    return _CardStack(
+                      detail: detail,
+                      controller: controller,
+                      dragOffset: offset,
+                      onStartAutoRead: _startAutoRead,
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -238,11 +404,13 @@ class _CardStack extends StatelessWidget {
     required this.detail,
     required this.controller,
     required this.dragOffset,
+    this.onStartAutoRead,
   });
 
   final SuratDetail detail;
   final CardStackController controller;
   final double dragOffset;
+  final VoidCallback? onStartAutoRead;
 
   @override
   Widget build(BuildContext context) {
@@ -269,16 +437,16 @@ class _CardStack extends StatelessWidget {
   Widget _buildActiveCard(BuildContext context, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
     final dragRatio = (dragOffset / screenWidth).clamp(-1.0, 1.0);
-    
+
     // Tumble rotation: tilt as it moves
     final rotationAngle = dragRatio * 0.3; // max ~17 degrees
-    
+
     // Tumble scale: shrink slightly
     final scale = 1.0 - dragRatio.abs() * 0.08;
-    
+
     // Tumble opacity: fade slightly
     final opacity = (1.0 - dragRatio.abs() * 0.4).clamp(0.0, 1.0);
-    
+
     // Tumble translation: horizontal + slight downward drop
     final translateY = dragRatio.abs() * 24.0;
 
@@ -296,19 +464,25 @@ class _CardStack extends StatelessWidget {
     );
   }
 
-  Widget _buildSideCard(BuildContext context, int index, {required bool isLeft}) {
+  Widget _buildSideCard(
+    BuildContext context,
+    int index, {
+    required bool isLeft,
+  }) {
     final screenWidth = MediaQuery.of(context).size.width;
     final step = screenWidth - AppDimens.pagePadding;
     final baseOffset = isLeft ? -step : step;
     final offset = baseOffset + dragOffset;
-    
+
     // progress: 0.0 when fully centered, 1.0 when fully off-screen
     final progress = (offset.abs() / step).clamp(0.0, 1.0);
-    final activeFactor = 1.0 - progress; // 1.0 when centered, 0.0 when off-screen
+    final activeFactor =
+        1.0 - progress; // 1.0 when centered, 0.0 when off-screen
 
     // Tumble rotation for side card: tilts when off-screen, upright when centered
     final tiltSign = isLeft ? -1.0 : 1.0;
-    final rotationAngle = tiltSign * 0.2 * (1.0 - activeFactor); // ~11 degrees off-screen tilt
+    final rotationAngle =
+        tiltSign * 0.2 * (1.0 - activeFactor); // ~11 degrees off-screen tilt
 
     // Tumble scale: 0.92 when off-screen, 1.0 when centered
     final scale = 0.92 + 0.08 * activeFactor;
@@ -336,12 +510,21 @@ class _CardStack extends StatelessWidget {
   Widget _buildCard(BuildContext context, int index) {
     Widget card;
     if (index == 0) {
-      card = SuratInfoCard(detail: detail);
+      final isCompleted = context.watch<BookmarkCubit>().state.mapOrNull(
+            success: (s) =>
+                s.suratProgressMap[detail.info.nomor] == 1.0,
+          ) ??
+          false;
+      card = SuratInfoCard(
+        detail: detail,
+        isCompleted: isCompleted,
+        onStartAutoRead: onStartAutoRead,
+      );
     } else if (index == controller.totalCards - 1) {
       card = SuratCompletionCard(
         detail: detail,
         onBackToHome: () {
-    context.go(AppRoutes.home);
+          context.go(AppRoutes.home);
         },
         onRestart: () {
           controller.jumpTo(0);
