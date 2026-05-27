@@ -125,12 +125,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String? errorMessage)?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String searchQuery,  int? selectedJuz,  Map<int, List<HafalanSurat>> juzGroups,  List<int> sortedJuz,  String? errorMessage)?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HafalanInitial() when initial != null:
 return initial();case HafalanLoading() when loading != null:
 return loading();case HafalanSuccess() when success != null:
-return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.errorMessage);case HafalanFailure() when failure != null:
+return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanFailure() when failure != null:
 return failure(_that.message);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String? errorMessage)  success,required TResult Function( String message)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String searchQuery,  int? selectedJuz,  Map<int, List<HafalanSurat>> juzGroups,  List<int> sortedJuz,  String? errorMessage)  success,required TResult Function( String message)  failure,}) {final _that = this;
 switch (_that) {
 case HafalanInitial():
 return initial();case HafalanLoading():
 return loading();case HafalanSuccess():
-return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.errorMessage);case HafalanFailure():
+return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanFailure():
 return failure(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return failure(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String? errorMessage)?  success,TResult? Function( String message)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String searchQuery,  int? selectedJuz,  Map<int, List<HafalanSurat>> juzGroups,  List<int> sortedJuz,  String? errorMessage)?  success,TResult? Function( String message)?  failure,}) {final _that = this;
 switch (_that) {
 case HafalanInitial() when initial != null:
 return initial();case HafalanLoading() when loading != null:
 return loading();case HafalanSuccess() when success != null:
-return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.errorMessage);case HafalanFailure() when failure != null:
+return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanFailure() when failure != null:
 return failure(_that.message);case _:
   return null;
 
@@ -251,7 +251,7 @@ String toString() {
 
 
 class HafalanSuccess implements HafalanState {
-  const HafalanSuccess({required final  List<HafalanSurat> hafalanList, required this.stats, final  List<HafalanSurat> mergedList = const [], final  List<HafalanSurat> filteredList = const [], this.filter = HafalanFilter.semua, this.errorMessage}): _hafalanList = hafalanList,_mergedList = mergedList,_filteredList = filteredList;
+  const HafalanSuccess({required final  List<HafalanSurat> hafalanList, required this.stats, final  List<HafalanSurat> mergedList = const [], final  List<HafalanSurat> filteredList = const [], this.filter = HafalanFilter.semua, this.searchQuery = '', this.selectedJuz = null, final  Map<int, List<HafalanSurat>> juzGroups = const {}, final  List<int> sortedJuz = const [], this.errorMessage}): _hafalanList = hafalanList,_mergedList = mergedList,_filteredList = filteredList,_juzGroups = juzGroups,_sortedJuz = sortedJuz;
   
 
  final  List<HafalanSurat> _hafalanList;
@@ -271,9 +271,9 @@ class HafalanSuccess implements HafalanState {
   return EqualUnmodifiableListView(_mergedList);
 }
 
-/// Filtered: mergedList setelah filter diterapkan. Dihitung di cubit.
+/// Filtered: mergedList setelah filter + search diterapkan. Dihitung di cubit.
  final  List<HafalanSurat> _filteredList;
-/// Filtered: mergedList setelah filter diterapkan. Dihitung di cubit.
+/// Filtered: mergedList setelah filter + search diterapkan. Dihitung di cubit.
 @JsonKey() List<HafalanSurat> get filteredList {
   if (_filteredList is EqualUnmodifiableListView) return _filteredList;
   // ignore: implicit_dynamic_type
@@ -281,6 +281,28 @@ class HafalanSuccess implements HafalanState {
 }
 
 @JsonKey() final  HafalanFilter filter;
+/// Search query untuk filter nama surat.
+@JsonKey() final  String searchQuery;
+/// Juz yang dipilih — null berarti semua juz.
+@JsonKey() final  int? selectedJuz;
+/// Grouped by juz — di-cache di state, dihitung di cubit.
+ final  Map<int, List<HafalanSurat>> _juzGroups;
+/// Grouped by juz — di-cache di state, dihitung di cubit.
+@JsonKey() Map<int, List<HafalanSurat>> get juzGroups {
+  if (_juzGroups is EqualUnmodifiableMapView) return _juzGroups;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_juzGroups);
+}
+
+/// Sorted juz keys dari juzGroups.
+ final  List<int> _sortedJuz;
+/// Sorted juz keys dari juzGroups.
+@JsonKey() List<int> get sortedJuz {
+  if (_sortedJuz is EqualUnmodifiableListView) return _sortedJuz;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sortedJuz);
+}
+
  final  String? errorMessage;
 
 /// Create a copy of HafalanState
@@ -293,16 +315,16 @@ $HafalanSuccessCopyWith<HafalanSuccess> get copyWith => _$HafalanSuccessCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanSuccess&&const DeepCollectionEquality().equals(other._hafalanList, _hafalanList)&&(identical(other.stats, stats) || other.stats == stats)&&const DeepCollectionEquality().equals(other._mergedList, _mergedList)&&const DeepCollectionEquality().equals(other._filteredList, _filteredList)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanSuccess&&const DeepCollectionEquality().equals(other._hafalanList, _hafalanList)&&(identical(other.stats, stats) || other.stats == stats)&&const DeepCollectionEquality().equals(other._mergedList, _mergedList)&&const DeepCollectionEquality().equals(other._filteredList, _filteredList)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.selectedJuz, selectedJuz) || other.selectedJuz == selectedJuz)&&const DeepCollectionEquality().equals(other._juzGroups, _juzGroups)&&const DeepCollectionEquality().equals(other._sortedJuz, _sortedJuz)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_hafalanList),stats,const DeepCollectionEquality().hash(_mergedList),const DeepCollectionEquality().hash(_filteredList),filter,errorMessage);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_hafalanList),stats,const DeepCollectionEquality().hash(_mergedList),const DeepCollectionEquality().hash(_filteredList),filter,searchQuery,selectedJuz,const DeepCollectionEquality().hash(_juzGroups),const DeepCollectionEquality().hash(_sortedJuz),errorMessage);
 
 @override
 String toString() {
-  return 'HafalanState.success(hafalanList: $hafalanList, stats: $stats, mergedList: $mergedList, filteredList: $filteredList, filter: $filter, errorMessage: $errorMessage)';
+  return 'HafalanState.success(hafalanList: $hafalanList, stats: $stats, mergedList: $mergedList, filteredList: $filteredList, filter: $filter, searchQuery: $searchQuery, selectedJuz: $selectedJuz, juzGroups: $juzGroups, sortedJuz: $sortedJuz, errorMessage: $errorMessage)';
 }
 
 
@@ -313,7 +335,7 @@ abstract mixin class $HafalanSuccessCopyWith<$Res> implements $HafalanStateCopyW
   factory $HafalanSuccessCopyWith(HafalanSuccess value, $Res Function(HafalanSuccess) _then) = _$HafalanSuccessCopyWithImpl;
 @useResult
 $Res call({
- List<HafalanSurat> hafalanList, HafalanStats stats, List<HafalanSurat> mergedList, List<HafalanSurat> filteredList, HafalanFilter filter, String? errorMessage
+ List<HafalanSurat> hafalanList, HafalanStats stats, List<HafalanSurat> mergedList, List<HafalanSurat> filteredList, HafalanFilter filter, String searchQuery, int? selectedJuz, Map<int, List<HafalanSurat>> juzGroups, List<int> sortedJuz, String? errorMessage
 });
 
 
@@ -330,14 +352,18 @@ class _$HafalanSuccessCopyWithImpl<$Res>
 
 /// Create a copy of HafalanState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? hafalanList = null,Object? stats = null,Object? mergedList = null,Object? filteredList = null,Object? filter = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? hafalanList = null,Object? stats = null,Object? mergedList = null,Object? filteredList = null,Object? filter = null,Object? searchQuery = null,Object? selectedJuz = freezed,Object? juzGroups = null,Object? sortedJuz = null,Object? errorMessage = freezed,}) {
   return _then(HafalanSuccess(
 hafalanList: null == hafalanList ? _self._hafalanList : hafalanList // ignore: cast_nullable_to_non_nullable
 as List<HafalanSurat>,stats: null == stats ? _self.stats : stats // ignore: cast_nullable_to_non_nullable
 as HafalanStats,mergedList: null == mergedList ? _self._mergedList : mergedList // ignore: cast_nullable_to_non_nullable
 as List<HafalanSurat>,filteredList: null == filteredList ? _self._filteredList : filteredList // ignore: cast_nullable_to_non_nullable
 as List<HafalanSurat>,filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
-as HafalanFilter,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as HafalanFilter,searchQuery: null == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
+as String,selectedJuz: freezed == selectedJuz ? _self.selectedJuz : selectedJuz // ignore: cast_nullable_to_non_nullable
+as int?,juzGroups: null == juzGroups ? _self._juzGroups : juzGroups // ignore: cast_nullable_to_non_nullable
+as Map<int, List<HafalanSurat>>,sortedJuz: null == sortedJuz ? _self._sortedJuz : sortedJuz // ignore: cast_nullable_to_non_nullable
+as List<int>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

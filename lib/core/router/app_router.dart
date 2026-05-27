@@ -22,6 +22,7 @@ import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart'
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/injection/injection_container.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -174,10 +175,11 @@ class AppRouter {
         path: AppRoutes.readingStats,
         builder: (context, state) => const ReadingStatsPage(),
       ),
-      GoRoute(
-        path: AppRoutes.notificationTest,
-        builder: (context, state) => const NotificationTestPage(),
-      ),
+      if (kDebugMode)
+        GoRoute(
+          path: AppRoutes.notificationTest,
+          builder: (context, state) => const NotificationTestPage(),
+        ),
     ],
   );
 }

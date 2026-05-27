@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_search_bar.dart';
@@ -8,7 +7,6 @@ import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
-import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_juz_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_stats_card.dart';
@@ -25,13 +23,7 @@ class HafalanPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
-        BlocProvider.value(
-          value: () {
-            final cubit = getIt<HafalanCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          }(),
-        ),
+        BlocProvider.value(value: getIt<HafalanCubit>()),
         BlocProvider(
           create: (_) {
             final cubit = getIt<SuratListCubit>();
@@ -52,93 +44,58 @@ class _HafalanView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const LuxuryAppBar(title: 'Hafalan Al-Quran'),
-      body: BlocBuilder<HafalanCubit, HafalanState>(
-        builder: (context, hafalanState) =>
-            BlocBuilder<SuratListCubit, SuratListState>(
-              builder: (context, suratState) {
-                if (hafalanState is HafalanLoading ||
-                    suratState is SuratListLoading) {
-                  return const LoadingWidget();
-                }
-                if (hafalanState is HafalanFailure) {
-                  return ErrorStateWidget(
-                    message: hafalanState.message,
-                    onRetry: context.read<HafalanCubit>().load,
-                  );
-                }
-                if (suratState is SuratListFailure) {
-                  return ErrorStateWidget(
-                    message: suratState.failure.toString(),
-                    onRetry: context.read<SuratListCubit>().retry,
-                  );
-                }
-                if (hafalanState is! HafalanSuccess ||
-                    suratState is! SuratListSuccess) {
-                  return const LoadingWidget();
-                }
-
-                // Sinkronisasikan semua surat ke HafalanCubit setelah frame dirender
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (context.mounted) {
-                    context.read<HafalanCubit>().setAllSurat(suratState.surats);
+      body: BlocListener<SuratListCubit, SuratListState>(
+        listenWhen: (prev, next) =>
+            prev is! SuratListSuccess && next is SuratListSuccess,
+        listener: (context, state) {
+          if (state is SuratListSuccess) {
+            context.read<HafalanCubit>().setAllSurat(state.surats);
+          }
+        },
+        child: BlocBuilder<HafalanCubit, HafalanState>(
+          builder: (context, hafalanState) =>
+              BlocBuilder<SuratListCubit, SuratListState>(
+                builder: (context, suratState) {
+                  if (hafalanState is HafalanLoading ||
+                      suratState is SuratListLoading) {
+                    return const LoadingWidget();
                   }
-                });
+                  if (hafalanState is HafalanFailure) {
+                    return ErrorStateWidget(
+                      message: hafalanState.message,
+                      onRetry: context.read<HafalanCubit>().load,
+                    );
+                  }
+                  if (suratState is SuratListFailure) {
+                    return ErrorStateWidget(
+                      message: suratState.failure.toString(),
+                      onRetry: context.read<SuratListCubit>().retry,
+                    );
+                  }
+                  if (hafalanState is! HafalanSuccess ||
+                      suratState is! SuratListSuccess) {
+                    return const LoadingWidget();
+                  }
 
-                return _HafalanContent(hafalanState: hafalanState);
-              },
-            ),
+                  return _HafalanContent(hafalanState: hafalanState);
+                },
+              ),
+        ),
       ),
     );
   }
 }
 
-class _HafalanContent extends StatefulWidget {
+class _HafalanContent extends StatelessWidget {
   const _HafalanContent({required this.hafalanState});
 
   final HafalanSuccess hafalanState;
 
   @override
-  State<_HafalanContent> createState() => _HafalanContentState();
-}
-
-class _HafalanContentState extends State<_HafalanContent> {
-  int? _selectedJuz;
-  String _searchQuery = '';
-
-  @override
   Widget build(BuildContext context) {
-    // Apply search filter locally
-    var listToDisplay = widget.hafalanState.filteredList;
-    if (_searchQuery.isNotEmpty) {
-      final query = _searchQuery.toLowerCase();
-      listToDisplay = listToDisplay.where((h) {
-        return h.namaLatin.toLowerCase().contains(query) ||
-            h.nama.toLowerCase().contains(query) ||
-            h.suratNomor.toString().contains(query);
-      }).toList();
-    }
-
-    // Group surahs by Juz
-    final juzGroups = <int, List<HafalanSurat>>{};
-    final hafalanMap = {for (final h in listToDisplay) h.suratNomor: h};
-
-    for (final entry in kJuzToSurahMapping.entries) {
-      final juzNomor = entry.key;
-      if (_selectedJuz != null && _selectedJuz != juzNomor) continue;
-
-      final suratsInJuz = <HafalanSurat>[];
-      for (final nomor in entry.value) {
-        final hafalan = hafalanMap[nomor];
-        if (hafalan != null) suratsInJuz.add(hafalan);
-      }
-
-      if (suratsInJuz.isNotEmpty) {
-        juzGroups[juzNomor] = suratsInJuz;
-      }
-    }
-
-    final sortedJuz = juzGroups.keys.toList()..sort();
-    final currentStatusFilter = widget.hafalanState.filter;
+    final juzGroups = hafalanState.juzGroups;
+    final sortedJuz = hafalanState.sortedJuz;
+    final currentStatusFilter = hafalanState.filter;
 
     return CustomScrollView(
       slivers: [
@@ -146,7 +103,7 @@ class _HafalanContentState extends State<_HafalanContent> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.only(bottom: AppDimens.spaceSM),
-            child: HafalanStatsCard(stats: widget.hafalanState.stats),
+            child: HafalanStatsCard(stats: hafalanState.stats),
           ),
         ),
 
@@ -154,18 +111,20 @@ class _HafalanContentState extends State<_HafalanContent> {
         SliverPersistentHeader(
           pinned: true,
           delegate: _HafalanFilterDelegate(
-            searchQuery: _searchQuery,
-            selectedJuz: _selectedJuz,
+            searchQuery: hafalanState.searchQuery,
+            selectedJuz: hafalanState.selectedJuz,
             currentStatusFilter: currentStatusFilter,
-            onSearchChanged: (val) => setState(() => _searchQuery = val),
-            onJuzSelected: (juz) => setState(() => _selectedJuz = juz),
+            onSearchChanged: (val) =>
+                context.read<HafalanCubit>().setSearchQuery(val),
+            onJuzSelected: (juz) =>
+                context.read<HafalanCubit>().setSelectedJuz(juz),
             onStatusFilterChanged: (filter) =>
                 context.read<HafalanCubit>().setFilter(filter),
           ),
         ),
 
         // Content
-        if (listToDisplay.isEmpty || sortedJuz.isEmpty)
+        if (sortedJuz.isEmpty)
           const SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
@@ -190,7 +149,7 @@ class _HafalanContentState extends State<_HafalanContent> {
                   juzNomor: juz,
                   hafalanList: juzGroups[juz]!,
                   progressJuz:
-                      widget.hafalanState.stats.progressPerJuz[juz] ?? 0.0,
+                      hafalanState.stats.progressPerJuz[juz] ?? 0.0,
                 );
               },
               childCount: sortedJuz.length + 1,

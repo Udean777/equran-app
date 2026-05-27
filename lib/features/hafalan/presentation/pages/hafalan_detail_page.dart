@@ -15,11 +15,11 @@ import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_ayat_gr
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_catatan_field.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_murajaah_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_progress_header.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_section_header.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_selector.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -36,24 +36,7 @@ class HafalanDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
-        BlocProvider.value(
-          value: () {
-            final cubit = getIt<HafalanCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          }(),
-        ),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<SuratListCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
-      ],
+    return HafalanProviders(
       child: _HafalanDetailView(suratNomor: suratNomor, juzNomor: juzNomor),
     );
   }

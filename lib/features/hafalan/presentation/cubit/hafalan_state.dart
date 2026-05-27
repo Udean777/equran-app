@@ -11,11 +11,25 @@ sealed class HafalanState with _$HafalanState {
   const factory HafalanState.success({
     required List<HafalanSurat> hafalanList,
     required HafalanStats stats,
+
     /// Merged: semua 114 surat + data hafalan yang ada. Dihitung di cubit.
     @Default([]) List<HafalanSurat> mergedList,
-    /// Filtered: mergedList setelah filter diterapkan. Dihitung di cubit.
+
+    /// Filtered: mergedList setelah filter + search diterapkan. Dihitung di cubit.
     @Default([]) List<HafalanSurat> filteredList,
     @Default(HafalanFilter.semua) HafalanFilter filter,
+
+    /// Search query untuk filter nama surat.
+    @Default('') String searchQuery,
+
+    /// Juz yang dipilih — null berarti semua juz.
+    @Default(null) int? selectedJuz,
+
+    /// Grouped by juz — di-cache di state, dihitung di cubit.
+    @Default({}) Map<int, List<HafalanSurat>> juzGroups,
+
+    /// Sorted juz keys dari juzGroups.
+    @Default([]) List<int> sortedJuz,
     String? errorMessage,
   }) = HafalanSuccess;
 

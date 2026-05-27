@@ -8,6 +8,7 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
@@ -29,25 +30,15 @@ class HafalanSetoranPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<SuratDetailCubit>();
-            unawaited(cubit.load(suratNomor));
-            return cubit;
-          },
-        ),
-        // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
-        BlocProvider.value(
-          value: () {
-            final cubit = getIt<HafalanCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          }(),
-        ),
-      ],
-      child: _HafalanSetoranView(suratNomor: suratNomor, juzNomor: juzNomor),
+    return HafalanProviders(
+      child: BlocProvider(
+        create: (_) {
+          final cubit = getIt<SuratDetailCubit>();
+          unawaited(cubit.load(suratNomor));
+          return cubit;
+        },
+        child: _HafalanSetoranView(suratNomor: suratNomor, juzNomor: juzNomor),
+      ),
     );
   }
 }

@@ -12,6 +12,7 @@ import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.d
 import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/controllers/auto_read_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_completion_card.dart';
@@ -47,8 +48,8 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _snapAnimation;
+  late AutoReadController _autoReadController;
   bool _isAnimating = false;
-  bool _isAutoReadMode = false;
 
   @override
   void initState() {
@@ -62,11 +63,21 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     );
     widget.controller.addListener(_onControllerChanged);
 
-    // Sync card ke audio aktif saat page pertama kali mount.
-    // Kasus: user tap LastReadCard dari luar saat audio playlist masih berjalan
-    // untuk surat yang sama — card harus langsung ke ayat audio terkini.
+    // AutoReadController dibuat di initState — AudioCubit sudah tersedia via context
+    // karena initState dipanggil setelah widget tree terbentuk.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+
+      _autoReadController = AutoReadController(
+        audioCubit: context.read<AudioCubit>(),
+        cardController: widget.controller,
+      );
+      _autoReadController.addListener(_onAutoReadChanged);
+      _isAutoReadControllerInitialized = true;
+
+      // Sync card ke audio aktif saat page pertama kali mount.
+      // Kasus: user tap LastReadCard dari luar saat audio playlist masih berjalan
+      // untuk surat yang sama — card harus langsung ke ayat audio terkini.
       final audioCubit = context.read<AudioCubit>();
       if (!audioCubit.isPlaylistMode) return;
       if (audioCubit.playlistSuratNomor != widget.suratNomor) return;
@@ -80,15 +91,12 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
       }
 
       // Aktifkan auto-read mode agar BlocListener mulai sync selanjutnya
-      setState(() => _isAutoReadMode = true);
-
-      // Re-register onPlaylistCompleted callback yang mungkin hilang
-      audioCubit.onPlaylistCompleted = () {
-        if (!mounted) return;
-        setState(() => _isAutoReadMode = false);
-        _animateToIndex(widget.controller.totalCards - 1);
-        audioCubit.onPlaylistCompleted = null;
-      };
+      _autoReadController.activateWithoutPlay(
+        onCompleted: () {
+          if (!mounted) return;
+          _animateToIndex(widget.controller.totalCards - 1);
+        },
+      );
     });
   }
 
@@ -96,7 +104,21 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
   void dispose() {
     _animController.dispose();
     widget.controller.removeListener(_onControllerChanged);
+    // AutoReadController mungkin belum diinisialisasi jika addPostFrameCallback
+    // belum dipanggil saat dispose (edge case unmount sangat cepat).
+    if (_isAutoReadControllerInitialized) {
+      _autoReadController
+        ..removeListener(_onAutoReadChanged)
+        ..dispose();
+    }
     super.dispose();
+  }
+
+  // Guard untuk edge case dispose sebelum postFrameCallback
+  bool _isAutoReadControllerInitialized = false;
+
+  void _onAutoReadChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onControllerChanged() {
@@ -138,7 +160,9 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
       // Halaman selanjutnya (jika ada)
       if (!widget.controller.isLast) {
         // Matikan auto-read jika user swipe manual
-        if (_isAutoReadMode) _stopAutoRead();
+        if (_isAutoReadControllerInitialized && _autoReadController.isActive) {
+          _stopAutoRead();
+        }
         _animateOut(toLeft: true);
       } else {
         _snapBack();
@@ -147,7 +171,9 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
       // Halaman sebelumnya (jika ada)
       if (!widget.controller.isFirst) {
         // Matikan auto-read jika user swipe manual
-        if (_isAutoReadMode) _stopAutoRead();
+        if (_isAutoReadControllerInitialized && _autoReadController.isActive) {
+          _stopAutoRead();
+        }
         _animateOut(toLeft: false);
       } else {
         _snapBack();
@@ -235,45 +261,15 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
   }
 
   void _startAutoRead() {
-    final detail = widget.detail;
-    final audioCubit = context.read<AudioCubit>();
-    final qari = audioCubit.state.currentQari;
-
-    setState(() => _isAutoReadMode = true);
+    if (!_isAutoReadControllerInitialized) return;
     showSettingsToast(context, 'Mode Baca Otomatis aktif');
-
-    // Pindah ke ayat pertama
-    widget.controller.goNext();
-
-    // Callback saat semua ayat selesai — animasi ke completion card
-    audioCubit.onPlaylistCompleted = () {
-      if (!mounted) return;
-      setState(() => _isAutoReadMode = false);
-      _animateToIndex(widget.controller.totalCards - 1);
-      // Bersihkan callback setelah dipakai
-      audioCubit.onPlaylistCompleted = null;
-    };
-
-    // Play full surat dari awal — AudioCubit handle auto-advance antar ayat
-    unawaited(
-      audioCubit.playFullSurat(
-        ayatList: detail.ayatList,
-        startIndex: 0,
-        qari: qari,
-        suratNomor: detail.info.nomor,
-        suratName: detail.info.namaLatin,
-        audioMap: detail.audioFull,
-      ),
-    );
+    _autoReadController.start(widget.detail);
   }
 
   void _stopAutoRead({bool showToast = true}) {
-    if (!_isAutoReadMode) return;
-    setState(() => _isAutoReadMode = false);
-    final audioCubit = context.read<AudioCubit>()
-      // Bersihkan callback agar tidak trigger saat stop manual
-      ..onPlaylistCompleted = null;
-    unawaited(audioCubit.stop());
+    if (!_isAutoReadControllerInitialized) return;
+    if (!_autoReadController.isActive) return;
+    _autoReadController.stop();
     if (showToast && mounted) {
       showSettingsToast(
         context,
@@ -287,13 +283,15 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
   Widget build(BuildContext context) {
     final detail = widget.detail;
     final controller = widget.controller;
+    final isAutoRead =
+        _isAutoReadControllerInitialized && _autoReadController.isActive;
 
     return BlocListener<AudioCubit, AudioPlayerState>(
       // Sync card swipe dengan audio advance saat auto-read aktif
       listenWhen: (prev, curr) =>
-          _isAutoReadMode && prev.currentAyat != curr.currentAyat,
+          isAutoRead && prev.currentAyat != curr.currentAyat,
       listener: (context, audioState) {
-        if (!_isAutoReadMode) return;
+        if (!isAutoRead) return;
 
         // Sync card ke ayat yang sedang diplay dengan animasi tumble
         final currentAyat = audioState.currentAyat;
@@ -345,7 +343,7 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
                   AudioPlayerBar(
                     audioMap: detail.audioFull,
                     // Stop: jika auto-read aktif, matikan mode juga
-                    onStop: _isAutoReadMode ? _stopAutoRead : null,
+                    onStop: isAutoRead ? _stopAutoRead : null,
                     // Prev: swipe card + audio prev
                     onPrevCard:
                         audioCubit.isPlaylistMode &&
@@ -426,113 +424,117 @@ class _SuratActionBar extends StatelessWidget {
         ? AppColors.outlineDark
         : AppColors.outlineVariant;
 
-    // Cek apakah semua ayat sudah dibaca (syarat unlock download)
-    final isCompleted =
-        context.watch<BookmarkCubit>().state.mapOrNull(
-          success: (s) => s.suratProgressMap[detail.info.nomor] == 1.0,
-        ) ??
-        false;
+    return BlocSelector<BookmarkCubit, BookmarkState, bool>(
+      selector: (state) =>
+          state.mapOrNull(
+            success: (s) => s.suratProgressMap[detail.info.nomor] == 1.0,
+          ) ??
+          false,
+      builder: (context, isCompleted) {
+        return BlocBuilder<AudioDownloadCubit, AudioDownloadState>(
+          builder: (context, downloadState) {
+            final downloadCubit = context.read<AudioDownloadCubit>();
 
-    return BlocBuilder<AudioDownloadCubit, AudioDownloadState>(
-      builder: (context, downloadState) {
-        final downloadCubit = context.read<AudioDownloadCubit>();
+            return BlocBuilder<AudioCubit, AudioPlayerState>(
+              buildWhen: (prev, next) => prev.currentQari != next.currentQari,
+              builder: (context, audioState) {
+                final audioCubit = context.read<AudioCubit>();
+                final qari = audioState.currentQari;
 
-        return BlocBuilder<AudioCubit, AudioPlayerState>(
-          buildWhen: (prev, next) => prev.currentQari != next.currentQari,
-          builder: (context, audioState) {
-            final audioCubit = context.read<AudioCubit>();
-            final qari = audioState.currentQari;
+                final isAllDownloaded = downloadState.isAllDownloaded(
+                  detail.info.nomor,
+                  detail.ayatList,
+                  qari.id,
+                );
 
-            final isAllDownloaded = downloadState.isAllDownloaded(
-              detail.info.nomor,
-              detail.ayatList,
-              qari.id,
-            );
-
-            return Container(
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                border: Border(top: BorderSide(color: borderColor)),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.spaceMD,
-                vertical: AppDimens.spaceXS + 2,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Hafalan
-                  _ActionPill(
-                    icon: Icons.auto_stories_outlined,
-                    label: 'Hafalan',
-                    isDark: isDark,
-                    onTap: () => unawaited(
-                      context.push(AppRoutes.hafalanSurat(detail.info.nomor)),
-                    ),
+                return Container(
+                  decoration: BoxDecoration(
+                    color: surfaceColor,
+                    border: Border(top: BorderSide(color: borderColor)),
                   ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.spaceMD,
+                    vertical: AppDimens.spaceXS + 2,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Hafalan
+                      _ActionPill(
+                        icon: Icons.auto_stories_outlined,
+                        label: 'Hafalan',
+                        isDark: isDark,
+                        onTap: () => unawaited(
+                          context.push(
+                            AppRoutes.hafalanSurat(detail.info.nomor),
+                          ),
+                        ),
+                      ),
 
-                  _ActionDivider(isDark: isDark),
+                      _ActionDivider(isDark: isDark),
 
-                  // Download — terkunci jika belum selesai baca semua ayat
-                  if (downloadState.isDownloadingSurat)
-                    _DownloadingPill(
-                      downloadState: downloadState,
-                      onCancel: downloadCubit.cancelSuratDownload,
-                      isDark: isDark,
-                    )
-                  else
-                    _ActionPill(
-                      icon: isAllDownloaded
-                          ? Icons.download_done_rounded
-                          : (isCompleted
-                                ? Icons.download_for_offline_outlined
-                                : Icons.lock_outline_rounded),
-                      label: isAllDownloaded ? 'Terunduh' : 'Unduh Audio',
-                      isDark: isDark,
-                      iconColor: isAllDownloaded
-                          ? AppColors.success
-                          : (isCompleted
-                                ? null
-                                : (isDark
-                                      ? AppColors.onSurfaceDarkVariant
-                                      : AppColors.textTertiary)),
-                      onTap: isAllDownloaded
-                          ? null
-                          : (isCompleted
-                                ? () => unawaited(
-                                    context
-                                        .read<AudioDownloadCubit>()
-                                        .downloadSurat(
-                                          suratNomor: detail.info.nomor,
-                                          ayatList: detail.ayatList,
-                                          qari: qari,
-                                        ),
-                                  )
-                                : () => showLockedToast(
-                                    context,
-                                    'Selesaikan membaca semua ayat terlebih dahulu untuk mengunduh surat',
-                                  )),
-                    ),
+                      // Download — terkunci jika belum selesai baca semua ayat
+                      if (downloadState.isDownloadingSurat)
+                        _DownloadingPill(
+                          downloadState: downloadState,
+                          onCancel: downloadCubit.cancelSuratDownload,
+                          isDark: isDark,
+                        )
+                      else
+                        _ActionPill(
+                          icon: isAllDownloaded
+                              ? Icons.download_done_rounded
+                              : (isCompleted
+                                    ? Icons.download_for_offline_outlined
+                                    : Icons.lock_outline_rounded),
+                          label: isAllDownloaded ? 'Terunduh' : 'Unduh Audio',
+                          isDark: isDark,
+                          iconColor: isAllDownloaded
+                              ? AppColors.success
+                              : (isCompleted
+                                    ? null
+                                    : (isDark
+                                          ? AppColors.onSurfaceDarkVariant
+                                          : AppColors.textTertiary)),
+                          onTap: isAllDownloaded
+                              ? null
+                              : (isCompleted
+                                    ? () => unawaited(
+                                        context
+                                            .read<AudioDownloadCubit>()
+                                            .downloadSurat(
+                                              suratNomor: detail.info.nomor,
+                                              ayatList: detail.ayatList,
+                                              qari: qari,
+                                            ),
+                                      )
+                                    : () => showLockedToast(
+                                        context,
+                                        'Selesaikan membaca semua ayat terlebih dahulu untuk mengunduh surat',
+                                      )),
+                        ),
 
-                  // Auto-scroll toggle — hanya muncul saat playlist aktif
-                  if (audioCubit.isPlaylistMode) ...[
-                    _ActionDivider(isDark: isDark),
-                    _ActionPill(
-                      icon: autoScrollEnabled
-                          ? Icons.gps_fixed_rounded
-                          : Icons.gps_not_fixed_rounded,
-                      label: autoScrollEnabled ? 'Sinkron' : 'Manual',
-                      isDark: isDark,
-                      iconColor: autoScrollEnabled
-                          ? (isDark
-                                ? AppColors.primaryLighter
-                                : AppColors.primary)
-                          : null,
-                      onTap: onToggleAutoScroll,
-                    ),
-                  ],
-                ],
-              ),
+                      // Auto-scroll toggle — hanya muncul saat playlist aktif
+                      if (audioCubit.isPlaylistMode) ...[
+                        _ActionDivider(isDark: isDark),
+                        _ActionPill(
+                          icon: autoScrollEnabled
+                              ? Icons.gps_fixed_rounded
+                              : Icons.gps_not_fixed_rounded,
+                          label: autoScrollEnabled ? 'Sinkron' : 'Manual',
+                          isDark: isDark,
+                          iconColor: autoScrollEnabled
+                              ? (isDark
+                                    ? AppColors.primaryLighter
+                                    : AppColors.primary)
+                              : null,
+                          onTap: onToggleAutoScroll,
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
             );
           },
         );
