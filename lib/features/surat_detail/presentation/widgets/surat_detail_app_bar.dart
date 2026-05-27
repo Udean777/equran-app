@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
@@ -113,7 +114,7 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       tooltip: 'Hafalan',
                       onPressed: () => unawaited(
-                        context.push('/hafalan/${detail.info.nomor}'),
+                        context.push(AppRoutes.hafalanSurat(detail.info.nomor)),
                       ),
                     ),
 

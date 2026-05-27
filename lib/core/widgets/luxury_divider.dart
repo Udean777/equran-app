@@ -34,7 +34,9 @@ class LuxuryDivider extends StatelessWidget {
 
 /// Divider gradient gold — dipakai sebagai pemisah dekoratif dalam card konten.
 ///
-/// Contoh:
+/// Mendukung orientasi horizontal (default) dan vertikal.
+///
+/// Contoh horizontal:
 /// ```dart
 /// Column(
 ///   children: [
@@ -44,17 +46,61 @@ class LuxuryDivider extends StatelessWidget {
 ///   ],
 /// )
 /// ```
+///
+/// Contoh vertikal:
+/// ```dart
+/// Row(
+///   children: [
+///     _InfoItem(...),
+///     GoldDivider.vertical(height: 48),
+///     _InfoItem(...),
+///   ],
+/// )
+/// ```
 class GoldDivider extends StatelessWidget {
+  /// Divider horizontal dengan margin vertikal opsional.
   const GoldDivider({
     this.verticalMargin = AppDimens.spaceSM,
     super.key,
-  });
+  }) : _axis = Axis.horizontal,
+       _size = null;
 
-  /// Margin vertikal di atas dan bawah divider. Default [AppDimens.spaceSM].
+  /// Divider vertikal dengan tinggi tertentu.
+  const GoldDivider.vertical({
+    required double height,
+    super.key,
+  }) : _axis = Axis.vertical,
+       _size = height,
+       verticalMargin = 0;
+
+  final Axis _axis;
+
+  /// Tinggi divider vertikal (hanya dipakai saat [_axis] == [Axis.vertical]).
+  final double? _size;
+
+  /// Margin vertikal di atas dan bawah divider horizontal.
   final double verticalMargin;
 
   @override
   Widget build(BuildContext context) {
+    if (_axis == Axis.vertical) {
+      return Container(
+        width: 1,
+        height: _size,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.gold.withValues(alpha: 0),
+              AppColors.gold.withValues(alpha: 0.4),
+              AppColors.gold.withValues(alpha: 0),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       height: 1,
       margin: EdgeInsets.symmetric(vertical: verticalMargin),

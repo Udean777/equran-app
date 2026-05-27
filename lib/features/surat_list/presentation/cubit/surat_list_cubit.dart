@@ -8,6 +8,9 @@ import 'package:injectable/injectable.dart';
 part 'surat_list_cubit.freezed.dart';
 part 'surat_list_state.dart';
 
+/// Filter tampilan daftar surat berdasarkan progress membaca.
+enum SuratCompletionFilter { all, incomplete, completed }
+
 @injectable
 class SuratListCubit extends Cubit<SuratListState> {
   SuratListCubit(this._getSuratList) : super(const SuratListState.initial());

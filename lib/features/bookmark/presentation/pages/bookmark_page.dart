@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
@@ -101,7 +102,7 @@ class _BookmarkContent extends StatelessWidget {
               child: BookmarkCard(
                 bookmark: b,
                 onTap: () => context.push(
-                  '/surat/${b.suratNomor}?initialAyat=${b.ayatNomor}',
+                  AppRoutes.suratWithAyat(b.suratNomor, b.ayatNomor),
                 ),
                 onRemove: () => context.read<BookmarkCubit>().removeBookmark(
                   suratNomor: b.suratNomor,
@@ -123,7 +124,7 @@ class _BookmarkContent extends StatelessWidget {
               ),
               child: DoaCard(
                 doa: d,
-                onTap: () => context.push('/doa/${d.id}'),
+                onTap: () => context.push(AppRoutes.doa(d.id)),
               ),
             ),
           ),

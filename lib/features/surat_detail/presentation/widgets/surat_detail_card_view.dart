@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
@@ -340,7 +341,7 @@ class _CardStack extends StatelessWidget {
       card = SuratCompletionCard(
         detail: detail,
         onBackToHome: () {
-          context.go('/');
+    context.go(AppRoutes.home);
         },
         onRestart: () {
           controller.jumpTo(0);

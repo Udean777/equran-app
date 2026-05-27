@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -88,18 +89,7 @@ class SettingsAboutSection extends StatelessWidget {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.gold.withValues(alpha: 0),
-                    AppColors.gold.withValues(alpha: 0.3),
-                    AppColors.gold.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
+            const GoldDivider(verticalMargin: 0),
 
             const SizedBox(height: AppDimens.spaceMD),
 

@@ -27,6 +27,7 @@ import 'package:equran_app/core/notifications/shalat_checklist_reminder_schedule
     as _i1057;
 import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart'
     as _i804;
+import 'package:equran_app/core/router/app_router.dart' as _i222;
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart' as _i205;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
@@ -340,6 +341,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
       () => notificationModule.flutterLocalNotificationsPlugin,
     );
+    gh.lazySingleton<_i222.AppRouter>(() => _i222.AppRouter());
     gh.lazySingleton<_i372.GetAvailableQari>(
       () => const _i372.GetAvailableQari(),
     );

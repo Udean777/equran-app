@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
@@ -65,8 +66,9 @@ class _HafalanDetailView extends StatelessWidget {
           return const Scaffold(body: LoadingWidget());
         }
 
-        final suratMatches =
-            suratState.surats.where((s) => s.nomor == suratNomor);
+        final suratMatches = suratState.surats.where(
+          (s) => s.nomor == suratNomor,
+        );
         if (suratMatches.isEmpty) {
           return const Scaffold(
             body: EmptyStateWidget(message: 'Surat tidak ditemukan.'),
@@ -106,8 +108,9 @@ class _HafalanDetailScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ayatHafal = hafalan?.ayatHafal ?? [];
-    final progress =
-        surat.jumlahAyat > 0 ? ayatHafal.length / surat.jumlahAyat : 0.0;
+    final progress = surat.jumlahAyat > 0
+        ? ayatHafal.length / surat.jumlahAyat
+        : 0.0;
     final persen = (progress * 100).toStringAsFixed(0);
     final status = hafalan?.status ?? HafalanStatus.belum;
 
@@ -199,7 +202,7 @@ class _HafalanDetailScaffold extends StatelessWidget {
                 label: 'Mulai Setoran',
                 icon: Icons.play_arrow_rounded,
                 onTap: () =>
-                    context.push('/hafalan/${surat.nomor}/setoran'),
+                    context.push(AppRoutes.hafalanSetoranSurat(surat.nomor)),
               ),
             ),
 

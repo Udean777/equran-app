@@ -16,4 +16,10 @@ void main() async {
   // Fire-and-forget — tidak block UI.
   unawaited(getIt<ShalatNotifCubit>().initAndSchedule());
   runApp(const App());
+
+  // Minta izin notifikasi secara aman setelah frame pertama dirender.
+  // Ini krusial bagi iOS agar dialog izin dapat muncul (tidak terblokir OS).
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(getIt<NotificationService>().requestPermission());
+  });
 }

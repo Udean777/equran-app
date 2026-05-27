@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/streak_badge.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +49,7 @@ class AppDrawer extends StatelessWidget {
                   label: l10n.imsakiyahNav,
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/imsakiyah'));
+                    unawaited(context.push(AppRoutes.imsakiyah));
                   },
                 ),
                 _DrawerItem(
@@ -56,7 +58,7 @@ class AppDrawer extends StatelessWidget {
                   label: 'Hafalan Quran',
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/hafalan'));
+                    unawaited(context.push(AppRoutes.hafalan));
                   },
                 ),
                 _DrawerItem(
@@ -65,7 +67,7 @@ class AppDrawer extends StatelessWidget {
                   label: 'Doa Harian',
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/doa-harian'));
+                    unawaited(context.push(AppRoutes.doaHarian));
                   },
                 ),
 
@@ -77,7 +79,7 @@ class AppDrawer extends StatelessWidget {
                   label: l10n.bookmarkNav,
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/bookmark'));
+                    unawaited(context.push(AppRoutes.bookmark));
                   },
                 ),
                 _DrawerItem(
@@ -86,7 +88,7 @@ class AppDrawer extends StatelessWidget {
                   label: 'Catatan Saya',
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/catatan'));
+                    unawaited(context.push(AppRoutes.catatan));
                   },
                 ),
                 _DrawerItem(
@@ -95,7 +97,7 @@ class AppDrawer extends StatelessWidget {
                   label: 'Statistik Baca',
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/reading-stats'));
+                    unawaited(context.push(AppRoutes.readingStats));
                   },
                 ),
                 _DrawerItem(
@@ -104,7 +106,7 @@ class AppDrawer extends StatelessWidget {
                   label: 'Statistik Shalat',
                   onTap: () {
                     Navigator.pop(context);
-                    unawaited(context.push('/statistik-shalat'));
+                    unawaited(context.push(AppRoutes.statistikShalat));
                   },
                 ),
 
@@ -125,7 +127,7 @@ class AppDrawer extends StatelessWidget {
                   label: 'Pengaturan',
                   onTap: () async {
                     Navigator.pop(context);
-                    await context.push('/settings');
+                    await context.push(AppRoutes.settings);
                   },
                 ),
               ],
@@ -238,55 +240,12 @@ class _DrawerHeader extends StatelessWidget {
               BlocBuilder<QuranStreakCubit, int>(
                 builder: (context, streak) {
                   if (streak == 0) return const SizedBox.shrink();
-                  return _StreakChip(streak: streak);
+                  return StreakBadge(streak: streak);
                 },
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StreakChip extends StatelessWidget {
-  const _StreakChip({required this.streak});
-
-  final int streak;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceSM + 2,
-        vertical: AppDimens.spaceXS,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.gold.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-        border: Border.all(
-          color: AppColors.gold.withValues(alpha: 0.4),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.local_fire_department_rounded,
-            color: Colors.orange,
-            size: 13,
-          ),
-          const SizedBox(width: AppDimens.spaceXS),
-          Text(
-            '$streak hari berturut-turut',
-            style: const TextStyle(
-              color: AppColors.onPrimary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-            ),
-          ),
-        ],
       ),
     );
   }

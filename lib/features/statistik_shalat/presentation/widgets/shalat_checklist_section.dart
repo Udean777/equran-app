@@ -2,6 +2,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/widgets/shalat_status_buttons.dart';
 import 'package:flutter/material.dart';
 
 /// Checklist 5 waktu shalat untuk hari ini.
@@ -180,7 +181,7 @@ class _ShalatRow extends StatelessWidget {
             ),
           ),
           // Status buttons
-          _StatusButtons(
+          ShalatStatusButtons(
             currentStatus: currentStatus,
             onStatusChanged: onStatusChanged,
           ),
@@ -220,110 +221,4 @@ class _ShalatRow extends StatelessWidget {
     WaktuShalat.maghrib => Icons.nights_stay_rounded,
     WaktuShalat.isya => Icons.dark_mode_rounded,
   };
-}
-
-class _StatusButtons extends StatelessWidget {
-  const _StatusButtons({
-    required this.currentStatus,
-    required this.onStatusChanged,
-  });
-
-  final ShalatStatus currentStatus;
-  final void Function(ShalatStatus status) onStatusChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _StatusChip(
-          label: '✓',
-          tooltip: 'Tepat Waktu',
-          isSelected: currentStatus == ShalatStatus.tepatWaktu,
-          selectedColor: AppColors.success,
-          onTap: () => onStatusChanged(
-            currentStatus == ShalatStatus.tepatWaktu
-                ? ShalatStatus.belumDicatat
-                : ShalatStatus.tepatWaktu,
-          ),
-        ),
-        const SizedBox(width: AppDimens.spaceXS),
-        _StatusChip(
-          label: 'Q',
-          tooltip: 'Qadha',
-          isSelected: currentStatus == ShalatStatus.qadha,
-          selectedColor: AppColors.warning,
-          onTap: () => onStatusChanged(
-            currentStatus == ShalatStatus.qadha
-                ? ShalatStatus.belumDicatat
-                : ShalatStatus.qadha,
-          ),
-        ),
-        const SizedBox(width: AppDimens.spaceXS),
-        _StatusChip(
-          label: '✗',
-          tooltip: 'Tidak Shalat',
-          isSelected: currentStatus == ShalatStatus.tidakShalat,
-          selectedColor: AppColors.error,
-          onTap: () => onStatusChanged(
-            currentStatus == ShalatStatus.tidakShalat
-                ? ShalatStatus.belumDicatat
-                : ShalatStatus.tidakShalat,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-    required this.tooltip,
-    required this.isSelected,
-    required this.selectedColor,
-    required this.onTap,
-  });
-
-  final String label;
-  final String tooltip;
-  final bool isSelected;
-  final Color selectedColor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? selectedColor
-                : selectedColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-            border: Border.all(
-              color: isSelected
-                  ? selectedColor
-                  : selectedColor.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : selectedColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

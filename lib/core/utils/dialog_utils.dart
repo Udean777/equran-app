@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 
 /// Menampilkan dialog konfirmasi dengan luxury styling yang konsisten.
@@ -203,30 +204,13 @@ class _LuxurySuccessReadDialog extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceXL),
           
           // Action button - Back to main
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // close dialog
-                onBackToHome();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? AppColors.primaryLighter : AppColors.primary,
-                foregroundColor: isDark ? Colors.black : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Kembali ke Halaman Utama',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
+          GradientButton(
+            label: 'Kembali ke Halaman Utama',
+            icon: Icons.home_rounded,
+            onTap: () {
+              Navigator.of(context).pop(); // close dialog
+              onBackToHome();
+            },
           ),
         ],
       ),

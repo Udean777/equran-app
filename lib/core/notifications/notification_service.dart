@@ -74,9 +74,6 @@ class NotificationService {
 
     // Buat notification channels Android
     await _createAndroidChannels();
-
-    // Request permission
-    await requestPermission();
   }
 
   /// Request permission notifikasi (Android 13+ / iOS).
@@ -110,12 +107,16 @@ class NotificationService {
           IOSFlutterLocalNotificationsPlugin
         >();
     if (iosPlugin != null) {
-      final result = await iosPlugin.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      granted = result ?? false;
+      try {
+        final result = await iosPlugin.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        granted = result ?? false;
+      } on Object catch (e) {
+        debugPrint('NotificationService: iOS requestPermissions failed: $e');
+      }
     }
 
     return granted;

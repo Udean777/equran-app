@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
@@ -173,7 +174,7 @@ class _DoaListContent extends StatelessWidget {
         itemBuilder: (_, i) => DoaCard(
           key: ValueKey(doaList[i].id),
           doa: doaList[i],
-          onTap: () => context.push('/doa/${doaList[i].id}'),
+          onTap: () => context.push(AppRoutes.doa(doaList[i].id)),
         ),
       ),
     );

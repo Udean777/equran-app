@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
@@ -42,7 +43,7 @@ class _TasbihView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.history_rounded),
             tooltip: 'Riwayat',
-            onPressed: () => context.push('/tasbih/history'),
+            onPressed: () => context.push(AppRoutes.tasbihHistory),
           ),
         ],
       ),

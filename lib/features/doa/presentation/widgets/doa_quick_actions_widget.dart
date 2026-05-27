@@ -1,3 +1,4 @@
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
@@ -153,7 +154,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
                         child: _DoaActionCard(
                           doa: doa1,
                           isDark: isDark,
-                          onTap: () => context.push('/doa/${doa1.id}'),
+                          onTap: () => context.push(AppRoutes.doa(doa1.id)),
                         ),
                       ),
                     if (doa1 != null && doa2 != null)
@@ -163,7 +164,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
                         child: _DoaActionCard(
                           doa: doa2,
                           isDark: isDark,
-                          onTap: () => context.push('/doa/${doa2.id}'),
+                          onTap: () => context.push(AppRoutes.doa(doa2.id)),
                         ),
                       ),
                   ],

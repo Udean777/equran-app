@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/tafsir/domain/entities/tafsir_surat.dart';
 import 'package:flutter/material.dart';
 
@@ -51,7 +52,7 @@ class TafsirAyatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppDimens.spaceSM),
-          const Divider(),
+          const LuxuryDivider(),
         ],
       ),
     );

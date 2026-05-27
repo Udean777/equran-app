@@ -94,7 +94,7 @@ class _ImsakiyahView extends StatelessWidget {
         context,
         builder: (_) => BlocProvider.value(
           value: context.read<ImsakiyahCubit>(),
-          child: const LocationSelectorSheet(),
+          child: const ImsakiyahLocationSelectorSheet(),
         ),
       ),
     );
@@ -125,7 +125,7 @@ class _ImsakiyahContent extends StatelessWidget {
               context,
               builder: (_) => BlocProvider.value(
                 value: context.read<ImsakiyahCubit>(),
-                child: const LocationSelectorSheet(),
+                child: const ImsakiyahLocationSelectorSheet(),
               ),
             ),
           ),

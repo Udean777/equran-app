@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_preset.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:flutter/material.dart';
@@ -55,62 +56,101 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
 
               const SizedBox(height: AppDimens.spaceSM),
 
-              // Preset list
               ...TasbihPreset.defaults.map((preset) {
                 final isSelected = state.selectedPreset.id == preset.id;
-                return ListTile(
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.primary.withValues(alpha: 0.08),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${preset.defaultTarget}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected
-                              ? AppColors.onPrimary
-                              : AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    preset.name,
-                    style: TextStyle(
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                      color: isSelected ? AppColors.primary : null,
-                    ),
-                  ),
-                  subtitle: Text(
-                    preset.arabic,
-                    style: const TextStyle(
-                      fontFamily: 'Amiri',
-                      fontSize: 16,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? const Icon(
-                          Icons.check_rounded,
-                          color: AppColors.primary,
-                        )
-                      : null,
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return InkWell(
                   onTap: () {
                     context.read<TasbihCubit>().selectPreset(preset);
                     Navigator.pop(context);
                   },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.spaceMD,
+                      vertical: AppDimens.spaceSM + 2,
+                    ),
+                    child: Row(
+                      children: [
+                        // Count badge
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : (isDark
+                                      ? AppColors.primaryDark
+                                      : AppColors.primaryContainer),
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.radiusSM,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${preset.defaultTarget}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected
+                                  ? Colors.white
+                                  : (isDark
+                                        ? AppColors.primaryLighter
+                                        : AppColors.primary),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppDimens.spaceMD),
+                        // Name + arabic
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                preset.name,
+                                style: TextStyle(
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  fontSize: 14,
+                                  color: isSelected
+                                      ? (isDark
+                                            ? AppColors.primaryLighter
+                                            : AppColors.primary)
+                                      : (isDark
+                                            ? AppColors.onSurfaceDark
+                                            : AppColors.textPrimary),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                preset.arabic,
+                                style: TextStyle(
+                                  fontFamily: 'Amiri',
+                                  fontSize: 15,
+                                  color: isDark
+                                      ? AppColors.onSurfaceDarkVariant
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Checkmark
+                        if (isSelected)
+                          Icon(
+                            Icons.check_circle_rounded,
+                            color: isDark
+                                ? AppColors.primaryLighter
+                                : AppColors.primary,
+                            size: 20,
+                          ),
+                      ],
+                    ),
+                  ),
                 );
               }),
 
-              const Divider(height: AppDimens.spaceLG),
+              const LuxuryDivider(),
 
               // Custom target
               Padding(
@@ -131,18 +171,26 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                       ),
                     ),
                     const SizedBox(width: AppDimens.spaceSM),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                    SizedBox(
+                      height: 48,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDimens.radiusMD,
+                            ),
+                          ),
+                        ),
+                        onPressed: () {
+                          final val = int.tryParse(_targetController.text);
+                          if (val != null && val > 0) {
+                            context.read<TasbihCubit>().setTarget(val);
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: const Text('Set'),
                       ),
-                      onPressed: () {
-                        final val = int.tryParse(_targetController.text);
-                        if (val != null && val > 0) {
-                          context.read<TasbihCubit>().setTarget(val);
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: const Text('Set'),
                     ),
                   ],
                 ),

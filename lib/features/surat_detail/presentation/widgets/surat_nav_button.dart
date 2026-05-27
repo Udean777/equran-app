@@ -1,3 +1,4 @@
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
@@ -39,7 +40,7 @@ class SuratNavButton extends StatelessWidget {
                 namaLatin: suratSebelumnya!.namaLatin,
                 icon: Icons.arrow_back_rounded,
                 isLeft: true,
-                onTap: () => context.push('/surat/${suratSebelumnya!.nomor}'),
+                onTap: () => context.push(AppRoutes.surat(suratSebelumnya!.nomor)),
               ),
             ),
           if (suratSebelumnya != null && suratSelanjutnya != null)
@@ -51,7 +52,7 @@ class SuratNavButton extends StatelessWidget {
                 namaLatin: suratSelanjutnya!.namaLatin,
                 icon: Icons.arrow_forward_rounded,
                 isLeft: false,
-                onTap: () => context.push('/surat/${suratSelanjutnya!.nomor}'),
+                onTap: () => context.push(AppRoutes.surat(suratSelanjutnya!.nomor)),
               ),
             ),
         ],

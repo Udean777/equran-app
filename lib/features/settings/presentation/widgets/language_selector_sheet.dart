@@ -52,31 +52,71 @@ class LanguageSelectorSheet extends StatelessWidget {
             (entry) {
               final (lang, label) = entry;
               final isSelected = lang.runtimeType == current.runtimeType;
+              final isDark = Theme.of(context).brightness == Brightness.dark;
 
-              return ListTile(
-                leading: Icon(
-                  Icons.language_rounded,
-                  size: 24,
-                  color: isSelected ? AppColors.primary : null,
-                ),
-                title: Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                    color: isSelected ? AppColors.primary : null,
-                  ),
-                ),
-                trailing: isSelected
-                    ? const Icon(Icons.check_rounded, color: AppColors.primary)
-                    : null,
+              return InkWell(
                 onTap: () {
                   unawaited(
                     context.read<LanguageCubit>().changeLanguage(lang),
                   );
                   Navigator.pop(context);
                 },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.spaceMD,
+                    vertical: AppDimens.spaceMD,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark
+                                    ? AppColors.primaryDark
+                                    : AppColors.primaryContainer),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.radiusSM,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.language_rounded,
+                          size: 18,
+                          color: isSelected
+                              ? Colors.white
+                              : (isDark
+                                    ? AppColors.primaryLighter
+                                    : AppColors.primary),
+                        ),
+                      ),
+                      const SizedBox(width: AppDimens.spaceMD),
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                            fontSize: 15,
+                            color: isSelected
+                                ? AppColors.primary
+                                : (isDark
+                                      ? AppColors.onSurfaceDark
+                                      : AppColors.textPrimary),
+                          ),
+                        ),
+                      ),
+                      if (isSelected)
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                    ],
+                  ),
+                ),
               );
             },
           ),
