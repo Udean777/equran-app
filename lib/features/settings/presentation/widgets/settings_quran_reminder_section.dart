@@ -4,6 +4,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -86,7 +87,16 @@ class SettingsQuranReminderSection extends StatelessWidget {
                   ),
                   Switch(
                     value: prefs.enabled,
-                    onChanged: (_) => unawaited(cubit.toggleEnabled()),
+                    onChanged: (_) {
+                      unawaited(cubit.toggleEnabled());
+                      showSettingsToast(
+                        context,
+                        prefs.enabled
+                            ? 'Reminder Quran dimatikan'
+                            : 'Reminder Quran aktif',
+                        isSuccess: !prefs.enabled,
+                      );
+                    },
                     activeThumbColor: AppColors.onPrimary,
                     activeTrackColor: isDark
                         ? AppColors.primaryLighter
@@ -214,6 +224,11 @@ class SettingsQuranReminderSection extends StatelessWidget {
     );
     if (picked != null) {
       unawaited(cubit.setTime(hour: picked.hour, minute: picked.minute));
+      if (context.mounted) {
+        final hh = picked.hour.toString().padLeft(2, '0');
+        final mm = picked.minute.toString().padLeft(2, '0');
+        showSettingsToast(context, 'Reminder diset pukul $hh:$mm');
+      }
     }
   }
 }

@@ -5,8 +5,7 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 /// Channel IDs
-const String kAdzanChannelId = 'adzan_channel';
-const String kAdzanSubuhChannelId = 'adzan_subuh_channel';
+const String kAdzanPlaybackChannelId = 'adzan_playback_channel';
 const String kQuranReminderChannelId = 'quran_reminder_channel';
 const String kImsakChannelId = 'imsak_channel';
 const String kHafalanChannelId = 'hafalan_channel';
@@ -122,8 +121,10 @@ class NotificationService {
     return granted;
   }
 
-  /// Schedule notifikasi pada [scheduledTime].
-  /// [isSubuh] menentukan channel + sound yang digunakan.
+  /// Schedule notifikasi adzan pada [scheduledTime].
+  /// Android: visual-only (audio dihandle AlarmManager + AudioCompositeHandler).
+  /// iOS: dengan .caf sound (max ~30 detik, karena iOS tidak support AlarmManager).
+  /// [isSubuh] menentukan sound iOS yang digunakan.
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -131,19 +132,13 @@ class NotificationService {
     required tz.TZDateTime scheduledTime,
     required bool isSubuh,
   }) async {
-    final androidDetails = AndroidNotificationDetails(
-      isSubuh ? kAdzanSubuhChannelId : kAdzanChannelId,
-      isSubuh ? 'Adzan Subuh' : 'Adzan Waktu Shalat',
-      channelDescription: isSubuh
-          ? 'Notifikasi adzan waktu Subuh'
-          : 'Notifikasi adzan waktu shalat',
+    const androidDetails = AndroidNotificationDetails(
+      kAdzanPlaybackChannelId,
+      'Adzan',
+      channelDescription: 'Notifikasi waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
-      groupKey: isSubuh ? 'adzan_subuh_group' : 'adzan_group',
-      audioAttributesUsage: AudioAttributesUsage.alarm,
-      sound: RawResourceAndroidNotificationSound(
-        isSubuh ? 'adzan_subuh' : 'adzan',
-      ),
+      playSound: false, // Audio dihandle AlarmManager di Android
     );
 
     final iosDetails = DarwinNotificationDetails(
@@ -310,34 +305,23 @@ class NotificationService {
         >();
     if (androidPlugin == null) return;
 
-    // Delete channel lama dulu agar sound bisa di-update.
-    // Android tidak mengizinkan update sound pada channel yang sudah ada.
-    await androidPlugin.deleteNotificationChannel(kAdzanChannelId);
-    await androidPlugin.deleteNotificationChannel(kAdzanSubuhChannelId);
+    // Delete channel lama agar tidak ada konflik.
+    await androidPlugin.deleteNotificationChannel('adzan_channel');
+    await androidPlugin.deleteNotificationChannel('adzan_subuh_channel');
+    await androidPlugin.deleteNotificationChannel(kAdzanPlaybackChannelId);
     await androidPlugin.deleteNotificationChannel(kQuranReminderChannelId);
     await androidPlugin.deleteNotificationChannel(kImsakChannelId);
     await androidPlugin.deleteNotificationChannel(kHafalanChannelId);
     await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
 
-    // Channel adzan biasa (Dzuhur, Ashar, Maghrib, Isya)
+    // Channel adzan playback (visual-only, audio via AlarmManager)
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
-        kAdzanChannelId,
-        'Adzan Waktu Shalat',
-        description: 'Notifikasi adzan waktu shalat',
+        kAdzanPlaybackChannelId,
+        'Adzan',
+        description: 'Notifikasi waktu shalat',
         importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('adzan'),
-      ),
-    );
-
-    // Channel adzan subuh
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        kAdzanSubuhChannelId,
-        'Adzan Subuh',
-        description: 'Notifikasi adzan waktu Subuh',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('adzan_subuh'),
+        playSound: false,
       ),
     );
 

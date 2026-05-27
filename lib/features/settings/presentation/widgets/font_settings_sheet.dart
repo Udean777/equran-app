@@ -5,6 +5,7 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -58,13 +59,19 @@ class FontSettingsSheet extends StatelessWidget {
                     _FontChip(
                       label: 'Amiri',
                       selected: state.arabicFontFamily == kFontAmiri,
-                      onTap: () => cubit.setArabicFontFamily(kFontAmiri),
+                      onTap: () {
+                        unawaited(cubit.setArabicFontFamily(kFontAmiri));
+                        showSettingsToast(context, 'Font Amiri digunakan');
+                      },
                     ),
                     const SizedBox(width: AppDimens.spaceSM),
                     _FontChip(
                       label: 'Uthmani',
                       selected: state.arabicFontFamily == kFontKFGQPC,
-                      onTap: () => cubit.setArabicFontFamily(kFontKFGQPC),
+                      onTap: () {
+                        unawaited(cubit.setArabicFontFamily(kFontKFGQPC));
+                        showSettingsToast(context, 'Font Uthmani digunakan');
+                      },
                     ),
                   ],
                 ),
@@ -114,6 +121,10 @@ class FontSettingsSheet extends StatelessWidget {
                   min: 18,
                   max: 40,
                   onChanged: cubit.setArabicFontSize,
+                  onChangeEnd: (v) => showSettingsToast(
+                    context,
+                    'Ukuran teks Arab: ${v.round()}px',
+                  ),
                 ),
                 const SizedBox(height: AppDimens.spaceMD),
 
@@ -124,6 +135,10 @@ class FontSettingsSheet extends StatelessWidget {
                   min: 12,
                   max: 22,
                   onChanged: cubit.setTranslationFontSize,
+                  onChangeEnd: (v) => showSettingsToast(
+                    context,
+                    'Ukuran terjemahan: ${v.round()}px',
+                  ),
                 ),
                 const SizedBox(height: AppDimens.spaceMD),
 
@@ -134,6 +149,10 @@ class FontSettingsSheet extends StatelessWidget {
                       unawaited(cubit.setArabicFontSize(28));
                       unawaited(cubit.setTranslationFontSize(14));
                       unawaited(cubit.setArabicFontFamily(kFontAmiri));
+                      showSettingsToast(
+                        context,
+                        'Tampilan teks direset ke default',
+                      );
                     },
                     icon: const Icon(Icons.refresh_rounded, size: 16),
                     label: const Text('Reset ke Default'),
@@ -211,6 +230,7 @@ class _FontSizeSlider extends StatelessWidget {
     required this.min,
     required this.max,
     required this.onChanged,
+    this.onChangeEnd,
   });
 
   final String label;
@@ -218,6 +238,7 @@ class _FontSizeSlider extends StatelessWidget {
   final double min;
   final double max;
   final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChangeEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +272,7 @@ class _FontSizeSlider extends StatelessWidget {
           divisions: (max - min).round(),
           activeColor: AppColors.primary,
           onChanged: onChanged,
+          onChangeEnd: onChangeEnd,
         ),
       ],
     );

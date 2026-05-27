@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_checklist_reminder_scheduler.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
+import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -23,10 +25,10 @@ class NotificationTestPage extends StatefulWidget {
 class _NotificationTestPageState extends State<NotificationTestPage> {
   final NotificationService _service = getIt<NotificationService>();
   final FlutterLocalNotificationsPlugin _plugin = getIt<FlutterLocalNotificationsPlugin>();
+  final AudioCompositeHandler _audioHandler = getIt<AudioCompositeHandler>();
 
   // Status per notif: null = idle, true = scheduled, false = error
   final Map<String, bool?> _status = {};
-
   static const _delaySeconds = 5;
 
   tz.TZDateTime get _soon =>
@@ -51,8 +53,57 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           _InfoBanner(isDark: isDark),
           const SizedBox(height: AppDimens.spaceLG),
 
-          // ── Adzan ──────────────────────────────────────────────────────
-          _SectionLabel(label: 'Adzan Waktu Shalat', isDark: isDark),
+          // ── Adzan Direct (Audio) ───────────────────────────────────────
+          _SectionLabel(label: 'Adzan Direct (Audio Player)', isDark: isDark),
+          const SizedBox(height: AppDimens.spaceSM),
+          _NotifCard(
+            id: 'adzan_direct_dzuhur',
+            icon: Icons.volume_up_rounded,
+            title: 'Play Adzan Dzuhur (Direct)',
+            subtitle: 'Langsung play audio adzan via AudioCompositeHandler',
+            color: AppColors.primary,
+            status: _status['adzan_direct_dzuhur'],
+            isDark: isDark,
+            onTest: () => _testAdzanDirect(isSubuh: false),
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          _NotifCard(
+            id: 'adzan_direct_subuh',
+            icon: Icons.volume_up_rounded,
+            title: 'Play Adzan Subuh (Direct)',
+            subtitle: 'Langsung play audio adzan subuh via AudioCompositeHandler',
+            color: AppColors.primaryLight,
+            status: _status['adzan_direct_subuh'],
+            isDark: isDark,
+            onTest: () => _testAdzanDirect(isSubuh: true),
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          _NotifCard(
+            id: 'adzan_stop',
+            icon: Icons.stop_circle_rounded,
+            title: 'Stop Adzan',
+            subtitle: 'Hentikan audio adzan yang sedang playing',
+            color: AppColors.error,
+            status: _status['adzan_stop'],
+            isDark: isDark,
+            onTest: _stopAdzan,
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          _NotifCard(
+            id: 'adzan_alarm_dzuhur',
+            icon: Icons.alarm_rounded,
+            title: 'Schedule Adzan Alarm (30 detik)',
+            subtitle: 'Test AlarmManager → playAdzanCallback (lock device dulu)',
+            color: AppColors.gold,
+            status: _status['adzan_alarm_dzuhur'],
+            isDark: isDark,
+            onTest: () => _testAdzanAlarm(isSubuh: false),
+          ),
+
+          const SizedBox(height: AppDimens.spaceLG),
+
+          // ── Adzan Notif ────────────────────────────────────────────────
+          _SectionLabel(label: 'Adzan Notifikasi (Visual)', isDark: isDark),
           const SizedBox(height: AppDimens.spaceSM),
           _NotifCard(
             id: 'adzan_dzuhur',
@@ -163,6 +214,35 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
   // ---------------------------------------------------------------------------
   // Test handlers
   // ---------------------------------------------------------------------------
+
+  Future<void> _testAdzanDirect({required bool isSubuh}) async {
+    final key = isSubuh ? 'adzan_direct_subuh' : 'adzan_direct_dzuhur';
+    await _schedule(key, () async {
+      await _audioHandler.playAdzan(
+        isSubuh: isSubuh,
+        waktuNama: isSubuh ? 'Subuh' : 'Dzuhur',
+      );
+    });
+  }
+
+  Future<void> _stopAdzan() async {
+    await _schedule('adzan_stop', () async {
+      await _audioHandler.stopAdzan();
+    });
+  }
+
+  Future<void> _testAdzanAlarm({required bool isSubuh}) async {
+    final key = isSubuh ? 'adzan_alarm_subuh' : 'adzan_alarm_dzuhur';
+    await _schedule(key, () async {
+      final scheduledTime = DateTime.now().add(const Duration(seconds: 30));
+      await scheduleAdzanAlarm(
+        id: isSubuh ? 911 : 912,
+        scheduledTime: scheduledTime,
+        isSubuh: isSubuh,
+        nama: isSubuh ? 'Subuh' : 'Dzuhur',
+      );
+    });
+  }
 
   Future<void> _testAdzan({required bool isSubuh}) async {
     final key = isSubuh ? 'adzan_subuh' : 'adzan_dzuhur';

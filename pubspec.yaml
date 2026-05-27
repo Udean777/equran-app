@@ -1,13 +1,14 @@
 name: equran_app
 description: Aplikasi eQuran
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
-  flutter: '>=3.22.0'
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.22.0"
 
 dependencies:
+  android_alarm_manager_plus: ^4.0.7
   audio_service: ^0.18.0
   audio_session: ^0.1.21
   cupertino_icons: ^1.0.8
@@ -74,3 +75,4 @@ flutter:
   assets:
     - assets/fonts/
     - assets/icons/
+    - assets/audio/

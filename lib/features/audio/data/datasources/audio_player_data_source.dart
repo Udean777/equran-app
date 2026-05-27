@@ -20,7 +20,7 @@ abstract interface class AudioPlayerDataSource {
 class AudioPlayerDataSourceImpl implements AudioPlayerDataSource {
   AudioPlayerDataSourceImpl(this._handler);
 
-  final AudioBackgroundHandler _handler;
+  final AudioCompositeHandler _handler;
 
   @override
   Future<void> play({

@@ -336,8 +336,8 @@ extension GetItInjectableX on _i174.GetIt {
     final notificationModule = _$NotificationModule();
     final hiveModule = _$HiveModule();
     gh.singleton<_i870.DioClient>(() => _i870.DioClient());
-    await gh.singletonAsync<_i813.AudioBackgroundHandler>(
-      () => audioServiceModule.audioBackgroundHandler(),
+    await gh.singletonAsync<_i813.AudioCompositeHandler>(
+      () => audioServiceModule.audioCompositeHandler(),
       preResolve: true,
     );
     gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
@@ -409,9 +409,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1015.OnboardingService(
         gh<_i738.Box<String>>(instanceName: 'settingsBox'),
       ),
-    );
-    gh.singleton<_i945.AudioPlayerDataSource>(
-      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioBackgroundHandler>()),
     );
     await gh.factoryAsync<_i919.Box<String>>(
       () => hiveModule.shalatBox(),
@@ -504,11 +501,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i187.SaveLastRead>(
       () => _i187.SaveLastRead(gh<_i182.BookmarkRepository>()),
     );
-    gh.singleton<_i451.AudioRepository>(
-      () => _i550.AudioRepositoryImpl(
-        gh<_i945.AudioPlayerDataSource>(),
-        gh<_i503.AudioDownloadDataSource>(),
-      ),
+    gh.singleton<_i945.AudioPlayerDataSource>(
+      () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioCompositeHandler>()),
     );
     gh.lazySingleton<_i289.CatatanAyatLocalDatasource>(
       () => _i289.CatatanAyatLocalDatasourceImpl(
@@ -668,24 +662,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.LazyBox<String>>(instanceName: 'doaBox'),
       ),
     );
-    gh.lazySingleton<_i425.DeleteAllAudio>(
-      () => _i425.DeleteAllAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i665.PauseAudio>(
-      () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i556.PlayAudio>(
-      () => _i556.PlayAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i748.ResumeAudio>(
-      () => _i748.ResumeAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i637.SeekAudio>(
-      () => _i637.SeekAudio(gh<_i451.AudioRepository>()),
-    );
-    gh.factory<_i710.StopAudio>(
-      () => _i710.StopAudio(gh<_i451.AudioRepository>()),
-    );
     gh.lazySingleton<_i414.JadwalShalatRepository>(
       () => _i443.JadwalShalatRepositoryImpl(
         gh<_i264.JadwalShalatRemoteDataSource>(),
@@ -723,23 +699,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i607.ReadingHistoryLocalDataSource>(),
       ),
     );
-    gh.singleton<_i729.AudioCubit>(
-      () => _i729.AudioCubit(
-        gh<_i556.PlayAudio>(),
-        gh<_i665.PauseAudio>(),
-        gh<_i748.ResumeAudio>(),
-        gh<_i710.StopAudio>(),
-        gh<_i637.SeekAudio>(),
-        gh<_i451.AudioRepository>(),
-      ),
-    );
-    gh.factory<_i330.AudioStorageCubit>(
-      () => _i330.AudioStorageCubit(
-        gh<_i232.GetDownloadedAyats>(),
-        gh<_i380.DeleteAyatAudio>(),
-        gh<_i425.DeleteAllAudio>(),
-      ),
-    );
     gh.lazySingleton<_i696.GetShalatByDate>(
       () => _i696.GetShalatByDate(gh<_i278.StatistikShalatRepository>()),
     );
@@ -751,6 +710,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i413.SaveShalatLog>(
       () => _i413.SaveShalatLog(gh<_i278.StatistikShalatRepository>()),
+    );
+    gh.singleton<_i451.AudioRepository>(
+      () => _i550.AudioRepositoryImpl(
+        gh<_i945.AudioPlayerDataSource>(),
+        gh<_i503.AudioDownloadDataSource>(),
+      ),
     );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
@@ -865,6 +830,24 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i603.ClearTasbihSessions>(),
       ),
     );
+    gh.lazySingleton<_i425.DeleteAllAudio>(
+      () => _i425.DeleteAllAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i665.PauseAudio>(
+      () => _i665.PauseAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i556.PlayAudio>(
+      () => _i556.PlayAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i748.ResumeAudio>(
+      () => _i748.ResumeAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i637.SeekAudio>(
+      () => _i637.SeekAudio(gh<_i451.AudioRepository>()),
+    );
+    gh.factory<_i710.StopAudio>(
+      () => _i710.StopAudio(gh<_i451.AudioRepository>()),
+    );
     gh.singleton<_i69.QuranStreakCubit>(
       () => _i69.QuranStreakCubit(
         gh<_i458.GetStreakCount>(),
@@ -916,6 +899,23 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i387.GetLastLocationImsakiyah>(),
         gh<_i1070.SaveLastLocationImsakiyah>(),
         gh<_i177.LocationService>(),
+      ),
+    );
+    gh.singleton<_i729.AudioCubit>(
+      () => _i729.AudioCubit(
+        gh<_i556.PlayAudio>(),
+        gh<_i665.PauseAudio>(),
+        gh<_i748.ResumeAudio>(),
+        gh<_i710.StopAudio>(),
+        gh<_i637.SeekAudio>(),
+        gh<_i451.AudioRepository>(),
+      ),
+    );
+    gh.factory<_i330.AudioStorageCubit>(
+      () => _i330.AudioStorageCubit(
+        gh<_i232.GetDownloadedAyats>(),
+        gh<_i380.DeleteAyatAudio>(),
+        gh<_i425.DeleteAllAudio>(),
       ),
     );
     gh.factory<_i345.DoaListCubit>(

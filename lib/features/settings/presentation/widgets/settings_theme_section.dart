@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -81,6 +82,7 @@ class SettingsThemeSection extends StatelessWidget {
                     onTap: () {
                       if (selected != 'light') {
                         unawaited(context.read<ThemeCubit>().cycle());
+                        showSettingsToast(context, 'Mode Terang aktif');
                       }
                     },
                   ),
@@ -94,6 +96,7 @@ class SettingsThemeSection extends StatelessWidget {
                     onTap: () {
                       if (selected != 'dark') {
                         unawaited(context.read<ThemeCubit>().cycle());
+                        showSettingsToast(context, 'Mode Gelap aktif');
                       }
                     },
                   ),
