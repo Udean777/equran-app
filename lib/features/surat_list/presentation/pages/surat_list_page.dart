@@ -20,6 +20,7 @@ import 'package:equran_app/features/surat_list/presentation/widgets/surat_list_a
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_list_content.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -80,31 +81,32 @@ class _SuratListViewState extends State<_SuratListView> {
                     },
                   ),
 
-                  // Murajaah reminder
-                  BlocBuilder<HafalanCubit, HafalanState>(
-                    buildWhen: (prev, curr) {
-                      final prevList = prev is HafalanSuccess
-                          ? prev.suratMurajaahHariIni
-                          : null;
-                      final currList = curr is HafalanSuccess
-                          ? curr.suratMurajaahHariIni
-                          : null;
-                      return prevList != currList;
-                    },
-                    builder: (context, state) {
-                      if (state is! HafalanSuccess) {
-                        return const SizedBox.shrink();
-                      }
-                      final murajaahList = state.suratMurajaahHariIni;
-                      if (murajaahList.isEmpty) return const SizedBox.shrink();
-                      return MurajaahReminderCard(
-                        suratList: murajaahList,
-                        onTap: () {
-                          unawaited(context.push(AppRoutes.hafalan));
-                        },
-                      );
-                    },
-                  ),
+                  // Murajaah reminder — hanya muncul di debug mode
+                  if (kDebugMode)
+                    BlocBuilder<HafalanCubit, HafalanState>(
+                      buildWhen: (prev, curr) {
+                        final prevList = prev is HafalanSuccess
+                            ? prev.suratMurajaahHariIni
+                            : null;
+                        final currList = curr is HafalanSuccess
+                            ? curr.suratMurajaahHariIni
+                            : null;
+                        return prevList != currList;
+                      },
+                      builder: (context, state) {
+                        if (state is! HafalanSuccess) {
+                          return const SizedBox.shrink();
+                        }
+                        final murajaahList = state.suratMurajaahHariIni;
+                        if (murajaahList.isEmpty) return const SizedBox.shrink();
+                        return MurajaahReminderCard(
+                          suratList: murajaahList,
+                          onTap: () {
+                            unawaited(context.push(AppRoutes.hafalan));
+                          },
+                        );
+                      },
+                    ),
 
                   // Streak chip
                   BlocBuilder<QuranStreakCubit, QuranStreakState>(
