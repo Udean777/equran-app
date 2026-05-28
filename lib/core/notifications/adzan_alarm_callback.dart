@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 /// Top-level callback untuk AndroidAlarmManager.
 /// Dipanggil di background isolate saat waktu shalat tiba.
@@ -24,11 +26,27 @@ Future<void> playAdzanCallback(int id, Map<String, dynamic> params) async {
   );
 
   try {
+    // Init Hive sebelum DI karena DI depend pada Hive boxes (preResolve)
+    await Hive.initFlutter();
+
     // Init DI jika belum (isolate baru tidak punya state dari main isolate)
     await configureDependencies();
 
-    final handler = getIt<AudioCompositeHandler>();
-    await handler.playAdzan(isSubuh: isSubuh, waktuNama: waktuNama);
+    // 1. Tampilkan notifikasi teks sesegera mungkin ketika alarm masuk
+    final notifService = getIt<NotificationService>();
+    await notifService.showNotification(
+      id: id,
+      title: isSubuh ? '🌅 Waktu Subuh' : '☀️ Waktu $waktuNama',
+      body: 'Sudah masuk waktu shalat $waktuNama',
+    );
+
+    // 2. Coba putar audio adzan (jika gagal, notifikasi visual sudah berhasil ditampilkan)
+    try {
+      final handler = getIt<AudioCompositeHandler>();
+      await handler.playAdzan(isSubuh: isSubuh, waktuNama: waktuNama);
+    } on Object catch (audioError) {
+      debugPrint('playAdzanCallback audio playback error: $audioError');
+    }
   } on Object catch (e) {
     debugPrint('playAdzanCallback error: $e');
   }

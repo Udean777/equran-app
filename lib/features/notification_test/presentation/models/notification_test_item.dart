@@ -10,6 +10,7 @@ class NotificationTestItem {
     required this.subtitle,
     required this.color,
     required this.onTest,
+    this.duration,
   });
 
   final String id;
@@ -18,6 +19,7 @@ class NotificationTestItem {
   final String subtitle;
   final Color color;
   final Future<void> Function() onTest;
+  final Duration? duration;
 }
 
 /// Model representing a group/section of notification test triggers

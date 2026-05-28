@@ -288,7 +288,6 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
               ],
             ),
           ),
-          const SizedBox(height: AppDimens.spaceSM),
         ],
       ),
     );

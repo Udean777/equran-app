@@ -160,6 +160,42 @@ class NotificationService {
     );
   }
 
+  /// Tampilkan notifikasi adzan secara instan (non-scheduled).
+  /// Digunakan oleh Android AlarmManager callback agar notifikasi teks
+  /// dan adzan audio muncul bersamaan.
+  Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      kAdzanPlaybackChannelId,
+      'Adzan',
+      channelDescription: 'Notifikasi waktu shalat',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: false, // Audio dihandle AlarmManager
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _plugin.show(
+      id,
+      title,
+      body,
+      details,
+    );
+  }
+
   /// Schedule notifikasi harian pada [hour]:[minute].
   /// Menggunakan [DateTimeComponents.time] agar repeat otomatis setiap hari.
   Future<void> scheduleDaily({

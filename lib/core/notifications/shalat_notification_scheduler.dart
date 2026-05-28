@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
@@ -126,22 +128,24 @@ class ShalatNotificationScheduler {
     required bool isSubuh,
     required tz.TZDateTime scheduledTime,
   }) async {
-    // Android: AlarmManager → playAdzanCallback → AudioCompositeHandler.playAdzan
-    await scheduleAdzanAlarm(
-      id: id,
-      scheduledTime: scheduledTime.toLocal(),
-      isSubuh: isSubuh,
-      nama: nama,
-    );
-
-    // iOS: flutter_local_notifications dengan .caf sound (max ~30 detik)
-    await _notificationService.scheduleNotification(
-      id: id,
-      title: 'Waktu $nama',
-      body: 'Sudah masuk waktu shalat $nama',
-      scheduledTime: scheduledTime,
-      isSubuh: isSubuh,
-    );
+    if (Platform.isAndroid) {
+      // Android: AlarmManager → playAdzanCallback → AudioCompositeHandler.playAdzan & NotificationService.showNotification
+      await scheduleAdzanAlarm(
+        id: id,
+        scheduledTime: scheduledTime.toLocal(),
+        isSubuh: isSubuh,
+        nama: nama,
+      );
+    } else {
+      // iOS: flutter_local_notifications dengan .caf sound (max ~30 detik)
+      await _notificationService.scheduleNotification(
+        id: id,
+        title: 'Waktu $nama',
+        body: 'Sudah masuk waktu shalat $nama',
+        scheduledTime: scheduledTime,
+        isSubuh: isSubuh,
+      );
+    }
   }
 
   /// Parse string waktu format "HH:mm" ke [tz.TZDateTime].

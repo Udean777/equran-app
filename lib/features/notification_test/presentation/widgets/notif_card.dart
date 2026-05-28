@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
-class NotifCard extends StatelessWidget {
+class NotifCard extends StatefulWidget {
   const NotifCard({
     required this.id,
     required this.icon,
@@ -12,6 +13,7 @@ class NotifCard extends StatelessWidget {
     required this.status,
     required this.isDark,
     required this.onTest,
+    this.duration,
     super.key,
   });
 
@@ -23,11 +25,68 @@ class NotifCard extends StatelessWidget {
   final bool? status; // null=idle, true=ok, false=error
   final bool isDark;
   final VoidCallback onTest;
+  final Duration? duration;
+
+  @override
+  State<NotifCard> createState() => _NotifCardState();
+}
+
+class _NotifCardState extends State<NotifCard> {
+  Timer? _timer;
+  int _remainingSeconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.status == true && widget.duration != null) {
+      _startCountdown();
+    }
+  }
+
+  @override
+  void didUpdateWidget(NotifCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.status != oldWidget.status ||
+        widget.duration != oldWidget.duration) {
+      _stopCountdown();
+      if (widget.status == true && widget.duration != null) {
+        _startCountdown();
+      }
+    }
+  }
+
+  void _startCountdown() {
+    _remainingSeconds = widget.duration!.inSeconds;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          if (_remainingSeconds > 0) {
+            _remainingSeconds--;
+          } else {
+            _timer?.cancel();
+          }
+        });
+      }
+    });
+  }
+
+  void _stopCountdown() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
+  void dispose() {
+    _stopCountdown();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
+    final surfaceColor = widget.isDark
+        ? AppColors.surfaceDark
+        : AppColors.surface;
+    final borderColor = widget.isDark
         ? AppColors.outlineDark
         : AppColors.outlineVariant;
 
@@ -36,15 +95,15 @@ class NotifCard extends StatelessWidget {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         border: Border.all(
-          color: status == true
+          color: widget.status == true
               ? AppColors.success.withValues(alpha: 0.5)
-              : status == false
+              : widget.status == false
               ? AppColors.error.withValues(alpha: 0.5)
               : borderColor,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+            color: Colors.black.withValues(alpha: widget.isDark ? 0.15 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -59,10 +118,16 @@ class NotifCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: isDark ? 0.15 : 0.1),
+                color: widget.color.withValues(
+                  alpha: widget.isDark ? 0.15 : 0.1,
+                ),
                 borderRadius: BorderRadius.circular(AppDimens.radiusMD),
               ),
-              child: Icon(icon, color: color, size: AppDimens.iconMD),
+              child: Icon(
+                widget.icon,
+                color: widget.color,
+                size: AppDimens.iconMD,
+              ),
             ),
             const SizedBox(width: AppDimens.spaceMD),
 
@@ -75,42 +140,46 @@ class NotifCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          title,
+                          widget.title,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: isDark
+                            color: widget.isDark
                                 ? AppColors.onSurfaceDark
                                 : AppColors.textPrimary,
                           ),
                         ),
                       ),
-                      if (status != null)
+                      if (widget.status != null)
                         Icon(
-                          status!
+                          widget.status!
                               ? Icons.check_circle_rounded
                               : Icons.error_rounded,
                           size: 16,
-                          color: status! ? AppColors.success : AppColors.error,
+                          color: widget.status!
+                              ? AppColors.success
+                              : AppColors.error,
                         ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    subtitle,
+                    widget.subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark
+                      color: widget.isDark
                           ? AppColors.onSurfaceDarkVariant
                           : AppColors.textTertiary,
                       height: 1.4,
                     ),
                   ),
-                  if (status == true) ...[
+                  if (widget.status == true) ...[
                     const SizedBox(height: AppDimens.spaceXS),
-                    const Text(
-                      'Dijadwalkan — tunggu 5 detik',
-                      style: TextStyle(
+                    Text(
+                      widget.duration != null
+                          ? 'Dijadwalkan — ${_remainingSeconds > 0 ? "tunggu $_remainingSeconds detik" : "alarm berbunyi!"}'
+                          : 'Berhasil dijalankan',
+                      style: const TextStyle(
                         fontSize: 11,
                         color: AppColors.success,
                         fontWeight: FontWeight.w500,
@@ -123,7 +192,11 @@ class NotifCard extends StatelessWidget {
             const SizedBox(width: AppDimens.spaceSM),
 
             // Button
-            _TestButton(color: color, isDark: isDark, onTap: onTest),
+            _TestButton(
+              color: widget.color,
+              isDark: widget.isDark,
+              onTap: widget.onTest,
+            ),
           ],
         ),
       ),

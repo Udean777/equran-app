@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/pages/share_ayat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_audio_footer.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/share_ayat_sheet.dart';
 import 'package:flutter/material.dart';
 
 /// Card per ayat — arab, latin, terjemah, nomor, audio, bookmark, share.
@@ -259,7 +258,7 @@ class _CardHeader extends StatelessWidget {
               color: textTertiary,
               size: AppDimens.iconMD,
             ),
-            onPressed: () => _showShareSheet(context),
+            onPressed: () => _showSharePage(context),
             tooltip: 'Bagikan ayat',
             padding: const EdgeInsets.all(AppDimens.spaceXS),
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -284,14 +283,16 @@ class _CardHeader extends StatelessWidget {
     );
   }
 
-  void _showShareSheet(BuildContext context) {
+  void _showSharePage(BuildContext context) {
     unawaited(
-      showAppBottomSheet<void>(
+      Navigator.push<void>(
         context,
-        builder: (_) => ShareAyatSheet(
-          ayat: ayat,
-          namaLatin: suratDetail.info.namaLatin,
-          suratNomor: suratDetail.info.nomor,
+        MaterialPageRoute(
+          builder: (_) => ShareAyatPage(
+            ayat: ayat,
+            namaLatin: suratDetail.info.namaLatin,
+            suratNomor: suratDetail.info.nomor,
+          ),
         ),
       ),
     );
