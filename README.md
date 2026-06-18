@@ -1,6 +1,20 @@
-# 📖 eQuran App
-
-Aplikasi **Al-Quran Digital Modern** berbasis **Flutter** yang dirancang dengan mengutamakan performa, estetika premium, dan arsitektur yang bersih (**Clean Architecture**). Aplikasi ini memadukan kemudahan membaca Al-Quran, mendengarkan lantunan murattal ayat demi ayat, mempelajari tafsir Kemenag RI, membaca doa harian, hingga pelacakan statistik ibadah yang lengkap.
+<div align="center">
+  <img src="assets/icons/app_icon.png" width="120" alt="eQuran App Logo" style="border-radius: 20px; margin-bottom: 10px;">
+  <h1>📖 eQuran App</h1>
+  
+  <p>
+    <img src="https://img.shields.io/badge/Flutter-3.22.0-02569B?logo=flutter&style=for-the-badge" alt="Flutter Version">
+    <img src="https://img.shields.io/badge/Dart-3.8.0-0175C2?logo=dart&style=for-the-badge" alt="Dart Version">
+    <img src="https://img.shields.io/badge/Architecture-Clean-4CAF50?style=for-the-badge" alt="Clean Architecture">
+    <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License">
+  </p>
+  
+  <p><b>Aplikasi Al-Quran Digital Modern & Premium</b></p>
+  
+  <p>
+    Dirancang dengan mengutamakan performa, estetika, dan arsitektur yang bersih (Clean Architecture). eQuran memadukan kenyamanan membaca Al-Quran, mendengarkan murattal ayat, mempelajari tafsir Kemenag RI, membaca doa harian, hingga pelacakan statistik ibadah yang interaktif.
+  </p>
+</div>
 
 ---
 
