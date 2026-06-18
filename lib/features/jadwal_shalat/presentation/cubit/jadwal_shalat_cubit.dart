@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_selection_mixin.dart';
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/core/notifications/shalat_notif_config.dart';
-import 'package:equran_app/core/notifications/shalat_notification_scheduler.dart';
 import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
@@ -13,11 +11,9 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_sha
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart';
-import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -35,8 +31,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     this._getLastLocation,
     this._saveLastLocation,
     this.locationService,
-    this._scheduler,
-    this._getNotifPrefs,
     this._saveNotifPrefs,
     this._shalatNotifCubit,
   ) : super(const JadwalShalatState.initial());
@@ -48,8 +42,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
   final SaveLastLocationShalat _saveLastLocation;
   @override
   final LocationService locationService;
-  final ShalatNotificationScheduler _scheduler;
-  final GetShalatNotifPrefs _getNotifPrefs;
   final SaveShalatNotifPrefs _saveNotifPrefs;
   final ShalatNotifCubit _shalatNotifCubit;
   // ─── LocationSelectionMixin overrides ────────────────────────────────────────
@@ -318,25 +310,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     if (futureEntries.isEmpty) return;
 
     _shalatNotifCubit.setEntries(futureEntries);
-
-    unawaited(
-      _getNotifPrefs()
-          .then((result) {
-            final prefs = result.fold(
-              (_) => const ShalatNotifPrefs(),
-              (p) => p,
-            );
-            unawaited(
-              _scheduler.scheduleForNextDays(
-                futureEntries,
-                _toNotifConfig(prefs),
-              ),
-            );
-          })
-          .catchError((Object e) {
-            debugPrint('JadwalShalatCubit: schedule notification error: $e');
-          }),
-    );
   }
 
   ShalatScheduleEntry _toScheduleEntry(
@@ -350,15 +323,6 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     ashar: entry.ashar,
     maghrib: entry.maghrib,
     isya: entry.isya,
-  );
-
-  ShalatNotifConfig _toNotifConfig(ShalatNotifPrefs prefs) => ShalatNotifConfig(
-    subuh: prefs.subuh,
-    dzuhur: prefs.dzuhur,
-    ashar: prefs.ashar,
-    maghrib: prefs.maghrib,
-    isya: prefs.isya,
-    menitSebelum: prefs.menitSebelum,
   );
 
   List<String> _extractProvinsiList() {

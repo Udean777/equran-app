@@ -8,11 +8,11 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 /// Channel IDs
-const String kAdzanChannelId = 'adzan_channel_v3';
-const String kAdzanSubuhChannelId = 'adzan_subuh_channel_v3';
-const String kQuranReminderChannelId = 'quran_reminder_channel_v2';
-const String kImsakChannelId = 'imsak_channel_v2';
-const String kHafalanChannelId = 'hafalan_channel_v2';
+const String kAdzanChannelId = 'adzan_channel_v4';
+const String kAdzanSubuhChannelId = 'adzan_subuh_channel_v4';
+const String kQuranReminderChannelId = 'quran_reminder_channel_v4';
+const String kImsakChannelId = 'imsak_channel_v4';
+const String kHafalanChannelId = 'hafalan_channel_v4';
 
 @lazySingleton
 class NotificationService {
@@ -128,8 +128,7 @@ class NotificationService {
       ),
     );
 
-    final iosDetails = DarwinNotificationDetails(
-      sound: isSubuh ? 'adzan_subuh.caf' : 'adzan.caf',
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -340,11 +339,11 @@ class NotificationService {
     await androidPlugin.deleteNotificationChannel('adzan_channel');
     await androidPlugin.deleteNotificationChannel('adzan_subuh_channel');
     await androidPlugin.deleteNotificationChannel('adzan_playback_channel');
-    await androidPlugin.deleteNotificationChannel(kAdzanChannelId);
-    await androidPlugin.deleteNotificationChannel(kAdzanSubuhChannelId);
-    await androidPlugin.deleteNotificationChannel(kQuranReminderChannelId);
-    await androidPlugin.deleteNotificationChannel(kImsakChannelId);
-    await androidPlugin.deleteNotificationChannel(kHafalanChannelId);
+    await androidPlugin.deleteNotificationChannel('adzan_channel_v3');
+    await androidPlugin.deleteNotificationChannel('adzan_subuh_channel_v3');
+    await androidPlugin.deleteNotificationChannel('quran_reminder_channel_v2');
+    await androidPlugin.deleteNotificationChannel('imsak_channel_v2');
+    await androidPlugin.deleteNotificationChannel('hafalan_channel_v2');
     await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
 
     // Channel adzan

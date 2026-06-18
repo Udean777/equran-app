@@ -73,6 +73,11 @@ class ShalatNotificationScheduler {
 
         if (scheduledTime == null) continue;
 
+        // Jangan schedule untuk waktu yang sudah lewat (mencegah spam notif instan)
+        if (scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
+          continue;
+        }
+
         // Hindari bentrok ID dengan ID eksisting atau hari lain.
         final uniqueId = waktu.id + (dayIndex * 1000);
 
