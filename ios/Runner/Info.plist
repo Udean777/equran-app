@@ -57,7 +57,12 @@
 		<array>
 			<string>audio</string>
 			<string>fetch</string>
+			<string>processing</string>
 			<string>remote-notification</string>
+		</array>
+		<key>BGTaskSchedulerPermittedIdentifiers</key>
+		<array>
+			<string>sync_task_1</string>
 		</array>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>

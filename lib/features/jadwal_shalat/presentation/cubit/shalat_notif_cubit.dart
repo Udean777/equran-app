@@ -28,8 +28,8 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
   final GetJadwalShalat _getJadwal;
   final GetLastLocationShalat _getLastLocation;
 
-  /// Jadwal hari ini — di-set dari JadwalShalatCubit setelah jadwal loaded.
-  ShalatScheduleEntry? _todayEntry;
+  /// Jadwal 10 hari ke depan — di-set dari JadwalShalatCubit setelah jadwal loaded.
+  List<ShalatScheduleEntry> _entries = [];
 
   /// Load preferensi dari Hive.
   void load() {
@@ -89,24 +89,25 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
         'ShalatNotifCubit.initAndSchedule: gagal load jadwal — $failure',
       ),
       (jadwal) {
-        final todayEntry = jadwal.jadwal
-            .where((e) => e.tanggal == now.day)
-            .firstOrNull;
+        final futureEntries = jadwal.jadwal
+            .where((e) => e.tanggal >= now.day)
+            .take(10)
+            .map((e) => ShalatScheduleEntry(
+                  date: DateTime(now.year, now.month, e.tanggal),
+                  subuh: e.subuh,
+                  dzuhur: e.dzuhur,
+                  ashar: e.ashar,
+                  maghrib: e.maghrib,
+                  isya: e.isya,
+                ))
+            .toList();
 
-        if (todayEntry == null) {
-          debugPrint('ShalatNotifCubit.initAndSchedule: entry hari ini null');
+        if (futureEntries.isEmpty) {
+          debugPrint('ShalatNotifCubit.initAndSchedule: entries null');
           return;
         }
 
-        final entry = ShalatScheduleEntry(
-          subuh: todayEntry.subuh,
-          dzuhur: todayEntry.dzuhur,
-          ashar: todayEntry.ashar,
-          maghrib: todayEntry.maghrib,
-          isya: todayEntry.isya,
-        );
-
-        _todayEntry = entry;
+        _entries = futureEntries;
         _reschedule(prefs);
       },
     );
@@ -114,8 +115,8 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
 
   /// Set jadwal hari ini dari luar (dipanggil JadwalShalatCubit).
   /// Langsung reschedule dengan prefs saat ini.
-  void setTodayEntry(ShalatScheduleEntry entry) {
-    _todayEntry = entry;
+  void setEntries(List<ShalatScheduleEntry> entries) {
+    _entries = entries;
     _reschedule(state);
   }
 
@@ -139,9 +140,8 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
   }
 
   void _reschedule(ShalatNotifPrefs prefs) {
-    final entry = _todayEntry;
-    if (entry == null) {
-      debugPrint('ShalatNotifCubit: todayEntry belum di-set, skip reschedule');
+    if (_entries.isEmpty) {
+      debugPrint('ShalatNotifCubit: _entries kosong, skip reschedule');
       return;
     }
 
@@ -155,7 +155,7 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
     );
 
     unawaited(
-      _scheduler.scheduleForToday(entry, config).catchError((Object e) {
+      _scheduler.scheduleForNextDays(_entries, config).catchError((Object e) {
         debugPrint('ShalatNotifCubit: reschedule error: $e');
       }),
     );

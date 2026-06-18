@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/constants/notification_ids.dart';
-import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
+
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_checklist_reminder_scheduler.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
@@ -68,15 +68,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           color: AppColors.error,
           onTest: _stopAdzan,
         ),
-        NotificationTestItem(
-          id: 'adzan_alarm_dzuhur',
-          icon: Icons.alarm_rounded,
-          title: 'Schedule Adzan Alarm (30 detik)',
-          subtitle: 'Test AlarmManager → playAdzanCallback (lock device dulu)',
-          color: AppColors.gold,
-          onTest: () => _testAdzanAlarm(isSubuh: false),
-          duration: const Duration(seconds: 30),
-        ),
+
       ],
     ),
     NotificationTestSection(
@@ -256,18 +248,6 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
     });
   }
 
-  Future<void> _testAdzanAlarm({required bool isSubuh}) async {
-    final key = isSubuh ? 'adzan_alarm_subuh' : 'adzan_alarm_dzuhur';
-    await _schedule(key, () async {
-      final scheduledTime = DateTime.now().add(const Duration(seconds: 30));
-      await scheduleAdzanAlarm(
-        id: isSubuh ? 911 : 912,
-        scheduledTime: scheduledTime,
-        isSubuh: isSubuh,
-        nama: isSubuh ? 'Subuh' : 'Dzuhur',
-      );
-    });
-  }
 
   Future<void> _testAdzan({required bool isSubuh}) async {
     final key = isSubuh ? 'adzan_subuh' : 'adzan_dzuhur';

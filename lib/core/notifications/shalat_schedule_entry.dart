@@ -4,6 +4,7 @@
 /// Field waktu menggunakan format string "HH:mm" (contoh: "04:32").
 class ShalatScheduleEntry {
   const ShalatScheduleEntry({
+    required this.date,
     required this.subuh,
     required this.dzuhur,
     required this.ashar,
@@ -11,6 +12,7 @@ class ShalatScheduleEntry {
     required this.isya,
   });
 
+  final DateTime date;
   final String subuh;
   final String dzuhur;
   final String ashar;
