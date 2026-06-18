@@ -212,8 +212,7 @@ class _PermissionItem extends StatelessWidget {
                         isGranted
                             ? Icons.check_circle_rounded
                             : Icons.cancel_rounded,
-                        color:
-                            isGranted ? AppColors.success : AppColors.error,
+                        color: isGranted ? AppColors.success : AppColors.error,
                         size: 18,
                       ),
                   ],

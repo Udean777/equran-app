@@ -18,14 +18,15 @@ class HafalanStatsCalculator {
 
     final totalSuratSelesai = list.where((h) => h.isSelesai).length;
 
-    final persentaseQuran =
-        (totalAyatHafal / _totalAyatQuran).clamp(0.0, 1.0);
+    final persentaseQuran = (totalAyatHafal / _totalAyatQuran).clamp(0.0, 1.0);
 
-    final suratSedangDihafal =
-        list.where((h) => h.status == HafalanStatus.sedangDihafal).length;
+    final suratSedangDihafal = list
+        .where((h) => h.status == HafalanStatus.sedangDihafal)
+        .length;
 
-    final suratPerluMurajaah =
-        list.where((h) => h.status == HafalanStatus.perluMurajaah).length;
+    final suratPerluMurajaah = list
+        .where((h) => h.status == HafalanStatus.perluMurajaah)
+        .length;
 
     // Progress per juz: hitung ayat hafal per juz dibagi total ayat juz
     final progressPerJuz = <int, double>{};

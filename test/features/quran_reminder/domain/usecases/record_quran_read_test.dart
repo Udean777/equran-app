@@ -31,13 +31,17 @@ void main() {
 
     expect(result, 5);
     verifyNever(
-      () => mockRepository.saveStreak(date: any(named: 'date'), count: any(named: 'count')),
+      () => mockRepository.saveStreak(
+        date: any(named: 'date'),
+        count: any(named: 'count'),
+      ),
     );
   });
 
   test('increment streak jika baca kemarin', () async {
-    when(() => mockRepository.getLastReadDate())
-        .thenAnswer((_) async => yesterday);
+    when(
+      () => mockRepository.getLastReadDate(),
+    ).thenAnswer((_) async => yesterday);
     when(
       () => mockRepository.saveStreak(date: today, count: 6),
     ).thenAnswer((_) async {});
@@ -49,8 +53,9 @@ void main() {
   });
 
   test('reset ke 1 jika lebih dari kemarin', () async {
-    when(() => mockRepository.getLastReadDate())
-        .thenAnswer((_) async => twoDaysAgo);
+    when(
+      () => mockRepository.getLastReadDate(),
+    ).thenAnswer((_) async => twoDaysAgo);
     when(
       () => mockRepository.saveStreak(date: today, count: 1),
     ).thenAnswer((_) async {});

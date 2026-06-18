@@ -1,6 +1,6 @@
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/theme/share_templates_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Widget yang di-render menjadi gambar untuk dibagikan.
@@ -10,12 +10,14 @@ class AyatShareCard extends StatelessWidget {
     required this.ayat,
     required this.namaLatin,
     required this.suratNomor,
+    this.style = ShareTemplateStyle.classicEmerald,
     super.key,
   });
 
   final Ayat ayat;
   final String namaLatin;
   final int suratNomor;
+  final ShareTemplateStyle style;
 
   @override
   Widget build(BuildContext context) {
@@ -23,19 +25,15 @@ class AyatShareCard extends StatelessWidget {
       width: 380,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0D3320),
-            Color(0xFF1A5C38),
-            Color(0xFF0F4028),
-          ],
-          stops: [0.0, 0.5, 1.0],
+          colors: style.backgroundColors,
+          stops: style.stops,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.4),
+            color: style.shadowColor,
             blurRadius: 32,
             offset: const Offset(0, 12),
           ),
@@ -54,7 +52,7 @@ class AyatShareCard extends StatelessWidget {
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.onPrimary.withValues(alpha: 0.04),
+                  color: style.bigCircleColor,
                 ),
               ),
             ),
@@ -67,7 +65,7 @@ class AyatShareCard extends StatelessWidget {
                 height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.gold.withValues(alpha: 0.06),
+                  color: style.smallCircleColor,
                 ),
               ),
             ),
@@ -80,33 +78,27 @@ class AyatShareCard extends StatelessWidget {
                 height: 140,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.onPrimary.withValues(alpha: 0.03),
+                  color: style.bottomCircleColor,
                 ),
               ),
             ),
 
-            // Gold border top
+            // Luminous border top
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: Container(
                 height: 3,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      AppColors.gold,
-                      AppColors.goldLight,
-                      AppColors.gold,
-                      Colors.transparent,
-                    ],
+                    colors: style.topBorderColors,
                   ),
                 ),
               ),
             ),
 
-            // Gold border bottom
+            // Luminous border bottom
             Positioned(
               bottom: 0,
               left: 0,
@@ -117,7 +109,7 @@ class AyatShareCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      AppColors.gold.withValues(alpha: 0.5),
+                      style.bottomBorderColor,
                       Colors.transparent,
                     ],
                   ),
@@ -143,16 +135,16 @@ class AyatShareCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.gold.withValues(alpha: 0.15),
+                          color: style.badgeBgColor,
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(
-                            color: AppColors.gold.withValues(alpha: 0.4),
+                            color: style.badgeBorderColor,
                           ),
                         ),
                         child: Text(
                           'Ayat ${ayat.nomorAyat}',
-                          style: const TextStyle(
-                            color: AppColors.gold,
+                          style: TextStyle(
+                            color: style.badgeTextColor,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
@@ -166,14 +158,14 @@ class AyatShareCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.menu_book_rounded,
-                            color: AppColors.gold.withValues(alpha: 0.8),
+                            color: style.brandingIconColor,
                             size: 14,
                           ),
                           const SizedBox(width: 5),
                           Text(
                             'eQuran',
                             style: AppTypography.serifHeadingSmall.copyWith(
-                              color: AppColors.onPrimary.withValues(alpha: 0.7),
+                              color: style.brandingTextColor,
                               fontSize: 13,
                               height: 1,
                             ),
@@ -190,17 +182,17 @@ class AyatShareCard extends StatelessWidget {
                     ayat.teksArab,
                     textAlign: TextAlign.right,
                     textDirection: TextDirection.rtl,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Amiri',
                       fontSize: 30,
-                      color: AppColors.onPrimary,
+                      color: style.arabicTextColor,
                       height: 2.2,
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Gold divider ornamental
+                  // Divider ornamental
                   Row(
                     children: [
                       Expanded(
@@ -210,7 +202,7 @@ class AyatShareCard extends StatelessWidget {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.transparent,
-                                AppColors.gold.withValues(alpha: 0.6),
+                                style.dividerLineColors[1],
                               ],
                             ),
                           ),
@@ -221,8 +213,8 @@ class AyatShareCard extends StatelessWidget {
                         child: Container(
                           width: 6,
                           height: 6,
-                          decoration: const BoxDecoration(
-                            color: AppColors.gold,
+                          decoration: BoxDecoration(
+                            color: style.dividerCircleColor,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -233,7 +225,7 @@ class AyatShareCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppColors.gold.withValues(alpha: 0.6),
+                                style.dividerLineColors[1],
                                 Colors.transparent,
                               ],
                             ),
@@ -251,7 +243,7 @@ class AyatShareCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.onPrimary.withValues(alpha: 0.88),
+                      color: style.translationTextColor,
                       height: 1.75,
                       fontStyle: FontStyle.italic,
                     ),
@@ -267,17 +259,17 @@ class AyatShareCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.onPrimary.withValues(alpha: 0.08),
+                        color: style.sourceBgColor,
                         borderRadius: BorderRadius.circular(100),
                         border: Border.all(
-                          color: AppColors.gold.withValues(alpha: 0.25),
+                          color: style.sourceBorderColor,
                         ),
                       ),
                       child: Text(
                         'Q.S. $namaLatin ($suratNomor) : ${ayat.nomorAyat}',
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.gold.withValues(alpha: 0.9),
+                          color: style.sourceTextColor,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.4,
                         ),

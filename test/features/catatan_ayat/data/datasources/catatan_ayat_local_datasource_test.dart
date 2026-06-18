@@ -55,9 +55,7 @@ void main() {
         when(() => mockBox.get('1:1')).thenReturn('invalid_json');
         when(() => mockBox.get('2:1')).thenReturn(
           jsonEncode(
-            tCatatan
-                .copyWith(suratNomor: 2, ayatNomor: 1)
-                .toJson(),
+            tCatatan.copyWith(suratNomor: 2, ayatNomor: 1).toJson(),
           ),
         );
 

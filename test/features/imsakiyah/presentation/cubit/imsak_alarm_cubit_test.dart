@@ -201,10 +201,10 @@ void main() {
     });
 
     ImsakAlarmCubit buildCubit() => ImsakAlarmCubit(
-          mockGetPrefs,
-          mockSavePrefs,
-          mockScheduler,
-        );
+      mockGetPrefs,
+      mockSavePrefs,
+      mockScheduler,
+    );
 
     test('initial state adalah ImsakAlarmInitial', () {
       expect(buildCubit().state, const ImsakAlarmState.initial());
@@ -338,9 +338,9 @@ void main() {
 // ---------------------------------------------------------------------------
 
 Imsakiyah _fakeImsakiyah(List<ImsakiyahEntry> entries) => Imsakiyah(
-      provinsi: 'DKI Jakarta',
-      kabkota: 'Kota Jakarta Pusat',
-      hijriah: 'Ramadan 1446',
-      masehi: 'Maret 2025',
-      imsakiyah: entries,
-    );
+  provinsi: 'DKI Jakarta',
+  kabkota: 'Kota Jakarta Pusat',
+  hijriah: 'Ramadan 1446',
+  masehi: 'Maret 2025',
+  imsakiyah: entries,
+);

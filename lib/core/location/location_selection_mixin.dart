@@ -93,8 +93,9 @@ mixin LocationSelectionMixin<T> on Cubit<T> {
       return;
     }
 
-    final matched =
-        kabkota.contains(defaultKabkota) ? defaultKabkota : kabkota.first;
+    final matched = kabkota.contains(defaultKabkota)
+        ? defaultKabkota
+        : kabkota.first;
 
     unawaited(
       saveLocation(

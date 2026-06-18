@@ -47,14 +47,14 @@ class StreakBadge extends StatelessWidget {
 
     return switch (variant) {
       StreakBadgeVariant.surface => _SurfaceBadge(
-          streak: streak,
-          isDark: isDark,
-          showLabel: showLabel,
-        ),
+        streak: streak,
+        isDark: isDark,
+        showLabel: showLabel,
+      ),
       StreakBadgeVariant.onPrimary => _OnPrimaryBadge(
-          streak: streak,
-          showLabel: showLabel,
-        ),
+        streak: streak,
+        showLabel: showLabel,
+      ),
     };
   }
 }

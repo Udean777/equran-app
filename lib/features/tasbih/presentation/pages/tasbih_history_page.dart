@@ -28,8 +28,7 @@ class _TasbihHistoryPageState extends State<TasbihHistoryPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: LuxuryAppBar(
         title: 'Riwayat Tasbih',
         actions: [

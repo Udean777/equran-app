@@ -18,8 +18,7 @@ class QiblaHowToCard extends StatelessWidget {
     ),
     (
       icon: Icons.check_circle_outline_rounded,
-      text:
-          'Saat muncul "Menghadap Kiblat!", Anda sudah di arah yang benar',
+      text: 'Saat muncul "Menghadap Kiblat!", Anda sudah di arah yang benar',
     ),
   ];
 
@@ -27,14 +26,12 @@ class QiblaHowToCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final theme = Theme.of(context);
-    final iconColor =
-        isDark ? AppColors.primaryLighter : AppColors.primary;
-    final iconBg =
-        isDark ? AppColors.primaryDark : AppColors.primaryContainer;
-    final textColor =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-    final subtextColor =
-        isDark ? AppColors.onSurfaceDarkVariant : AppColors.textSecondary;
+    final iconColor = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final iconBg = isDark ? AppColors.primaryDark : AppColors.primaryContainer;
+    final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final subtextColor = isDark
+        ? AppColors.onSurfaceDarkVariant
+        : AppColors.textSecondary;
 
     return LuxuryCard(
       child: Column(

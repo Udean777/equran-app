@@ -7,6 +7,7 @@ sealed class BookmarkState with _$BookmarkState {
   const factory BookmarkState.success({
     required List<Bookmark> bookmarks,
     LastRead? lastRead,
+
     /// Progress per surat — key: suratNomor, value: maxScrollPercent (0.0–1.0)
     @Default(<int, double>{}) Map<int, double> suratProgressMap,
   }) = BookmarkSuccess;

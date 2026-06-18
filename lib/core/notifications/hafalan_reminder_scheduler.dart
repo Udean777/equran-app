@@ -51,6 +51,8 @@ class HafalanReminderScheduler {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      presentBanner: true,
+      presentList: true,
     );
 
     const details = NotificationDetails(

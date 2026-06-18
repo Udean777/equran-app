@@ -80,16 +80,14 @@ class DownloadSuratSheet extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor:
-                        isDark ? AppColors.primaryLighter : AppColors.primary,
+                    foregroundColor: isDark
+                        ? AppColors.primaryLighter
+                        : AppColors.primary,
                     side: BorderSide(
-                      color: isDark
-                          ? AppColors.outlineDark
-                          : AppColors.outline,
+                      color: isDark ? AppColors.outlineDark : AppColors.outline,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusLG),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
                     ),
                     padding: const EdgeInsets.symmetric(
                       vertical: AppDimens.spaceMD,

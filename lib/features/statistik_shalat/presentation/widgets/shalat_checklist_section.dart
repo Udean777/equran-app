@@ -19,8 +19,9 @@ class ShalatChecklistSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -60,8 +61,7 @@ class ShalatChecklistSection extends StatelessWidget {
                     height: 16,
                     decoration: BoxDecoration(
                       color: AppColors.gold,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                     ),
                   ),
                   const SizedBox(width: AppDimens.spaceSM),
@@ -84,9 +84,7 @@ class ShalatChecklistSection extends StatelessWidget {
               margin: const EdgeInsets.symmetric(
                 horizontal: AppDimens.cardPadding,
               ),
-              color: isDark
-                  ? AppColors.outlineDark
-                  : AppColors.outlineVariant,
+              color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
             ),
 
             // Rows
@@ -141,8 +139,8 @@ class _ShalatRow extends StatelessWidget {
         color: hasBorder
             ? borderColor.withValues(alpha: isDark ? 0.08 : 0.05)
             : (isDark
-                ? AppColors.surfaceDarkVariant
-                : AppColors.surfaceVariant),
+                  ? AppColors.surfaceDarkVariant
+                  : AppColors.surfaceVariant),
         borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         border: Border.all(
           color: hasBorder
@@ -174,9 +172,7 @@ class _ShalatRow extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
-                color: isDark
-                    ? AppColors.onSurfaceDark
-                    : AppColors.textPrimary,
+                color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
               ),
             ),
           ),
@@ -198,13 +194,10 @@ class _ShalatRow extends StatelessWidget {
   };
 
   Color _iconBgColor(ShalatStatus status) => switch (status) {
-    ShalatStatus.tepatWaktu =>
-      AppColors.success.withValues(alpha: 0.12),
+    ShalatStatus.tepatWaktu => AppColors.success.withValues(alpha: 0.12),
     ShalatStatus.qadha => AppColors.warning.withValues(alpha: 0.12),
-    ShalatStatus.tidakShalat =>
-      AppColors.error.withValues(alpha: 0.12),
-    ShalatStatus.belumDicatat =>
-      AppColors.primary.withValues(alpha: 0.08),
+    ShalatStatus.tidakShalat => AppColors.error.withValues(alpha: 0.12),
+    ShalatStatus.belumDicatat => AppColors.primary.withValues(alpha: 0.08),
   };
 
   Color _iconColor(ShalatStatus status) => switch (status) {

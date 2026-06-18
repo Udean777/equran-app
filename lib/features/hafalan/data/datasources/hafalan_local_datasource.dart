@@ -34,9 +34,12 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
         final raw = _box.get(_key(i));
         if (raw == null) continue;
         try {
-          final dto = HafalanSuratDto.fromJson(
-            jsonDecode(raw) as Map<String, dynamic>,
-          );
+          final decoded = jsonDecode(raw);
+          if (decoded is! Map<String, dynamic>) {
+            debugPrint('HafalanLocalDatasource: skip surat $i — type error');
+            continue;
+          }
+          final dto = HafalanSuratDto.fromJson(decoded);
           results.add(dto.toEntity());
         } on Object catch (e, st) {
           debugPrint('HafalanLocalDatasource: skip surat $i — $e\n$st');
@@ -56,10 +59,18 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
     try {
       final raw = _box.get(_key(suratNomor));
       if (raw == null) return null;
-      final dto = HafalanSuratDto.fromJson(
-        jsonDecode(raw) as Map<String, dynamic>,
-      );
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) {
+        debugPrint(
+          'HafalanLocalDatasource.getBySurat type error: expected Map',
+        );
+        return null;
+      }
+      final dto = HafalanSuratDto.fromJson(decoded);
       return dto.toEntity();
+    } on FormatException catch (e, st) {
+      debugPrint('HafalanLocalDatasource.getBySurat format error: $e\n$st');
+      return null;
     } on Object catch (e, st) {
       debugPrint('HafalanLocalDatasource.getBySurat error: $e\n$st');
       throw CacheException(message: e.toString());

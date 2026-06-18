@@ -15,8 +15,10 @@ abstract interface class BookmarkLocalDataSource {
   Future<bool> isBookmarked({required int suratNomor, required int ayatNomor});
   Future<LastReadDto?> getLastRead();
   Future<void> saveLastRead(LastReadDto lastRead);
+
   /// Ambil progress per surat — key: suratNomor, value: maxScrollPercent (0.0–1.0)
   Map<int, double> getAllSuratProgress();
+
   /// Simpan progress satu surat
   Future<void> saveSuratProgress(int suratNomor, double maxProgress);
 }

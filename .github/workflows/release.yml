@@ -1,257 +1,230 @@
-# name: Release
-# 
-# # ─── Trigger ────────────────────────────────────────────────────────────────
-# # Push ke main → extract version dari pubspec.yaml → build + GitHub Release
-# # Jika version belum berubah (tag sudah ada), workflow skip otomatis.
-# # CD: deploy-play-console — prototipe, tidak aktif (if: false)
-# on:
-#   push:
-#     branches:
-#       - main
-# 
-# # ─── Permissions ────────────────────────────────────────────────────────────
-# permissions:
-#   contents: write # untuk membuat GitHub Release dan push tag
-# 
-# # ─── Env global ─────────────────────────────────────────────────────────────
-# env:
-#   FLUTTER_VERSION: "3.32.0"
-#   JAVA_VERSION: "17"
-# 
-# jobs:
-#   # ═══════════════════════════════════════════════════════════════════════════
-#   # JOB 1 — Build
-#   # ═══════════════════════════════════════════════════════════════════════════
-#   build:
-#     name: Build APK (split ABI) + AAB
-#     runs-on: ubuntu-latest
-# 
-#     outputs:
-#       tag: ${{ steps.version.outputs.tag }}
-#       skip: ${{ steps.tag_check.outputs.exists }}
-# 
-#     steps:
-#       # ── Checkout ────────────────────────────────────────────────────────────
-#       - name: Checkout
-#         uses: actions/checkout@v4
-#         with:
-#           fetch-depth: 0 # perlu full history untuk cek tag existing
-# 
-#       # ── Extract version dari pubspec.yaml ────────────────────────────────────
-#       - name: Extract version
-#         id: version
-#         run: |
-#           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d '[:space:]')
-#           TAG="v${VERSION}"
-#           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-#           echo "tag=${TAG}" >> $GITHUB_OUTPUT
-#           echo "Version: ${VERSION}, Tag: ${TAG}"
-# 
-#       # ── Skip jika tag sudah ada (cegah duplicate release) ───────────────────
-#       - name: Check tag exists
-#         id: tag_check
-#         run: |
-#           if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
-#             echo "exists=true" >> $GITHUB_OUTPUT
-#             echo "Tag ${{ steps.version.outputs.tag }} sudah ada, skip build."
-#           else
-#             echo "exists=false" >> $GITHUB_OUTPUT
-#           fi
-# 
-#       # ── Java ────────────────────────────────────────────────────────────────
-#       - name: Setup Java ${{ env.JAVA_VERSION }}
-#         if: steps.tag_check.outputs.exists == 'false'
-#         uses: actions/setup-java@v4
-#         with:
-#           distribution: temurin
-#           java-version: ${{ env.JAVA_VERSION }}
-# 
-#       # ── Flutter ─────────────────────────────────────────────────────────────
-#       - name: Cache Flutter SDK
-#         if: steps.tag_check.outputs.exists == 'false'
-#         uses: actions/cache@v4
-#         with:
-#           path: ~/flutter
-#           key: flutter-${{ env.FLUTTER_VERSION }}-stable-linux
-# 
-#       - name: Install Flutter ${{ env.FLUTTER_VERSION }}
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: |
-#           if [ ! -d "$HOME/flutter" ]; then
-#             curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${{ env.FLUTTER_VERSION }}-stable.tar.xz" \
-#               | tar xJ -C "$HOME"
-#           fi
-#           echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
-#           flutter --version
-# 
-#       # ── Dependencies ────────────────────────────────────────────────────────
-#       - name: Install dependencies
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: flutter pub get
-# 
-#       # ── Code generation ─────────────────────────────────────────────────────
-#       - name: Run build_runner
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: dart run build_runner build --delete-conflicting-outputs
-# 
-#       # ── Keystore ────────────────────────────────────────────────────────────
-#       # Secret yang dibutuhkan (set di GitHub → Settings → Secrets):
-#       #   KEYSTORE_BASE64     : base64 -i release.keystore
-#       #   KEYSTORE_PASSWORD   : storePassword
-#       #   KEY_ALIAS           : keyAlias
-#       #   KEY_PASSWORD        : keyPassword
-#       - name: Decode keystore
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: |
-#           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
-# 
-#       - name: Write key.properties
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: |
-#           cat > android/key.properties <<EOF
-#           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-#           keyPassword=${{ secrets.KEY_PASSWORD }}
-#           keyAlias=${{ secrets.KEY_ALIAS }}
-#           storeFile=release.keystore
-#           EOF
-# 
-#       # ── Patch build.gradle.kts agar pakai key.properties ────────────────────
-#       - name: Patch signingConfig → release keystore
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: |
-#           sed -i 's/signingConfig = signingConfigs.getByName("debug")/signingConfig = signingConfigs.getByName("release")/' \
-#             android/app/build.gradle.kts
-# 
-#           if ! grep -q 'signingConfigs {' android/app/build.gradle.kts; then
-#             sed -i '/buildTypes {/i \
-#             signingConfigs {\
-#                 release {\
-#                     val props = java.util.Properties()\
-#                     props.load(rootProject.file("key.properties").inputStream())\
-#                     storeFile = file(props["storeFile"] as String)\
-#                     storePassword = props["storePassword"] as String\
-#                     keyAlias = props["keyAlias"] as String\
-#                     keyPassword = props["keyPassword"] as String\
-#                 }\
-#             }\
-#             ' android/app/build.gradle.kts
-#           fi
-# 
-#       # ── Build APK split per ABI ──────────────────────────────────────────────
-#       - name: Build APK (split ABI)
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: make build-android-apk
-# 
-#       # ── Build AAB ───────────────────────────────────────────────────────────
-#       - name: Build AAB
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: make build-android-aab
-# 
-#       # ── Rename artifacts ────────────────────────────────────────────────────
-#       - name: Rename artifacts
-#         if: steps.tag_check.outputs.exists == 'false'
-#         run: |
-#           TAG="${{ steps.version.outputs.tag }}"
-#           cd build/app/outputs/flutter-apk
-#           mv app-armeabi-v7a-release.apk  equran-${TAG}-armeabi-v7a.apk || true
-#           mv app-arm64-v8a-release.apk    equran-${TAG}-arm64-v8a.apk   || true
-#           mv app-x86_64-release.apk       equran-${TAG}-x86_64.apk      || true
-#           cd -
-#           mv build/app/outputs/bundle/release/app-release.aab \
-#              build/app/outputs/bundle/release/equran-${TAG}.aab
-#           zip -r dist-symbols.zip build/debug-info/android/
-# 
-#       # ── Upload artifacts (antar job) ─────────────────────────────────────────
-#       - name: Upload APKs
-#         if: steps.tag_check.outputs.exists == 'false'
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: apks
-#           path: build/app/outputs/flutter-apk/equran-*.apk
-#           retention-days: 7
-# 
-#       - name: Upload AAB
-#         if: steps.tag_check.outputs.exists == 'false'
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: aab
-#           path: build/app/outputs/bundle/release/equran-*.aab
-#           retention-days: 7
-# 
-#       - name: Upload debug symbols
-#         if: steps.tag_check.outputs.exists == 'false'
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: symbols
-#           path: dist-symbols.zip
-#           retention-days: 7
-# 
-#   # ═══════════════════════════════════════════════════════════════════════════
-#   # JOB 2 — GitHub Release
-#   # ═══════════════════════════════════════════════════════════════════════════
-#   release:
-#     name: Publish GitHub Release
-#     needs: build
-#     runs-on: ubuntu-latest
-#     if: needs.build.outputs.skip == 'false'
-# 
-#     steps:
-#       - name: Download APKs
-#         uses: actions/download-artifact@v4
-#         with:
-#           name: apks
-#           path: dist/
-# 
-#       - name: Download AAB
-#         uses: actions/download-artifact@v4
-#         with:
-#           name: aab
-#           path: dist/
-# 
-#       - name: Download debug symbols
-#         uses: actions/download-artifact@v4
-#         with:
-#           name: symbols
-#           path: dist/
-# 
-#       - name: Create GitHub Release
-#         uses: softprops/action-gh-release@v2
-#         with:
-#           tag_name: ${{ needs.build.outputs.tag }}
-#           name: eQuran ${{ needs.build.outputs.tag }}
-#           draft: false
-#           prerelease: ${{ contains(needs.build.outputs.tag, '-') }} # v1.0.0-beta → prerelease
-#           generate_release_notes: true
-#           files: |
-#             dist/equran-*.apk
-#             dist/equran-*.aab
-#             dist/dist-symbols.zip
-# 
-#   # ═══════════════════════════════════════════════════════════════════════════
-#   # JOB 3 — CD: Deploy ke Play Console (PROTOTIPE — tidak aktif)
-#   # Aktifkan nanti: ganti `if: false` dengan kondisi yang diinginkan
-#   # ═══════════════════════════════════════════════════════════════════════════
-#   deploy-play-console:
-#     name: "[PROTO] Deploy to Play Console"
-#     needs: build
-#     runs-on: ubuntu-latest
-#     if: false
-# 
-#     steps:
-#       - name: Download AAB
-#         uses: actions/download-artifact@v4
-#         with:
-#           name: aab
-#           path: dist/
-# 
-#       # Secret tambahan yang dibutuhkan:
-#       #   PLAY_SERVICE_ACCOUNT_JSON : isi JSON service account Google Play API
-#       - name: Upload to Play Console (internal track)
-#         uses: r0adkll/upload-google-play@v1
-#         with:
-#           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-#           packageName: id.ssajudn.equran_app
-#           releaseFiles: dist/equran-*.aab
-#           track: internal
-#           status: completed
-#           # whatsNewDirectory: distribution/whatsnew   # opsional: release notes per locale
+name: Release
+
+# ─── Trigger ────────────────────────────────────────────────────────────────
+# Push ke main → extract version dari pubspec.yaml → build + GitHub Release
+# Jika version belum berubah (tag sudah ada), workflow skip otomatis.
+# CD: deploy-play-console — prototipe, tidak aktif (if: false)
+on:
+  push:
+    branches:
+      - main
+
+# ─── Permissions ────────────────────────────────────────────────────────────
+permissions:
+  contents: write # untuk membuat GitHub Release dan push tag
+
+# ─── Env global ─────────────────────────────────────────────────────────────
+env:
+  JAVA_VERSION: "17"
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # JOB 1 — Build
+  # ═══════════════════════════════════════════════════════════════════════════
+  build:
+    name: Build APK (split ABI) + AAB
+    runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      skip: ${{ steps.tag_check.outputs.exists }}
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # perlu full history untuk cek tag existing
+
+      # ── Extract version dari pubspec.yaml ────────────────────────────────────
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d '[:space:]')
+          TAG="v${VERSION}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}, Tag: ${TAG}"
+
+      # ── Skip jika tag sudah ada (cegah duplicate release) ───────────────────
+      - name: Check tag exists
+        id: tag_check
+        run: |
+          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag ${{ steps.version.outputs.tag }} sudah ada, skip build."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Java ────────────────────────────────────────────────────────────────
+      - name: Setup Java ${{ env.JAVA_VERSION }}
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      # ── Flutter ─────────────────────────────────────────────────────────────
+      - name: Setup Flutter
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      
+      - name: Flutter version
+        if: steps.tag_check.outputs.exists == 'false'
+        run: flutter --version
+
+      # ── Dependencies ────────────────────────────────────────────────────────
+      - name: Install dependencies
+        if: steps.tag_check.outputs.exists == 'false'
+        run: flutter pub get
+
+      # ── Code generation ─────────────────────────────────────────────────────
+      - name: Run build_runner
+        if: steps.tag_check.outputs.exists == 'false'
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      # ── Keystore ────────────────────────────────────────────────────────────
+      # Secret yang dibutuhkan (set di GitHub → Settings → Secrets):
+      #   KEYSTORE_BASE64     : base64 -i release.keystore
+      #   KEYSTORE_PASSWORD   : storePassword
+      #   KEY_ALIAS           : keyAlias
+      #   KEY_PASSWORD        : keyPassword
+      - name: Decode keystore
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
+      - name: Write key.properties
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=release.keystore
+          EOF
+
+
+
+      # ── Build APK split per ABI ──────────────────────────────────────────────
+      - name: Build APK (split ABI)
+        if: steps.tag_check.outputs.exists == 'false'
+        run: make build-android-apk
+
+      # ── Build AAB ───────────────────────────────────────────────────────────
+      - name: Build AAB
+        if: steps.tag_check.outputs.exists == 'false'
+        run: make build-android-aab
+
+      # ── Rename artifacts ────────────────────────────────────────────────────
+      - name: Rename artifacts
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          cd build/app/outputs/flutter-apk
+          mv app-armeabi-v7a-release.apk  equran-${TAG}-armeabi-v7a.apk || true
+          mv app-arm64-v8a-release.apk    equran-${TAG}-arm64-v8a.apk   || true
+          mv app-x86_64-release.apk       equran-${TAG}-x86_64.apk      || true
+          cd -
+          mv build/app/outputs/bundle/release/app-release.aab \
+             build/app/outputs/bundle/release/equran-${TAG}.aab
+          zip -r dist-symbols.zip build/debug-info/android/
+
+      # ── Upload artifacts (antar job) ─────────────────────────────────────────
+      - name: Upload APKs
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: build/app/outputs/flutter-apk/equran-*.apk
+          retention-days: 7
+
+      - name: Upload AAB
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aab
+          path: build/app/outputs/bundle/release/equran-*.aab
+          retention-days: 7
+
+      - name: Upload debug symbols
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: symbols
+          path: dist-symbols.zip
+          retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # JOB 2 — GitHub Release
+  # ═══════════════════════════════════════════════════════════════════════════
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: needs.build.outputs.skip == 'false'
+
+    steps:
+      - name: Download APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: dist/
+
+      - name: Download AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: aab
+          path: dist/
+
+      - name: Download debug symbols
+        uses: actions/download-artifact@v4
+        with:
+          name: symbols
+          path: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.build.outputs.tag }}
+          name: eQuran ${{ needs.build.outputs.tag }}
+          draft: false
+          prerelease: ${{ contains(needs.build.outputs.tag, '-') }} # v1.0.0-beta → prerelease
+          generate_release_notes: true
+          files: |
+            dist/equran-*.apk
+            dist/equran-*.aab
+            dist/dist-symbols.zip
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # JOB 3 — CD: Deploy ke Play Console (PROTOTIPE — tidak aktif)
+  # Aktifkan nanti: ganti `if: false` dengan kondisi yang diinginkan
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy-play-console:
+    name: "[PROTO] Deploy to Play Console"
+    needs: build
+    runs-on: ubuntu-latest
+    if: false
+
+    steps:
+      - name: Download AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: aab
+          path: dist/
+
+      # Secret tambahan yang dibutuhkan:
+      #   PLAY_SERVICE_ACCOUNT_JSON : isi JSON service account Google Play API
+      - name: Upload to Play Console (internal track)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: id.ssajudn.equran_app
+          releaseFiles: dist/equran-*.aab
+          track: internal
+          status: completed
+          # whatsNewDirectory: distribution/whatsnew   # opsional: release notes per locale

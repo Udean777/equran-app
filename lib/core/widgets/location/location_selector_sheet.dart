@@ -202,9 +202,7 @@ class _ProvinsiList extends StatelessWidget {
   Widget build(BuildContext context) {
     final filtered = query.isEmpty
         ? provinsiList
-        : provinsiList
-            .where((p) => p.toLowerCase().contains(query))
-            .toList();
+        : provinsiList.where((p) => p.toLowerCase().contains(query)).toList();
 
     if (filtered.isEmpty) {
       return const Center(child: Text('Provinsi tidak ditemukan'));
@@ -250,9 +248,7 @@ class _KabkotaList extends StatelessWidget {
 
     final filtered = query.isEmpty
         ? kabkotaList
-        : kabkotaList
-            .where((k) => k.toLowerCase().contains(query))
-            .toList();
+        : kabkotaList.where((k) => k.toLowerCase().contains(query)).toList();
 
     if (filtered.isEmpty) {
       return const Center(child: Text('Kab/Kota tidak ditemukan'));

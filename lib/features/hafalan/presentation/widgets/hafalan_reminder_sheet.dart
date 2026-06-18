@@ -26,7 +26,8 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = widget.hafalan.tanggalMurajaahBerikutnya ??
+    _selectedDate =
+        widget.hafalan.tanggalMurajaahBerikutnya ??
         DateTime.now().add(const Duration(days: 1));
   }
 
@@ -92,9 +93,9 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
                 title: "Tandai Sudah Muraja'ah",
                 subtitle: 'Naik ke level berikutnya secara otomatis',
                 onTap: () async {
-                  await context
-                      .read<HafalanCubit>()
-                      .tandaiSudahMurajaah(hafalan.suratNomor);
+                  await context.read<HafalanCubit>().tandaiSudahMurajaah(
+                    hafalan.suratNomor,
+                  );
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -116,9 +117,9 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
             FilledButton(
               onPressed: () async {
                 await context.read<HafalanCubit>().setMurajaahDate(
-                      suratNomor: hafalan.suratNomor,
-                      tanggal: _selectedDate,
-                    );
+                  suratNomor: hafalan.suratNomor,
+                  tanggal: _selectedDate,
+                );
                 if (context.mounted) Navigator.pop(context);
               },
               child: const Text('Simpan Jadwal'),
@@ -169,8 +170,9 @@ class _ActionTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppDimens.spaceMD),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest
-              .withValues(alpha: 0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(AppDimens.radiusMD),
         ),
         child: Row(

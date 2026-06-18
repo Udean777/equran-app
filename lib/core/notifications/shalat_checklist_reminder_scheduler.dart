@@ -82,6 +82,8 @@ class ShalatChecklistReminderScheduler {
           presentAlert: true,
           presentBadge: false,
           presentSound: true,
+          presentBanner: true,
+          presentList: true,
         ),
       );
 

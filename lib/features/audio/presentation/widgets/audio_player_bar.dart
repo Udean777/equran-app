@@ -49,8 +49,9 @@ class AudioPlayerBar extends StatelessWidget {
         if (state.isIdle) return const SizedBox.shrink();
 
         final cubit = context.read<AudioCubit>();
-        final effectiveAudioMap =
-            audioMap.isNotEmpty ? audioMap : cubit.lastAudioMap;
+        final effectiveAudioMap = audioMap.isNotEmpty
+            ? audioMap
+            : cubit.lastAudioMap;
         final isPlaylist = cubit.isPlaylistMode;
         final suratName = cubit.playlistSuratName;
         final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -132,8 +133,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusSM),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.12),
@@ -224,7 +224,8 @@ class _AudioPlayerBarContent extends StatelessWidget {
                         : (isDark
                               ? AppColors.outlineDark
                               : AppColors.textDisabled),
-                    onPressed: onPrevCard ??
+                    onPressed:
+                        onPrevCard ??
                         (cubit.playlistIndex > 0
                             ? () => unawaited(cubit.previousAyat())
                             : null),
@@ -246,13 +247,15 @@ class _AudioPlayerBarContent extends StatelessWidget {
                 if (isPlaylist)
                   AudioIconBtn(
                     icon: Icons.skip_next_rounded,
-                    color: (onNextCard != null ||
+                    color:
+                        (onNextCard != null ||
                             cubit.playlistIndex < cubit.playlist.length - 1)
                         ? primaryColor
                         : (isDark
                               ? AppColors.outlineDark
                               : AppColors.textDisabled),
-                    onPressed: onNextCard ??
+                    onPressed:
+                        onNextCard ??
                         (cubit.playlistIndex < cubit.playlist.length - 1
                             ? () => unawaited(cubit.nextAyat())
                             : null),
@@ -293,15 +296,16 @@ class _AudioPlayerBarContent extends StatelessWidget {
           ),
           transitionsBuilder: (_, animation, _, child) {
             return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 1),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                ),
-              ),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0, 1),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
               child: child,
             );
           },

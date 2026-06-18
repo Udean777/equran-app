@@ -40,7 +40,8 @@ class SuratNavButton extends StatelessWidget {
                 namaLatin: suratSebelumnya!.namaLatin,
                 icon: Icons.arrow_back_rounded,
                 isLeft: true,
-                onTap: () => context.push(AppRoutes.surat(suratSebelumnya!.nomor)),
+                onTap: () =>
+                    context.push(AppRoutes.surat(suratSebelumnya!.nomor)),
               ),
             ),
           if (suratSebelumnya != null && suratSelanjutnya != null)
@@ -52,7 +53,8 @@ class SuratNavButton extends StatelessWidget {
                 namaLatin: suratSelanjutnya!.namaLatin,
                 icon: Icons.arrow_forward_rounded,
                 isLeft: false,
-                onTap: () => context.push(AppRoutes.surat(suratSelanjutnya!.nomor)),
+                onTap: () =>
+                    context.push(AppRoutes.surat(suratSelanjutnya!.nomor)),
               ),
             ),
         ],
@@ -80,11 +82,11 @@ class _NavButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final primaryColor =
-        isDark ? AppColors.primaryLighter : AppColors.primary;
+    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Material(
       color: surfaceColor,
@@ -100,8 +102,9 @@ class _NavButton extends StatelessWidget {
             border: Border.all(color: borderColor),
           ),
           child: Row(
-            mainAxisAlignment:
-                isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
+            mainAxisAlignment: isLeft
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.end,
             children: [
               if (isLeft) ...[
                 Container(

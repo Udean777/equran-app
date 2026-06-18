@@ -9,6 +9,7 @@ import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubi
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -70,19 +71,20 @@ class SuratActionBar extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Hafalan
-                      _ActionPill(
-                        icon: Icons.auto_stories_outlined,
-                        label: 'Hafalan',
-                        isDark: isDark,
-                        onTap: () => unawaited(
-                          context.push(
-                            AppRoutes.hafalanSurat(detail.info.nomor),
+                      // Hafalan — hanya muncul di debug mode
+                      if (kDebugMode) ...[
+                        _ActionPill(
+                          icon: Icons.auto_stories_outlined,
+                          label: 'Hafalan',
+                          isDark: isDark,
+                          onTap: () => unawaited(
+                            context.push(
+                              AppRoutes.hafalanSurat(detail.info.nomor),
+                            ),
                           ),
                         ),
-                      ),
-
-                      _ActionDivider(isDark: isDark),
+                        _ActionDivider(isDark: isDark),
+                      ],
 
                       // Download — terkunci jika belum selesai baca semua ayat
                       if (downloadState.isDownloadingSurat)

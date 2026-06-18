@@ -56,13 +56,15 @@ class SuratCardStack extends StatelessWidget {
     final dragRatio = (dragOffset / screenWidth).clamp(-1.0, 1.0);
 
     // Tumble rotation: tilt as it moves
-    final rotationAngle = dragRatio * CardSwipeConfig.rotationFactor; // max ~17 degrees
+    final rotationAngle =
+        dragRatio * CardSwipeConfig.rotationFactor; // max ~17 degrees
 
     // Tumble scale: shrink slightly
     final scale = 1.0 - dragRatio.abs() * CardSwipeConfig.scaleFactor;
 
     // Tumble opacity: fade slightly
-    final opacity = (1.0 - dragRatio.abs() * CardSwipeConfig.opacityFactor).clamp(0.0, 1.0);
+    final opacity = (1.0 - dragRatio.abs() * CardSwipeConfig.opacityFactor)
+        .clamp(0.0, 1.0);
 
     // Tumble translation: horizontal + slight downward drop
     final translateY = dragRatio.abs() * CardSwipeConfig.translateYFactor;
@@ -99,16 +101,24 @@ class SuratCardStack extends StatelessWidget {
     // Tumble rotation for side card: tilts when off-screen, upright when centered
     final tiltSign = isLeft ? -1.0 : 1.0;
     final rotationAngle =
-        tiltSign * CardSwipeConfig.sideCardRotation * (1.0 - activeFactor); // ~11 degrees off-screen tilt
+        tiltSign *
+        CardSwipeConfig.sideCardRotation *
+        (1.0 - activeFactor); // ~11 degrees off-screen tilt
 
     // Tumble scale: 0.92 when off-screen, 1.0 when centered
-    final scale = CardSwipeConfig.sideCardScale + CardSwipeConfig.scaleFactor * activeFactor;
+    final scale =
+        CardSwipeConfig.sideCardScale +
+        CardSwipeConfig.scaleFactor * activeFactor;
 
     // Tumble opacity: 0.6 when off-screen, 1.0 when centered
-    final opacity = (CardSwipeConfig.sideCardOpacity + CardSwipeConfig.opacityFactor * activeFactor).clamp(0.0, 1.0);
+    final opacity =
+        (CardSwipeConfig.sideCardOpacity +
+                CardSwipeConfig.opacityFactor * activeFactor)
+            .clamp(0.0, 1.0);
 
     // Tumble translation: horizontal + slight vertical position adjustment
-    final translateY = CardSwipeConfig.sideCardTranslateY * (1.0 - activeFactor);
+    final translateY =
+        CardSwipeConfig.sideCardTranslateY * (1.0 - activeFactor);
 
     return Transform(
       transform: Matrix4.translationValues(offset, translateY, 0)
@@ -201,7 +211,9 @@ class SuratCardStack extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * CardSwipeConfig.cardMaxHeightRatio,
+          maxHeight:
+              MediaQuery.of(context).size.height *
+              CardSwipeConfig.cardMaxHeightRatio,
         ),
         child: card,
       ),

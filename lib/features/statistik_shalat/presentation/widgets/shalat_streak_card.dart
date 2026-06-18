@@ -25,7 +25,8 @@ class ShalatStreakCard extends StatelessWidget {
 
     return PrimaryGradientCard(
       ornamentRight: -24,
-      ornamentTop: double.nan, // tidak dipakai — ornamen di bawah
+      ornamentTop: null,
+      ornamentBottom: -20,
       child: Column(
         children: [
           Row(

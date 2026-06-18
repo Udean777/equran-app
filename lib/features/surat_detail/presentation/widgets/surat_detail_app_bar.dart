@@ -31,11 +31,12 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   String _buildJuzLabel(int suratNomor, int? ayatNomor) {
     // Info card atau tidak diketahui → tampilkan semua juz surat
     if (ayatNomor == null || ayatNomor == 0) {
-      final allJuz = kJuzToSurahMapping.entries
-          .where((e) => e.value.contains(suratNomor))
-          .map((e) => e.key)
-          .toList()
-        ..sort();
+      final allJuz =
+          kJuzToSurahMapping.entries
+              .where((e) => e.value.contains(suratNomor))
+              .map((e) => e.key)
+              .toList()
+            ..sort();
       if (allJuz.isEmpty) return '';
       return 'Juz ${allJuz.join(', ')}';
     }

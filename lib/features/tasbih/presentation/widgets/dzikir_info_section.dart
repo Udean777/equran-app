@@ -20,8 +20,9 @@ class DzikirInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Container(
       width: double.infinity,
@@ -52,7 +53,11 @@ class DzikirInfoSection extends StatelessWidget {
             height: 2,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [AppColors.goldDark, AppColors.gold, AppColors.goldDark],
+                colors: [
+                  AppColors.goldDark,
+                  AppColors.gold,
+                  AppColors.goldDark,
+                ],
               ),
               borderRadius: BorderRadius.circular(AppDimens.radiusFull),
             ),
@@ -77,9 +82,7 @@ class DzikirInfoSection extends StatelessWidget {
                 const SizedBox(width: AppDimens.spaceXS),
                 Icon(
                   Icons.expand_more_rounded,
-                  color: isDark
-                      ? AppColors.primaryLighter
-                      : AppColors.primary,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
                   size: 20,
                 ),
               ],

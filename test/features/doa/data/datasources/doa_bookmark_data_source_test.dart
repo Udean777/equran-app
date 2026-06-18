@@ -143,8 +143,9 @@ void main() {
       when(() => mockBox.get('doa_bookmark_ids')).thenAnswer((_) {
         return stored.isEmpty ? null : stored.last;
       });
-      when(() => mockBox.put(any<String>(), any<String>()))
-          .thenAnswer((inv) async {
+      when(() => mockBox.put(any<String>(), any<String>())).thenAnswer((
+        inv,
+      ) async {
         stored.add(inv.positionalArguments[1] as String);
       });
 
@@ -173,27 +174,30 @@ void main() {
       );
     });
 
-    test('concurrent addBookmark + removeBookmark menghasilkan state konsisten',
-        () async {
-      final stored = <String>[];
-      when(() => mockBox.get('doa_bookmark_ids')).thenAnswer((_) {
-        return stored.isEmpty ? jsonEncode([1]) : stored.last;
-      });
-      when(() => mockBox.put(any<String>(), any<String>()))
-          .thenAnswer((inv) async {
-        stored.add(inv.positionalArguments[1] as String);
-      });
+    test(
+      'concurrent addBookmark + removeBookmark menghasilkan state konsisten',
+      () async {
+        final stored = <String>[];
+        when(() => mockBox.get('doa_bookmark_ids')).thenAnswer((_) {
+          return stored.isEmpty ? jsonEncode([1]) : stored.last;
+        });
+        when(() => mockBox.put(any<String>(), any<String>())).thenAnswer((
+          inv,
+        ) async {
+          stored.add(inv.positionalArguments[1] as String);
+        });
 
-      // add + remove berjalan bersamaan — tidak boleh throw
-      await Future.wait([
-        dataSource.addBookmark(2),
-        dataSource.removeBookmark(1),
-      ]);
+        // add + remove berjalan bersamaan — tidak boleh throw
+        await Future.wait([
+          dataSource.addBookmark(2),
+          dataSource.removeBookmark(1),
+        ]);
 
-      // Tidak throw = state konsisten
-      verify(
-        () => mockBox.put('doa_bookmark_ids', any<String>()),
-      ).called(greaterThanOrEqualTo(1));
-    });
+        // Tidak throw = state konsisten
+        verify(
+          () => mockBox.put('doa_bookmark_ids', any<String>()),
+        ).called(greaterThanOrEqualTo(1));
+      },
+    );
   });
 }

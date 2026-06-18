@@ -63,7 +63,8 @@ void main() {
           url: any(named: 'url'),
         ),
       ).thenAnswer(
-        (_) => Stream.value(left(const Failure.unknown(message: 'network error'))),
+        (_) =>
+            Stream.value(left(const Failure.unknown(message: 'network error'))),
       );
 
       final results = await downloadAyatAudio(
@@ -144,8 +145,9 @@ void main() {
         ),
       ];
 
-      when(() => mockRepository.getDownloadedAyats())
-          .thenAnswer((_) async => right(files));
+      when(
+        () => mockRepository.getDownloadedAyats(),
+      ).thenAnswer((_) async => right(files));
 
       final result = await getDownloadedAyats();
 
@@ -161,8 +163,9 @@ void main() {
     });
 
     test('return empty list jika tidak ada file', () async {
-      when(() => mockRepository.getDownloadedAyats())
-          .thenAnswer((_) async => right(<DownloadedAyatInfo>[]));
+      when(
+        () => mockRepository.getDownloadedAyats(),
+      ).thenAnswer((_) async => right(<DownloadedAyatInfo>[]));
 
       final result = await getDownloadedAyats();
 

@@ -20,8 +20,9 @@ class TasbihSessionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
     final dateStr = DateFormat('dd MMM yyyy, HH:mm', 'id').format(
       session.createdAt.toLocal(),
     );
@@ -90,8 +91,9 @@ class TasbihSessionCard extends StatelessWidget {
                           color: isDark
                               ? AppColors.primaryDark
                               : AppColors.primaryContainer,
-                          borderRadius:
-                              BorderRadius.circular(AppDimens.radiusFull),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.radiusFull,
+                          ),
                         ),
                         child: Text(
                           '${session.count} / ${session.target}x',

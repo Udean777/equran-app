@@ -26,7 +26,10 @@ void main() {
     totalHariDenganData: 2,
     rataRataPerHari: 5,
     progressPerJuz: {for (var i = 1; i <= 30; i++) i: 0.0},
-    last90Days: List.generate(90, (i) => ReadingHistory(date: '2026-05-${(i % 28) + 1}'.padLeft(10, '0'))),
+    last90Days: List.generate(
+      90,
+      (i) => ReadingHistory(date: '2026-05-${(i % 28) + 1}'.padLeft(10, '0')),
+    ),
   );
 
   setUpAll(() {
@@ -40,8 +43,9 @@ void main() {
     mockCleanup = MockCleanupOldReadingData();
 
     // Default: cleanup selalu sukses
-    when(() => mockCleanup(retentionDays: any(named: 'retentionDays')))
-        .thenAnswer((_) async => const Right(unit));
+    when(
+      () => mockCleanup(retentionDays: any(named: 'retentionDays')),
+    ).thenAnswer((_) async => const Right(unit));
   });
 
   ReadingProgressCubit buildCubit() => ReadingProgressCubit(
@@ -66,8 +70,9 @@ void main() {
       blocTest<ReadingProgressCubit, ReadingProgressState>(
         'emit [loading, success] jika getStats berhasil',
         build: () {
-          when(() => mockGetStats(today: any(named: 'today')))
-              .thenReturn(Right(tStats));
+          when(
+            () => mockGetStats(today: any(named: 'today')),
+          ).thenReturn(Right(tStats));
           return buildCubit();
         },
         act: (cubit) => cubit.load(),
@@ -85,8 +90,9 @@ void main() {
       blocTest<ReadingProgressCubit, ReadingProgressState>(
         'emit [loading, failure] jika getStats gagal',
         build: () {
-          when(() => mockGetStats(today: any(named: 'today')))
-              .thenReturn(const Left(Failure.unknown(message: 'error')));
+          when(
+            () => mockGetStats(today: any(named: 'today')),
+          ).thenReturn(const Left(Failure.unknown(message: 'error')));
           return buildCubit();
         },
         act: (cubit) => cubit.load(),
@@ -119,8 +125,9 @@ void main() {
 
     group('flushBuffer()', () {
       test('flush buffer ke Hive jika ada pending ayat', () async {
-        when(() => mockSaveBatch(any(), any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockSaveBatch(any(), any()),
+        ).thenAnswer((_) async => const Right(unit));
 
         final cubit = buildCubit()
           ..bufferAyat(1, 1)
@@ -140,8 +147,9 @@ void main() {
       });
 
       test('buffer kosong setelah flush', () async {
-        when(() => mockSaveBatch(any(), any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockSaveBatch(any(), any()),
+        ).thenAnswer((_) async => const Right(unit));
 
         final cubit = buildCubit()..bufferAyat(1, 1);
         await cubit.flushBuffer();
@@ -156,8 +164,9 @@ void main() {
 
     group('close()', () {
       test('flush buffer sebelum close jika ada pending ayat', () async {
-        when(() => mockSaveBatch(any(), any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockSaveBatch(any(), any()),
+        ).thenAnswer((_) async => const Right(unit));
 
         final cubit = buildCubit()..bufferAyat(1, 1);
         await cubit.close();
@@ -177,8 +186,9 @@ void main() {
 
     group('didChangeAppLifecycleState()', () {
       test('flush buffer saat app paused', () async {
-        when(() => mockSaveBatch(any(), any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockSaveBatch(any(), any()),
+        ).thenAnswer((_) async => const Right(unit));
 
         buildCubit()
           ..bufferAyat(1, 1)
@@ -191,8 +201,9 @@ void main() {
       });
 
       test('flush buffer saat app detached', () async {
-        when(() => mockSaveBatch(any(), any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockSaveBatch(any(), any()),
+        ).thenAnswer((_) async => const Right(unit));
 
         buildCubit()
           ..bufferAyat(2, 255)

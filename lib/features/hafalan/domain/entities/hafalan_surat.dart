@@ -91,8 +91,7 @@ extension HafalanSuratX on HafalanSurat {
   /// Buat salinan dengan list ayat hafal baru.
   /// Otomatis compute status, tanggalSelesai, dan jadwal muraja'ah.
   HafalanSurat withAyatHafalList(List<int> newAyatHafal) {
-    final nowSelesai =
-        newAyatHafal.length >= jumlahAyat && jumlahAyat > 0;
+    final nowSelesai = newAyatHafal.length >= jumlahAyat && jumlahAyat > 0;
 
     // Baru selesai: set tanggalSelesai + jadwal muraja'ah pertama
     if (nowSelesai && !isSelesai) {

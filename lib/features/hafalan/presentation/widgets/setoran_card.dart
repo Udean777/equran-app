@@ -33,8 +33,9 @@ class SetoranCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Column(
       children: [
@@ -42,10 +43,10 @@ class SetoranCard extends StatelessWidget {
         LinearProgressIndicator(
           value: (currentIndex + 1) / totalAyat,
           minHeight: 3,
-          backgroundColor:
-              isDark ? AppColors.outlineDark : AppColors.outlineVariant,
-          valueColor:
-              const AlwaysStoppedAnimation<Color>(AppColors.gold),
+          backgroundColor: isDark
+              ? AppColors.outlineDark
+              : AppColors.outlineVariant,
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.gold),
         ),
 
         Expanded(
@@ -67,8 +68,9 @@ class SetoranCard extends StatelessWidget {
                         color: isDark
                             ? AppColors.surfaceDarkVariant
                             : AppColors.surfaceVariant,
-                        borderRadius:
-                            BorderRadius.circular(AppDimens.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          AppDimens.radiusFull,
+                        ),
                         border: Border.all(color: borderColor),
                       ),
                       child: Text(
@@ -90,13 +92,13 @@ class SetoranCard extends StatelessWidget {
                     padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
                     decoration: BoxDecoration(
                       color: surfaceColor,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusXL),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusXL),
                       border: Border.all(color: borderColor),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary
-                              .withValues(alpha: isDark ? 0.04 : 0.06),
+                          color: AppColors.primary.withValues(
+                            alpha: isDark ? 0.04 : 0.06,
+                          ),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -204,8 +206,7 @@ class SetoranCard extends StatelessWidget {
                         color: isDark
                             ? AppColors.surfaceDarkVariant
                             : AppColors.surfaceVariant,
-                        borderRadius:
-                            BorderRadius.circular(AppDimens.radiusLG),
+                        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
                         border: Border.all(color: borderColor),
                       ),
                       child: Column(

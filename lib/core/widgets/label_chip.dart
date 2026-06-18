@@ -39,8 +39,7 @@ class LabelChip extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveColor =
         color ?? (isDark ? AppColors.primaryLighter : AppColors.primary);
-    final bgColor =
-        isDark ? AppColors.primaryDark : AppColors.primaryContainer;
+    final bgColor = isDark ? AppColors.primaryDark : AppColors.primaryContainer;
 
     return Container(
       padding: const EdgeInsets.symmetric(

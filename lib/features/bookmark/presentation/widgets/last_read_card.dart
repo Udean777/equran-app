@@ -46,7 +46,9 @@ class LastReadCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppDimens.radiusXL),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.3),
+                  color: AppColors.primary.withValues(
+                    alpha: isDark ? 0.2 : 0.3,
+                  ),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -98,9 +100,12 @@ class LastReadCard extends StatelessWidget {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: AppColors.onPrimary.withValues(alpha: 0.15),
-                              borderRadius:
-                                  BorderRadius.circular(AppDimens.radiusMD),
+                              color: AppColors.onPrimary.withValues(
+                                alpha: 0.15,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                AppDimens.radiusMD,
+                              ),
                               border: Border.all(
                                 color: AppColors.gold.withValues(alpha: 0.4),
                               ),
@@ -121,8 +126,9 @@ class LastReadCard extends StatelessWidget {
                                 Text(
                                   'Lanjutkan Membaca',
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color: AppColors.onPrimary
-                                        .withValues(alpha: 0.7),
+                                    color: AppColors.onPrimary.withValues(
+                                      alpha: 0.7,
+                                    ),
                                     letterSpacing: 0.5,
                                     fontSize: 10,
                                   ),
@@ -132,9 +138,9 @@ class LastReadCard extends StatelessWidget {
                                   lastRead.namaLatin,
                                   style: AppTypography.serifHeadingSmall
                                       .copyWith(
-                                    color: AppColors.onPrimary,
-                                    fontSize: 17,
-                                  ),
+                                        color: AppColors.onPrimary,
+                                        fontSize: 17,
+                                      ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
@@ -142,8 +148,9 @@ class LastReadCard extends StatelessWidget {
                                       ? 'Ayat ${lastRead.ayatNomor} dari ${lastRead.totalAyat}'
                                       : 'Ayat ${lastRead.ayatNomor}',
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: AppColors.onPrimary
-                                        .withValues(alpha: 0.75),
+                                    color: AppColors.onPrimary.withValues(
+                                      alpha: 0.75,
+                                    ),
                                     fontSize: 11,
                                   ),
                                 ),
@@ -156,7 +163,9 @@ class LastReadCard extends StatelessWidget {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: AppColors.onPrimary.withValues(alpha: 0.12),
+                              color: AppColors.onPrimary.withValues(
+                                alpha: 0.12,
+                              ),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -192,8 +201,8 @@ class LastReadCard extends StatelessWidget {
                                       .withValues(alpha: 0.2),
                                   valueColor:
                                       const AlwaysStoppedAnimation<Color>(
-                                    AppColors.gold,
-                                  ),
+                                        AppColors.gold,
+                                      ),
                                 ),
                               ),
                             ),
@@ -201,8 +210,9 @@ class LastReadCard extends StatelessWidget {
                             Text(
                               '${(lastRead.maxScrollPercent * 100).round()}%',
                               style: theme.textTheme.labelSmall?.copyWith(
-                                color:
-                                    AppColors.onPrimary.withValues(alpha: 0.7),
+                                color: AppColors.onPrimary.withValues(
+                                  alpha: 0.7,
+                                ),
                                 fontSize: 10,
                               ),
                             ),

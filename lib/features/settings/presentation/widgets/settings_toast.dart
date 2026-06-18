@@ -42,7 +42,9 @@ void showSettingsToast(
             ),
           ],
         ),
-        backgroundColor: isSuccess ? AppColors.primary : AppColors.textSecondary,
+        backgroundColor: isSuccess
+            ? AppColors.primary
+            : AppColors.textSecondary,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
         shape: RoundedRectangleBorder(

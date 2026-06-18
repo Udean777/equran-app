@@ -25,6 +25,8 @@ class PrimaryGradientCard extends StatelessWidget {
     this.ornamentSize = 110.0,
     this.ornamentRight = -20.0,
     this.ornamentTop = -20.0,
+    this.ornamentBottom,
+    this.ornamentLeft,
     this.padding = const EdgeInsets.all(AppDimens.cardPaddingLG),
     super.key,
   });
@@ -36,10 +38,16 @@ class PrimaryGradientCard extends StatelessWidget {
   final double ornamentSize;
 
   /// Posisi horizontal ornamen dari kanan. Default -20 (sedikit keluar card).
-  final double ornamentRight;
+  final double? ornamentRight;
 
   /// Posisi vertikal ornamen dari atas. Default -20 (sedikit keluar card).
-  final double ornamentTop;
+  final double? ornamentTop;
+
+  /// Posisi vertikal ornamen dari bawah.
+  final double? ornamentBottom;
+
+  /// Posisi horizontal ornamen dari kiri.
+  final double? ornamentLeft;
 
   /// Padding dalam card. Default [AppDimens.cardPaddingLG] di semua sisi.
   final EdgeInsetsGeometry padding;
@@ -79,6 +87,8 @@ class PrimaryGradientCard extends StatelessWidget {
             Positioned(
               right: ornamentRight,
               top: ornamentTop,
+              bottom: ornamentBottom,
+              left: ornamentLeft,
               child: Container(
                 width: ornamentSize,
                 height: ornamentSize,

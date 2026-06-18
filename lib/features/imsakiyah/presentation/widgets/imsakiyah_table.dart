@@ -30,10 +30,12 @@ class ImsakiyahTable extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final headerBg =
-        isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final headerBg = isDark
+        ? AppColors.surfaceDarkVariant
+        : AppColors.surfaceVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -66,9 +68,7 @@ class ImsakiyahTable extends StatelessWidget {
                   : AppColors.textSecondary,
               letterSpacing: 0.3,
             ),
-            columns: _headers
-                .map((h) => DataColumn(label: Text(h)))
-                .toList(),
+            columns: _headers.map((h) => DataColumn(label: Text(h))).toList(),
             rows: entries.map((e) {
               final isToday = e.tanggal == todayTanggal;
               return DataRow(
@@ -80,7 +80,9 @@ class ImsakiyahTable extends StatelessWidget {
                       )
                     : WidgetStateProperty.all(Colors.transparent),
                 cells: [
-                  DataCell(_cell(e.tanggal.toString(), isToday, isDark, bold: true)),
+                  DataCell(
+                    _cell(e.tanggal.toString(), isToday, isDark, bold: true),
+                  ),
                   DataCell(_cell(e.imsak, isToday, isDark)),
                   DataCell(_cell(e.subuh, isToday, isDark)),
                   DataCell(_cell(e.terbit, isToday, isDark)),

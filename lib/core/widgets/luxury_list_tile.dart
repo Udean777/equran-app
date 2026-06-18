@@ -62,12 +62,13 @@ class LuxuryListTile extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveIconColor =
         iconColor ?? (isDark ? AppColors.primaryLighter : AppColors.primary);
-    final effectiveIconBg = iconBackgroundColor ??
+    final effectiveIconBg =
+        iconBackgroundColor ??
         (isDark ? AppColors.primaryDark : AppColors.primaryContainer);
-    final titleColor =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-    final subtitleColor =
-        isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary;
+    final titleColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final subtitleColor = isDark
+        ? AppColors.onSurfaceDarkVariant
+        : AppColors.textTertiary;
 
     final content = Padding(
       padding: const EdgeInsets.symmetric(
@@ -84,7 +85,11 @@ class LuxuryListTile extends StatelessWidget {
               color: effectiveIconBg,
               borderRadius: BorderRadius.circular(AppDimens.radiusMD),
             ),
-            child: Icon(icon, size: AppDimens.iconSM, color: effectiveIconColor),
+            child: Icon(
+              icon,
+              size: AppDimens.iconSM,
+              color: effectiveIconColor,
+            ),
           ),
           const SizedBox(width: AppDimens.spaceMD),
 

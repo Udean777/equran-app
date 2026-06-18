@@ -69,8 +69,7 @@ class _AudioPlayerPageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final bgColor =
-        isDark ? AppColors.backgroundDark : AppColors.background;
+    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final artworkSize = (screenWidth * 0.72).clamp(0.0, 300.0);
 
@@ -202,8 +201,9 @@ class _AudioPlayerPageContent extends StatelessWidget {
                         color: isDark
                             ? AppColors.primaryDark
                             : AppColors.primaryContainer,
-                        borderRadius:
-                            BorderRadius.circular(AppDimens.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          AppDimens.radiusFull,
+                        ),
                       ),
                       child: Text(
                         'Ayat ${state.currentAyat}',
@@ -280,10 +280,9 @@ class _AudioPlayerPageContent extends StatelessWidget {
                           : (isDark
                                 ? AppColors.outlineDark
                                 : AppColors.textDisabled),
-                      onPressed:
-                          cubit.playlistIndex < cubit.playlist.length - 1
-                              ? () => unawaited(cubit.nextAyat())
-                              : null,
+                      onPressed: cubit.playlistIndex < cubit.playlist.length - 1
+                          ? () => unawaited(cubit.nextAyat())
+                          : null,
                     ),
                 ],
               ),

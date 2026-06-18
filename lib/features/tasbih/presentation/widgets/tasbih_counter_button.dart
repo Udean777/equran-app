@@ -59,8 +59,8 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
     final ringBg = widget.isCompleted
         ? AppColors.gold.withValues(alpha: 0.15)
         : (isDark
-            ? AppColors.primaryLighter.withValues(alpha: 0.12)
-            : AppColors.primary.withValues(alpha: 0.12));
+              ? AppColors.primaryLighter.withValues(alpha: 0.12)
+              : AppColors.primary.withValues(alpha: 0.12));
 
     return GestureDetector(
       onTap: widget.isCompleted ? null : _handleTap,

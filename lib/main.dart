@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:equran_app/app.dart';
+import 'package:equran_app/core/notifications/background_sync_worker.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/injection/injection_container.dart';
@@ -14,10 +12,8 @@ void main() async {
   await Hive.initFlutter();
   await configureDependencies();
   await getIt<NotificationService>().init();
-  // Init AndroidAlarmManager hanya di Android — plugin ini tidak support iOS.
-  if (Platform.isAndroid) {
-    await AndroidAlarmManager.initialize();
-  }
+  await BackgroundSyncWorker.init();
+
   // Jadwalkan notifikasi shalat saat app start menggunakan lokasi terakhir.
   // Fire-and-forget — tidak block UI.
   unawaited(getIt<ShalatNotifCubit>().initAndSchedule());

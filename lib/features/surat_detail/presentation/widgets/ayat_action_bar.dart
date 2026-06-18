@@ -42,8 +42,8 @@ class AyatNumberBadge extends StatelessWidget {
               color: isPlaying
                   ? Colors.transparent
                   : (isDark
-                      ? AppColors.primaryLight.withValues(alpha: 0.3)
-                      : AppColors.primary.withValues(alpha: 0.2)),
+                        ? AppColors.primaryLight.withValues(alpha: 0.3)
+                        : AppColors.primary.withValues(alpha: 0.2)),
             ),
           ),
           alignment: Alignment.center,

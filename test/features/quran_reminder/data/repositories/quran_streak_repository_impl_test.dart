@@ -25,8 +25,9 @@ void main() {
   });
 
   test('getLastReadDate() delegates ke datasource', () async {
-    when(() => mockDataSource.getLastReadDate())
-        .thenAnswer((_) async => '2026-05-25');
+    when(
+      () => mockDataSource.getLastReadDate(),
+    ).thenAnswer((_) async => '2026-05-25');
 
     final result = await repository.getLastReadDate();
 

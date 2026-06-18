@@ -25,7 +25,9 @@ void main() {
         data: jsonEncode(tTafsirDataDto.toJson()),
         cachedAt: DateTime.now(),
       );
-      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => entry.encode());
+      when(
+        () => mockBox.get('tafsir_1'),
+      ).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedTafsir(1);
 
@@ -39,7 +41,9 @@ void main() {
         data: jsonEncode(tTafsirDataDto.toJson()),
         cachedAt: DateTime.now().subtract(const Duration(days: 8)),
       );
-      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => entry.encode());
+      when(
+        () => mockBox.get('tafsir_1'),
+      ).thenAnswer((_) async => entry.encode());
 
       final result = await dataSource.getCachedTafsir(1);
 
@@ -55,7 +59,9 @@ void main() {
     });
 
     test('return null jika data corrupt', () async {
-      when(() => mockBox.get('tafsir_1')).thenAnswer((_) async => 'corrupt_data');
+      when(
+        () => mockBox.get('tafsir_1'),
+      ).thenAnswer((_) async => 'corrupt_data');
 
       final result = await dataSource.getCachedTafsir(1);
 

@@ -50,8 +50,9 @@ void main() {
     });
 
     test('returns tanggal yang tersimpan', () async {
-      when(() => mockBox.get('quran_streak_last_date'))
-          .thenReturn('2026-05-26');
+      when(
+        () => mockBox.get('quran_streak_last_date'),
+      ).thenReturn('2026-05-26');
 
       final result = await dataSource.getLastReadDate();
 
@@ -70,8 +71,9 @@ void main() {
 
       await dataSource.saveStreak(date: '2026-05-26', count: 5);
 
-      verify(() => mockBox.put('quran_streak_last_date', '2026-05-26'))
-          .called(1);
+      verify(
+        () => mockBox.put('quran_streak_last_date', '2026-05-26'),
+      ).called(1);
       verify(() => mockBox.put('quran_streak_count', '5')).called(1);
     });
   });

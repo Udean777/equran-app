@@ -8,6 +8,7 @@ import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/core/widgets/streak_badge.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -72,15 +73,16 @@ class _AppDrawerState extends State<AppDrawer> {
                     unawaited(context.push(AppRoutes.imsakiyah));
                   },
                 ),
-                _DrawerItem(
-                  icon: Icons.auto_stories_outlined,
-                  selectedIcon: Icons.auto_stories_rounded,
-                  label: l10n.hafalanDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.hafalan));
-                  },
-                ),
+                if (kDebugMode)
+                  _DrawerItem(
+                    icon: Icons.auto_stories_outlined,
+                    selectedIcon: Icons.auto_stories_rounded,
+                    label: l10n.hafalanDrawer,
+                    onTap: () {
+                      Navigator.pop(context);
+                      unawaited(context.push(AppRoutes.hafalan));
+                    },
+                  ),
                 _DrawerItem(
                   icon: Icons.auto_stories_outlined,
                   selectedIcon: Icons.auto_stories_rounded,
@@ -347,10 +349,8 @@ class _DrawerItem extends StatelessWidget {
                 ),
               ),
               Icon(
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
                 Icons.chevron_right_rounded,
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textTertiary,
                 size: AppDimens.iconSM + 2,
               ),
             ],

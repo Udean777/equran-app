@@ -70,14 +70,46 @@ class JadwalShalatTodayCard extends StatelessWidget {
           // Shalat time grid
           ShalatTimeGrid(
             items: [
-              ShalatTimeItem(label: 'Imsak',   time: entry.imsak,   icon: Icons.nightlight_round),
-              ShalatTimeItem(label: 'Subuh',   time: entry.subuh,   icon: Icons.wb_twilight_outlined),
-              ShalatTimeItem(label: 'Terbit',  time: entry.terbit,  icon: Icons.wb_sunny_outlined),
-              ShalatTimeItem(label: 'Dhuha',   time: entry.dhuha,   icon: Icons.sunny_snowing),
-              ShalatTimeItem(label: 'Dzuhur',  time: entry.dzuhur,  icon: Icons.light_mode_outlined),
-              ShalatTimeItem(label: 'Ashar',   time: entry.ashar,   icon: Icons.wb_cloudy_outlined),
-              ShalatTimeItem(label: 'Maghrib', time: entry.maghrib, icon: Icons.nights_stay_outlined),
-              ShalatTimeItem(label: 'Isya',    time: entry.isya,    icon: Icons.bedtime_outlined),
+              ShalatTimeItem(
+                label: 'Imsak',
+                time: entry.imsak,
+                icon: Icons.nightlight_round,
+              ),
+              ShalatTimeItem(
+                label: 'Subuh',
+                time: entry.subuh,
+                icon: Icons.wb_twilight_outlined,
+              ),
+              ShalatTimeItem(
+                label: 'Terbit',
+                time: entry.terbit,
+                icon: Icons.wb_sunny_outlined,
+              ),
+              ShalatTimeItem(
+                label: 'Dhuha',
+                time: entry.dhuha,
+                icon: Icons.sunny_snowing,
+              ),
+              ShalatTimeItem(
+                label: 'Dzuhur',
+                time: entry.dzuhur,
+                icon: Icons.light_mode_outlined,
+              ),
+              ShalatTimeItem(
+                label: 'Ashar',
+                time: entry.ashar,
+                icon: Icons.wb_cloudy_outlined,
+              ),
+              ShalatTimeItem(
+                label: 'Maghrib',
+                time: entry.maghrib,
+                icon: Icons.nights_stay_outlined,
+              ),
+              ShalatTimeItem(
+                label: 'Isya',
+                time: entry.isya,
+                icon: Icons.bedtime_outlined,
+              ),
             ],
           ),
         ],

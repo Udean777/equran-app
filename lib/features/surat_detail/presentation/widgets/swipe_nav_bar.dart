@@ -18,14 +18,14 @@ class SwipeNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor =
-        isDark ? AppColors.primaryLighter : AppColors.primary;
-    final disabledColor =
-        isDark ? AppColors.outlineDark : AppColors.textDisabled;
-    final surfaceColor =
-        isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final disabledColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.textDisabled;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     final isFirst = controller.isFirst;
     final isLast = controller.isLast;
@@ -34,9 +34,7 @@ class SwipeNavBar extends StatelessWidget {
     final totalAyat = controller.totalAyat;
 
     // Label tengah
-    final label = isInfoCard
-        ? 'Info Surat'
-        : 'Ayat $currentIndex / $totalAyat';
+    final label = isInfoCard ? 'Info Surat' : 'Ayat $currentIndex / $totalAyat';
 
     return Container(
       decoration: BoxDecoration(
@@ -60,8 +58,9 @@ class SwipeNavBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: controller.currentProgress,
               minHeight: 3,
-              backgroundColor:
-                  isDark ? AppColors.primaryDark : AppColors.primaryContainer,
+              backgroundColor: isDark
+                  ? AppColors.primaryDark
+                  : AppColors.primaryContainer,
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
             ),
           ),
@@ -115,7 +114,9 @@ class SwipeNavBar extends StatelessWidget {
 
               // Next button
               _NavButton(
-                icon: isLast ? Icons.check_rounded : Icons.arrow_forward_ios_rounded,
+                icon: isLast
+                    ? Icons.check_rounded
+                    : Icons.arrow_forward_ios_rounded,
                 onPressed: isLast ? onComplete : controller.goNext,
                 color: isLast
                     ? (isDark ? AppColors.goldLight : AppColors.goldDark)
@@ -156,9 +157,7 @@ class _NavButton extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: onPressed != null
-                ? (isDark
-                    ? AppColors.primaryDark
-                    : AppColors.primaryContainer)
+                ? (isDark ? AppColors.primaryDark : AppColors.primaryContainer)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(AppDimens.radiusMD),
           ),

@@ -3,10 +3,14 @@
 # Jalankan: make <target>
 ##############################################################
 
-.PHONY: help clean build-android-apk build-android-aab build-ios build-web build-all analyze
+.PHONY: help clean build-android-apk install-apk build-android-aab build-ios build-web build-all analyze
 
 # Direktori untuk menyimpan debug symbols (wajib untuk --obfuscate)
 DEBUG_INFO_DIR := build/debug-info
+
+# Konfigurasi untuk install APK
+DEVICE_ID ?= 1381270562013940
+APK_PATH ?= build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
 help: ## Tampilkan daftar perintah
 	@echo ""
@@ -34,6 +38,10 @@ build-android-apk: ## Build APK per ABI (arm64, armv7, x86_64) — ukuran kecil
 	@ls -lh build/app/outputs/flutter-apk/*.apk | awk '{print "  " $$5 "  " $$9}'
 	@echo ""
 	@echo "✅ APK tersimpan di: build/app/outputs/flutter-apk/"
+
+install-apk: ## Install arm64-v8a release APK ke device adb (default: 1381270562013940)
+	@echo "📲 Installing APK to device $(DEVICE_ID)..."
+	adb -s $(DEVICE_ID) install -r "$(APK_PATH)" 2>&1
 
 build-android-aab: ## Build Android App Bundle (AAB) untuk Google Play
 	@echo "🔨 Building Android App Bundle (AAB)..."

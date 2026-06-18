@@ -14,10 +14,17 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../helpers/fake_data.dart';
 
 class MockGetProvinsi extends Mock implements GetProvinsi {}
+
 class MockGetKabkota extends Mock implements GetKabkota {}
+
 class MockGetImsakiyah extends Mock implements GetImsakiyah {}
-class MockGetLastLocationImsakiyah extends Mock implements GetLastLocationImsakiyah {}
-class MockSaveLastLocationImsakiyah extends Mock implements SaveLastLocationImsakiyah {}
+
+class MockGetLastLocationImsakiyah extends Mock
+    implements GetLastLocationImsakiyah {}
+
+class MockSaveLastLocationImsakiyah extends Mock
+    implements SaveLastLocationImsakiyah {}
+
 class MockLocationService extends Mock implements LocationService {}
 
 void main() {
@@ -67,16 +74,17 @@ void main() {
         when(
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
-        when(() => mockGetLastLocation()).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
-        
+        when(
+          () => mockGetLastLocation(),
+        ).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
+
         when(
           () => mockLocationService.detectCurrentLocation(),
         ).thenAnswer((_) async => null);
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakarta));
-        
-        
+
         when(
           () => mockGetImsakiyah(
             provinsi: 'DKI Jakarta',
@@ -124,8 +132,10 @@ void main() {
         when(
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
-        when(() => mockGetLastLocation()).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
-        
+        when(
+          () => mockGetLastLocation(),
+        ).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
+
         when(() => mockLocationService.detectCurrentLocation()).thenAnswer(
           (_) async => const DetectedLocation(
             provinsi: 'SUMATERA UTARA',
@@ -135,8 +145,7 @@ void main() {
         when(
           () => mockGetKabkota('Sumatera Utara'),
         ).thenAnswer((_) async => right(tKabkotaList));
-        
-        
+
         when(
           () => mockGetImsakiyah(
             provinsi: 'Sumatera Utara',
@@ -175,7 +184,10 @@ void main() {
         ).thenAnswer((_) async => right(tProvinsiList));
         when(
           () => mockGetLastLocation(),
-        ).thenAnswer((_) async => right((provinsi: 'Sumatera Utara', kabkota: 'Kab. Deli Serdang')));
+        ).thenAnswer(
+          (_) async =>
+              right((provinsi: 'Sumatera Utara', kabkota: 'Kab. Deli Serdang')),
+        );
         when(
           () => mockGetKabkota('Sumatera Utara'),
         ).thenAnswer((_) async => right(tKabkotaList));
@@ -214,7 +226,10 @@ void main() {
         ).thenAnswer((_) async => right(tProvinsiList));
         when(
           () => mockGetLastLocation(),
-        ).thenAnswer((_) async => right((provinsi: 'Sumatera Utara', kabkota: 'Kab. Tidak Ada')));
+        ).thenAnswer(
+          (_) async =>
+              right((provinsi: 'Sumatera Utara', kabkota: 'Kab. Tidak Ada')),
+        );
         when(
           () => mockGetKabkota('Sumatera Utara'),
         ).thenAnswer((_) async => right(tKabkotaList));
@@ -283,8 +298,6 @@ void main() {
         kabkota: tKabkotaList,
       ),
       setUp: () {
-        
-        
         when(
           () => mockGetImsakiyah(
             provinsi: 'Sumatera Utara',
@@ -319,8 +332,6 @@ void main() {
         kabkota: tKabkotaList,
       ),
       setUp: () {
-        
-        
         when(
           () => mockGetImsakiyah(
             provinsi: any(named: 'provinsi'),
@@ -356,16 +367,17 @@ void main() {
         when(
           () => mockGetProvinsi(),
         ).thenAnswer((_) async => right(tProvinsiList));
-        when(() => mockGetLastLocation()).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
-        
+        when(
+          () => mockGetLastLocation(),
+        ).thenAnswer((_) async => right((provinsi: null, kabkota: null)));
+
         when(
           () => mockLocationService.detectCurrentLocation(),
         ).thenAnswer((_) async => null);
         when(
           () => mockGetKabkota('DKI Jakarta'),
         ).thenAnswer((_) async => right(tKabkotaJakarta));
-        
-        
+
         when(
           () => mockGetImsakiyah(
             provinsi: 'DKI Jakarta',
@@ -404,8 +416,6 @@ void main() {
         selectedKabkota: 'Kab. Deli Serdang',
       ),
       setUp: () {
-        
-        
         when(
           () => mockGetImsakiyah(
             provinsi: 'Sumatera Utara',

@@ -78,21 +78,22 @@ class _AppState extends State<App> {
         listener: (context, state) {
           final audioCubit = context.read<AudioCubit>();
           if (!audioCubit.isPlaylistMode) return;
-          if (!audioCubit.shouldUpdateLastRead) return; // skip jika dari manajemen audio
+          if (!audioCubit.shouldUpdateLastRead) {
+            return; // skip jika dari manajemen audio
+          }
           final suratNomor = audioCubit.playlistSuratNomor;
           final suratName = audioCubit.playlistSuratName;
           if (suratNomor == null || suratName == null) return;
 
           context.read<BookmarkCubit>().updateLastReadFromAudio(
-                suratNomor: suratNomor,
-                namaLatin: suratName,
-                ayatNomor: state.currentAyat!,
-                totalAyat: audioCubit.playlist.length,
-              );
+            suratNomor: suratNomor,
+            namaLatin: suratName,
+            ayatNomor: state.currentAyat!,
+            totalAyat: audioCubit.playlist.length,
+          );
         },
         child: BlocBuilder<ThemeCubit, ThemeState>(
-          builder: (context, themeState) =>
-              BlocBuilder<LanguageCubit, LanguageState>(
+          builder: (context, themeState) => BlocBuilder<LanguageCubit, LanguageState>(
             builder: (context, langState) => MaterialApp.router(
               title: 'eQuran',
               debugShowCheckedModeBanner: false,

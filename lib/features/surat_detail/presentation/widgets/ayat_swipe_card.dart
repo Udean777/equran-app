@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/pages/share_ayat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_audio_footer.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/share_ayat_sheet.dart';
 import 'package:flutter/material.dart';
 
 /// Card per ayat — arab, latin, terjemah, nomor, audio, bookmark, share.
@@ -31,14 +30,18 @@ class AyatSwipeCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
-    final textPrimary =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-    final textSecondary =
-        isDark ? AppColors.onSurfaceDarkVariant : AppColors.textSecondary;
-    final textTertiary =
-        isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
+    final textPrimary = isDark
+        ? AppColors.onSurfaceDark
+        : AppColors.textPrimary;
+    final textSecondary = isDark
+        ? AppColors.onSurfaceDarkVariant
+        : AppColors.textSecondary;
+    final textTertiary = isDark
+        ? AppColors.onSurfaceDarkVariant
+        : AppColors.textTertiary;
 
     return Container(
       width: double.infinity,
@@ -58,123 +61,122 @@ class AyatSwipeCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-            // Header — nomor ayat + share + bookmark
-            _CardHeader(
-              ayat: ayat,
-              suratDetail: suratDetail,
-              isBookmarked: isBookmarked,
-              onBookmarkToggle: onBookmarkToggle,
-              isDark: isDark,
-              textTertiary: textTertiary,
-            ),
+          // Header — nomor ayat + share + bookmark
+          _CardHeader(
+            ayat: ayat,
+            suratDetail: suratDetail,
+            isBookmarked: isBookmarked,
+            onBookmarkToggle: onBookmarkToggle,
+            isDark: isDark,
+            textTertiary: textTertiary,
+          ),
 
-            // Divider gold
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.spaceLG,
-              ),
-              child: Container(
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      AppColors.gold.withValues(alpha: 0.4),
-                      Colors.transparent,
-                    ],
-                  ),
+          // Divider gold
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.spaceLG,
+            ),
+            child: Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    AppColors.gold.withValues(alpha: 0.4),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
+          ),
 
-            // Content — scrollable if content exceeds constraints
-            Flexible(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppDimens.spaceLG,
-                    AppDimens.spaceMD,
-                    AppDimens.spaceLG,
-                    AppDimens.spaceMD,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Teks Arab
-                      Text(
-                        ayat.teksArab,
-                        style: AppTypography.arabicLarge.copyWith(
-                          color: isDark
-                              ? AppColors.primaryLighter
-                              : AppColors.primary,
-                          fontSize: 28,
-                          height: 2.2,
-                        ),
-                        textAlign: TextAlign.right,
-                        textDirection: TextDirection.rtl,
+          // Content — scrollable if content exceeds constraints
+          Flexible(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppDimens.spaceLG,
+                  AppDimens.spaceMD,
+                  AppDimens.spaceLG,
+                  AppDimens.spaceMD,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Teks Arab
+                    Text(
+                      ayat.teksArab,
+                      style: AppTypography.arabicLarge.copyWith(
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                        fontSize: 28,
+                        height: 2.2,
                       ),
+                      textAlign: TextAlign.right,
+                      textDirection: TextDirection.rtl,
+                    ),
 
-                      const SizedBox(height: AppDimens.spaceMD),
+                    const SizedBox(height: AppDimens.spaceMD),
 
-                      Divider(color: borderColor, thickness: 1),
+                    Divider(color: borderColor, thickness: 1),
 
-                      const SizedBox(height: AppDimens.spaceMD),
+                    const SizedBox(height: AppDimens.spaceMD),
 
-                      // Teks Latin
-                      Text(
-                        ayat.teksLatin,
+                    // Teks Latin
+                    Text(
+                      ayat.teksLatin,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: textSecondary,
+                        fontStyle: FontStyle.italic,
+                        height: 1.8,
+                        fontSize: 13,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: AppDimens.spaceMD),
+
+                    // Terjemahan
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppDimens.spaceMD),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.primaryDark.withValues(alpha: 0.3)
+                            : AppColors.primaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.primaryLight.withValues(alpha: 0.15)
+                              : AppColors.primary.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Text(
+                        ayat.teksIndonesia,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: textSecondary,
-                          fontStyle: FontStyle.italic,
+                          color: textPrimary,
                           height: 1.8,
-                          fontSize: 13,
+                          fontSize: 14,
                         ),
                         textAlign: TextAlign.center,
                       ),
-
-                      const SizedBox(height: AppDimens.spaceMD),
-
-                      // Terjemahan
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppDimens.spaceMD),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.primaryDark.withValues(alpha: 0.3)
-                              : AppColors.primaryContainer.withValues(alpha: 0.5),
-                          borderRadius:
-                              BorderRadius.circular(AppDimens.radiusMD),
-                          border: Border.all(
-                            color: isDark
-                                ? AppColors.primaryLight.withValues(alpha: 0.15)
-                                : AppColors.primary.withValues(alpha: 0.1),
-                          ),
-                        ),
-                        child: Text(
-                          ayat.teksIndonesia,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: textPrimary,
-                            height: 1.8,
-                            fontSize: 14,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
+          ),
 
-            // Footer — audio button
-            AyatAudioFooter(
-              ayat: ayat,
-              suratDetail: suratDetail,
-              isDark: isDark,
-            ),
-          ],
-        ),
+          // Footer — audio button
+          AyatAudioFooter(
+            ayat: ayat,
+            suratDetail: suratDetail,
+            isDark: isDark,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -259,7 +261,7 @@ class _CardHeader extends StatelessWidget {
               color: textTertiary,
               size: AppDimens.iconMD,
             ),
-            onPressed: () => _showShareSheet(context),
+            onPressed: () => _showSharePage(context),
             tooltip: 'Bagikan ayat',
             padding: const EdgeInsets.all(AppDimens.spaceXS),
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -284,14 +286,16 @@ class _CardHeader extends StatelessWidget {
     );
   }
 
-  void _showShareSheet(BuildContext context) {
+  void _showSharePage(BuildContext context) {
     unawaited(
-      showAppBottomSheet<void>(
+      Navigator.push<void>(
         context,
-        builder: (_) => ShareAyatSheet(
-          ayat: ayat,
-          namaLatin: suratDetail.info.namaLatin,
-          suratNomor: suratDetail.info.nomor,
+        MaterialPageRoute(
+          builder: (_) => ShareAyatPage(
+            ayat: ayat,
+            namaLatin: suratDetail.info.namaLatin,
+            suratNomor: suratDetail.info.nomor,
+          ),
         ),
       ),
     );

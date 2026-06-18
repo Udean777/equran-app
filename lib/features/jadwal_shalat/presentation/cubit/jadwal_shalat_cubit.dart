@@ -64,8 +64,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
   Future<void> saveLocation({
     required String provinsi,
     required String kabkota,
-  }) =>
-      _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
+  }) => _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
 
   @override
   Future<void> onLocationDetected({
@@ -73,13 +72,12 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     required String selectedProvinsi,
     required String selectedKabkota,
     List<String>? kabkotaList,
-  }) =>
-      _autoLoadJadwal(
-        provinsiList: provinsiList,
-        selectedProvinsi: selectedProvinsi,
-        selectedKabkota: selectedKabkota,
-        kabkotaList: kabkotaList,
-      );
+  }) => _autoLoadJadwal(
+    provinsiList: provinsiList,
+    selectedProvinsi: selectedProvinsi,
+    selectedKabkota: selectedKabkota,
+    kabkotaList: kabkotaList,
+  );
 
   @override
   void onDetectingLocation() {
@@ -229,7 +227,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     await _saveNotifPrefs(prefs);
     final s = state;
     if (s is JadwalShalatSuccess) {
-      _scheduleNotifications(s.jadwal);
+      _scheduleNotifications(s.jadwal, s.bulan, s.tahun);
     }
   }
 
@@ -302,23 +300,24 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
         );
         final now = DateTime.now();
         if (targetBulan == now.month && targetTahun == now.year) {
-          _scheduleNotifications(jadwal);
+          _scheduleNotifications(jadwal, targetBulan, targetTahun);
         }
       },
     );
   }
 
-  /// Schedule notifikasi untuk entry hari ini dari [jadwal].
-  void _scheduleNotifications(JadwalShalat jadwal) {
+  /// Schedule notifikasi untuk beberapa hari ke depan dari [jadwal].
+  void _scheduleNotifications(JadwalShalat jadwal, int bulan, int tahun) {
     final now = DateTime.now();
-    final todayEntry = jadwal.jadwal
-        .where((e) => e.tanggal == now.day)
-        .firstOrNull;
+    final futureEntries = jadwal.jadwal
+        .where((e) => e.tanggal >= now.day)
+        .take(10)
+        .map((e) => _toScheduleEntry(e, bulan, tahun))
+        .toList();
 
-    if (todayEntry == null) return;
+    if (futureEntries.isEmpty) return;
 
-    final entry = _toScheduleEntry(todayEntry);
-    _shalatNotifCubit.setTodayEntry(entry);
+    _shalatNotifCubit.setEntries(futureEntries);
 
     unawaited(
       _getNotifPrefs()
@@ -328,8 +327,8 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
               (p) => p,
             );
             unawaited(
-              _scheduler.scheduleForToday(
-                entry,
+              _scheduler.scheduleForNextDays(
+                futureEntries,
                 _toNotifConfig(prefs),
               ),
             );
@@ -340,14 +339,18 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     );
   }
 
-  ShalatScheduleEntry _toScheduleEntry(JadwalShalatEntry entry) =>
-      ShalatScheduleEntry(
-        subuh: entry.subuh,
-        dzuhur: entry.dzuhur,
-        ashar: entry.ashar,
-        maghrib: entry.maghrib,
-        isya: entry.isya,
-      );
+  ShalatScheduleEntry _toScheduleEntry(
+    JadwalShalatEntry entry,
+    int bulan,
+    int tahun,
+  ) => ShalatScheduleEntry(
+    date: DateTime(tahun, bulan, entry.tanggal),
+    subuh: entry.subuh,
+    dzuhur: entry.dzuhur,
+    ashar: entry.ashar,
+    maghrib: entry.maghrib,
+    isya: entry.isya,
+  );
 
   ShalatNotifConfig _toNotifConfig(ShalatNotifPrefs prefs) => ShalatNotifConfig(
     subuh: prefs.subuh,

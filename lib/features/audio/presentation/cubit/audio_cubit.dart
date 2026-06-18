@@ -287,7 +287,10 @@ class AudioCubit extends Cubit<AudioPlayerState> {
   /// Return Duration.zero jika playlist tidak punya teks Arab (local file).
   Duration get playlistTotalDuration {
     if (!isPlaylistMode || !_hasArabText) return Duration.zero;
-    return _playlist.fold(Duration.zero, (sum, ayat) => sum + _durationFor(ayat));
+    return _playlist.fold(
+      Duration.zero,
+      (sum, ayat) => sum + _durationFor(ayat),
+    );
   }
 
   /// Posisi saat ini dalam timeline playlist.

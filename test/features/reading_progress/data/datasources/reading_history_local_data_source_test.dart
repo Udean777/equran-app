@@ -24,8 +24,7 @@ void main() {
     ayatRead: {tAyatId1, tAyatId2},
   );
 
-  String encodeHistory(ReadingHistory h) =>
-      jsonEncode(h.toDto().toJson());
+  String encodeHistory(ReadingHistory h) => jsonEncode(h.toDto().toJson());
 
   setUp(() {
     mockBox = MockBox();
@@ -37,8 +36,9 @@ void main() {
 
     group('getByDate()', () {
       test('return ReadingHistory jika key ada', () {
-        when(() => mockBox.get('reading_$tDate'))
-            .thenReturn(encodeHistory(tHistory));
+        when(
+          () => mockBox.get('reading_$tDate'),
+        ).thenReturn(encodeHistory(tHistory));
 
         final result = datasource.getByDate(tDate);
 
@@ -56,8 +56,7 @@ void main() {
       });
 
       test('return null jika JSON corrupt', () {
-        when(() => mockBox.get('reading_$tDate'))
-            .thenReturn('invalid_json');
+        when(() => mockBox.get('reading_$tDate')).thenReturn('invalid_json');
 
         final result = datasource.getByDate(tDate);
 
@@ -69,8 +68,9 @@ void main() {
 
     group('getByDateRange()', () {
       test('return list history untuk tanggal yang ada', () {
-        when(() => mockBox.get('reading_$tDate'))
-            .thenReturn(encodeHistory(tHistory));
+        when(
+          () => mockBox.get('reading_$tDate'),
+        ).thenReturn(encodeHistory(tHistory));
         when(() => mockBox.get('reading_$tDate2')).thenReturn(null);
 
         final result = datasource.getByDateRange([tDate, tDate2]);
@@ -103,8 +103,9 @@ void main() {
       });
 
       test('merge ayat baru dengan existing', () async {
-        when(() => mockBox.get('reading_$tDate'))
-            .thenReturn(encodeHistory(tHistory));
+        when(
+          () => mockBox.get('reading_$tDate'),
+        ).thenReturn(encodeHistory(tHistory));
 
         String? savedJson;
         when(
@@ -122,8 +123,9 @@ void main() {
       });
 
       test('skip jika ayat sudah ada (tidak write ke Hive)', () async {
-        when(() => mockBox.get('reading_$tDate'))
-            .thenReturn(encodeHistory(tHistory));
+        when(
+          () => mockBox.get('reading_$tDate'),
+        ).thenReturn(encodeHistory(tHistory));
 
         await datasource.saveAyat(tDate, tAyatId1); // sudah ada
 
@@ -146,8 +148,9 @@ void main() {
       });
 
       test('skip jika semua ayat sudah ada', () async {
-        when(() => mockBox.get('reading_$tDate'))
-            .thenReturn(encodeHistory(tHistory));
+        when(
+          () => mockBox.get('reading_$tDate'),
+        ).thenReturn(encodeHistory(tHistory));
 
         await datasource.saveAyatBatch(tDate, {tAyatId1, tAyatId2});
 
@@ -184,7 +187,7 @@ void main() {
         when(() => mockBox.keys).thenReturn([
           'reading_2025-01-01', // lama → hapus
           'reading_2026-05-26', // baru → keep
-          'other_key',          // bukan reading → skip
+          'other_key', // bukan reading → skip
         ]);
         when(
           () => mockBox.delete(any<String>()),

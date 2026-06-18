@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/constants/notification_ids.dart';
-import 'package:equran_app/core/notifications/adzan_alarm_scheduler.dart';
+
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_checklist_reminder_scheduler.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
@@ -68,14 +68,6 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           color: AppColors.error,
           onTest: _stopAdzan,
         ),
-        NotificationTestItem(
-          id: 'adzan_alarm_dzuhur',
-          icon: Icons.alarm_rounded,
-          title: 'Schedule Adzan Alarm (30 detik)',
-          subtitle: 'Test AlarmManager → playAdzanCallback (lock device dulu)',
-          color: AppColors.gold,
-          onTest: () => _testAdzanAlarm(isSubuh: false),
-        ),
       ],
     ),
     NotificationTestSection(
@@ -88,6 +80,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test notif adzan biasa (Dzuhur, Ashar, Maghrib, Isya)',
           color: AppColors.primary,
           onTest: () => _testAdzan(isSubuh: false),
+          duration: const Duration(seconds: _delaySeconds),
         ),
         NotificationTestItem(
           id: 'adzan_subuh',
@@ -96,6 +89,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test notif adzan Subuh (sound berbeda)',
           color: AppColors.primaryLight,
           onTest: () => _testAdzan(isSubuh: true),
+          duration: const Duration(seconds: _delaySeconds),
         ),
       ],
     ),
@@ -109,6 +103,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test alarm imsak Ramadan',
           color: AppColors.gold,
           onTest: _testImsak,
+          duration: const Duration(seconds: _delaySeconds),
         ),
         NotificationTestItem(
           id: 'sahur',
@@ -117,6 +112,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test alarm sahur (30 menit sebelum imsak)',
           color: AppColors.goldDark,
           onTest: _testSahur,
+          duration: const Duration(seconds: _delaySeconds),
         ),
       ],
     ),
@@ -130,6 +126,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test pengingat harian membaca Al-Quran',
           color: AppColors.primaryLighter,
           onTest: _testQuranReminder,
+          duration: const Duration(seconds: _delaySeconds),
         ),
       ],
     ),
@@ -143,6 +140,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test pengingat catat status shalat harian',
           color: AppColors.success,
           onTest: _testChecklist,
+          duration: const Duration(seconds: _delaySeconds),
         ),
       ],
     ),
@@ -156,6 +154,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           subtitle: 'Test pengingat jadwal murajaah hafalan',
           color: AppColors.warning,
           onTest: _testHafalan,
+          duration: const Duration(seconds: _delaySeconds),
         ),
       ],
     ),
@@ -215,6 +214,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
                     subtitle: item.subtitle,
                     color: item.color,
                     status: _status[item.id],
+                    duration: item.duration,
                     isDark: isDark,
                     onTest: item.onTest,
                   ),
@@ -244,19 +244,6 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
   Future<void> _stopAdzan() async {
     await _schedule('adzan_stop', () async {
       await _audioHandler.stopAdzan();
-    });
-  }
-
-  Future<void> _testAdzanAlarm({required bool isSubuh}) async {
-    final key = isSubuh ? 'adzan_alarm_subuh' : 'adzan_alarm_dzuhur';
-    await _schedule(key, () async {
-      final scheduledTime = DateTime.now().add(const Duration(seconds: 30));
-      await scheduleAdzanAlarm(
-        id: isSubuh ? 911 : 912,
-        scheduledTime: scheduledTime,
-        isSubuh: isSubuh,
-        nama: isSubuh ? 'Subuh' : 'Dzuhur',
-      );
     });
   }
 

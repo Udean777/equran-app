@@ -17,8 +17,7 @@ class HafalanRepositoryImpl implements HafalanRepository {
   Future<Either<Failure, List<HafalanSurat>>> getAllHafalan() async {
     try {
       final list = await _datasource.getAll();
-      final resolved =
-          list.map(HafalanStatsCalculator.resolveStatus).toList();
+      final resolved = list.map(HafalanStatsCalculator.resolveStatus).toList();
       return Right(resolved);
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));

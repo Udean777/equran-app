@@ -12,8 +12,8 @@ import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat
 import 'package:equran_app/features/catatan_ayat/presentation/widgets/catatan_editor_sheet.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/viewport_detection_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/pages/share_ayat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_card.dart';
-import 'package:equran_app/features/surat_detail/presentation/widgets/share_ayat_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -164,7 +164,7 @@ class AyatListView extends StatelessWidget {
                                   );
                                 }
                               },
-                        onShareTap: () => _showShareSheet(context, ayat),
+                        onShareTap: () => _showSharePage(context, ayat),
                         hasCatatan: context.read<CatatanAyatCubit>().hasCatatan(
                           suratNomor: detail.info.nomor,
                           ayatNomor: ayat.nomorAyat,
@@ -193,14 +193,16 @@ class AyatListView extends StatelessWidget {
     );
   }
 
-  void _showShareSheet(BuildContext context, Ayat ayat) {
+  void _showSharePage(BuildContext context, Ayat ayat) {
     unawaited(
-      showAppBottomSheet<void>(
+      Navigator.push<void>(
         context,
-        builder: (_) => ShareAyatSheet(
-          ayat: ayat,
-          namaLatin: detail.info.namaLatin,
-          suratNomor: detail.info.nomor,
+        MaterialPageRoute(
+          builder: (_) => ShareAyatPage(
+            ayat: ayat,
+            namaLatin: detail.info.namaLatin,
+            suratNomor: detail.info.nomor,
+          ),
         ),
       ),
     );

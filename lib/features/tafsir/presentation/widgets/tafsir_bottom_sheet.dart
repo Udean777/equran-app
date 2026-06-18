@@ -78,8 +78,6 @@ class _TafsirBottomSheetContent extends StatelessWidget {
   }
 }
 
-
-
 class _TafsirHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
