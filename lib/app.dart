@@ -78,8 +78,9 @@ class _AppState extends State<App> {
         listener: (context, state) {
           final audioCubit = context.read<AudioCubit>();
           if (!audioCubit.isPlaylistMode) return;
-          if (!audioCubit.shouldUpdateLastRead)
+          if (!audioCubit.shouldUpdateLastRead) {
             return; // skip jika dari manajemen audio
+          }
           final suratNomor = audioCubit.playlistSuratNomor;
           final suratName = audioCubit.playlistSuratName;
           if (suratNomor == null || suratName == null) return;

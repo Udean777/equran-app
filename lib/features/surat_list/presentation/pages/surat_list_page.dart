@@ -98,8 +98,9 @@ class _SuratListViewState extends State<_SuratListView> {
                           return const SizedBox.shrink();
                         }
                         final murajaahList = state.suratMurajaahHariIni;
-                        if (murajaahList.isEmpty)
+                        if (murajaahList.isEmpty) {
                           return const SizedBox.shrink();
+                        }
                         return MurajaahReminderCard(
                           suratList: murajaahList,
                           onTap: () {
