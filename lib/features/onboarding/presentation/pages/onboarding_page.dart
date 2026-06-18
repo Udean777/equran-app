@@ -13,6 +13,7 @@ import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_s
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_6.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
@@ -98,50 +99,53 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A2E1A),
-      body: Column(
-        children: [
-          // PageView — mengisi sisa ruang
-          Expanded(
-            child: PageView(
-              controller: _controller,
-              // Nonaktifkan swipe saat slide izin belum selesai
-              physics: (_currentPage == 1 && !_permissionRequested)
-                  ? const NeverScrollableScrollPhysics()
-                  : const BouncingScrollPhysics(),
-              onPageChanged: (i) => setState(() => _currentPage = i),
-              children: [
-                const OnboardingSlide1(),
-                OnboardingSlide2(
-                  locationGranted: _locationGranted,
-                  notifGranted: _notifGranted,
-                  permissionRequested: _permissionRequested,
-                  onRequestPermissions: _requestPermissions,
-                ),
-                const OnboardingSlide3(),
-                const OnboardingSlide4(),
-                const OnboardingSlide5(),
-                const OnboardingSlide6(),
-              ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0A2E1A),
+        body: Column(
+          children: [
+            // PageView — mengisi sisa ruang
+            Expanded(
+              child: PageView(
+                controller: _controller,
+                // Nonaktifkan swipe saat slide izin belum selesai
+                physics: (_currentPage == 1 && !_permissionRequested)
+                    ? const NeverScrollableScrollPhysics()
+                    : const BouncingScrollPhysics(),
+                onPageChanged: (i) => setState(() => _currentPage = i),
+                children: [
+                  const OnboardingSlide1(),
+                  OnboardingSlide2(
+                    locationGranted: _locationGranted,
+                    notifGranted: _notifGranted,
+                    permissionRequested: _permissionRequested,
+                    onRequestPermissions: _requestPermissions,
+                  ),
+                  const OnboardingSlide3(),
+                  const OnboardingSlide4(),
+                  const OnboardingSlide5(),
+                  const OnboardingSlide6(),
+                ],
+              ),
             ),
-          ),
 
-          // Bottom nav — sembunyikan saat slide izin belum selesai
-          if (_currentPage != 1 || _permissionRequested)
-            _BottomNav(
-              currentPage: _currentPage,
-              totalPages: _totalPages,
-              isLastPage: _currentPage == _totalPages - 1,
-              isPermissionSlide: _currentPage == 1,
-              permissionRequested: _permissionRequested,
-              bottomPadding: bottomPadding,
-              onNext: _nextPage,
-              onPrev: _prevPage,
-              onSkip: _finish,
-              onFinish: _finish,
-            ),
-        ],
+            // Bottom nav — sembunyikan saat slide izin belum selesai
+            if (_currentPage != 1 || _permissionRequested)
+              _BottomNav(
+                currentPage: _currentPage,
+                totalPages: _totalPages,
+                isLastPage: _currentPage == _totalPages - 1,
+                isPermissionSlide: _currentPage == 1,
+                permissionRequested: _permissionRequested,
+                bottomPadding: bottomPadding,
+                onNext: _nextPage,
+                onPrev: _prevPage,
+                onSkip: _finish,
+                onFinish: _finish,
+              ),
+          ],
+        ),
       ),
     );
   }

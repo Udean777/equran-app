@@ -845,20 +845,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i451.DeleteCatatan>(),
       ),
     );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
-        gh<_i1042.GetJadwalShalat>(),
-        gh<_i88.GetLastLocationShalat>(),
-        gh<_i584.SaveLastLocationShalat>(),
-        gh<_i177.LocationService>(),
-        gh<_i804.ShalatNotificationScheduler>(),
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-        gh<_i615.ShalatNotifCubit>(),
-      ),
-    );
     gh.factory<_i291.GetSuratList>(
       () => _i291.GetSuratList(gh<_i647.SuratRepository>()),
     );
@@ -977,6 +963,18 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i974.TafsirCubit>(
       () => _i974.TafsirCubit(gh<_i160.GetTafsir>()),
+    );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
+        gh<_i177.LocationService>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i615.ShalatNotifCubit>(),
+      ),
     );
     gh.factory<_i334.SuratListCubit>(
       () => _i334.SuratListCubit(gh<_i291.GetSuratList>()),
