@@ -48,7 +48,8 @@ class ShalatTimeGrid extends StatelessWidget {
       spacing: AppDimens.spaceSM,
       runSpacing: AppDimens.spaceSM,
       children: items.map((item) {
-        final itemWidth = (MediaQuery.sizeOf(context).width -
+        final itemWidth =
+            (MediaQuery.sizeOf(context).width -
                 AppDimens.pagePadding * 2 -
                 AppDimens.cardPaddingLG * 2 -
                 AppDimens.spaceSM * 3) /
@@ -104,9 +105,7 @@ class _ShalatTimeCell extends StatelessWidget {
           Text(
             item.time,
             style: TextStyle(
-              color: highlighted
-                  ? AppColors.gold
-                  : AppColors.onPrimary,
+              color: highlighted ? AppColors.gold : AppColors.onPrimary,
               fontWeight: highlighted ? FontWeight.w700 : FontWeight.w600,
               fontSize: 13,
             ),

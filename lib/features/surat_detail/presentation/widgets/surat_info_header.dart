@@ -112,8 +112,7 @@ class SuratInfoHeader extends StatelessWidget {
                   height: 1.5,
                   decoration: BoxDecoration(
                     color: AppColors.gold,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.radiusFull),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   ),
                 ),
 

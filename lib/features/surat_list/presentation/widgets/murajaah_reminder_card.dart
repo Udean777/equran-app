@@ -70,14 +70,20 @@ class MurajaahReminderCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withValues(alpha: isDark ? 0.15 : 0.1),
+                      color: AppColors.gold.withValues(
+                        alpha: isDark ? 0.15 : 0.1,
+                      ),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.gold.withValues(alpha: isDark ? 0.3 : 0.4),
+                        color: AppColors.gold.withValues(
+                          alpha: isDark ? 0.3 : 0.4,
+                        ),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.gold.withValues(alpha: isDark ? 0.1 : 0.05),
+                          color: AppColors.gold.withValues(
+                            alpha: isDark ? 0.1 : 0.05,
+                          ),
                           blurRadius: 6,
                           spreadRadius: 1,
                         ),
@@ -101,7 +107,9 @@ class MurajaahReminderCard extends StatelessWidget {
                             Text(
                               "MURAJA'AH HARI INI",
                               style: theme.textTheme.labelMedium?.copyWith(
-                                color: isDark ? AppColors.goldLight : AppColors.goldDark,
+                                color: isDark
+                                    ? AppColors.goldLight
+                                    : AppColors.goldDark,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 10.5,
                                 letterSpacing: 0.8,
@@ -126,30 +134,38 @@ class MurajaahReminderCard extends StatelessWidget {
                           runSpacing: 4,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            ...displaySurats.map((s) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppDimens.spaceXS + 1,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? AppColors.gold.withValues(alpha: 0.12)
-                                    : AppColors.gold.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-                                border: Border.all(
-                                  color: AppColors.gold.withValues(alpha: isDark ? 0.35 : 0.3),
-                                  width: 0.8,
+                            ...displaySurats.map(
+                              (s) => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppDimens.spaceXS + 1,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? AppColors.gold.withValues(alpha: 0.12)
+                                      : AppColors.gold.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(
+                                    AppDimens.radiusSM,
+                                  ),
+                                  border: Border.all(
+                                    color: AppColors.gold.withValues(
+                                      alpha: isDark ? 0.35 : 0.3,
+                                    ),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Text(
+                                  s.namaLatin,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: isDark
+                                        ? AppColors.goldLight
+                                        : AppColors.goldDark,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10,
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                s.namaLatin,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: isDark ? AppColors.goldLight : AppColors.goldDark,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            )),
+                            ),
                             if (hasExtra)
                               Container(
                                 padding: const EdgeInsets.symmetric(
@@ -158,20 +174,30 @@ class MurajaahReminderCard extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: isDark
-                                      ? AppColors.primaryLighter.withValues(alpha: 0.15)
+                                      ? AppColors.primaryLighter.withValues(
+                                          alpha: 0.15,
+                                        )
                                       : AppColors.primaryContainer,
-                                  borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                                  borderRadius: BorderRadius.circular(
+                                    AppDimens.radiusSM,
+                                  ),
                                   border: Border.all(
                                     color: isDark
-                                        ? AppColors.primaryLighter.withValues(alpha: 0.3)
-                                        : AppColors.primary.withValues(alpha: 0.25),
+                                        ? AppColors.primaryLighter.withValues(
+                                            alpha: 0.3,
+                                          )
+                                        : AppColors.primary.withValues(
+                                            alpha: 0.25,
+                                          ),
                                     width: 0.8,
                                   ),
                                 ),
                                 child: Text(
                                   '+${suratList.length - 3} lainnya',
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                                    color: isDark
+                                        ? AppColors.primaryLighter
+                                        : AppColors.primary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 10,
                                   ),
@@ -186,7 +212,10 @@ class MurajaahReminderCard extends StatelessWidget {
 
                   // Start Action Button
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppColors.gold.withValues(alpha: 0.2)
@@ -212,7 +241,9 @@ class MurajaahReminderCard extends StatelessWidget {
                         Text(
                           'Mulai',
                           style: theme.textTheme.labelMedium?.copyWith(
-                            color: isDark ? AppColors.goldLighter : Colors.white,
+                            color: isDark
+                                ? AppColors.goldLighter
+                                : Colors.white,
                             fontWeight: FontWeight.w800,
                             fontSize: 11,
                             letterSpacing: 0.4,

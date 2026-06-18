@@ -56,8 +56,9 @@ void main() {
       });
 
       test('return Left(Failure) jika datasource throw', () {
-        when(() => mockDataSource.getByDate(tDate))
-            .thenThrow(Exception('error'));
+        when(
+          () => mockDataSource.getByDate(tDate),
+        ).thenThrow(Exception('error'));
 
         final result = repository.getByDate(tDate);
 
@@ -73,8 +74,9 @@ void main() {
 
     group('saveAyat()', () {
       test('return Right(unit) setelah save berhasil', () async {
-        when(() => mockDataSource.saveAyat(tDate, '1:1'))
-            .thenAnswer((_) async {});
+        when(
+          () => mockDataSource.saveAyat(tDate, '1:1'),
+        ).thenAnswer((_) async {});
 
         final result = await repository.saveAyat(tDate, '1:1');
 
@@ -83,8 +85,9 @@ void main() {
       });
 
       test('return Left(Failure) jika datasource throw', () async {
-        when(() => mockDataSource.saveAyat(any(), any()))
-            .thenThrow(Exception('save error'));
+        when(
+          () => mockDataSource.saveAyat(any(), any()),
+        ).thenThrow(Exception('save error'));
 
         final result = await repository.saveAyat(tDate, '1:1');
 
@@ -96,8 +99,9 @@ void main() {
 
     group('saveAyatBatch()', () {
       test('return Right(unit) setelah batch save berhasil', () async {
-        when(() => mockDataSource.saveAyatBatch(tDate, {'1:1', '1:2'}))
-            .thenAnswer((_) async {});
+        when(
+          () => mockDataSource.saveAyatBatch(tDate, {'1:1', '1:2'}),
+        ).thenAnswer((_) async {});
 
         final result = await repository.saveAyatBatch(tDate, {'1:1', '1:2'});
 
@@ -109,8 +113,7 @@ void main() {
 
     group('cleanupOldData()', () {
       test('return Right(unit) setelah cleanup berhasil', () async {
-        when(() => mockDataSource.cleanupOldData(90))
-            .thenAnswer((_) async {});
+        when(() => mockDataSource.cleanupOldData(90)).thenAnswer((_) async {});
 
         final result = await repository.cleanupOldData(90);
 
@@ -124,8 +127,9 @@ void main() {
     group('getStats()', () {
       test('hitung totalAyatRead dengan benar', () {
         // tHistory: 7 ayat (surat 1), tHistory2: 2 ayat (surat 2)
-        when(() => mockDataSource.getByDateRange(any()))
-            .thenReturn([tHistory, tHistory2]);
+        when(
+          () => mockDataSource.getByDateRange(any()),
+        ).thenReturn([tHistory, tHistory2]);
 
         final result = repository.getStats(today: tDate);
 
@@ -135,8 +139,9 @@ void main() {
       });
 
       test('hitung totalHariDenganData dengan benar', () {
-        when(() => mockDataSource.getByDateRange(any()))
-            .thenReturn([tHistory, tHistory2]);
+        when(
+          () => mockDataSource.getByDateRange(any()),
+        ).thenReturn([tHistory, tHistory2]);
 
         final result = repository.getStats(today: tDate);
 
@@ -145,8 +150,9 @@ void main() {
       });
 
       test('hitung rataRataPerHari dengan benar', () {
-        when(() => mockDataSource.getByDateRange(any()))
-            .thenReturn([tHistory, tHistory2]);
+        when(
+          () => mockDataSource.getByDateRange(any()),
+        ).thenReturn([tHistory, tHistory2]);
 
         final result = repository.getStats(today: tDate);
 
@@ -189,8 +195,9 @@ void main() {
       test('progress juz 1 benar jika ada ayat surat 1 dan 2', () {
         // Surat 1 (7 ayat) + surat 2 (2 ayat) = 9 ayat dari juz 1
         // Total ayat juz 1 = 148
-        when(() => mockDataSource.getByDateRange(any()))
-            .thenReturn([tHistory, tHistory2]);
+        when(
+          () => mockDataSource.getByDateRange(any()),
+        ).thenReturn([tHistory, tHistory2]);
 
         final result = repository.getStats(today: tDate);
 
@@ -200,8 +207,9 @@ void main() {
       });
 
       test('topSurat berisi surat yang paling banyak dibaca', () {
-        when(() => mockDataSource.getByDateRange(any()))
-            .thenReturn([tHistory, tHistory2]);
+        when(
+          () => mockDataSource.getByDateRange(any()),
+        ).thenReturn([tHistory, tHistory2]);
 
         final result = repository.getStats(today: tDate);
 
@@ -213,8 +221,9 @@ void main() {
       });
 
       test('return Left(Failure) jika datasource throw', () {
-        when(() => mockDataSource.getByDateRange(any()))
-            .thenThrow(Exception('error'));
+        when(
+          () => mockDataSource.getByDateRange(any()),
+        ).thenThrow(Exception('error'));
 
         final result = repository.getStats(today: tDate);
 

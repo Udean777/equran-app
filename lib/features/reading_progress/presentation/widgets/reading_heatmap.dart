@@ -18,8 +18,9 @@ class ReadingHeatmap extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     if (last90Days.isEmpty) return const SizedBox.shrink();
 
@@ -40,8 +41,7 @@ class ReadingHeatmap extends StatelessWidget {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color:
-                  AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -58,8 +58,7 @@ class ReadingHeatmap extends StatelessWidget {
                   height: 16,
                   decoration: BoxDecoration(
                     color: AppColors.gold,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.radiusFull),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
@@ -176,9 +175,7 @@ class ReadingHeatmap extends StatelessWidget {
 
   static Color _colorForCount(int count, bool isDark) {
     if (count == 0) {
-      return isDark
-          ? AppColors.outlineDark
-          : AppColors.outlineVariant;
+      return isDark ? AppColors.outlineDark : AppColors.outlineVariant;
     }
     if (count < 5) return AppColors.primary.withValues(alpha: 0.2);
     if (count < 15) return AppColors.primary.withValues(alpha: 0.4);

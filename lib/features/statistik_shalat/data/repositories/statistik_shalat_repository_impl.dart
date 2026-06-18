@@ -78,16 +78,17 @@ class StatistikShalatRepositoryImpl implements StatistikShalatRepository {
       }
 
       final totalDicatat = totalTepatWaktu + totalQadha + totalTidakShalat;
-      final persentase =
-          totalDicatat == 0 ? 0.0 : totalTepatWaktu / totalDicatat;
+      final persentase = totalDicatat == 0
+          ? 0.0
+          : totalTepatWaktu / totalDicatat;
 
       // Hitung streak: hari berturut-turut dengan 5 waktu shalat (tepatWaktu/qadha)
       final streak = _computeStreak(today);
 
       // 7 hari terakhir untuk chart
-      final last7 = _getLast7Days(today)
-          .map((d) => statsMap[d] ?? ShalatDayStats(date: d))
-          .toList();
+      final last7 = _getLast7Days(
+        today,
+      ).map((d) => statsMap[d] ?? ShalatDayStats(date: d)).toList();
 
       return Right(
         ShalatStats(

@@ -92,14 +92,16 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
         final futureEntries = jadwal.jadwal
             .where((e) => e.tanggal >= now.day)
             .take(10)
-            .map((e) => ShalatScheduleEntry(
-                  date: DateTime(now.year, now.month, e.tanggal),
-                  subuh: e.subuh,
-                  dzuhur: e.dzuhur,
-                  ashar: e.ashar,
-                  maghrib: e.maghrib,
-                  isya: e.isya,
-                ))
+            .map(
+              (e) => ShalatScheduleEntry(
+                date: DateTime(now.year, now.month, e.tanggal),
+                subuh: e.subuh,
+                dzuhur: e.dzuhur,
+                ashar: e.ashar,
+                maghrib: e.maghrib,
+                isya: e.isya,
+              ),
+            )
             .toList();
 
         if (futureEntries.isEmpty) {
@@ -122,8 +124,7 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
 
   /// Toggle notifikasi untuk waktu shalat tertentu.
   Future<void> toggleSubuh() => _update(state.copyWith(subuh: !state.subuh));
-  Future<void> toggleDzuhur() =>
-      _update(state.copyWith(dzuhur: !state.dzuhur));
+  Future<void> toggleDzuhur() => _update(state.copyWith(dzuhur: !state.dzuhur));
   Future<void> toggleAshar() => _update(state.copyWith(ashar: !state.ashar));
   Future<void> toggleMaghrib() =>
       _update(state.copyWith(maghrib: !state.maghrib));

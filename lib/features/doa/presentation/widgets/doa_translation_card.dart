@@ -17,8 +17,9 @@ class DoaTranslationCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -45,8 +46,7 @@ class DoaTranslationCard extends StatelessWidget {
                   height: 16,
                   decoration: BoxDecoration(
                     color: AppColors.gold,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.radiusFull),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceSM),

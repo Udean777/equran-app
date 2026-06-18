@@ -49,8 +49,7 @@ class AyatCard extends StatelessWidget {
           prev.translationFontSize != curr.translationFontSize ||
           prev.arabicFontFamily != curr.arabicFontFamily,
       builder: (context, fontState) {
-        final surfaceColor =
-            isDark ? AppColors.surfaceDark : AppColors.surface;
+        final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
         final borderColor = isPlaying
             ? (isDark ? AppColors.primaryLighter : AppColors.primary)
             : (isDark ? AppColors.outlineDark : AppColors.outlineVariant);
@@ -167,27 +166,29 @@ class AyatCard extends StatelessWidget {
                       // Latin
                       Text(
                         ayat.teksLatin,
-                        style: AppTypography.translationDynamic(
-                          fontState,
-                        ).copyWith(
-                          fontStyle: FontStyle.italic,
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
-                        ),
+                        style:
+                            AppTypography.translationDynamic(
+                              fontState,
+                            ).copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: isDark
+                                  ? AppColors.onSurfaceDarkVariant
+                                  : AppColors.textTertiary,
+                            ),
                       ),
                       const SizedBox(height: AppDimens.spaceSM),
                       // Indonesia
                       Text(
                         ayat.teksIndonesia,
-                        style: AppTypography.translationDynamic(
-                          fontState,
-                        ).copyWith(
-                          color: isDark
-                              ? AppColors.onSurfaceDark
-                              : AppColors.textSecondary,
-                          height: 1.6,
-                        ),
+                        style:
+                            AppTypography.translationDynamic(
+                              fontState,
+                            ).copyWith(
+                              color: isDark
+                                  ? AppColors.onSurfaceDark
+                                  : AppColors.textSecondary,
+                              height: 1.6,
+                            ),
                       ),
                     ],
                   ),

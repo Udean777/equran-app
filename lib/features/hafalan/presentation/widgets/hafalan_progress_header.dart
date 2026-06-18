@@ -28,8 +28,9 @@ class HafalanProgressHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -135,9 +136,7 @@ class HafalanProgressHeader extends StatelessWidget {
                 valueColor: AlwaysStoppedAnimation<Color>(
                   progress >= 1.0
                       ? AppColors.gold
-                      : (isDark
-                          ? AppColors.primaryLighter
-                          : AppColors.primary),
+                      : (isDark ? AppColors.primaryLighter : AppColors.primary),
                 ),
               ),
             ),

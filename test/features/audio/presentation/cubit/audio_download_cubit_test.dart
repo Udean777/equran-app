@@ -153,7 +153,12 @@ void main() {
             qari: any(named: 'qari'),
             url: any(named: 'url'),
           ),
-        ).thenAnswer((_) => Stream.fromIterable([right<Failure, double>(0.5), right<Failure, double>(1)]));
+        ).thenAnswer(
+          (_) => Stream.fromIterable([
+            right<Failure, double>(0.5),
+            right<Failure, double>(1),
+          ]),
+        );
         return buildCubit();
       },
       act: (cubit) => cubit.downloadAyat(

@@ -47,8 +47,9 @@ void main() {
     mockSeek = MockSeekAudio();
     mockRepository = MockAudioRepository();
 
-    when(() => mockRepository.stateStream)
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.stateStream,
+    ).thenAnswer((_) => const Stream.empty());
     when(() => mockPlay(any())).thenAnswer((_) async => right(unit));
     when(() => mockPause()).thenAnswer((_) async => right(unit));
     when(() => mockResume()).thenAnswer((_) async => right(unit));
@@ -126,7 +127,9 @@ void main() {
         teksArab: 'arab $i',
         teksLatin: 'latin $i',
         teksIndonesia: 'indonesia $i',
-        audio: {'05': 'https://cdn.islamic.network/quran/audio/128/05/${i + 1}.mp3'},
+        audio: {
+          '05': 'https://cdn.islamic.network/quran/audio/128/05/${i + 1}.mp3',
+        },
       ),
     );
 

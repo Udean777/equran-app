@@ -73,8 +73,8 @@ class GradientButton extends StatelessWidget {
           gradient: isDisabled ? null : gradient,
           color: isDisabled
               ? (isDark
-                  ? AppColors.surfaceDarkVariant
-                  : AppColors.surfaceVariant)
+                    ? AppColors.surfaceDarkVariant
+                    : AppColors.surfaceVariant)
               : null,
           borderRadius: BorderRadius.circular(AppDimens.radiusLG),
           boxShadow: isDisabled
@@ -108,9 +108,7 @@ class GradientButton extends StatelessWidget {
 
   Widget _buildContent(bool isDark, bool isDisabled) {
     final contentColor = isDisabled
-        ? (isDark
-            ? AppColors.onSurfaceDarkVariant
-            : AppColors.textTertiary)
+        ? (isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary)
         : AppColors.onPrimary;
 
     if (isLoading) {

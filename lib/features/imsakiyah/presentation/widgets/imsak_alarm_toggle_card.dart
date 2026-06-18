@@ -46,8 +46,9 @@ class _AlarmCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -167,17 +168,16 @@ class _AlarmCard extends StatelessWidget {
                       color: isDark
                           ? AppColors.primaryDark
                           : AppColors.primaryContainer,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusSM),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                     ),
                     child: DropdownButton<int>(
                       value: prefs.menitSebelumImsak,
                       isDense: true,
                       underline: const SizedBox.shrink(),
-                      dropdownColor:
-                          isDark ? AppColors.surfaceDark : AppColors.surface,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusMD),
+                      dropdownColor: isDark
+                          ? AppColors.surfaceDark
+                          : AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
                       items: _menitOptions
                           .map(
                             (m) => DropdownMenuItem(
@@ -260,8 +260,8 @@ class _AlarmToggleRow extends StatelessWidget {
             color: value
                 ? (isDark ? AppColors.primaryDark : AppColors.primaryContainer)
                 : (isDark
-                    ? AppColors.surfaceDarkVariant
-                    : AppColors.surfaceVariant),
+                      ? AppColors.surfaceDarkVariant
+                      : AppColors.surfaceVariant),
             borderRadius: BorderRadius.circular(AppDimens.radiusSM),
           ),
           child: Icon(
@@ -270,8 +270,8 @@ class _AlarmToggleRow extends StatelessWidget {
             color: value
                 ? (isDark ? AppColors.primaryLighter : AppColors.primary)
                 : (isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textTertiary),
+                      ? AppColors.onSurfaceDarkVariant
+                      : AppColors.textTertiary),
           ),
         ),
         const SizedBox(width: AppDimens.spaceSM),
@@ -303,7 +303,9 @@ class _AlarmToggleRow extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: isDark ? AppColors.primaryLighter : AppColors.primary,
+          activeThumbColor: isDark
+              ? AppColors.primaryLighter
+              : AppColors.primary,
           activeTrackColor: isDark
               ? AppColors.primaryDark
               : AppColors.primaryContainer,

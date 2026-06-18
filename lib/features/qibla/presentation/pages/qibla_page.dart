@@ -51,13 +51,10 @@ class _QiblaView extends StatelessWidget {
               return IconButton(
                 icon: Icon(
                   Icons.refresh_rounded,
-                  color: isDark
-                      ? AppColors.primaryLighter
-                      : AppColors.primary,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
                 ),
                 tooltip: 'Refresh',
-                onPressed: () =>
-                    unawaited(context.read<QiblaCubit>().start()),
+                onPressed: () => unawaited(context.read<QiblaCubit>().start()),
               );
             },
           ),

@@ -20,8 +20,9 @@ class DoaArabicCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return BlocBuilder<QuranFontCubit, QuranFontState>(
       builder: (context, fontState) => Padding(
@@ -49,8 +50,7 @@ class DoaArabicCard extends StatelessWidget {
                     height: 16,
                     decoration: BoxDecoration(
                       color: AppColors.gold,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                     ),
                   ),
                   const SizedBox(width: AppDimens.spaceSM),
@@ -83,8 +83,7 @@ class DoaArabicCard extends StatelessWidget {
                         color: isDark
                             ? AppColors.primaryDark
                             : AppColors.primaryContainer,
-                        borderRadius:
-                            BorderRadius.circular(AppDimens.radiusSM),
+                        borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

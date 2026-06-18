@@ -145,8 +145,7 @@ void main() {
 
     group('deleteByDate()', () {
       test('return Right(unit) setelah delete berhasil', () async {
-        when(() => mockDataSource.deleteByDate(tDate))
-            .thenAnswer((_) async {});
+        when(() => mockDataSource.deleteByDate(tDate)).thenAnswer((_) async {});
 
         final result = await repository.deleteByDate(tDate);
 

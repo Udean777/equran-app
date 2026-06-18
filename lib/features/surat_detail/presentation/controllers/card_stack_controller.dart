@@ -9,9 +9,10 @@ class CardStackController extends ChangeNotifier {
     required int totalAyat,
     int initialIndex = 0,
     this.onProgressUpdate,
-  })  : _currentIndex = initialIndex.clamp(0, totalAyat + 1),
-        _totalCards = totalAyat + 2, // +1 untuk info card, +1 untuk completion card
-        _maxReachedIndex = initialIndex.clamp(0, totalAyat + 1);
+  }) : _currentIndex = initialIndex.clamp(0, totalAyat + 1),
+       _totalCards =
+           totalAyat + 2, // +1 untuk info card, +1 untuk completion card
+       _maxReachedIndex = initialIndex.clamp(0, totalAyat + 1);
 
   /// Total cards = totalAyat + 2 (info card + completion card)
   final int _totalCards;

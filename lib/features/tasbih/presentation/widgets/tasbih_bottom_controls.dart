@@ -37,8 +37,9 @@ class TasbihBottomControls extends StatelessWidget {
               ),
               label: const Text('Ganti Dzikir'),
               style: OutlinedButton.styleFrom(
-                foregroundColor:
-                    isDark ? AppColors.primaryLighter : AppColors.primary,
+                foregroundColor: isDark
+                    ? AppColors.primaryLighter
+                    : AppColors.primary,
                 textStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
                   inherit: false,

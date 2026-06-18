@@ -60,16 +60,16 @@ class LuxuryAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => Size.fromHeight(
-        AppDimens.appBarHeightLG +
-            (bottom?.preferredSize.height ?? 0),
-      );
+    AppDimens.appBarHeightLG + (bottom?.preferredSize.height ?? 0),
+  );
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final contentColor =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final contentColor = isDark
+        ? AppColors.onSurfaceDark
+        : AppColors.textPrimary;
 
     return AppBar(
       backgroundColor: surfaceColor,

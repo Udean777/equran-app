@@ -68,7 +68,6 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
           color: AppColors.error,
           onTest: _stopAdzan,
         ),
-
       ],
     ),
     NotificationTestSection(
@@ -247,7 +246,6 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
       await _audioHandler.stopAdzan();
     });
   }
-
 
   Future<void> _testAdzan({required bool isSubuh}) async {
     final key = isSubuh ? 'adzan_subuh' : 'adzan_dzuhur';

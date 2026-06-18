@@ -26,8 +26,8 @@ class NotifToggleTile extends StatelessWidget {
     // Warna icon container berubah sesuai state aktif/nonaktif
     final iconBg = value
         ? (isDark
-            ? AppColors.primaryLight.withValues(alpha: 0.2)
-            : AppColors.primaryContainer)
+              ? AppColors.primaryLight.withValues(alpha: 0.2)
+              : AppColors.primaryContainer)
         : (isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant);
 
     final iconColor = value
@@ -43,12 +43,13 @@ class NotifToggleTile extends StatelessWidget {
         value: value,
         onChanged: onChanged,
         activeThumbColor: AppColors.onPrimary,
-        activeTrackColor:
-            isDark ? AppColors.primaryLighter : AppColors.primary,
-        inactiveThumbColor:
-            isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary,
-        inactiveTrackColor:
-            isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant,
+        activeTrackColor: isDark ? AppColors.primaryLighter : AppColors.primary,
+        inactiveThumbColor: isDark
+            ? AppColors.onSurfaceDarkVariant
+            : AppColors.textTertiary,
+        inactiveTrackColor: isDark
+            ? AppColors.surfaceDarkVariant
+            : AppColors.surfaceVariant,
       ),
     );
   }

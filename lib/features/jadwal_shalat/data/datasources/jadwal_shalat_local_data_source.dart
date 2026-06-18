@@ -124,16 +124,14 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
   }
 
   @override
-  Future<String?> getLastProvinsi() async =>
-      _box.get(_lastProvinsiKey);
+  Future<String?> getLastProvinsi() async => _box.get(_lastProvinsiKey);
 
   @override
   Future<void> saveLastProvinsi(String provinsi) async =>
       _box.put(_lastProvinsiKey, provinsi);
 
   @override
-  Future<String?> getLastKabkota() async =>
-      _box.get(_lastKabkotaKey);
+  Future<String?> getLastKabkota() async => _box.get(_lastKabkotaKey);
 
   @override
   Future<void> saveLastKabkota(String kabkota) async =>

@@ -140,8 +140,12 @@ class _LuxurySuccessReadDialog extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark ? AppColors.outlineDark : AppColors.outline;
-    final textPrimary = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-    final textSecondary = isDark ? AppColors.onSurfaceDarkVariant : AppColors.textSecondary;
+    final textPrimary = isDark
+        ? AppColors.onSurfaceDark
+        : AppColors.textPrimary;
+    final textSecondary = isDark
+        ? AppColors.onSurfaceDarkVariant
+        : AppColors.textSecondary;
 
     return AlertDialog(
       backgroundColor: surfaceColor,
@@ -161,8 +165,8 @@ class _LuxurySuccessReadDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppDimens.spaceMD),
             decoration: BoxDecoration(
-              color: isDark 
-                  ? AppColors.primaryDark.withValues(alpha: 0.3) 
+              color: isDark
+                  ? AppColors.primaryDark.withValues(alpha: 0.3)
                   : AppColors.primaryContainer,
               shape: BoxShape.circle,
             ),
@@ -173,7 +177,7 @@ class _LuxurySuccessReadDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppDimens.spaceLG),
-          
+
           // Congratulations text
           Text(
             'Alhamdulillah!',
@@ -202,7 +206,7 @@ class _LuxurySuccessReadDialog extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppDimens.spaceXL),
-          
+
           // Action button - Back to main
           GradientButton(
             label: 'Kembali ke Halaman Utama',

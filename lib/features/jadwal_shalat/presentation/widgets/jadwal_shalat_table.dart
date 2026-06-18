@@ -31,8 +31,12 @@ class JadwalShalatTable extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final headerBg = isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant;
-    final borderColor = isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final headerBg = isDark
+        ? AppColors.surfaceDarkVariant
+        : AppColors.surfaceVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -69,9 +73,7 @@ class JadwalShalatTable extends StatelessWidget {
               color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
               fontSize: 12,
             ),
-            columns: _headers
-                .map((h) => DataColumn(label: Text(h)))
-                .toList(),
+            columns: _headers.map((h) => DataColumn(label: Text(h))).toList(),
             rows: entries.map((e) {
               final isToday = e.tanggalLengkap == todayTanggalLengkap;
               return DataRow(
@@ -83,7 +85,9 @@ class JadwalShalatTable extends StatelessWidget {
                       )
                     : WidgetStateProperty.all(Colors.transparent),
                 cells: [
-                  DataCell(_cell(e.tanggal.toString(), isToday, isDark, bold: true)),
+                  DataCell(
+                    _cell(e.tanggal.toString(), isToday, isDark, bold: true),
+                  ),
                   DataCell(_cell(e.hari.substring(0, 3), isToday, isDark)),
                   DataCell(_cell(e.imsak, isToday, isDark)),
                   DataCell(_cell(e.subuh, isToday, isDark)),
@@ -116,8 +120,7 @@ class JadwalShalatTable extends StatelessWidget {
       text,
       style: TextStyle(
         fontSize: 12,
-        fontWeight:
-            (isToday || bold) ? FontWeight.w600 : FontWeight.w400,
+        fontWeight: (isToday || bold) ? FontWeight.w600 : FontWeight.w400,
         color: color,
       ),
     );

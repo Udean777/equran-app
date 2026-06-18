@@ -274,8 +274,9 @@ void main() {
       when(() => mockBox.get('bookmarks')).thenAnswer((_) {
         return stored.isEmpty ? null : stored.last;
       });
-      when(() => mockBox.put(any<String>(), any<String>()))
-          .thenAnswer((inv) async {
+      when(() => mockBox.put(any<String>(), any<String>())).thenAnswer((
+        inv,
+      ) async {
         stored.add(inv.positionalArguments[1] as String);
       });
 
@@ -289,33 +290,36 @@ void main() {
       verify(() => mockBox.put('bookmarks', any<String>())).called(2);
     });
 
-    test('concurrent addBookmark + removeBookmark menghasilkan state konsisten',
-        () async {
-      final dto = BookmarkDto(
-        suratNomor: 1,
-        ayatNomor: 1,
-        namaLatin: 'Al-Fatihah',
-        teksArab: 'test',
-        teksIndonesia: 'test',
-        savedAt: DateTime.now().toIso8601String(),
-      );
-      final encoded = jsonEncode([dto.toJson()]);
+    test(
+      'concurrent addBookmark + removeBookmark menghasilkan state konsisten',
+      () async {
+        final dto = BookmarkDto(
+          suratNomor: 1,
+          ayatNomor: 1,
+          namaLatin: 'Al-Fatihah',
+          teksArab: 'test',
+          teksIndonesia: 'test',
+          savedAt: DateTime.now().toIso8601String(),
+        );
+        final encoded = jsonEncode([dto.toJson()]);
 
-      when(() => mockBox.get('bookmarks')).thenReturn(encoded);
-      when(() => mockBox.put(any<String>(), any<String>()))
-          .thenAnswer((_) async {});
+        when(() => mockBox.get('bookmarks')).thenReturn(encoded);
+        when(
+          () => mockBox.put(any<String>(), any<String>()),
+        ).thenAnswer((_) async {});
 
-      // add + remove berjalan bersamaan — tidak boleh throw
-      await Future.wait([
-        dataSource.addBookmark(dto),
-        dataSource.removeBookmark(suratNomor: 1, ayatNomor: 1),
-      ]);
+        // add + remove berjalan bersamaan — tidak boleh throw
+        await Future.wait([
+          dataSource.addBookmark(dto),
+          dataSource.removeBookmark(suratNomor: 1, ayatNomor: 1),
+        ]);
 
-      // Tidak throw = state konsisten
-      verify(
-        () => mockBox.put('bookmarks', any<String>()),
-      ).called(greaterThanOrEqualTo(1));
-    });
+        // Tidak throw = state konsisten
+        verify(
+          () => mockBox.put('bookmarks', any<String>()),
+        ).called(greaterThanOrEqualTo(1));
+      },
+    );
 
     test('duplicate addBookmark tidak ditambahkan dua kali', () async {
       final dto = BookmarkDto(
@@ -328,10 +332,12 @@ void main() {
       );
 
       // Box sudah ada dto ini
-      when(() => mockBox.get('bookmarks'))
-          .thenReturn(jsonEncode([dto.toJson()]));
-      when(() => mockBox.put(any<String>(), any<String>()))
-          .thenAnswer((_) async {});
+      when(
+        () => mockBox.get('bookmarks'),
+      ).thenReturn(jsonEncode([dto.toJson()]));
+      when(
+        () => mockBox.put(any<String>(), any<String>()),
+      ).thenAnswer((_) async {});
 
       await dataSource.addBookmark(dto); // duplikat — harus skip
 

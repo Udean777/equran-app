@@ -28,11 +28,11 @@ abstract class HafalanStats with _$HafalanStats {
 
   /// Stats kosong — digunakan sebagai initial state.
   factory HafalanStats.empty() => const HafalanStats(
-        totalAyatHafal: 0,
-        totalSuratSelesai: 0,
-        persentaseQuran: 0,
-        progressPerJuz: {},
-        suratSedangDihafal: 0,
-        suratPerluMurajaah: 0,
-      );
+    totalAyatHafal: 0,
+    totalSuratSelesai: 0,
+    persentaseQuran: 0,
+    progressPerJuz: {},
+    suratSedangDihafal: 0,
+    suratPerluMurajaah: 0,
+  );
 }

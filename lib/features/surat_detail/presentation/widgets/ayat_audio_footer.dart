@@ -23,10 +23,10 @@ class AyatAudioFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
-    final primaryColor =
-        isDark ? AppColors.primaryLighter : AppColors.primary;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
+    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
 
     return BlocBuilder<AudioCubit, AudioPlayerState>(
       buildWhen: (prev, next) =>
@@ -38,8 +38,7 @@ class AyatAudioFooter extends StatelessWidget {
       builder: (context, audioState) {
         final cubit = context.read<AudioCubit>();
         final qari = audioState.currentQari;
-        final audioUrl =
-            ayat.audio[qari.id] ?? ayat.audio.values.firstOrNull;
+        final audioUrl = ayat.audio[qari.id] ?? ayat.audio.values.firstOrNull;
         final isCurrentAyat = audioState.currentAyat == ayat.nomorAyat;
         final isPlaying = isCurrentAyat && audioState.isPlaying;
         final isLoading = isCurrentAyat && audioState.isLoading;
@@ -70,7 +69,7 @@ class AyatAudioFooter extends StatelessWidget {
                   ),
                 )
               else
-                  AyatAudioButton(
+                AyatAudioButton(
                   isPlaying: isPlaying,
                   isLoading: isLoading,
                   primaryColor: primaryColor,
@@ -93,7 +92,7 @@ class AyatAudioFooter extends StatelessWidget {
                           audioMap: suratDetail.audioFull,
                         ),
                       );
-                                        }
+                    }
                   },
                 ),
             ],

@@ -12,6 +12,5 @@ class GetShalatStats {
   Either<Failure, ShalatStats> call({
     required List<String> dates,
     required String today,
-  }) =>
-      _repository.getStats(dates: dates, today: today);
+  }) => _repository.getStats(dates: dates, today: today);
 }

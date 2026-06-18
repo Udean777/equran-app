@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart' show AudioCompositeHandler;
+import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
+    show AudioCompositeHandler;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
@@ -65,8 +66,9 @@ class AdzanPlayerDelegate {
       // Stop jika masih ada yang playing
       await stop();
 
-      final assetPath =
-          isSubuh ? 'assets/audio/adzan_subuh.m4a' : 'assets/audio/adzan.m4a';
+      final assetPath = isSubuh
+          ? 'assets/audio/adzan_subuh.m4a'
+          : 'assets/audio/adzan.m4a';
 
       final artUri = await _getArtworkUri();
 

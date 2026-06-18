@@ -14,10 +14,9 @@ class DeleteAyatAudio {
     required int suratNomor,
     required int ayatNomor,
     required Qari qari,
-  }) =>
-      _repository.deleteAyat(
-        suratNomor: suratNomor,
-        ayatNomor: ayatNomor,
-        qari: qari,
-      );
+  }) => _repository.deleteAyat(
+    suratNomor: suratNomor,
+    ayatNomor: ayatNomor,
+    qari: qari,
+  );
 }

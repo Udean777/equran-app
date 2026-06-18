@@ -48,8 +48,7 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
   Future<void> saveLocation({
     required String provinsi,
     required String kabkota,
-  }) =>
-      _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
+  }) => _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
 
   @override
   Future<void> onLocationDetected({
@@ -57,13 +56,12 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
     required String selectedProvinsi,
     required String selectedKabkota,
     List<String>? kabkotaList,
-  }) =>
-      _autoLoadJadwal(
-        provinsiList: provinsiList,
-        selectedProvinsi: selectedProvinsi,
-        selectedKabkota: selectedKabkota,
-        kabkotaList: kabkotaList,
-      );
+  }) => _autoLoadJadwal(
+    provinsiList: provinsiList,
+    selectedProvinsi: selectedProvinsi,
+    selectedKabkota: selectedKabkota,
+    kabkotaList: kabkotaList,
+  );
 
   @override
   void onDetectingLocation() {

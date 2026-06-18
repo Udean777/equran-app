@@ -59,8 +59,9 @@ class LuxuryCard extends StatelessWidget {
     final effectiveRadius = radius ?? AppDimens.radiusLG;
     final effectiveColor =
         color ?? (isDark ? AppColors.surfaceDark : AppColors.surface);
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
 
     final decoration = BoxDecoration(
       color: effectiveColor,
@@ -80,8 +81,7 @@ class LuxuryCard extends StatelessWidget {
     );
 
     final content = Padding(
-      padding: padding ??
-          const EdgeInsets.all(AppDimens.cardPaddingLG),
+      padding: padding ?? const EdgeInsets.all(AppDimens.cardPaddingLG),
       child: child,
     );
 

@@ -171,8 +171,9 @@ void main() {
         when(() => mockBox.get('tasbih_sessions')).thenAnswer((_) {
           return stored.isEmpty ? null : stored.last;
         });
-        when(() => mockBox.put(any<String>(), any<String>()))
-            .thenAnswer((inv) async {
+        when(() => mockBox.put(any<String>(), any<String>())).thenAnswer((
+          inv,
+        ) async {
           stored.add(inv.positionalArguments[1] as String);
         });
 
@@ -201,30 +202,33 @@ void main() {
         );
       });
 
-      test('concurrent saveSession + deleteSession menghasilkan state konsisten',
-          () async {
-        final stored = <String>[];
-        when(() => mockBox.get('tasbih_sessions')).thenAnswer((_) {
-          return stored.isEmpty
-              ? jsonEncode([tSession1.toJson()])
-              : stored.last;
-        });
-        when(() => mockBox.put(any<String>(), any<String>()))
-            .thenAnswer((inv) async {
-          stored.add(inv.positionalArguments[1] as String);
-        });
+      test(
+        'concurrent saveSession + deleteSession menghasilkan state konsisten',
+        () async {
+          final stored = <String>[];
+          when(() => mockBox.get('tasbih_sessions')).thenAnswer((_) {
+            return stored.isEmpty
+                ? jsonEncode([tSession1.toJson()])
+                : stored.last;
+          });
+          when(() => mockBox.put(any<String>(), any<String>())).thenAnswer((
+            inv,
+          ) async {
+            stored.add(inv.positionalArguments[1] as String);
+          });
 
-        // save + delete berjalan bersamaan — tidak boleh throw
-        await Future.wait([
-          dataSource.saveSession(tSession2),
-          dataSource.deleteSession('session-1'),
-        ]);
+          // save + delete berjalan bersamaan — tidak boleh throw
+          await Future.wait([
+            dataSource.saveSession(tSession2),
+            dataSource.deleteSession('session-1'),
+          ]);
 
-        // Tidak throw = state konsisten
-        verify(
-          () => mockBox.put('tasbih_sessions', any<String>()),
-        ).called(greaterThanOrEqualTo(1));
-      });
+          // Tidak throw = state konsisten
+          verify(
+            () => mockBox.put('tasbih_sessions', any<String>()),
+          ).called(greaterThanOrEqualTo(1));
+        },
+      );
     });
   });
 }

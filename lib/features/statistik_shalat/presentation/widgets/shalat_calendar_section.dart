@@ -29,10 +29,10 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor =
-        isDark ? AppColors.outlineDark : AppColors.outlineVariant;
-    final textColor =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final borderColor = isDark
+        ? AppColors.outlineDark
+        : AppColors.outlineVariant;
+    final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
@@ -43,8 +43,7 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color:
-                  AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -67,8 +66,7 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
                     height: 16,
                     decoration: BoxDecoration(
                       color: AppColors.gold,
-                      borderRadius:
-                          BorderRadius.circular(AppDimens.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                     ),
                   ),
                   const SizedBox(width: AppDimens.spaceSM),
@@ -150,7 +148,8 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
               },
               onDaySelected: (selectedDay, focusedDay) {
                 final dateKey = _dateFormat.format(selectedDay);
-                final stats = widget.statsByDate[dateKey] ??
+                final stats =
+                    widget.statsByDate[dateKey] ??
                     ShalatDayStats(date: dateKey);
                 widget.onDayTap(selectedDay, stats);
               },
@@ -179,17 +178,14 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
     final dateKey = _dateFormat.format(day);
     final stats = widget.statsByDate[dateKey];
     final color = _colorForStats(stats);
-    final textColor =
-        isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+    final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
 
     return Container(
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: isToday
-            ? Border.all(color: AppColors.gold, width: 1.5)
-            : null,
+        border: isToday ? Border.all(color: AppColors.gold, width: 1.5) : null,
       ),
       child: Center(
         child: Text(

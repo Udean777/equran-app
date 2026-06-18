@@ -97,14 +97,13 @@ abstract class ShalatDayStats with _$ShalatDayStats {
       logs.values.where((l) => l.status != ShalatStatus.belumDicatat).length;
 
   /// Jumlah shalat yang dilaksanakan (tepatWaktu + qadha).
-  int get jumlahShalat =>
-      logs.values
-          .where(
-            (l) =>
-                l.status == ShalatStatus.tepatWaktu ||
-                l.status == ShalatStatus.qadha,
-          )
-          .length;
+  int get jumlahShalat => logs.values
+      .where(
+        (l) =>
+            l.status == ShalatStatus.tepatWaktu ||
+            l.status == ShalatStatus.qadha,
+      )
+      .length;
 
   /// True jika semua 5 waktu shalat tepat waktu.
   bool get isSempurna => jumlahTepatWaktu == 5;
@@ -114,8 +113,7 @@ abstract class ShalatDayStats with _$ShalatDayStats {
 
   /// Ambil log untuk waktu shalat tertentu.
   ShalatLog logFor(WaktuShalat waktu) =>
-      logs[waktu.key] ??
-      ShalatLog(date: date, waktu: waktu);
+      logs[waktu.key] ?? ShalatLog(date: date, waktu: waktu);
 }
 
 /// Statistik shalat mingguan/bulanan.

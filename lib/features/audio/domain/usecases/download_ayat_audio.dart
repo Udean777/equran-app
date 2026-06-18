@@ -17,11 +17,10 @@ class DownloadAyatAudio {
     required int ayatNomor,
     required Qari qari,
     required String url,
-  }) =>
-      _repository.downloadAyat(
-        suratNomor: suratNomor,
-        ayatNomor: ayatNomor,
-        qari: qari,
-        url: url,
-      );
+  }) => _repository.downloadAyat(
+    suratNomor: suratNomor,
+    ayatNomor: ayatNomor,
+    qari: qari,
+    url: url,
+  );
 }

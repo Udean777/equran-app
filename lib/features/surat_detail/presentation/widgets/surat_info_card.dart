@@ -100,8 +100,7 @@ class SuratInfoCard extends StatelessWidget {
                   height: 1.5,
                   decoration: BoxDecoration(
                     color: AppColors.gold,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.radiusFull),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   ),
                 ),
 
@@ -183,9 +182,9 @@ class SuratInfoCard extends StatelessWidget {
                     onPressed: isCompleted
                         ? onStartAutoRead
                         : () => showLockedToast(
-                              context,
-                              'Selesaikan membaca semua ayat terlebih dahulu untuk membuka Baca Otomatis',
-                            ),
+                            context,
+                            'Selesaikan membaca semua ayat terlebih dahulu untuk membuka Baca Otomatis',
+                          ),
                     icon: Icon(
                       isCompleted
                           ? Icons.auto_stories_rounded

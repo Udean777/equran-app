@@ -87,9 +87,7 @@ class QiblaInfoPanel extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceMD),
           Divider(
             height: 1,
-            color: isDark
-                ? AppColors.outlineDark
-                : AppColors.outlineVariant,
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
           ),
           const SizedBox(height: AppDimens.spaceMD),
 

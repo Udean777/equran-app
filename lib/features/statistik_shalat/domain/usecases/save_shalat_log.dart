@@ -9,6 +9,5 @@ class SaveShalatLog {
   const SaveShalatLog(this._repository);
   final StatistikShalatRepository _repository;
 
-  Future<Either<Failure, Unit>> call(ShalatLog log) =>
-      _repository.saveLog(log);
+  Future<Either<Failure, Unit>> call(ShalatLog log) => _repository.saveLog(log);
 }

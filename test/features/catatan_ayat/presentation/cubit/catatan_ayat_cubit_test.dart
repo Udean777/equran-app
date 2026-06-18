@@ -52,7 +52,9 @@ void main() {
       build: () {
         when(
           () => mockGetAll(),
-        ).thenAnswer((_) async => Right<Failure, List<CatatanAyat>>([tCatatan]));
+        ).thenAnswer(
+          (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
+        );
         return buildCubit();
       },
       act: (cubit) => cubit.load(),
@@ -83,10 +85,9 @@ void main() {
       'load() emit [loading, failure] saat getAll gagal',
       build: () {
         when(() => mockGetAll()).thenAnswer(
-          (_) async =>
-              const Left<Failure, List<CatatanAyat>>(
-                Failure.unknown(message: 'error'),
-              ),
+          (_) async => const Left<Failure, List<CatatanAyat>>(
+            Failure.unknown(message: 'error'),
+          ),
         );
         return buildCubit();
       },
@@ -176,16 +177,19 @@ void main() {
     );
 
     // ── hasCatatan() ─────────────────────────────────────────────────────────
-    test('hasCatatan() return true jika catatan ada di state success', () async {
-      when(
-        () => mockGetAll(),
-      ).thenAnswer(
-        (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
-      );
-      final cubit = buildCubit();
-      await cubit.load();
-      expect(cubit.hasCatatan(suratNomor: 1, ayatNomor: 1), isTrue);
-    });
+    test(
+      'hasCatatan() return true jika catatan ada di state success',
+      () async {
+        when(
+          () => mockGetAll(),
+        ).thenAnswer(
+          (_) async => Right<Failure, List<CatatanAyat>>([tCatatan]),
+        );
+        final cubit = buildCubit();
+        await cubit.load();
+        expect(cubit.hasCatatan(suratNomor: 1, ayatNomor: 1), isTrue);
+      },
+    );
 
     test('hasCatatan() return false jika catatan tidak ada', () async {
       when(

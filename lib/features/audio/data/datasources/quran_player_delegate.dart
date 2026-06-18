@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart' show AudioCompositeHandler;
+import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
+    show AudioCompositeHandler;
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';

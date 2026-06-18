@@ -34,8 +34,7 @@ class _TasbihView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       drawer: const AppDrawer(),
       appBar: LuxuryAppBar(
         title: 'Tasbih & Dzikir',
@@ -61,15 +60,15 @@ class _TasbihView extends StatelessWidget {
                     children: [
                       DzikirInfoSection(state: state),
                       const SizedBox(height: AppDimens.spaceLG),
-              TasbihCounterButton(
-                      count: state.count,
-                      progress: state.target > 0
-                          ? state.count / state.target
-                          : 0.0,
-                      isCompleted: state.isCompleted,
-                      onTap: () =>
-                          unawaited(context.read<TasbihCubit>().increment()),
-                    ),
+                      TasbihCounterButton(
+                        count: state.count,
+                        progress: state.target > 0
+                            ? state.count / state.target
+                            : 0.0,
+                        isCompleted: state.isCompleted,
+                        onTap: () =>
+                            unawaited(context.read<TasbihCubit>().increment()),
+                      ),
                     ],
                   ),
                 ),

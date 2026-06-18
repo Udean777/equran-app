@@ -123,7 +123,9 @@ class NotificationService {
       channelDescription: 'Notifikasi waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
-      sound: RawResourceAndroidNotificationSound(isSubuh ? 'adzan_subuh' : 'adzan'),
+      sound: RawResourceAndroidNotificationSound(
+        isSubuh ? 'adzan_subuh' : 'adzan',
+      ),
     );
 
     final iosDetails = DarwinNotificationDetails(
@@ -176,7 +178,9 @@ class NotificationService {
       channelDescription: 'Notifikasi waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
-      sound: RawResourceAndroidNotificationSound(isSubuh ? 'adzan_subuh' : 'adzan'),
+      sound: RawResourceAndroidNotificationSound(
+        isSubuh ? 'adzan_subuh' : 'adzan',
+      ),
     );
 
     const iosDetails = DarwinNotificationDetails(

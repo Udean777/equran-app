@@ -98,7 +98,8 @@ class _SuratListViewState extends State<_SuratListView> {
                           return const SizedBox.shrink();
                         }
                         final murajaahList = state.suratMurajaahHariIni;
-                        if (murajaahList.isEmpty) return const SizedBox.shrink();
+                        if (murajaahList.isEmpty)
+                          return const SizedBox.shrink();
                         return MurajaahReminderCard(
                           suratList: murajaahList,
                           onTap: () {
@@ -112,7 +113,8 @@ class _SuratListViewState extends State<_SuratListView> {
                   BlocBuilder<QuranStreakCubit, QuranStreakState>(
                     buildWhen: (prev, curr) => prev != curr,
                     builder: (context, state) {
-                      final streak = state.mapOrNull(loaded: (s) => s.streak) ?? 0;
+                      final streak =
+                          state.mapOrNull(loaded: (s) => s.streak) ?? 0;
                       if (streak == 0) return const SizedBox.shrink();
                       return StreakChip(streak: streak);
                     },
