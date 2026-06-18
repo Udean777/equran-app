@@ -128,8 +128,7 @@ class NotificationService {
       ),
     );
 
-    final iosDetails = DarwinNotificationDetails(
-      sound: isSubuh ? 'adzan_subuh.caf' : 'adzan.caf',
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -183,8 +182,7 @@ class NotificationService {
       ),
     );
 
-    final iosDetails = DarwinNotificationDetails(
-      sound: isSubuh ? 'adzan_subuh.caf' : 'adzan.caf',
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
