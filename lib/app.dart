@@ -95,7 +95,7 @@ class _AppState extends State<App> {
         child: BlocBuilder<ThemeCubit, ThemeState>(
           builder: (context, themeState) => BlocBuilder<LanguageCubit, LanguageState>(
             builder: (context, langState) => MaterialApp.router(
-              title: 'eQuran',
+              title: 'Qurva',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light(),
               darkTheme: AppTheme.dark(),
