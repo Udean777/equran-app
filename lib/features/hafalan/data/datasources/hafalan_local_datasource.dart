@@ -61,7 +61,9 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
       if (raw == null) return null;
       final decoded = jsonDecode(raw);
       if (decoded is! Map<String, dynamic>) {
-        debugPrint('HafalanLocalDatasource.getBySurat type error: expected Map');
+        debugPrint(
+          'HafalanLocalDatasource.getBySurat type error: expected Map',
+        );
         return null;
       }
       final dto = HafalanSuratDto.fromJson(decoded);
