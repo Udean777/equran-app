@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="assets/icons/app_icon.png" width="120" alt="eQuran App Logo" style="border-radius: 20px; margin-bottom: 10px;">
-  <h1>📖 eQuran App</h1>
+  <img src="assets/icons/app_icon.png" width="120" alt="Qurva Logo" style="border-radius: 20px; margin-bottom: 10px;">
+  <h1>📖 Qurva</h1>
   
   <p>
     <img src="https://img.shields.io/badge/Flutter-3.22.0-02569B?logo=flutter&style=for-the-badge" alt="Flutter Version">
@@ -12,7 +12,7 @@
   <p><b>Aplikasi Al-Quran Digital Modern & Premium</b></p>
   
   <p>
-    Dirancang dengan mengutamakan performa, estetika, dan arsitektur yang bersih (Clean Architecture). eQuran memadukan kenyamanan membaca Al-Quran, mendengarkan murattal ayat, mempelajari tafsir Kemenag RI, membaca doa harian, hingga pelacakan statistik ibadah yang interaktif.
+    Dirancang dengan mengutamakan performa, estetika, dan arsitektur yang bersih (Clean Architecture). Qurva memadukan kenyamanan membaca Al-Quran, mendengarkan murattal ayat, mempelajari tafsir Kemenag RI, membaca doa harian, hingga pelacakan statistik ibadah yang interaktif.
   </p>
 </div>
 
@@ -20,7 +20,7 @@
 
 ## 📱 Preview Aplikasi
 
-Berikut adalah visualisasi antarmuka premium dari **eQuran App** yang dirancang dengan estetika mewah, bersih, dan modern:
+Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang dengan estetika mewah, bersih, dan modern:
 
 | 🌟 Premium Onboarding | 📖 Daftar Surah (Home) | 🎨 Membaca (Sepia Mode) |
 | :---: | :---: | :---: |
@@ -62,13 +62,13 @@ Berikut adalah visualisasi antarmuka premium dari **eQuran App** yang dirancang 
 - **Desain Adaptif Multi-Tema** — Mode Terang, Gelap, dan **Sepia** (mode membaca khusus yang dirancang dengan temperatur warna hangat untuk mengurangi kelelahan mata di malam hari).
 - **Pilihan Font & Ukuran Kustom** — Pengaturan fleksibel ukuran teks Arab, serta pemilihan tipe font Mushaf premium (font mushaf standar **Amiri** atau **KFGQPC**).
 - **Lokalisasi Multi-Bahasa** — Bahasa Indonesia, English, dan العربية.
-- **Branding Elegan & Optimalisasi RAM** — Integrasi ikon resmi eQuran di berbagai area (Welcome Slide, Success Slide, Home AppBar, App Drawer Header, Loading State, dll.). Menggunakan *pre-caching* gambar dinamis dan pembatasan RAM (`cacheWidth`/`cacheHeight`) pada pemrosesan aset gambar agar memori tetap ringan dan performa anti-lag yang mulus.
+- **Branding Elegan & Optimalisasi RAM** — Integrasi ikon resmi Qurva di berbagai area (Welcome Slide, Success Slide, Home AppBar, App Drawer Header, Loading State, dll.). Menggunakan *pre-caching* gambar dinamis dan pembatasan RAM (`cacheWidth`/`cacheHeight`) pada pemrosesan aset gambar agar memori tetap ringan dan performa anti-lag yang mulus.
 
 ---
 
 ## 🏗️ Arsitektur & Teknologi
 
-eQuran dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang.
+Qurva dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang.
 
 ```mermaid
 flowchart TB
