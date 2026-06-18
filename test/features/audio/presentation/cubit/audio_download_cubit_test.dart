@@ -126,7 +126,7 @@ void main() {
     );
 
     blocTest<AudioDownloadCubit, AudioDownloadState>(
-      'tidak emit jika getDownloadedAyats gagal',
+      'emit state dengan loadError jika getDownloadedAyats gagal',
       build: () {
         when(() => mockGetDownloaded()).thenAnswer(
           (_) async => left(const Failure.unknown(message: 'error')),
@@ -138,7 +138,13 @@ void main() {
         ayatList: [_ayat(1)],
         qari: qari,
       ),
-      expect: () => <AudioDownloadState>[],
+      expect: () => [
+        isA<AudioDownloadState>().having(
+          (s) => s.loadError,
+          'loadError',
+          isA<Failure>(),
+        ),
+      ],
     );
   });
 

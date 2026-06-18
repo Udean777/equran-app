@@ -60,6 +60,12 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
         jsonDecode(raw) as Map<String, dynamic>,
       );
       return dto.toEntity();
+    } on FormatException catch (e, st) {
+      debugPrint('HafalanLocalDatasource.getBySurat format error: $e\n$st');
+      return null;
+    } on TypeError catch (e, st) {
+      debugPrint('HafalanLocalDatasource.getBySurat type error: $e\n$st');
+      return null;
     } on Object catch (e, st) {
       debugPrint('HafalanLocalDatasource.getBySurat error: $e\n$st');
       throw CacheException(message: e.toString());
