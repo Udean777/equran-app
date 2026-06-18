@@ -17,9 +17,7 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# ─── Env global ─────────────────────────────────────────────────────────────
-env:
-  FLUTTER_VERSION: "3.32.0"
+
 
 jobs:
   # ═══════════════════════════════════════════════════════════════════════════
@@ -35,20 +33,14 @@ jobs:
         uses: actions/checkout@v4
 
       # ── Flutter ─────────────────────────────────────────────────────────────
-      - name: Cache Flutter SDK
-        uses: actions/cache@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          path: ~/flutter
-          key: flutter-${{ env.FLUTTER_VERSION }}-stable-linux
-
-      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
-        run: |
-          if [ ! -d "$HOME/flutter" ]; then
-            curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${{ env.FLUTTER_VERSION }}-stable.tar.xz" \
-              | tar xJ -C "$HOME"
-          fi
-          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
-          flutter --version
+          channel: 'stable'
+          cache: true
+      
+      - name: Flutter version
+        run: flutter --version
 
       # ── Dependencies ────────────────────────────────────────────────────────
       - name: Install dependencies

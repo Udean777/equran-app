@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import workmanager
+import workmanager_apple
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -12,10 +12,8 @@ import workmanager
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
     
-    WorkmanagerPlugin.setPluginRegistrantCallback { registry in
-        GeneratedPluginRegistrant.register(with: registry)
-    }
-    WorkmanagerPlugin.registerTask(withIdentifier: "sync_task_1")
+    WorkmanagerPlugin.registerPeriodicTask(withIdentifier: "sync_task_1", frequency: NSNumber(value: 24 * 60 * 60))
+
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

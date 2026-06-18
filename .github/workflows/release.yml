@@ -15,7 +15,6 @@ permissions:
 
 # ─── Env global ─────────────────────────────────────────────────────────────
 env:
-  FLUTTER_VERSION: "3.32.0"
   JAVA_VERSION: "17"
 
 jobs:
@@ -67,22 +66,16 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       # ── Flutter ─────────────────────────────────────────────────────────────
-      - name: Cache Flutter SDK
+      - name: Setup Flutter
         if: steps.tag_check.outputs.exists == 'false'
-        uses: actions/cache@v4
+        uses: subosito/flutter-action@v2
         with:
-          path: ~/flutter
-          key: flutter-${{ env.FLUTTER_VERSION }}-stable-linux
-
-      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      
+      - name: Flutter version
         if: steps.tag_check.outputs.exists == 'false'
-        run: |
-          if [ ! -d "$HOME/flutter" ]; then
-            curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${{ env.FLUTTER_VERSION }}-stable.tar.xz" \
-              | tar xJ -C "$HOME"
-          fi
-          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
-          flutter --version
+        run: flutter --version
 
       # ── Dependencies ────────────────────────────────────────────────────────
       - name: Install dependencies
@@ -115,27 +108,7 @@ jobs:
           storeFile=release.keystore
           EOF
 
-      # ── Patch build.gradle.kts agar pakai key.properties ────────────────────
-      - name: Patch signingConfig → release keystore
-        if: steps.tag_check.outputs.exists == 'false'
-        run: |
-          sed -i 's/signingConfig = signingConfigs.getByName("debug")/signingConfig = signingConfigs.getByName("release")/' \
-            android/app/build.gradle.kts
 
-          if ! grep -q 'signingConfigs {' android/app/build.gradle.kts; then
-            sed -i '/buildTypes {/i \
-            signingConfigs {\
-                release {\
-                    val props = java.util.Properties()\
-                    props.load(rootProject.file("key.properties").inputStream())\
-                    storeFile = file(props["storeFile"] as String)\
-                    storePassword = props["storePassword"] as String\
-                    keyAlias = props["keyAlias"] as String\
-                    keyPassword = props["keyPassword"] as String\
-                }\
-            }\
-            ' android/app/build.gradle.kts
-          fi
 
       # ── Build APK split per ABI ──────────────────────────────────────────────
       - name: Build APK (split ABI)

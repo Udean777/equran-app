@@ -8,11 +8,11 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 /// Channel IDs
-const String kAdzanChannelId = 'adzan_channel_v2';
-const String kAdzanSubuhChannelId = 'adzan_subuh_channel_v2';
-const String kQuranReminderChannelId = 'quran_reminder_channel';
-const String kImsakChannelId = 'imsak_channel';
-const String kHafalanChannelId = 'hafalan_channel';
+const String kAdzanChannelId = 'adzan_channel_v3';
+const String kAdzanSubuhChannelId = 'adzan_subuh_channel_v3';
+const String kQuranReminderChannelId = 'quran_reminder_channel_v2';
+const String kImsakChannelId = 'imsak_channel_v2';
+const String kHafalanChannelId = 'hafalan_channel_v2';
 
 @lazySingleton
 class NotificationService {
@@ -131,6 +131,8 @@ class NotificationService {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      presentBanner: true,
+      presentList: true,
     );
 
     final details = NotificationDetails(
@@ -181,6 +183,8 @@ class NotificationService {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      presentBanner: true,
+      presentList: true,
     );
 
     final details = NotificationDetails(
@@ -230,6 +234,8 @@ class NotificationService {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      presentBanner: true,
+      presentList: true,
     );
 
     const details = NotificationDetails(
