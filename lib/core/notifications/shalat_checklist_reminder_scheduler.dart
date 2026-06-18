@@ -70,7 +70,10 @@ class ShalatChecklistReminderScheduler {
       if (waktuStr == null) continue;
 
       final scheduledTime = _parseWaktu(waktuStr, delayMenit: _delayMenit);
-      if (scheduledTime == null) continue;
+      if (scheduledTime == null ||
+          scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
+        continue;
+      }
 
       const details = NotificationDetails(
         android: AndroidNotificationDetails(

@@ -29,7 +29,8 @@ class ImsakAlarmScheduler {
         menitSebelum: 0,
       );
 
-      if (scheduledTime != null) {
+      if (scheduledTime != null &&
+          !scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
         await _scheduleAlarm(
           id: NotificationIds.imsak,
           title: 'Waktu Imsak',
@@ -53,7 +54,8 @@ class ImsakAlarmScheduler {
         menitSebelum: config.menitSebelumImsak,
       );
 
-      if (scheduledTime != null) {
+      if (scheduledTime != null &&
+          !scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
         await _scheduleAlarm(
           id: NotificationIds.sahur,
           title: 'Alarm Sahur',
