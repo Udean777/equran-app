@@ -1,7 +1,7 @@
 name: equran_app
 description: "Qurva: Quran & Islamic Habit Tracker"
 publish_to: "none"
-version: 0.1.1+2
+version: 0.1.2+1
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -82,9 +82,9 @@ flutter:
     - assets/audio/
 
 lint_staged:
-  'lib/**/*.dart':
+  "lib/**/*.dart":
     - dart format
     - dart analyze --fatal-infos --fatal-warnings
-  'test/**/*.dart':
+  "test/**/*.dart":
     - dart format
     - dart analyze --fatal-infos --fatal-warnings
