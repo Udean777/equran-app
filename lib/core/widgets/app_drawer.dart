@@ -5,17 +5,16 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/app_logo.dart';
-import 'package:equran_app/core/widgets/streak_badge.dart';
-import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AppDrawer extends StatefulWidget {
-  const AppDrawer({super.key});
+  const AppDrawer({super.key, this.streakBadge});
+
+  final Widget? streakBadge;
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -53,7 +52,7 @@ class _AppDrawerState extends State<AppDrawer> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header
-          _DrawerHeader(isDark: isDark),
+          _DrawerHeader(isDark: isDark, streakBadge: widget.streakBadge),
 
           // Menu items — scrollable
           Expanded(
@@ -186,9 +185,10 @@ class _AppDrawerState extends State<AppDrawer> {
 // ---------------------------------------------------------------------------
 
 class _DrawerHeader extends StatelessWidget {
-  const _DrawerHeader({required this.isDark});
+  const _DrawerHeader({required this.isDark, this.streakBadge});
 
   final bool isDark;
+  final Widget? streakBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -246,13 +246,7 @@ class _DrawerHeader extends StatelessWidget {
               const SizedBox(height: AppDimens.spaceSM),
 
               // Streak chip
-              BlocBuilder<QuranStreakCubit, QuranStreakState>(
-                builder: (context, state) {
-                  final streak = state.mapOrNull(loaded: (s) => s.streak) ?? 0;
-                  if (streak == 0) return const SizedBox.shrink();
-                  return StreakBadge(streak: streak);
-                },
-              ),
+              ?streakBadge,
             ],
           ),
         ),

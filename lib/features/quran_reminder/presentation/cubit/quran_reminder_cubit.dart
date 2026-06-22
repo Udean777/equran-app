@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:equran_app/core/notifications/quran_reminder_scheduler.dart';
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/domain/usecases/get_quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/domain/usecases/save_quran_reminder_prefs.dart';
+import 'package:equran_app/features/quran_reminder/notifications/quran_reminder_scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 

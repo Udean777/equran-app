@@ -15,6 +15,7 @@ import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_filter_sheet.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_list_app_bar.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,9 @@ class _DoaListViewState extends State<_DoaListView> {
             state.mapOrNull(success: (s) => s.activeFilterLabel) ?? '';
 
         return Scaffold(
-          drawer: canPop ? null : const AppDrawer(),
+          drawer: canPop
+              ? null
+              : const AppDrawer(streakBadge: StreakBadgeSlot()),
           appBar: DoaListAppBar(
             l10n: l10n,
             canPop: canPop,

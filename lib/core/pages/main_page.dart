@@ -9,6 +9,7 @@ import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/pages/jadwal_shalat_page.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/features/surat_list/presentation/pages/surat_list_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
@@ -66,7 +67,7 @@ class _MainPageState extends State<MainPage>
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,

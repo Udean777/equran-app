@@ -15,6 +15,7 @@ import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_sh
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_location_selector_sheet.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_table.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_today_card.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,7 +42,7 @@ class _JadwalShalatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: LuxuryAppBar(
         title: 'Jadwal Shalat',
         actions: [

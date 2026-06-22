@@ -13,14 +13,6 @@ abstract interface class BookmarkLocalDataSource {
     required int ayatNomor,
   });
   Future<bool> isBookmarked({required int suratNomor, required int ayatNomor});
-  Future<LastReadDto?> getLastRead();
-  Future<void> saveLastRead(LastReadDto lastRead);
-
-  /// Ambil progress per surat — key: suratNomor, value: maxScrollPercent (0.0–1.0)
-  Map<int, double> getAllSuratProgress();
-
-  /// Simpan progress satu surat
-  Future<void> saveSuratProgress(int suratNomor, double maxProgress);
 }
 
 @LazySingleton(as: BookmarkLocalDataSource)
@@ -31,10 +23,6 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
   final _lock = Lock();
 
   static const _bookmarksKey = 'bookmarks';
-  static const _lastReadKey = 'last_read';
-  static const _suratProgressKey = 'surat_progress';
-  // Migration key — data lama tidak punya totalAyat, perlu di-reset sekali
-  static const _lastReadMigrationKey = 'last_read_v2_migrated';
 
   @override
   Future<List<BookmarkDto>> getBookmarks() async {
@@ -54,7 +42,6 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
   Future<void> addBookmark(BookmarkDto bookmark) async {
     await _lock.synchronized(() async {
       final current = await _getBookmarksRaw();
-      // Hindari duplikat
       final exists = current.any(
         (b) =>
             b.suratNomor == bookmark.suratNomor &&
@@ -86,7 +73,6 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
     });
   }
 
-  // Private helper — dipanggil hanya dari dalam lock
   Future<List<BookmarkDto>> _getBookmarksRaw() async {
     try {
       final raw = _box.get(_bookmarksKey);
@@ -109,66 +95,5 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
     return current.any(
       (b) => b.suratNomor == suratNomor && b.ayatNomor == ayatNomor,
     );
-  }
-
-  @override
-  Future<LastReadDto?> getLastRead() async {
-    try {
-      // One-time migration: hapus data lama yang tidak punya totalAyat
-      if (_box.get(_lastReadMigrationKey) == null) {
-        final raw = _box.get(_lastReadKey);
-        if (raw != null) {
-          final json = jsonDecode(raw) as Map<String, dynamic>;
-          // Data lama tidak punya 'totalAyat' atau nilainya 0
-          final totalAyat = json['totalAyat'] as int? ?? 0;
-          if (totalAyat == 0) {
-            await _box.delete(_lastReadKey);
-          }
-        }
-        await _box.put(_lastReadMigrationKey, 'true');
-      }
-
-      final raw = _box.get(_lastReadKey);
-      if (raw == null) return null;
-      return LastReadDto.fromJson(
-        jsonDecode(raw) as Map<String, dynamic>,
-      );
-    } on Object catch (_) {
-      return null;
-    }
-  }
-
-  @override
-  Future<void> saveLastRead(LastReadDto lastRead) async {
-    await _box.put(_lastReadKey, jsonEncode(lastRead.toJson()));
-  }
-
-  @override
-  Map<int, double> getAllSuratProgress() {
-    try {
-      final raw = _box.get(_suratProgressKey);
-      if (raw == null) return {};
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      return map.map(
-        (k, v) => MapEntry(int.parse(k), (v as num).toDouble()),
-      );
-    } on Object catch (_) {
-      return {};
-    }
-  }
-
-  @override
-  Future<void> saveSuratProgress(int suratNomor, double maxProgress) async {
-    await _lock.synchronized(() async {
-      final current = getAllSuratProgress();
-      // Hanya update jika progress baru lebih tinggi
-      final existing = current[suratNomor] ?? 0.0;
-      if (maxProgress <= existing) return;
-      current[suratNomor] = maxProgress;
-      await _box.put(
-        _suratProgressKey,
-        jsonEncode(current.map((k, v) => MapEntry(k.toString(), v))),
-      );
-    });
   }
 }

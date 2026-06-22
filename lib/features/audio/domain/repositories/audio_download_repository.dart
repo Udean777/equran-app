@@ -1,23 +1,7 @@
 import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:fpdart/fpdart.dart';
-
-/// Info file audio yang sudah didownload.
-class DownloadedAyatInfo {
-  const DownloadedAyatInfo({
-    required this.suratNomor,
-    required this.ayatNomor,
-    required this.qari,
-    required this.filePath,
-    required this.sizeBytes,
-  });
-
-  final int suratNomor;
-  final int ayatNomor;
-  final Qari qari;
-  final String filePath;
-  final int sizeBytes;
-}
 
 abstract interface class AudioDownloadRepository {
   /// Download audio ayat ke storage lokal.

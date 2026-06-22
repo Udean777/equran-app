@@ -68,6 +68,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String ayatFrom(int ayatNomor, int totalAyat) {
+    return 'الآية $ayatNomor من $totalAyat';
+  }
+
+  @override
   String get errorNoInternet => 'لا يوجد اتصال بالإنترنت.';
 
   @override

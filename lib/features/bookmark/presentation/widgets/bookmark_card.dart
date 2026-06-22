@@ -2,6 +2,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class BookmarkCard extends StatelessWidget {
@@ -19,6 +20,7 @@ class BookmarkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
+    final l10n = AppLocalizations.of(context)!;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark
         ? AppColors.outlineDark
@@ -70,7 +72,7 @@ class BookmarkCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${bookmark.namaLatin} · Ayat ${bookmark.ayatNomor}',
+                        '${bookmark.namaLatin} · ${l10n.ayat(bookmark.ayatNomor)}',
                         style: AppTypography.serifHeadingSmall.copyWith(
                           color: isDark
                               ? AppColors.primaryLighter

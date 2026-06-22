@@ -1,10 +1,10 @@
-import 'package:equran_app/core/notifications/imsak_alarm_config.dart';
-import 'package:equran_app/core/notifications/imsak_alarm_scheduler.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_imsak_alarm_prefs.dart';
+import 'package:equran_app/features/imsakiyah/notifications/imsak_alarm_config.dart';
+import 'package:equran_app/features/imsakiyah/notifications/imsak_alarm_scheduler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

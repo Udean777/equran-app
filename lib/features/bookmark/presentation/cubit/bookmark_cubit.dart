@@ -92,7 +92,12 @@ class BookmarkCubit extends Cubit<BookmarkState> {
     await _saveLastRead(lastRead);
     // Simpan progress per surat sekaligus (fire and forget)
     unawaited(
-      _saveSuratProgress(lastRead.suratNomor, lastRead.maxScrollPercent),
+      _saveSuratProgress(
+        SaveSuratProgressParams(
+          suratNomor: lastRead.suratNomor,
+          maxProgress: lastRead.maxScrollPercent,
+        ),
+      ),
     );
     // Emit state baru agar LastReadCard di home update realtime.
     // Guard isClosed — bisa dipanggil dari dispose() saat cubit sudah ditutup.

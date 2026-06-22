@@ -67,6 +67,11 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String ayatFrom(int ayatNomor, int totalAyat) {
+    return 'Ayat $ayatNomor dari $totalAyat';
+  }
+
+  @override
   String get errorNoInternet => 'Tidak ada koneksi internet.';
 
   @override

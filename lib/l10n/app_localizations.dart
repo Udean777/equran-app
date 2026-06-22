@@ -202,6 +202,12 @@ abstract class AppLocalizations {
   /// **'Ayat {nomor}'**
   String ayat(int nomor);
 
+  /// Label posisi ayat, misal Ayat 5 dari 10
+  ///
+  /// In id, this message translates to:
+  /// **'Ayat {ayatNomor} dari {totalAyat}'**
+  String ayatFrom(int ayatNomor, int totalAyat);
+
   /// Pesan error tidak ada internet
   ///
   /// In id, this message translates to:

@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart';
+import 'package:equran_app/features/audio/domain/services/audio_playlist_manager.dart';
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/play_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/resume_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/seek_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/stop_audio.dart';
-import 'package:equran_app/features/audio/presentation/managers/audio_playlist_manager.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,9 +1,8 @@
 import 'dart:async';
 
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
-    show DownloadedAyatInfo;
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
@@ -116,9 +115,11 @@ class AudioStorageCubit extends Cubit<AudioStorageState> {
     required Qari qari,
   }) async {
     final result = await _deleteAyatAudio(
-      suratNomor: suratNomor,
-      ayatNomor: ayatNomor,
-      qari: qari,
+      DeleteAyatAudioParams(
+        suratNomor: suratNomor,
+        ayatNomor: ayatNomor,
+        qari: qari,
+      ),
     );
     result.fold(
       (failure) => debugPrint('AudioStorageCubit: delete error: $failure'),

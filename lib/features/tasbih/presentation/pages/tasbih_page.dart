@@ -5,6 +5,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/dzikir_info_section.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/tasbih_bottom_controls.dart';
@@ -35,7 +36,7 @@ class _TasbihView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: LuxuryAppBar(
         title: 'Tasbih & Dzikir',
         actions: [

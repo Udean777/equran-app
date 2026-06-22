@@ -38,6 +38,13 @@
       }
     }
   },
+  "ayatFrom": "الآية {ayatNomor} من {totalAyat}",
+  "@ayatFrom": {
+    "placeholders": {
+      "ayatNomor": { "type": "int" },
+      "totalAyat": { "type": "int" }
+    }
+  },
   "errorNoInternet": "لا يوجد اتصال بالإنترنت.",
   "errorServer": "حدث خطأ في الخادم.",
   "errorUnknown": "حدث خطأ غير معروف.",

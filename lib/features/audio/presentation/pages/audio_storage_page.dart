@@ -4,8 +4,7 @@ import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
-    show DownloadedAyatInfo;
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_surat_group.dart';

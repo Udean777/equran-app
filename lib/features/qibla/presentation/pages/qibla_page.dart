@@ -12,6 +12,7 @@ import 'package:equran_app/features/qibla/presentation/widgets/qibla_how_to_card
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_info_panel.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_loading_view.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_tip_card.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +41,7 @@ class _QiblaView extends StatelessWidget {
     final isDark = context.isDark;
 
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: LuxuryAppBar(
         title: 'Qibla Finder',
         actions: [

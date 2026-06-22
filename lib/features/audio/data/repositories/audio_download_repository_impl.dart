@@ -1,5 +1,6 @@
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart';
 import 'package:fpdart/fpdart.dart';

@@ -1,6 +1,5 @@
 import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
-    show DownloadedAyatInfo;
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_file_item.dart';
 import 'package:equran_app/features/audio/utils/format_utils.dart';
 import 'package:flutter/material.dart';

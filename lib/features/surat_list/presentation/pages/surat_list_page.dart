@@ -12,6 +12,7 @@ import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/murajaah_reminder_card.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_delegate.dart';
@@ -56,7 +57,7 @@ class _SuratListViewState extends State<_SuratListView> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: const SuratListAppBar(),
       body: RefreshIndicator(
         onRefresh: context.read<SuratListCubit>().refresh,

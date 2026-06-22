@@ -3,9 +3,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/dio_client.dart';
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
-    show DownloadedAyatInfo;
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';

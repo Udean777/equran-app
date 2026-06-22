@@ -38,6 +38,13 @@
       }
     }
   },
+  "ayatFrom": "Verse {ayatNomor} of {totalAyat}",
+  "@ayatFrom": {
+    "placeholders": {
+      "ayatNomor": { "type": "int" },
+      "totalAyat": { "type": "int" }
+    }
+  },
   "errorNoInternet": "No internet connection.",
   "errorServer": "A server error occurred.",
   "errorUnknown": "An unknown error occurred.",

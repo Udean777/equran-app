@@ -83,6 +83,18 @@
       }
     }
   },
+  "ayatFrom": "Ayat {ayatNomor} dari {totalAyat}",
+  "@ayatFrom": {
+    "description": "Label posisi ayat, misal Ayat 5 dari 10",
+    "placeholders": {
+      "ayatNomor": {
+        "type": "int"
+      },
+      "totalAyat": {
+        "type": "int"
+      }
+    }
+  },
   "errorNoInternet": "Tidak ada koneksi internet.",
   "@errorNoInternet": {
     "description": "Pesan error tidak ada internet"
