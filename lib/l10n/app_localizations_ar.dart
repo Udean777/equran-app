@@ -260,4 +260,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pengaturanDrawer => 'الإعدادات';
+
+  @override
+  String get pageNotFound => 'الصفحة غير موجودة';
+
+  @override
+  String get pageNotFoundDesc =>
+      'الصفحة التي تبحث عنها غير متوفرة\nأو تم نقلها.';
+
+  @override
+  String get backToHome => 'العودة إلى الصفحة الرئيسية';
 }

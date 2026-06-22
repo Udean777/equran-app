@@ -73,7 +73,7 @@ class HafalanStatsCalculator {
   /// Status ini tidak disimpan di Hive — selalu di-derive saat load.
   static HafalanSurat resolveStatus(HafalanSurat hafalan) {
     if (hafalan.status == HafalanStatus.sudahHafal &&
-        hafalan.isMurajaahJatuhTempo) {
+        hafalan.isMurajaahJatuhTempo()) {
       return hafalan.copyWith(status: HafalanStatus.perluMurajaah);
     }
     return hafalan;

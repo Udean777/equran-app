@@ -158,8 +158,10 @@ import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.d
     as _i702;
 import 'package:equran_app/features/hafalan/notifications/hafalan_reminder_scheduler.dart'
     as _i702;
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart'
-    as _i538;
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart'
+    as _i739;
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart'
+    as _i939;
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_local_data_source.dart'
     as _i555;
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_remote_data_source.dart'
@@ -1026,15 +1028,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i135.SaveSuratProgress>(),
       ),
     );
-    gh.lazySingleton<_i538.HafalanCubit>(
-      () => _i538.HafalanCubit(
-        gh<_i7.GetAllHafalan>(),
-        gh<_i702.SaveHafalanSurat>(),
-        gh<_i29.DeleteHafalanSurat>(),
-        gh<_i868.GetHafalanStats>(),
-        gh<_i702.HafalanReminderScheduler>(),
-      ),
-    );
     gh.factory<_i165.ImsakiyahCubit>(
       () => _i165.ImsakiyahCubit(
         gh<_i410.GetProvinsi>(),
@@ -1043,6 +1036,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i387.GetLastLocationImsakiyah>(),
         gh<_i1070.SaveLastLocationImsakiyah>(),
         gh<_i177.LocationService>(),
+      ),
+    );
+    gh.lazySingleton<_i939.HafalanListCubit>(
+      () => _i939.HafalanListCubit(
+        gh<_i7.GetAllHafalan>(),
+        gh<_i868.GetHafalanStats>(),
+      ),
+    );
+    gh.factory<_i739.HafalanDetailCubit>(
+      () => _i739.HafalanDetailCubit(
+        gh<_i539.GetHafalanBySurat>(),
+        gh<_i702.SaveHafalanSurat>(),
+        gh<_i29.DeleteHafalanSurat>(),
+        gh<_i702.HafalanReminderScheduler>(),
+        gh<_i939.HafalanListCubit>(),
       ),
     );
     return this;

@@ -107,5 +107,8 @@
   "statistikBacaDrawer": "Reading Stats",
   "statistikShalatDrawer": "Prayer Stats",
   "manajemenAudioDrawer": "Audio Management",
-  "pengaturanDrawer": "Settings"
+  "pengaturanDrawer": "Settings",
+  "pageNotFound": "Page Not Found",
+  "pageNotFoundDesc": "The page you're looking for is not available\nor has been moved.",
+  "backToHome": "Back to Home"
 }

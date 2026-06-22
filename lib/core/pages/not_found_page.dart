@@ -2,6 +2,7 @@ import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -66,7 +67,7 @@ class NotFoundPage extends StatelessWidget {
 
                 // Judul
                 Text(
-                  'Halaman Tidak Ditemukan',
+                  AppLocalizations.of(context)!.pageNotFound,
                   style: AppTypography.serifHeadingMedium.copyWith(
                     color: textPrimary,
                   ),
@@ -77,7 +78,7 @@ class NotFoundPage extends StatelessWidget {
 
                 // Deskripsi
                 Text(
-                  'Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.',
+                  AppLocalizations.of(context)!.pageNotFoundDesc,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: textSecondary,
                     height: 1.6,
@@ -190,22 +191,22 @@ class _BackToHomeButton extends StatelessWidget {
           child: InkWell(
             onTap: () => context.go(AppRoutes.home),
             borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
                 vertical: AppDimens.spaceMD,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.home_rounded,
                     color: AppColors.onPrimary,
                     size: AppDimens.iconMD,
                   ),
-                  SizedBox(width: AppDimens.spaceSM),
+                  const SizedBox(width: AppDimens.spaceSM),
                   Text(
-                    'Kembali ke Beranda',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.backToHome,
+                    style: const TextStyle(
                       color: AppColors.onPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,

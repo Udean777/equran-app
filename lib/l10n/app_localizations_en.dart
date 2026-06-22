@@ -259,4 +259,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pengaturanDrawer => 'Settings';
+
+  @override
+  String get pageNotFound => 'Page Not Found';
+
+  @override
+  String get pageNotFoundDesc =>
+      'The page you\'re looking for is not available\nor has been moved.';
+
+  @override
+  String get backToHome => 'Back to Home';
 }

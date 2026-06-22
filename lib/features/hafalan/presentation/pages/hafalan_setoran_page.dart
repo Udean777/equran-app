@@ -6,7 +6,7 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
@@ -31,12 +31,23 @@ class HafalanSetoranPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return HafalanProviders(
-      child: BlocProvider(
-        create: (_) {
-          final cubit = getIt<SuratDetailCubit>();
-          unawaited(cubit.load(suratNomor));
-          return cubit;
-        },
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) {
+              final cubit = getIt<SuratDetailCubit>();
+              unawaited(cubit.load(suratNomor));
+              return cubit;
+            },
+          ),
+          BlocProvider(
+            create: (_) {
+              final cubit = getIt<HafalanDetailCubit>();
+              unawaited(cubit.loadDetail(suratNomor));
+              return cubit;
+            },
+          ),
+        ],
         child: _HafalanSetoranView(suratNomor: suratNomor, juzNomor: juzNomor),
       ),
     );
@@ -180,30 +191,10 @@ class _SetoranSessionState extends State<_SetoranSession> {
   }
 
   Future<void> _simpanHasil(BuildContext context) async {
-    final hafalanCubit = context.read<HafalanCubit>();
-    final existing = hafalanCubit.getSurat(widget.suratNomor);
-
-    final ayatHafalBaru = <int>{...?existing?.ayatHafal};
-    for (final entry in _hasil.entries) {
-      if (entry.value) {
-        ayatHafalBaru.add(entry.key);
-      } else {
-        ayatHafalBaru.remove(entry.key);
-      }
-    }
-
-    final suratInfo = HafalanSurat(
-      suratNomor: widget.detail.info.nomor,
-      namaLatin: widget.detail.info.namaLatin,
-      nama: widget.detail.info.nama,
-      jumlahAyat: widget.detail.info.jumlahAyat,
-    );
-
-    // Simpan seluruh daftar ayat hafal sekaligus untuk mencegah race condition
-    await hafalanCubit.saveAyatHafalList(
+    await context.read<HafalanDetailCubit>().saveSetoranHasil(
       suratNomor: widget.suratNomor,
-      newAyatHafal: ayatHafalBaru.toList()..sort(),
-      suratInfo: suratInfo,
+      hasil: _hasil,
+      suratInfo: HafalanSurat.fromSurat(widget.detail.info),
     );
 
     if (context.mounted) {

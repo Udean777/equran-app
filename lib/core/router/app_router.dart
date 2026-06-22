@@ -1,4 +1,4 @@
-import 'package:equran_app/core/pages/main_page.dart';
+import 'package:equran_app/app/pages/main_page.dart';
 import 'package:equran_app/core/pages/not_found_page.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';

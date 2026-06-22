@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -53,7 +53,7 @@ class HafalanStatusSelector extends StatelessWidget {
                       label: Text(_statusLabel(s)),
                       selected: isSelected,
                       onSelected: (_) => unawaited(
-                        context.read<HafalanCubit>().setStatus(
+                        context.read<HafalanDetailCubit>().setStatus(
                           suratNomor: suratNomor,
                           status: s,
                         ),

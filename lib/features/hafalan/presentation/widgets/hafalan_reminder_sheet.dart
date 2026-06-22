@@ -2,7 +2,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +93,7 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
                 title: "Tandai Sudah Muraja'ah",
                 subtitle: 'Naik ke level berikutnya secara otomatis',
                 onTap: () async {
-                  await context.read<HafalanCubit>().tandaiSudahMurajaah(
+                  await context.read<HafalanDetailCubit>().tandaiSudahMurajaah(
                     hafalan.suratNomor,
                   );
                   if (context.mounted) Navigator.pop(context);
@@ -116,7 +116,7 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
             // Tombol simpan tanggal
             FilledButton(
               onPressed: () async {
-                await context.read<HafalanCubit>().setMurajaahDate(
+                await context.read<HafalanDetailCubit>().setMurajaahDate(
                   suratNomor: hafalan.suratNomor,
                   tanggal: _selectedDate,
                 );

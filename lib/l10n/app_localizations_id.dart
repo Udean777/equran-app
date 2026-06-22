@@ -259,4 +259,14 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get pengaturanDrawer => 'Pengaturan';
+
+  @override
+  String get pageNotFound => 'Halaman Tidak Ditemukan';
+
+  @override
+  String get pageNotFoundDesc =>
+      'Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.';
+
+  @override
+  String get backToHome => 'Kembali ke Beranda';
 }

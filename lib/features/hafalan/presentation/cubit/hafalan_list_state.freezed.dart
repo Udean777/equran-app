@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'hafalan_cubit.dart';
+part of 'hafalan_list_state.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -12,7 +12,7 @@ part of 'hafalan_cubit.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$HafalanState {
+mixin _$HafalanListState {
 
 
 
@@ -20,7 +20,7 @@ mixin _$HafalanState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanListState);
 }
 
 
@@ -29,20 +29,20 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'HafalanState()';
+  return 'HafalanListState()';
 }
 
 
 }
 
 /// @nodoc
-class $HafalanStateCopyWith<$Res>  {
-$HafalanStateCopyWith(HafalanState _, $Res Function(HafalanState) __);
+class $HafalanListStateCopyWith<$Res>  {
+$HafalanListStateCopyWith(HafalanListState _, $Res Function(HafalanListState) __);
 }
 
 
-/// Adds pattern-matching-related methods to [HafalanState].
-extension HafalanStatePatterns on HafalanState {
+/// Adds pattern-matching-related methods to [HafalanListState].
+extension HafalanListStatePatterns on HafalanListState {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -55,13 +55,13 @@ extension HafalanStatePatterns on HafalanState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HafalanInitial value)?  initial,TResult Function( HafalanLoading value)?  loading,TResult Function( HafalanSuccess value)?  success,TResult Function( HafalanFailure value)?  failure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HafalanListInitial value)?  initial,TResult Function( HafalanListLoading value)?  loading,TResult Function( HafalanListSuccess value)?  success,TResult Function( HafalanListFailure value)?  failure,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case HafalanInitial() when initial != null:
-return initial(_that);case HafalanLoading() when loading != null:
-return loading(_that);case HafalanSuccess() when success != null:
-return success(_that);case HafalanFailure() when failure != null:
+case HafalanListInitial() when initial != null:
+return initial(_that);case HafalanListLoading() when loading != null:
+return loading(_that);case HafalanListSuccess() when success != null:
+return success(_that);case HafalanListFailure() when failure != null:
 return failure(_that);case _:
   return orElse();
 
@@ -80,13 +80,13 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HafalanInitial value)  initial,required TResult Function( HafalanLoading value)  loading,required TResult Function( HafalanSuccess value)  success,required TResult Function( HafalanFailure value)  failure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HafalanListInitial value)  initial,required TResult Function( HafalanListLoading value)  loading,required TResult Function( HafalanListSuccess value)  success,required TResult Function( HafalanListFailure value)  failure,}){
 final _that = this;
 switch (_that) {
-case HafalanInitial():
-return initial(_that);case HafalanLoading():
-return loading(_that);case HafalanSuccess():
-return success(_that);case HafalanFailure():
+case HafalanListInitial():
+return initial(_that);case HafalanListLoading():
+return loading(_that);case HafalanListSuccess():
+return success(_that);case HafalanListFailure():
 return failure(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -101,13 +101,13 @@ return failure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HafalanInitial value)?  initial,TResult? Function( HafalanLoading value)?  loading,TResult? Function( HafalanSuccess value)?  success,TResult? Function( HafalanFailure value)?  failure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HafalanListInitial value)?  initial,TResult? Function( HafalanListLoading value)?  loading,TResult? Function( HafalanListSuccess value)?  success,TResult? Function( HafalanListFailure value)?  failure,}){
 final _that = this;
 switch (_that) {
-case HafalanInitial() when initial != null:
-return initial(_that);case HafalanLoading() when loading != null:
-return loading(_that);case HafalanSuccess() when success != null:
-return success(_that);case HafalanFailure() when failure != null:
+case HafalanListInitial() when initial != null:
+return initial(_that);case HafalanListLoading() when loading != null:
+return loading(_that);case HafalanListSuccess() when success != null:
+return success(_that);case HafalanListFailure() when failure != null:
 return failure(_that);case _:
   return null;
 
@@ -127,10 +127,10 @@ return failure(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String searchQuery,  int? selectedJuz,  Map<int, List<HafalanSurat>> juzGroups,  List<int> sortedJuz,  String? errorMessage)?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case HafalanInitial() when initial != null:
-return initial();case HafalanLoading() when loading != null:
-return loading();case HafalanSuccess() when success != null:
-return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanFailure() when failure != null:
+case HafalanListInitial() when initial != null:
+return initial();case HafalanListLoading() when loading != null:
+return loading();case HafalanListSuccess() when success != null:
+return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanListFailure() when failure != null:
 return failure(_that.message);case _:
   return orElse();
 
@@ -151,10 +151,10 @@ return failure(_that.message);case _:
 
 @optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String searchQuery,  int? selectedJuz,  Map<int, List<HafalanSurat>> juzGroups,  List<int> sortedJuz,  String? errorMessage)  success,required TResult Function( String message)  failure,}) {final _that = this;
 switch (_that) {
-case HafalanInitial():
-return initial();case HafalanLoading():
-return loading();case HafalanSuccess():
-return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanFailure():
+case HafalanListInitial():
+return initial();case HafalanListLoading():
+return loading();case HafalanListSuccess():
+return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanListFailure():
 return failure(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -171,10 +171,10 @@ return failure(_that.message);}
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<HafalanSurat> hafalanList,  HafalanStats stats,  List<HafalanSurat> mergedList,  List<HafalanSurat> filteredList,  HafalanFilter filter,  String searchQuery,  int? selectedJuz,  Map<int, List<HafalanSurat>> juzGroups,  List<int> sortedJuz,  String? errorMessage)?  success,TResult? Function( String message)?  failure,}) {final _that = this;
 switch (_that) {
-case HafalanInitial() when initial != null:
-return initial();case HafalanLoading() when loading != null:
-return loading();case HafalanSuccess() when success != null:
-return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanFailure() when failure != null:
+case HafalanListInitial() when initial != null:
+return initial();case HafalanListLoading() when loading != null:
+return loading();case HafalanListSuccess() when success != null:
+return success(_that.hafalanList,_that.stats,_that.mergedList,_that.filteredList,_that.filter,_that.searchQuery,_that.selectedJuz,_that.juzGroups,_that.sortedJuz,_that.errorMessage);case HafalanListFailure() when failure != null:
 return failure(_that.message);case _:
   return null;
 
@@ -186,8 +186,8 @@ return failure(_that.message);case _:
 /// @nodoc
 
 
-class HafalanInitial implements HafalanState {
-  const HafalanInitial();
+class HafalanListInitial implements HafalanListState {
+  const HafalanListInitial();
   
 
 
@@ -197,7 +197,7 @@ class HafalanInitial implements HafalanState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanInitial);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanListInitial);
 }
 
 
@@ -206,7 +206,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'HafalanState.initial()';
+  return 'HafalanListState.initial()';
 }
 
 
@@ -218,8 +218,8 @@ String toString() {
 /// @nodoc
 
 
-class HafalanLoading implements HafalanState {
-  const HafalanLoading();
+class HafalanListLoading implements HafalanListState {
+  const HafalanListLoading();
   
 
 
@@ -229,7 +229,7 @@ class HafalanLoading implements HafalanState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanLoading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanListLoading);
 }
 
 
@@ -238,7 +238,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'HafalanState.loading()';
+  return 'HafalanListState.loading()';
 }
 
 
@@ -250,8 +250,8 @@ String toString() {
 /// @nodoc
 
 
-class HafalanSuccess implements HafalanState {
-  const HafalanSuccess({required final  List<HafalanSurat> hafalanList, required this.stats, final  List<HafalanSurat> mergedList = const [], final  List<HafalanSurat> filteredList = const [], this.filter = HafalanFilter.semua, this.searchQuery = '', this.selectedJuz = null, final  Map<int, List<HafalanSurat>> juzGroups = const {}, final  List<int> sortedJuz = const [], this.errorMessage}): _hafalanList = hafalanList,_mergedList = mergedList,_filteredList = filteredList,_juzGroups = juzGroups,_sortedJuz = sortedJuz;
+class HafalanListSuccess implements HafalanListState {
+  const HafalanListSuccess({required final  List<HafalanSurat> hafalanList, required this.stats, final  List<HafalanSurat> mergedList = const [], final  List<HafalanSurat> filteredList = const [], this.filter = HafalanFilter.semua, this.searchQuery = '', this.selectedJuz = null, final  Map<int, List<HafalanSurat>> juzGroups = const {}, final  List<int> sortedJuz = const [], this.errorMessage}): _hafalanList = hafalanList,_mergedList = mergedList,_filteredList = filteredList,_juzGroups = juzGroups,_sortedJuz = sortedJuz;
   
 
  final  List<HafalanSurat> _hafalanList;
@@ -262,18 +262,14 @@ class HafalanSuccess implements HafalanState {
 }
 
  final  HafalanStats stats;
-/// Merged: semua 114 surat + data hafalan yang ada. Dihitung di cubit.
  final  List<HafalanSurat> _mergedList;
-/// Merged: semua 114 surat + data hafalan yang ada. Dihitung di cubit.
 @JsonKey() List<HafalanSurat> get mergedList {
   if (_mergedList is EqualUnmodifiableListView) return _mergedList;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_mergedList);
 }
 
-/// Filtered: mergedList setelah filter + search diterapkan. Dihitung di cubit.
  final  List<HafalanSurat> _filteredList;
-/// Filtered: mergedList setelah filter + search diterapkan. Dihitung di cubit.
 @JsonKey() List<HafalanSurat> get filteredList {
   if (_filteredList is EqualUnmodifiableListView) return _filteredList;
   // ignore: implicit_dynamic_type
@@ -281,22 +277,16 @@ class HafalanSuccess implements HafalanState {
 }
 
 @JsonKey() final  HafalanFilter filter;
-/// Search query untuk filter nama surat.
 @JsonKey() final  String searchQuery;
-/// Juz yang dipilih — null berarti semua juz.
 @JsonKey() final  int? selectedJuz;
-/// Grouped by juz — di-cache di state, dihitung di cubit.
  final  Map<int, List<HafalanSurat>> _juzGroups;
-/// Grouped by juz — di-cache di state, dihitung di cubit.
 @JsonKey() Map<int, List<HafalanSurat>> get juzGroups {
   if (_juzGroups is EqualUnmodifiableMapView) return _juzGroups;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_juzGroups);
 }
 
-/// Sorted juz keys dari juzGroups.
  final  List<int> _sortedJuz;
-/// Sorted juz keys dari juzGroups.
 @JsonKey() List<int> get sortedJuz {
   if (_sortedJuz is EqualUnmodifiableListView) return _sortedJuz;
   // ignore: implicit_dynamic_type
@@ -305,17 +295,17 @@ class HafalanSuccess implements HafalanState {
 
  final  String? errorMessage;
 
-/// Create a copy of HafalanState
+/// Create a copy of HafalanListState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$HafalanSuccessCopyWith<HafalanSuccess> get copyWith => _$HafalanSuccessCopyWithImpl<HafalanSuccess>(this, _$identity);
+$HafalanListSuccessCopyWith<HafalanListSuccess> get copyWith => _$HafalanListSuccessCopyWithImpl<HafalanListSuccess>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanSuccess&&const DeepCollectionEquality().equals(other._hafalanList, _hafalanList)&&(identical(other.stats, stats) || other.stats == stats)&&const DeepCollectionEquality().equals(other._mergedList, _mergedList)&&const DeepCollectionEquality().equals(other._filteredList, _filteredList)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.selectedJuz, selectedJuz) || other.selectedJuz == selectedJuz)&&const DeepCollectionEquality().equals(other._juzGroups, _juzGroups)&&const DeepCollectionEquality().equals(other._sortedJuz, _sortedJuz)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanListSuccess&&const DeepCollectionEquality().equals(other._hafalanList, _hafalanList)&&(identical(other.stats, stats) || other.stats == stats)&&const DeepCollectionEquality().equals(other._mergedList, _mergedList)&&const DeepCollectionEquality().equals(other._filteredList, _filteredList)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.selectedJuz, selectedJuz) || other.selectedJuz == selectedJuz)&&const DeepCollectionEquality().equals(other._juzGroups, _juzGroups)&&const DeepCollectionEquality().equals(other._sortedJuz, _sortedJuz)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
@@ -324,15 +314,15 @@ int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(
 
 @override
 String toString() {
-  return 'HafalanState.success(hafalanList: $hafalanList, stats: $stats, mergedList: $mergedList, filteredList: $filteredList, filter: $filter, searchQuery: $searchQuery, selectedJuz: $selectedJuz, juzGroups: $juzGroups, sortedJuz: $sortedJuz, errorMessage: $errorMessage)';
+  return 'HafalanListState.success(hafalanList: $hafalanList, stats: $stats, mergedList: $mergedList, filteredList: $filteredList, filter: $filter, searchQuery: $searchQuery, selectedJuz: $selectedJuz, juzGroups: $juzGroups, sortedJuz: $sortedJuz, errorMessage: $errorMessage)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $HafalanSuccessCopyWith<$Res> implements $HafalanStateCopyWith<$Res> {
-  factory $HafalanSuccessCopyWith(HafalanSuccess value, $Res Function(HafalanSuccess) _then) = _$HafalanSuccessCopyWithImpl;
+abstract mixin class $HafalanListSuccessCopyWith<$Res> implements $HafalanListStateCopyWith<$Res> {
+  factory $HafalanListSuccessCopyWith(HafalanListSuccess value, $Res Function(HafalanListSuccess) _then) = _$HafalanListSuccessCopyWithImpl;
 @useResult
 $Res call({
  List<HafalanSurat> hafalanList, HafalanStats stats, List<HafalanSurat> mergedList, List<HafalanSurat> filteredList, HafalanFilter filter, String searchQuery, int? selectedJuz, Map<int, List<HafalanSurat>> juzGroups, List<int> sortedJuz, String? errorMessage
@@ -343,17 +333,17 @@ $HafalanStatsCopyWith<$Res> get stats;
 
 }
 /// @nodoc
-class _$HafalanSuccessCopyWithImpl<$Res>
-    implements $HafalanSuccessCopyWith<$Res> {
-  _$HafalanSuccessCopyWithImpl(this._self, this._then);
+class _$HafalanListSuccessCopyWithImpl<$Res>
+    implements $HafalanListSuccessCopyWith<$Res> {
+  _$HafalanListSuccessCopyWithImpl(this._self, this._then);
 
-  final HafalanSuccess _self;
-  final $Res Function(HafalanSuccess) _then;
+  final HafalanListSuccess _self;
+  final $Res Function(HafalanListSuccess) _then;
 
-/// Create a copy of HafalanState
+/// Create a copy of HafalanListState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? hafalanList = null,Object? stats = null,Object? mergedList = null,Object? filteredList = null,Object? filter = null,Object? searchQuery = null,Object? selectedJuz = freezed,Object? juzGroups = null,Object? sortedJuz = null,Object? errorMessage = freezed,}) {
-  return _then(HafalanSuccess(
+  return _then(HafalanListSuccess(
 hafalanList: null == hafalanList ? _self._hafalanList : hafalanList // ignore: cast_nullable_to_non_nullable
 as List<HafalanSurat>,stats: null == stats ? _self.stats : stats // ignore: cast_nullable_to_non_nullable
 as HafalanStats,mergedList: null == mergedList ? _self._mergedList : mergedList // ignore: cast_nullable_to_non_nullable
@@ -368,7 +358,7 @@ as String?,
   ));
 }
 
-/// Create a copy of HafalanState
+/// Create a copy of HafalanListState
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -383,23 +373,23 @@ $HafalanStatsCopyWith<$Res> get stats {
 /// @nodoc
 
 
-class HafalanFailure implements HafalanState {
-  const HafalanFailure(this.message);
+class HafalanListFailure implements HafalanListState {
+  const HafalanListFailure(this.message);
   
 
  final  String message;
 
-/// Create a copy of HafalanState
+/// Create a copy of HafalanListState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$HafalanFailureCopyWith<HafalanFailure> get copyWith => _$HafalanFailureCopyWithImpl<HafalanFailure>(this, _$identity);
+$HafalanListFailureCopyWith<HafalanListFailure> get copyWith => _$HafalanListFailureCopyWithImpl<HafalanListFailure>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanListFailure&&(identical(other.message, message) || other.message == message));
 }
 
 
@@ -408,15 +398,15 @@ int get hashCode => Object.hash(runtimeType,message);
 
 @override
 String toString() {
-  return 'HafalanState.failure(message: $message)';
+  return 'HafalanListState.failure(message: $message)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $HafalanFailureCopyWith<$Res> implements $HafalanStateCopyWith<$Res> {
-  factory $HafalanFailureCopyWith(HafalanFailure value, $Res Function(HafalanFailure) _then) = _$HafalanFailureCopyWithImpl;
+abstract mixin class $HafalanListFailureCopyWith<$Res> implements $HafalanListStateCopyWith<$Res> {
+  factory $HafalanListFailureCopyWith(HafalanListFailure value, $Res Function(HafalanListFailure) _then) = _$HafalanListFailureCopyWithImpl;
 @useResult
 $Res call({
  String message
@@ -427,17 +417,17 @@ $Res call({
 
 }
 /// @nodoc
-class _$HafalanFailureCopyWithImpl<$Res>
-    implements $HafalanFailureCopyWith<$Res> {
-  _$HafalanFailureCopyWithImpl(this._self, this._then);
+class _$HafalanListFailureCopyWithImpl<$Res>
+    implements $HafalanListFailureCopyWith<$Res> {
+  _$HafalanListFailureCopyWithImpl(this._self, this._then);
 
-  final HafalanFailure _self;
-  final $Res Function(HafalanFailure) _then;
+  final HafalanListFailure _self;
+  final $Res Function(HafalanListFailure) _then;
 
-/// Create a copy of HafalanState
+/// Create a copy of HafalanListState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
-  return _then(HafalanFailure(
+  return _then(HafalanListFailure(
 null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
   ));

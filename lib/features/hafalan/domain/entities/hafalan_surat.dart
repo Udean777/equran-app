@@ -1,4 +1,5 @@
 import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
+import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'hafalan_surat.freezed.dart';
@@ -49,6 +50,13 @@ abstract class HafalanSurat with _$HafalanSurat {
 
   const HafalanSurat._();
 
+  factory HafalanSurat.fromSurat(Surat surat) => HafalanSurat(
+    suratNomor: surat.nomor,
+    namaLatin: surat.namaLatin,
+    nama: surat.nama,
+    jumlahAyat: surat.jumlahAyat,
+  );
+
   /// Progress hafalan: 0.0 – 1.0
   double get progressAyat =>
       jumlahAyat == 0 ? 0 : (ayatHafal.length / jumlahAyat).clamp(0.0, 1.0);
@@ -57,9 +65,11 @@ abstract class HafalanSurat with _$HafalanSurat {
   bool get isSelesai => jumlahAyat > 0 && ayatHafal.length >= jumlahAyat;
 
   /// True jika tanggal muraja'ah sudah lewat.
-  bool get isMurajaahJatuhTempo =>
-      tanggalMurajaahBerikutnya != null &&
-      DateTime.now().isAfter(tanggalMurajaahBerikutnya!);
+  bool isMurajaahJatuhTempo([DateTime? now]) {
+    final current = now ?? DateTime.now();
+    return tanggalMurajaahBerikutnya != null &&
+        current.isAfter(tanggalMurajaahBerikutnya!);
+  }
 
   /// True jika sudah mencapai level muraja'ah maksimum.
   bool get isMurajaahSelesai => murajaahLevel >= 5;
@@ -69,11 +79,12 @@ abstract class HafalanSurat with _$HafalanSurat {
 /// pada layer presentation atau data.
 extension HafalanSuratX on HafalanSurat {
   /// Hitung tanggal muraja'ah berikutnya berdasarkan level spaced repetition.
-  DateTime nextMurajaahDate(int level) {
+  DateTime nextMurajaahDate(int level, [DateTime? now]) {
+    final current = now ?? DateTime.now();
     final days = level < kMurajaahIntervalDays.length
         ? kMurajaahIntervalDays[level]
         : kMurajaahIntervalDays.last;
-    return DateTime.now().add(Duration(days: days));
+    return current.add(Duration(days: days));
   }
 
   /// Buat salinan setelah toggle satu ayat hafal/belum hafal.

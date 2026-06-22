@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/core/utils/string_utils.dart';
+import 'package:equran_app/core/location/string_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Mixin untuk cubit yang membutuhkan GPS detection + location selection.

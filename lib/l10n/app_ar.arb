@@ -107,5 +107,8 @@
   "statistikBacaDrawer": "إحصائيات القراءة",
   "statistikShalatDrawer": "إحصائيات الصلاة",
   "manajemenAudioDrawer": "إدارة الصوت",
-  "pengaturanDrawer": "الإعدادات"
+  "pengaturanDrawer": "الإعدادات",
+  "pageNotFound": "الصفحة غير موجودة",
+  "pageNotFoundDesc": "الصفحة التي تبحث عنها غير متوفرة\nأو تم نقلها.",
+  "backToHome": "العودة إلى الصفحة الرئيسية"
 }

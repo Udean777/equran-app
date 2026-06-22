@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -75,12 +76,12 @@ class _HafalanCatatanFieldState extends State<HafalanCatatanField> {
 
   Future<void> _saveCatatan(BuildContext context) async {
     final existing =
-        context.read<HafalanCubit>().getSurat(widget.suratNomor) ??
+        context.read<HafalanListCubit>().getSurat(widget.suratNomor) ??
         widget.suratInfo;
     final updated = existing.copyWith(
       catatan: _controller.text.trim().isEmpty ? null : _controller.text.trim(),
     );
-    await context.read<HafalanCubit>().saveHafalanSurat(updated);
+    await context.read<HafalanDetailCubit>().saveHafalanSurat(updated);
     if (context.mounted) {
       setState(() => _isDirty = false);
       ScaffoldMessenger.of(context).showSnackBar(

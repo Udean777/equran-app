@@ -585,6 +585,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pengaturan'**
   String get pengaturanDrawer;
+
+  /// Judul halaman 404
+  ///
+  /// In id, this message translates to:
+  /// **'Halaman Tidak Ditemukan'**
+  String get pageNotFound;
+
+  /// Deskripsi halaman 404
+  ///
+  /// In id, this message translates to:
+  /// **'Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.'**
+  String get pageNotFoundDesc;
+
+  /// Tombol kembali ke beranda
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke Beranda'**
+  String get backToHome;
 }
 
 class _AppLocalizationsDelegate

@@ -346,5 +346,17 @@
   "pengaturanDrawer": "Pengaturan",
   "@pengaturanDrawer": {
     "description": "Label menu drawer pengaturan"
+  },
+  "pageNotFound": "Halaman Tidak Ditemukan",
+  "@pageNotFound": {
+    "description": "Judul halaman 404"
+  },
+  "pageNotFoundDesc": "Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.",
+  "@pageNotFoundDesc": {
+    "description": "Deskripsi halaman 404"
+  },
+  "backToHome": "Kembali ke Beranda",
+  "@backToHome": {
+    "description": "Tombol kembali ke beranda"
   }
 }

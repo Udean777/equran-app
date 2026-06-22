@@ -10,7 +10,8 @@ import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_widget.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_state.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
@@ -84,18 +85,18 @@ class _SuratListViewState extends State<_SuratListView> {
 
                   // Murajaah reminder — hanya muncul di debug mode
                   if (kDebugMode)
-                    BlocBuilder<HafalanCubit, HafalanState>(
+                    BlocBuilder<HafalanListCubit, HafalanListState>(
                       buildWhen: (prev, curr) {
-                        final prevList = prev is HafalanSuccess
+                        final prevList = prev is HafalanListSuccess
                             ? prev.suratMurajaahHariIni
                             : null;
-                        final currList = curr is HafalanSuccess
+                        final currList = curr is HafalanListSuccess
                             ? curr.suratMurajaahHariIni
                             : null;
                         return prevList != currList;
                       },
                       builder: (context, state) {
-                        if (state is! HafalanSuccess) {
+                        if (state is! HafalanListSuccess) {
                           return const SizedBox.shrink();
                         }
                         final murajaahList = state.suratMurajaahHariIni;

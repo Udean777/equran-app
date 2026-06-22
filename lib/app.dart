@@ -11,7 +11,7 @@ import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dar
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/doa/presentation/cubit/doa_bookmark_cubit.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
@@ -49,7 +49,7 @@ class _AppState extends State<App> {
         ),
         BlocProvider(
           create: (_) {
-            final cubit = getIt<HafalanCubit>();
+            final cubit = getIt<HafalanListCubit>();
             unawaited(cubit.load());
             return cubit;
           },
