@@ -96,8 +96,8 @@ import 'package:equran_app/features/bookmark/domain/usecases/save_surat_progress
     as _i135;
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart'
     as _i194;
-import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_datasource.dart'
-    as _i289;
+import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_data_source.dart'
+    as _i359;
 import 'package:equran_app/features/catatan_ayat/data/repositories/catatan_ayat_repository_impl.dart'
     as _i410;
 import 'package:equran_app/features/catatan_ayat/domain/repositories/catatan_ayat_repository.dart'
@@ -118,8 +118,12 @@ import 'package:equran_app/features/doa/data/datasources/doa_local_data_source.d
     as _i547;
 import 'package:equran_app/features/doa/data/datasources/doa_remote_data_source.dart'
     as _i34;
+import 'package:equran_app/features/doa/data/repositories/doa_bookmark_repository_impl.dart'
+    as _i1008;
 import 'package:equran_app/features/doa/data/repositories/doa_repository_impl.dart'
     as _i164;
+import 'package:equran_app/features/doa/domain/repositories/doa_bookmark_repository.dart'
+    as _i498;
 import 'package:equran_app/features/doa/domain/repositories/doa_repository.dart'
     as _i420;
 import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart'
@@ -493,6 +497,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i480.QiblaRepository>(
       () => _i369.QiblaRepositoryImpl(gh<_i473.QiblaDataSource>()),
     );
+    gh.lazySingleton<_i359.CatatanAyatLocalDataSource>(
+      () => _i359.CatatanAyatLocalDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'catatanBox'),
+      ),
+    );
     gh.lazySingleton<_i607.ReadingHistoryLocalDataSource>(
       () => _i607.ReadingHistoryLocalDataSourceImpl(
         gh<_i738.Box<String>>(instanceName: 'readingHistoryBox'),
@@ -521,11 +530,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioCompositeHandler>()),
-    );
-    gh.lazySingleton<_i289.CatatanAyatLocalDatasource>(
-      () => _i289.CatatanAyatLocalDatasourceImpl(
-        gh<_i738.Box<String>>(instanceName: 'catatanBox'),
-      ),
     );
     gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
       () => _i264.JadwalShalatRemoteDataSourceImpl(gh<_i870.DioClient>()),
@@ -577,12 +581,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'doaBookmarkBox'),
       ),
     );
-    gh.lazySingleton<_i8.GetShalatNotifPrefs>(
-      () => _i8.GetShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
-    );
-    gh.lazySingleton<_i69.SaveShalatNotifPrefs>(
-      () => _i69.SaveShalatNotifPrefs(gh<_i185.ShalatNotifPrefsDataSource>()),
-    );
     gh.lazySingleton<_i222.AppRouter>(
       () => _i222.AppRouter(gh<_i1015.OnboardingService>()),
     );
@@ -617,6 +615,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i713.TafsirRemoteDataSource>(
       () => _i713.TafsirRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
+    gh.factory<_i321.CatatanAyatRepository>(
+      () => _i410.CatatanAyatRepositoryImpl(
+        gh<_i359.CatatanAyatLocalDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i34.DoaRemoteDataSource>(
       () => _i34.DoaRemoteDataSourceImpl(gh<_i870.DioClient>()),
     );
@@ -642,11 +645,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.LazyBox<String>>(instanceName: 'suratBox'),
       ),
     );
-    gh.factory<_i254.GetDoaBookmarks>(
-      () => _i254.GetDoaBookmarks(gh<_i553.DoaBookmarkDataSource>()),
-    );
-    gh.factory<_i107.ToggleDoaBookmark>(
-      () => _i107.ToggleDoaBookmark(gh<_i553.DoaBookmarkDataSource>()),
+    gh.lazySingleton<_i498.DoaBookmarkRepository>(
+      () => _i1008.DoaBookmarkRepositoryImpl(gh<_i553.DoaBookmarkDataSource>()),
     );
     gh.lazySingleton<_i278.StatistikShalatRepository>(
       () => _i892.StatistikShalatRepositoryImpl(
@@ -688,12 +688,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i621.QuranReminderScheduler>(),
       ),
     );
-    gh.lazySingleton<_i414.JadwalShalatRepository>(
-      () => _i443.JadwalShalatRepositoryImpl(
-        gh<_i264.JadwalShalatRemoteDataSource>(),
-        gh<_i560.JadwalShalatLocalDataSource>(),
-      ),
-    );
     gh.lazySingleton<_i952.ReadingProgressRepository>(
       () => _i822.ReadingProgressRepositoryImpl(
         gh<_i357.ReadingProgressLocalDataSource>(),
@@ -710,33 +704,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i659.RecordQuranRead>(
       () => _i659.RecordQuranRead(gh<_i1011.QuranStreakRepository>()),
     );
-    gh.lazySingleton<_i1042.GetJadwalShalat>(
-      () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
-    );
-    gh.lazySingleton<_i173.GetKabkotaShalat>(
-      () => _i173.GetKabkotaShalat(gh<_i414.JadwalShalatRepository>()),
-    );
-    gh.lazySingleton<_i88.GetLastLocationShalat>(
-      () => _i88.GetLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
-    );
-    gh.lazySingleton<_i598.GetProvinsiShalat>(
-      () => _i598.GetProvinsiShalat(gh<_i414.JadwalShalatRepository>()),
-    );
-    gh.lazySingleton<_i584.SaveLastLocationShalat>(
-      () => _i584.SaveLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
-    );
     gh.lazySingleton<_i445.HafalanLocalDatasource>(
       () => _i445.HafalanLocalDatasourceImpl(
         gh<_i738.Box<String>>(instanceName: 'hafalanBox'),
-      ),
-    );
-    gh.singleton<_i615.ShalatNotifCubit>(
-      () => _i615.ShalatNotifCubit(
-        gh<_i8.GetShalatNotifPrefs>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-        gh<_i76.ShalatNotificationScheduler>(),
-        gh<_i1042.GetJadwalShalat>(),
-        gh<_i88.GetLastLocationShalat>(),
       ),
     );
     gh.lazySingleton<_i203.ReadingProgressRepository>(
@@ -775,25 +745,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i555.ImsakiyahLocalDataSource>(),
       ),
     );
-    gh.factory<_i83.JadwalShalatCubit>(
-      () => _i83.JadwalShalatCubit(
-        gh<_i598.GetProvinsiShalat>(),
-        gh<_i173.GetKabkotaShalat>(),
-        gh<_i1042.GetJadwalShalat>(),
-        gh<_i88.GetLastLocationShalat>(),
-        gh<_i584.SaveLastLocationShalat>(),
-        gh<_i177.LocationService>(),
-        gh<_i69.SaveShalatNotifPrefs>(),
-        gh<_i615.ShalatNotifCubit>(),
-      ),
-    );
     gh.lazySingleton<_i1019.LastReadRepository>(
       () => _i955.LastReadRepositoryImpl(gh<_i964.LastReadLocalDataSource>()),
     );
-    gh.factory<_i321.CatatanAyatRepository>(
-      () => _i410.CatatanAyatRepositoryImpl(
-        gh<_i289.CatatanAyatLocalDatasource>(),
-      ),
+    gh.factory<_i254.GetDoaBookmarks>(
+      () => _i254.GetDoaBookmarks(gh<_i498.DoaBookmarkRepository>()),
+    );
+    gh.factory<_i107.ToggleDoaBookmark>(
+      () => _i107.ToggleDoaBookmark(gh<_i498.DoaBookmarkRepository>()),
     );
     gh.factory<_i115.GetSuratDetail>(
       () => _i115.GetSuratDetail(gh<_i246.SuratDetailRepository>()),
@@ -810,6 +769,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1057.ShalatChecklistReminderScheduler(
         gh<_i175.NotificationService>(),
         gh<_i163.FlutterLocalNotificationsPlugin>(),
+      ),
+    );
+    gh.lazySingleton<_i414.JadwalShalatRepository>(
+      () => _i443.JadwalShalatRepositoryImpl(
+        gh<_i264.JadwalShalatRemoteDataSource>(),
+        gh<_i560.JadwalShalatLocalDataSource>(),
+        gh<_i185.ShalatNotifPrefsDataSource>(),
       ),
     );
     gh.factory<_i451.DeleteCatatan>(
@@ -959,6 +925,36 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i663.HafalanRepository>(
       () => _i804.HafalanRepositoryImpl(gh<_i445.HafalanLocalDatasource>()),
     );
+    gh.lazySingleton<_i1042.GetJadwalShalat>(
+      () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i173.GetKabkotaShalat>(
+      () => _i173.GetKabkotaShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i88.GetLastLocationShalat>(
+      () => _i88.GetLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i598.GetProvinsiShalat>(
+      () => _i598.GetProvinsiShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.lazySingleton<_i584.SaveLastLocationShalat>(
+      () => _i584.SaveLastLocationShalat(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.factory<_i8.GetShalatNotifPrefs>(
+      () => _i8.GetShalatNotifPrefs(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.factory<_i69.SaveShalatNotifPrefs>(
+      () => _i69.SaveShalatNotifPrefs(gh<_i414.JadwalShalatRepository>()),
+    );
+    gh.singleton<_i615.ShalatNotifCubit>(
+      () => _i615.ShalatNotifCubit(
+        gh<_i8.GetShalatNotifPrefs>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i76.ShalatNotificationScheduler>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+      ),
+    );
     gh.singleton<_i729.AudioCubit>(
       () => _i729.AudioCubit(
         gh<_i556.PlayAudio>(),
@@ -974,6 +970,18 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i974.TafsirCubit>(
       () => _i974.TafsirCubit(gh<_i160.GetTafsir>()),
+    );
+    gh.factory<_i83.JadwalShalatCubit>(
+      () => _i83.JadwalShalatCubit(
+        gh<_i598.GetProvinsiShalat>(),
+        gh<_i173.GetKabkotaShalat>(),
+        gh<_i1042.GetJadwalShalat>(),
+        gh<_i88.GetLastLocationShalat>(),
+        gh<_i584.SaveLastLocationShalat>(),
+        gh<_i177.LocationService>(),
+        gh<_i69.SaveShalatNotifPrefs>(),
+        gh<_i615.ShalatNotifCubit>(),
+      ),
     );
     gh.factory<_i334.SuratListCubit>(
       () => _i334.SuratListCubit(gh<_i291.GetSuratList>()),

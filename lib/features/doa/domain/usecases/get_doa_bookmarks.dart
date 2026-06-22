@@ -1,20 +1,15 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/doa/data/datasources/doa_bookmark_data_source.dart';
+import 'package:equran_app/core/usecase/use_case.dart';
+import 'package:equran_app/features/doa/domain/repositories/doa_bookmark_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class GetDoaBookmarks {
-  const GetDoaBookmarks(this._dataSource);
+class GetDoaBookmarks implements UseCaseNoParams<Set<int>> {
+  const GetDoaBookmarks(this._repository);
 
-  final DoaBookmarkDataSource _dataSource;
+  final DoaBookmarkRepository _repository;
 
-  Future<Either<Failure, Set<int>>> call() async {
-    try {
-      final ids = await _dataSource.getBookmarkedIds();
-      return right(ids);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  @override
+  Future<Either<Failure, Set<int>>> call() => _repository.getBookmarkedIds();
 }

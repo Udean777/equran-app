@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'catatan_ayat.freezed.dart';
-part 'catatan_ayat.g.dart';
 
 @freezed
 abstract class CatatanAyat with _$CatatanAyat {
@@ -13,7 +12,4 @@ abstract class CatatanAyat with _$CatatanAyat {
     required String isi,
     required DateTime savedAt,
   }) = _CatatanAyat;
-
-  factory CatatanAyat.fromJson(Map<String, dynamic> json) =>
-      _$CatatanAyatFromJson(json);
 }
