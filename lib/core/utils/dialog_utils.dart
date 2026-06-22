@@ -57,7 +57,7 @@ class _LuxuryConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark ? AppColors.outlineDark : AppColors.outline;
     final textPrimary = isDark
@@ -137,7 +137,7 @@ class _LuxurySuccessReadDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark ? AppColors.outlineDark : AppColors.outline;
     final textPrimary = isDark

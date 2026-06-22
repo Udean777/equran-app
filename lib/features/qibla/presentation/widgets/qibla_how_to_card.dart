@@ -24,7 +24,7 @@ class QiblaHowToCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final theme = Theme.of(context);
     final iconColor = isDark ? AppColors.primaryLighter : AppColors.primary;
     final iconBg = isDark ? AppColors.primaryDark : AppColors.primaryContainer;

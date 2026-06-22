@@ -52,8 +52,6 @@ import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart
     as _i380;
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart'
     as _i434;
-import 'package:equran_app/features/audio/domain/usecases/get_available_qari.dart'
-    as _i372;
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart'
     as _i232;
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart'
@@ -360,9 +358,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
       () => notificationModule.flutterLocalNotificationsPlugin,
-    );
-    gh.lazySingleton<_i372.GetAvailableQari>(
-      () => const _i372.GetAvailableQari(),
     );
     gh.lazySingleton<_i473.QiblaDataSource>(() => _i473.QiblaDataSource());
     gh.lazySingleton<_i503.AudioDownloadDataSource>(

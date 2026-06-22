@@ -1,4 +1,5 @@
 import 'package:equran_app/core/router/app_routes.dart';
+import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/widgets.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
@@ -26,7 +27,7 @@ class SuratListContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     final allCount = surats.length;
     final completedCount = surats

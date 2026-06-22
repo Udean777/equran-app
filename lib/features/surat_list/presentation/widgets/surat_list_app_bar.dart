@@ -19,7 +19,7 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final contentColor = isDark
         ? AppColors.onSurfaceDark

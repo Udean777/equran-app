@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:equran_app/core/constants/notification_ids.dart';
 
 import 'package:equran_app/core/notifications/notification_service.dart';
-import 'package:equran_app/core/notifications/shalat_checklist_reminder_scheduler.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
@@ -162,7 +161,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
     final sections = _sections;
 
@@ -387,7 +386,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
         _soon,
         const NotificationDetails(
           android: AndroidNotificationDetails(
-            kShalatChecklistChannelId,
+            NotificationIds.shalatChecklistChannelId,
             'Reminder Checklist Shalat',
             channelDescription: 'Pengingat untuk mencatat status shalat harian',
           ),

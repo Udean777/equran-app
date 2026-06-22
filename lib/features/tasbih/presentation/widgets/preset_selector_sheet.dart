@@ -58,7 +58,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
 
               ...TasbihPreset.defaults.map((preset) {
                 final isSelected = state.selectedPreset.id == preset.id;
-                final isDark = Theme.of(context).brightness == Brightness.dark;
+                final isDark = context.isDark;
                 return InkWell(
                   onTap: () {
                     context.read<TasbihCubit>().selectPreset(preset);

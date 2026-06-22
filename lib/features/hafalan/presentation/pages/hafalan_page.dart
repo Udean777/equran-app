@@ -191,7 +191,7 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final isPinned = shrinkOffset > 0 || overlapsContent;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;

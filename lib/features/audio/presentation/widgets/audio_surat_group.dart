@@ -1,8 +1,8 @@
 import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/core/utils/format_utils.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
     show DownloadedAyatInfo;
 import 'package:equran_app/features/audio/presentation/widgets/audio_file_item.dart';
+import 'package:equran_app/features/audio/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 
 /// ExpansionTile untuk satu surat beserta daftar file audio-nya.
@@ -32,7 +32,7 @@ class AudioSuratGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final totalBytes = files.fold<int>(0, (sum, f) => sum + f.sizeBytes);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
 
     return ExpansionTile(

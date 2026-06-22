@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -18,6 +17,7 @@ import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_progres
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_section_header.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_selector.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +113,7 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final ayatHafal = widget.hafalan?.ayatHafal ?? [];
 
     // Cari range ayat untuk surat ini di juz yang aktif

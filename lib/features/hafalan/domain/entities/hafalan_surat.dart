@@ -1,4 +1,4 @@
-import 'package:equran_app/core/constants/murajaah_intervals.dart';
+import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'hafalan_surat.freezed.dart';

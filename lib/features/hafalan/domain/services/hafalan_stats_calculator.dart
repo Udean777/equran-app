@@ -1,7 +1,7 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 
 /// Kalkulasi statistik hafalan — domain service, tidak bergantung pada layer lain.
 class HafalanStatsCalculator {

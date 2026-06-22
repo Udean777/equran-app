@@ -55,7 +55,7 @@ class LuxuryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final effectiveRadius = radius ?? AppDimens.radiusLG;
     final effectiveColor =
         color ?? (isDark ? AppColors.surfaceDark : AppColors.surface);

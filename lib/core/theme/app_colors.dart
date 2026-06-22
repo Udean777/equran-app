@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+export 'context_ext.dart';
+
 abstract final class AppColors {
   // ---------------------------------------------------------------------------
   // Primary — Forest Green

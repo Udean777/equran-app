@@ -197,7 +197,7 @@ class _InstructionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final color = isAligned
         ? AppColors.gold
         : (isDark ? AppColors.primaryLighter : AppColors.primary);

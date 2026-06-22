@@ -1,6 +1,7 @@
 import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/imsak_alarm_config.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
+import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -24,9 +25,9 @@ class ImsakAlarmScheduler {
 
     // Alarm imsak — tepat di waktu imsak
     if (config.imsakEnabled) {
-      final scheduledTime = _parseWaktu(
+      final scheduledTime = parseWaktu(
+        date: DateTime.now(),
         waktuStr: entry.imsak,
-        menitSebelum: 0,
       );
 
       if (scheduledTime != null &&
@@ -49,9 +50,11 @@ class ImsakAlarmScheduler {
 
     // Alarm sahur — [menitSebelumImsak] menit sebelum imsak
     if (config.sahurEnabled) {
-      final scheduledTime = _parseWaktu(
+      final scheduledTime = parseWaktu(
+        date: DateTime.now(),
         waktuStr: entry.imsak,
-        menitSebelum: config.menitSebelumImsak,
+        offsetMinutes: -config.menitSebelumImsak,
+        rescheduleNextDayIfPast: true,
       );
 
       if (scheduledTime != null &&
@@ -119,44 +122,5 @@ class ImsakAlarmScheduler {
       scheduledTime: scheduledTime,
       details: details,
     );
-  }
-
-  /// Parse string waktu format "HH:mm" (contoh: "04:32") ke [tz.TZDateTime].
-  /// Kurangi [menitSebelum] dari waktu yang diparsing.
-  /// Return null jika format tidak valid.
-  tz.TZDateTime? _parseWaktu({
-    required String waktuStr,
-    required int menitSebelum,
-  }) {
-    try {
-      final parts = waktuStr.trim().split(':');
-      if (parts.length != 2) return null;
-
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
-
-      final now = tz.TZDateTime.now(tz.local);
-
-      var scheduled = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      ).subtract(Duration(minutes: menitSebelum));
-
-      // Jika waktu sudah lewat hari ini, schedule untuk besok
-      if (scheduled.isBefore(now)) {
-        scheduled = scheduled.add(const Duration(days: 1));
-      }
-
-      return scheduled;
-    } on Object catch (e) {
-      debugPrint(
-        'ImsakAlarmScheduler: parse error for "$waktuStr": $e',
-      );
-      return null;
-    }
   }
 }

@@ -1,6 +1,6 @@
-'lib/**/*.dart':
+"lib/**/*.dart":
   - dart format
-  - flutter analyze
-'test/**/*.dart':
+  - dart analyze
+"test/**/*.dart":
   - dart format
-  - flutter analyze
+  - dart analyze

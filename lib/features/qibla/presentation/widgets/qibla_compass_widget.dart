@@ -85,7 +85,7 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final isAligned = _isAligned(widget.qiblaAngle);
 
     return Column(

@@ -1,15 +1,10 @@
+import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
+import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
-
-/// Channel ID untuk reminder checklist shalat.
-const String kShalatChecklistChannelId = 'shalat_checklist_channel';
-
-/// Notification ID base untuk reminder checklist shalat.
-/// ID range: 140–144 (5 waktu shalat).
-const int kNotifIdShalatChecklistBase = 140;
 
 /// Scheduler untuk reminder checklist shalat.
 /// Mengirim notifikasi 30 menit setelah waktu shalat sebagai pengingat
@@ -28,27 +23,27 @@ class ShalatChecklistReminderScheduler {
 
   static const _waktuList = [
     _WaktuInfo(
-      id: kNotifIdShalatChecklistBase,
+      id: NotificationIds.shalatChecklistBase,
       nama: 'Subuh',
       emoji: '🌅',
     ),
     _WaktuInfo(
-      id: kNotifIdShalatChecklistBase + 1,
+      id: NotificationIds.shalatChecklistBase + 1,
       nama: 'Dzuhur',
       emoji: '☀️',
     ),
     _WaktuInfo(
-      id: kNotifIdShalatChecklistBase + 2,
+      id: NotificationIds.shalatChecklistBase + 2,
       nama: 'Ashar',
       emoji: '🌤️',
     ),
     _WaktuInfo(
-      id: kNotifIdShalatChecklistBase + 3,
+      id: NotificationIds.shalatChecklistBase + 3,
       nama: 'Maghrib',
       emoji: '🌇',
     ),
     _WaktuInfo(
-      id: kNotifIdShalatChecklistBase + 4,
+      id: NotificationIds.shalatChecklistBase + 4,
       nama: 'Isya',
       emoji: '🌙',
     ),
@@ -69,7 +64,11 @@ class ShalatChecklistReminderScheduler {
       final waktuStr = waktuMap[info.nama];
       if (waktuStr == null) continue;
 
-      final scheduledTime = _parseWaktu(waktuStr, delayMenit: _delayMenit);
+      final scheduledTime = parseWaktu(
+        date: DateTime.now(),
+        waktuStr: waktuStr,
+        offsetMinutes: _delayMenit,
+      );
       if (scheduledTime == null ||
           scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
         continue;
@@ -77,7 +76,7 @@ class ShalatChecklistReminderScheduler {
 
       const details = NotificationDetails(
         android: AndroidNotificationDetails(
-          kShalatChecklistChannelId,
+          NotificationIds.shalatChecklistChannelId,
           'Reminder Checklist Shalat',
           channelDescription: 'Pengingat untuk mencatat status shalat harian',
         ),
@@ -115,38 +114,6 @@ class ShalatChecklistReminderScheduler {
 
   // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-  /// Parse "HH:mm" + tambah [delayMenit] → TZDateTime.
-  /// Return null jika format tidak valid atau waktu sudah lewat.
-  tz.TZDateTime? _parseWaktu(String waktuStr, {required int delayMenit}) {
-    try {
-      final parts = waktuStr.trim().split(':');
-      if (parts.length != 2) return null;
-
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
-
-      final now = tz.TZDateTime.now(tz.local);
-      final scheduled = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      ).add(Duration(minutes: delayMenit));
-
-      // Skip jika waktu sudah lewat hari ini
-      if (scheduled.isBefore(now)) return null;
-
-      return scheduled;
-    } on Object catch (e) {
-      debugPrint(
-        'ShalatChecklistReminderScheduler: parse error "$waktuStr": $e',
-      );
-      return null;
-    }
-  }
-
   Future<void> _createChannel() async {
     final androidPlugin = _plugin
         .resolvePlatformSpecificImplementation<
@@ -156,7 +123,7 @@ class ShalatChecklistReminderScheduler {
 
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
-        kShalatChecklistChannelId,
+        NotificationIds.shalatChecklistChannelId,
         'Reminder Checklist Shalat',
         description: 'Pengingat untuk mencatat status shalat harian',
       ),

@@ -157,8 +157,7 @@ class FontSettingsSheet extends StatelessWidget {
                     icon: const Icon(Icons.refresh_rounded, size: 16),
                     label: const Text('Reset ke Default'),
                     style: TextButton.styleFrom(
-                      foregroundColor:
-                          Theme.of(context).brightness == Brightness.dark
+                      foregroundColor: context.isDark
                           ? AppColors.onSurfaceDarkVariant
                           : AppColors.textSecondary,
                       visualDensity: VisualDensity.compact,
@@ -258,7 +257,7 @@ class _FontSizeSlider extends StatelessWidget {
             Text(
               '${value.round()}px',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Theme.of(context).brightness == Brightness.dark
+                color: context.isDark
                     ? AppColors.onSurfaceDarkVariant
                     : AppColors.textSecondary,
               ),

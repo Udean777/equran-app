@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/utils/share_ayat_service.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/theme/share_templates_theme.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_share_card.dart';
+import 'package:equran_app/features/surat_detail/utils/share_ayat_service.dart';
 import 'package:flutter/material.dart';
 
 class ShareAyatPage extends StatefulWidget {
@@ -34,7 +34,7 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
     final borderColor = isDark
@@ -295,7 +295,7 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
   }
 
   void _showSaveOptionsSheet() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final textPrimary = isDark
         ? AppColors.onSurfaceDark

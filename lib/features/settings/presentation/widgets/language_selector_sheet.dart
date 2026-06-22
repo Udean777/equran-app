@@ -53,7 +53,7 @@ class LanguageSelectorSheet extends StatelessWidget {
             (entry) {
               final (lang, label, toastMessage) = entry;
               final isSelected = lang.runtimeType == current.runtimeType;
-              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final isDark = context.isDark;
 
               return InkWell(
                 onTap: () {

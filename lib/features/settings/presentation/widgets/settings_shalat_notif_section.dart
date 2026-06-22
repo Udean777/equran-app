@@ -15,7 +15,7 @@ class SettingsShalatNotifSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return BlocBuilder<ShalatNotifCubit, ShalatNotifPrefs>(
       builder: (context, prefs) {

@@ -52,7 +52,7 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final color = widget.isCompleted
         ? AppColors.gold
         : (isDark ? AppColors.primaryLighter : AppColors.primary);

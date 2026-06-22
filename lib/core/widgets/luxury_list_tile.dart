@@ -59,7 +59,7 @@ class LuxuryListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final effectiveIconColor =
         iconColor ?? (isDark ? AppColors.primaryLighter : AppColors.primary);
     final effectiveIconBg =

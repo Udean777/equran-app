@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/card_swipe_config.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
@@ -8,6 +7,7 @@ import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
+import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/auto_read_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';

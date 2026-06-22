@@ -64,8 +64,7 @@ class SettingsPage extends StatelessWidget {
               // Bahasa
               BlocBuilder<LanguageCubit, LanguageState>(
                 builder: (context, langState) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
+                  final isDark = context.isDark;
                   return LuxuryListTile(
                     icon: Icons.language_rounded,
                     title: l10n.language,

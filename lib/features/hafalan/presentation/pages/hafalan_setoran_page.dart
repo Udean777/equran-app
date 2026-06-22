@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
@@ -11,6 +10,7 @@ import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dar
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
 import 'package:equran_app/injection/injection_container.dart';

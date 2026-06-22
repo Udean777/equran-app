@@ -33,7 +33,7 @@ class DoaListAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
     final activeColor = isDark ? AppColors.primaryLighter : AppColors.primary;

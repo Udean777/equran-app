@@ -75,7 +75,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
     final hintColor = isDark
         ? AppColors.onSurfaceDarkVariant

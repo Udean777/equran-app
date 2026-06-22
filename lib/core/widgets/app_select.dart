@@ -74,7 +74,7 @@ class AppSelect<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     // Menemukan label untuk nilai terpilih saat ini
     final currentOption = options.cast<AppSelectOption<T>?>().firstWhere(

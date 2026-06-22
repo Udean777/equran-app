@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/card_swipe_config.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';

@@ -1,8 +1,8 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/reading_progress/data/datasources/reading_history_local_data_source.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
 import 'package:equran_app/features/reading_progress/domain/repositories/reading_progress_repository.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';

@@ -98,7 +98,7 @@ class _TafsirHeader extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context).brightness == Brightness.dark
+                color: context.isDark
                     ? AppColors.outlineDark
                     : AppColors.outlineVariant,
               ),
@@ -118,7 +118,7 @@ class _TafsirHeader extends StatelessWidget {
                 Text(
                   namaLatin,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).brightness == Brightness.dark
+                    color: context.isDark
                         ? AppColors.onSurfaceDarkVariant
                         : AppColors.textSecondary,
                   ),

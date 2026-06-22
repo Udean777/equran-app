@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:equran_app/core/utils/dialog_utils.dart';
-import 'package:equran_app/core/utils/format_utils.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
@@ -10,10 +9,7 @@ import 'package:equran_app/features/audio/domain/repositories/audio_download_rep
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_surat_group.dart';
-import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detail.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
-import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
+import 'package:equran_app/features/audio/utils/format_utils.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,13 +24,6 @@ class AudioStoragePage extends StatelessWidget {
         BlocProvider(
           create: (_) {
             final cubit = getIt<AudioStorageCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<SuratListCubit>();
             unawaited(cubit.load());
             return cubit;
           },
@@ -114,18 +103,11 @@ class _AudioStorageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Group files by suratNomor
     final grouped = <int, List<DownloadedAyatInfo>>{};
     for (final f in files) {
       grouped.putIfAbsent(f.suratNomor, () => []).add(f);
     }
     final sortedKeys = grouped.keys.toList()..sort();
-
-    // Ambil surat list untuk nama + jumlah ayat
-    final suratMap = context.watch<SuratListCubit>().state.maybeMap(
-      success: (s) => {for (final surat in s.surats) surat.nomor: surat},
-      orElse: () => <int, Surat>{},
-    );
 
     return Column(
       children: [
@@ -148,20 +130,15 @@ class _AudioStorageContent extends StatelessWidget {
             itemBuilder: (_, i) {
               final suratNomor = sortedKeys[i];
               final suratFiles = grouped[suratNomor]!;
-              final surat = suratMap[suratNomor];
 
-              // Cek apakah semua ayat sudah didownload
-              final isComplete =
-                  surat != null &&
-                  _isFullSuratDownloaded(suratFiles, surat.jumlahAyat);
+              final isComplete = _isFullSuratDownloaded(suratFiles);
 
               return AudioSuratGroup(
                 suratNomor: suratNomor,
                 files: suratFiles,
-                suratName: surat?.namaLatin,
                 isComplete: isComplete,
                 onPlayTap: isComplete
-                    ? () => _onPlayTap(context, suratNomor, suratFiles, surat)
+                    ? () => _onPlayTap(context, suratNomor, suratFiles)
                     : null,
               );
             },
@@ -171,14 +148,17 @@ class _AudioStorageContent extends StatelessWidget {
     );
   }
 
-  /// Cek apakah semua ayat 1..jumlahAyat sudah ada di downloaded files.
-  bool _isFullSuratDownloaded(
-    List<DownloadedAyatInfo> files,
-    int jumlahAyat,
-  ) {
-    if (files.length < jumlahAyat) return false;
+  /// Cek apakah semua ayat 1..maxAyat sudah ada di downloaded files.
+  bool _isFullSuratDownloaded(List<DownloadedAyatInfo> files) {
+    if (files.isEmpty) return false;
+    final maxAyat = files
+        .map((f) => f.ayatNomor)
+        .reduce(
+          (a, b) => a > b ? a : b,
+        );
+    if (files.length < maxAyat) return false;
     final downloadedAyats = files.map((f) => f.ayatNomor).toSet();
-    for (var i = 1; i <= jumlahAyat; i++) {
+    for (var i = 1; i <= maxAyat; i++) {
       if (!downloadedAyats.contains(i)) return false;
     }
     return true;
@@ -188,18 +168,16 @@ class _AudioStorageContent extends StatelessWidget {
     BuildContext context,
     int suratNomor,
     List<DownloadedAyatInfo> files,
-    Surat surat,
   ) async {
     final audioCubit = context.read<AudioCubit>();
 
-    // Jika ada audio lain yang sedang berjalan — minta konfirmasi
     if (audioCubit.isPlaylistMode) {
       final currentName = audioCubit.playlistSuratName ?? 'surat lain';
       final confirmed = await showConfirmDialog(
         context,
         title: 'Ganti Audio?',
         content:
-            '"$currentName" sedang diputar. Hentikan dan putar ${surat.namaLatin}?',
+            '"$currentName" sedang diputar. Hentikan dan putar Surat $suratNomor?',
         confirmLabel: 'Ya, Ganti',
         isDestructive: false,
       );
@@ -209,61 +187,26 @@ class _AudioStorageContent extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    // Build ayat list dari downloaded files — sorted by ayatNomor
-    final sortedFiles = [...files]
-      ..sort((a, b) => a.ayatNomor.compareTo(b.ayatNomor));
-
-    final qari = sortedFiles.first.qari;
-
-    // Ambil full detail surat dari local cache untuk mendapatkan teksArab agar estimasi durasi dan progress bar akurat
-    final getSuratDetail = getIt<GetSuratDetail>();
-    final detailResult = await getSuratDetail(
-      SuratDetailParams(nomor: suratNomor),
+    final storageCubit = context.read<AudioStorageCubit>();
+    final ayatList = await storageCubit.buildAyatList(
+      suratNomor: suratNomor,
+      files: files,
     );
+    if (ayatList == null) return;
+    if (!context.mounted) return;
 
-    final ayatList = detailResult.fold<List<Ayat>>(
-      (failure) {
-        // Fallback jika gagal mengambil detail dari cache
-        return sortedFiles
-            .map(
-              (f) => Ayat(
-                nomorAyat: f.ayatNomor,
-                teksArab: '',
-                teksLatin: '',
-                teksIndonesia: '',
-                audio: {f.qari.id: f.filePath},
-              ),
-            )
-            .toList();
-      },
-      (detail) {
-        // Substitusikan file path lokal ke dalam Ayat dari detail asli
-        final downloadedPaths = {
-          for (final f in files) f.ayatNomor: f.filePath,
-        };
-        return detail.ayatList.map((a) {
-          final localPath = downloadedPaths[a.nomorAyat];
-          return Ayat(
-            nomorAyat: a.nomorAyat,
-            teksArab: a.teksArab,
-            teksLatin: a.teksLatin,
-            teksIndonesia: a.teksIndonesia,
-            audio: {
-              qari.id: localPath ?? a.audio[qari.id] ?? a.audio.values.first,
-            },
-          );
-        }).toList();
-      },
-    );
+    final qari = [...files]..sort((a, b) => a.ayatNomor.compareTo(b.ayatNomor));
+    final qariValue = qari.firstOrNull?.qari;
+    if (qariValue == null) return;
 
     unawaited(
       audioCubit.playFullSurat(
         ayatList: ayatList,
         startIndex: 0,
-        qari: qari,
+        qari: qariValue,
         suratNomor: suratNomor,
-        suratName: surat.namaLatin,
-        updateLastRead: false, // tidak update lastRead dari manajemen audio
+        suratName: 'Surat $suratNomor',
+        updateLastRead: false,
       ),
     );
   }

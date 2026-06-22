@@ -1,9 +1,8 @@
 import 'package:equran_app/core/constants/notification_ids.dart';
-
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/notifications/shalat_notif_config.dart';
 import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -65,10 +64,10 @@ class ShalatNotificationScheduler {
       for (final waktu in waktuList) {
         if (!waktu.enabled) continue;
 
-        final scheduledTime = _parseWaktu(
+        final scheduledTime = parseWaktu(
           date: entry.date,
           waktuStr: waktu.waktu,
-          menitSebelum: config.menitSebelum,
+          offsetMinutes: -config.menitSebelum,
         );
 
         if (scheduledTime == null) continue;
@@ -121,44 +120,6 @@ class ShalatNotificationScheduler {
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
-
-  /// Parse string waktu format "HH:mm" ke [tz.TZDateTime].
-  /// Kurangi [menitSebelum] dari waktu yang diparsing.
-  /// Return null jika format tidak valid.
-  tz.TZDateTime? _parseWaktu({
-    required DateTime date,
-    required String waktuStr,
-    required int menitSebelum,
-  }) {
-    try {
-      final parts = waktuStr.trim().split(':');
-      if (parts.length != 2) return null;
-
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
-
-      final scheduled = tz.TZDateTime(
-        tz.local,
-        date.year,
-        date.month,
-        date.day,
-        hour,
-        minute,
-      ).subtract(Duration(minutes: menitSebelum));
-
-      // Jika waktu sudah lewat, JANGAN dijadwalkan ulang untuk besok.
-      // Karena jadwal besok sudah ada entry tersendiri!
-      final now = tz.TZDateTime.now(tz.local);
-      if (scheduled.isBefore(now)) return null;
-
-      return scheduled;
-    } on Object catch (e) {
-      debugPrint(
-        'ShalatNotificationScheduler: parse error for "$waktuStr": $e',
-      );
-      return null;
-    }
-  }
 }
 
 class _WaktuShalat {

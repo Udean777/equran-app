@@ -61,16 +61,6 @@ class AudioDownloadRepositoryImpl implements AudioDownloadRepository {
   }
 
   @override
-  Future<Either<Failure, int>> getTotalStorageBytes() async {
-    try {
-      final bytes = await _dataSource.getTotalStorageBytes();
-      return right(bytes);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
   Future<Either<Failure, Unit>> deleteAll() async {
     try {
       await _dataSource.deleteAll();

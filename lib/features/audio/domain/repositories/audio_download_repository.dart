@@ -39,9 +39,6 @@ abstract interface class AudioDownloadRepository {
   /// Dapatkan list semua file yang sudah didownload.
   Future<Either<Failure, List<DownloadedAyatInfo>>> getDownloadedAyats();
 
-  /// Total ukuran storage yang digunakan (bytes).
-  Future<Either<Failure, int>> getTotalStorageBytes();
-
   /// Hapus semua file audio yang sudah didownload.
   Future<Either<Failure, Unit>> deleteAll();
 }

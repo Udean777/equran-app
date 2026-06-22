@@ -1,7 +1,7 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +63,7 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final juzLabel = _buildJuzLabel(detail.info.nomor, currentAyatNomor);

@@ -1,3 +1,4 @@
+import 'package:equran_app/features/audio/data/utils/audio_url_builder.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:flutter_test/flutter_test.dart';
 

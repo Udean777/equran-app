@@ -29,7 +29,7 @@ class ActiveFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final contentColor = isDark ? AppColors.primaryLighter : AppColors.primary;
     final bgColor = isDark ? AppColors.primaryDark : AppColors.primaryContainer;
     final borderColor = isDark

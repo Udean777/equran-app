@@ -36,7 +36,7 @@ class LabelChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final effectiveColor =
         color ?? (isDark ? AppColors.primaryLighter : AppColors.primary);
     final bgColor = isDark ? AppColors.primaryDark : AppColors.primaryContainer;

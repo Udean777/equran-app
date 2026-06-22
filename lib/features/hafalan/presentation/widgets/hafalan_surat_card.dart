@@ -1,9 +1,9 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_badge.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

@@ -38,7 +38,7 @@ class AudioPlayerPage extends StatelessWidget {
         if (state.isIdle) return const SizedBox.shrink();
 
         final cubit = context.read<AudioCubit>();
-        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final isDark = context.isDark;
         final effectiveAudioMap = cubit.lastAudioMap;
 
         return _AudioPlayerPageContent(

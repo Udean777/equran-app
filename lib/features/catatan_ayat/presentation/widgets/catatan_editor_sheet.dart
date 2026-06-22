@@ -49,7 +49,7 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.existing != null;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     return Padding(
       padding: EdgeInsets.only(
         left: AppDimens.spaceMD,

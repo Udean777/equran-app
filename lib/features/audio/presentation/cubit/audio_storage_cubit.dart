@@ -7,6 +7,8 @@ import 'package:equran_app/features/audio/domain/repositories/audio_download_rep
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
+import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -32,11 +34,13 @@ class AudioStorageCubit extends Cubit<AudioStorageState> {
     this._getDownloadedAyats,
     this._deleteAyatAudio,
     this._deleteAllAudio,
+    this._getSuratDetail,
   ) : super(const AudioStorageState.initial());
 
   final GetDownloadedAyats _getDownloadedAyats;
   final DeleteAyatAudio _deleteAyatAudio;
   final DeleteAllAudio _deleteAllAudio;
+  final GetSuratDetail _getSuratDetail;
 
   Future<void> load() async {
     emit(const AudioStorageState.loading());
@@ -47,6 +51,61 @@ class AudioStorageCubit extends Cubit<AudioStorageState> {
       (files) {
         final totalBytes = files.fold<int>(0, (sum, f) => sum + f.sizeBytes);
         emit(AudioStorageState.success(files: files, totalBytes: totalBytes));
+      },
+    );
+  }
+
+  /// Cari qari dari file yang sudah didownload (ambil dari file pertama).
+  Qari? _qariFromFiles(List<DownloadedAyatInfo> files) {
+    final sorted = [...files]
+      ..sort((a, b) => a.ayatNomor.compareTo(b.ayatNomor));
+    return sorted.firstOrNull?.qari;
+  }
+
+  /// Build [Ayat] list dari downloaded files dengan data surat detail.
+  /// Return null jika gagal.
+  Future<List<Ayat>?> buildAyatList({
+    required int suratNomor,
+    required List<DownloadedAyatInfo> files,
+  }) async {
+    final sorted = [...files]
+      ..sort((a, b) => a.ayatNomor.compareTo(b.ayatNomor));
+
+    final qari = _qariFromFiles(sorted);
+    if (qari == null) return null;
+
+    final result = await _getSuratDetail(
+      SuratDetailParams(nomor: suratNomor),
+    );
+
+    return result.fold(
+      (failure) {
+        return sorted.map((f) {
+          return Ayat(
+            nomorAyat: f.ayatNomor,
+            teksArab: '',
+            teksLatin: '',
+            teksIndonesia: '',
+            audio: {qari.id: f.filePath},
+          );
+        }).toList();
+      },
+      (detail) {
+        final downloadedPaths = {
+          for (final f in files) f.ayatNomor: f.filePath,
+        };
+        return detail.ayatList.map((a) {
+          final localPath = downloadedPaths[a.nomorAyat];
+          return Ayat(
+            nomorAyat: a.nomorAyat,
+            teksArab: a.teksArab,
+            teksLatin: a.teksLatin,
+            teksIndonesia: a.teksIndonesia,
+            audio: {
+              qari.id: localPath ?? a.audio[qari.id] ?? a.audio.values.first,
+            },
+          );
+        }).toList();
       },
     );
   }

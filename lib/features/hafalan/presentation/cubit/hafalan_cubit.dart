@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/juz_mapping.dart';
-import 'package:equran_app/core/constants/murajaah_intervals.dart';
 import 'package:equran_app/core/notifications/hafalan_reminder_scheduler.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart';
+import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
