@@ -303,7 +303,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     final now = DateTime.now();
     final futureEntries = jadwal.jadwal
         .where((e) => e.tanggal >= now.day)
-        .take(10)
+        .take(2)
         .map((e) => _toScheduleEntry(e, bulan, tahun))
         .toList();
 
