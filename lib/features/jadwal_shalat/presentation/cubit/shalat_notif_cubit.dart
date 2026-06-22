@@ -91,7 +91,7 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
       (jadwal) {
         final futureEntries = jadwal.jadwal
             .where((e) => e.tanggal >= now.day)
-            .take(10)
+            .take(2)
             .map(
               (e) => ShalatScheduleEntry(
                 date: DateTime(now.year, now.month, e.tanggal),
@@ -110,7 +110,7 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
         }
 
         _entries = futureEntries;
-        _reschedule(prefs);
+        unawaited(_reschedule(prefs));
       },
     );
   }
@@ -119,7 +119,7 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
   /// Langsung reschedule dengan prefs saat ini.
   void setEntries(List<ShalatScheduleEntry> entries) {
     _entries = entries;
-    _reschedule(state);
+    unawaited(_reschedule(state));
   }
 
   /// Toggle notifikasi untuk waktu shalat tertentu.
@@ -137,12 +137,18 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
   Future<void> _update(ShalatNotifPrefs prefs) async {
     emit(prefs);
     await _savePrefs(prefs);
-    _reschedule(prefs);
+    unawaited(_reschedule(prefs));
   }
 
-  void _reschedule(ShalatNotifPrefs prefs) {
+  bool _isRescheduling = false;
+
+  Future<void> _reschedule(ShalatNotifPrefs prefs) async {
     if (_entries.isEmpty) {
       debugPrint('ShalatNotifCubit: _entries kosong, skip reschedule');
+      return;
+    }
+    if (_isRescheduling) {
+      debugPrint('ShalatNotifCubit: sedang reschedule, skip');
       return;
     }
 
@@ -155,10 +161,13 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
       menitSebelum: prefs.menitSebelum,
     );
 
-    unawaited(
-      _scheduler.scheduleForNextDays(_entries, config).catchError((Object e) {
-        debugPrint('ShalatNotifCubit: reschedule error: $e');
-      }),
-    );
+    _isRescheduling = true;
+    try {
+      await _scheduler.scheduleForNextDays(_entries, config);
+    } on Object catch (e) {
+      debugPrint('ShalatNotifCubit: reschedule error: $e');
+    } finally {
+      _isRescheduling = false;
+    }
   }
 }

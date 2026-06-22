@@ -39,7 +39,6 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    unawaited(_pulseController.repeat(reverse: true));
 
     _glowController = AnimationController(
       vsync: this,
@@ -60,8 +59,12 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
     super.didUpdateWidget(oldWidget);
     final isAligned = _isAligned(widget.qiblaAngle);
     if (isAligned && !_wasAligned) {
+      unawaited(_pulseController.repeat(reverse: true));
       unawaited(_glowController.forward());
     } else if (!isAligned && _wasAligned) {
+      _pulseController
+        ..stop()
+        ..reset();
       unawaited(_glowController.reverse());
     }
     _wasAligned = isAligned;
@@ -102,65 +105,71 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
         const SizedBox(height: AppDimens.spaceLG),
 
         // Kompas
-        AnimatedBuilder(
-          animation: Listenable.merge([_pulseAnim, _glowAnim]),
-          builder: (context, child) {
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                // Glow saat aligned
-                if (isAligned)
-                  Container(
-                    width: 320,
-                    height: 320,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.gold.withValues(
-                            alpha: 0.15 * _glowAnim.value,
-                          ),
-                          blurRadius: 40,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Ring kompas
-                Transform.scale(
-                  scale: isAligned ? _pulseAnim.value : 1.0,
-                  child: _CompassRing(isDark: isDark, isAligned: isAligned),
-                ),
-
-                // Label arah mata angin
-                ..._buildCardinalLabels(isDark),
-
-                // Jarum — berputar sesuai qiblaAngle
-                Transform.rotate(
-                  angle: widget.qiblaAngle * math.pi / 180,
-                  child: _CompassNeedle(isDark: isDark, isAligned: isAligned),
-                ),
-
-                // Titik tengah
-                Container(
-                  width: 12,
-                  height: 12,
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            // Glow — rebuild hanya saat _glowAnim berubah (transisi aligned)
+            AnimatedBuilder(
+              animation: _glowAnim,
+              builder: (context, child) {
+                if (!isAligned) return const SizedBox.shrink();
+                return Container(
+                  width: 320,
+                  height: 320,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isAligned ? AppColors.gold : AppColors.primary,
                     boxShadow: [
                       BoxShadow(
-                        color: (isAligned ? AppColors.gold : AppColors.primary)
-                            .withValues(alpha: 0.4),
-                        blurRadius: 6,
+                        color: AppColors.gold.withValues(
+                          alpha: 0.15 * _glowAnim.value,
+                        ),
+                        blurRadius: 40,
+                        spreadRadius: 10,
                       ),
                     ],
                   ),
-                ),
-              ],
-            );
-          },
+                );
+              },
+            ),
+
+            // Ring — pulse scale hanya rebuild ring, bukan seluruh stack
+            AnimatedBuilder(
+              animation: _pulseAnim,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: isAligned ? _pulseAnim.value : 1.0,
+                  child: child,
+                );
+              },
+              child: _CompassRing(isDark: isDark, isAligned: isAligned),
+            ),
+
+            // Label arah mata angin
+            ..._buildCardinalLabels(isDark),
+
+            // Jarum — berputar sesuai qiblaAngle
+            Transform.rotate(
+              angle: widget.qiblaAngle * math.pi / 180,
+              child: _CompassNeedle(isDark: isDark, isAligned: isAligned),
+            ),
+
+            // Titik tengah
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isAligned ? AppColors.gold : AppColors.primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: (isAligned ? AppColors.gold : AppColors.primary)
+                        .withValues(alpha: 0.4),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
 
         const SizedBox(height: AppDimens.spaceLG),

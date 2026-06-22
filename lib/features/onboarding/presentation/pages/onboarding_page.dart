@@ -138,6 +138,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 isLastPage: _currentPage == _totalPages - 1,
                 isPermissionSlide: _currentPage == 1,
                 permissionRequested: _permissionRequested,
+                allPermissionsGranted: _locationGranted && _notifGranted,
                 bottomPadding: bottomPadding,
                 onNext: _nextPage,
                 onPrev: _prevPage,
@@ -162,6 +163,7 @@ class _BottomNav extends StatelessWidget {
     required this.isLastPage,
     required this.isPermissionSlide,
     required this.permissionRequested,
+    required this.allPermissionsGranted,
     required this.bottomPadding,
     required this.onNext,
     required this.onPrev,
@@ -174,6 +176,7 @@ class _BottomNav extends StatelessWidget {
   final bool isLastPage;
   final bool isPermissionSlide;
   final bool permissionRequested;
+  final bool allPermissionsGranted;
   final double bottomPadding;
   final VoidCallback onNext;
   final VoidCallback onPrev;
@@ -246,11 +249,11 @@ class _BottomNav extends StatelessWidget {
                         isPrimary: true,
                         onTap: onFinish,
                       )
-                    : isPermissionSlide && !permissionRequested
+                    : isPermissionSlide && allPermissionsGranted
                     ? _NavButton(
                         label: 'Lewati',
                         isPrimary: false,
-                        onTap: onNext,
+                        onTap: onSkip,
                       )
                     : _NavButton(
                         label: 'Lanjut',

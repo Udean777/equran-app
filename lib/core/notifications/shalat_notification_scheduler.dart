@@ -102,7 +102,7 @@ class ShalatNotificationScheduler {
       NotificationIds.maghrib,
       NotificationIds.isya,
     ]) {
-      for (var day = 0; day < 15; day++) {
+      for (var day = 0; day < 60; day++) {
         await _notificationService.cancelById(baseId + (day * 1000));
       }
       // Bersihkan ID lama yang mungkin masih terschedule
@@ -112,7 +112,7 @@ class ShalatNotificationScheduler {
 
   /// Cancel notifikasi untuk waktu shalat tertentu secara spesifik
   Future<void> cancelById(int id) async {
-    for (var day = 0; day < 15; day++) {
+    for (var day = 0; day < 60; day++) {
       await _notificationService.cancelById(id + (day * 1000));
     }
     await _notificationService.cancelById(id);
