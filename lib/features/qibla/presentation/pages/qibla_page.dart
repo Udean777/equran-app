@@ -5,7 +5,6 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart';
-import 'package:equran_app/features/qibla/presentation/cubit/qibla_state.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_compass_widget.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_error_widget.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_how_to_card.dart';
@@ -102,8 +101,7 @@ class _QiblaContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
@@ -114,7 +112,7 @@ class _QiblaContent extends StatelessWidget {
         children: [
           Text(
             'Hadapkan diri Anda ke arah jarum kompas',
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: isDark
                   ? AppColors.onSurfaceDarkVariant
                   : AppColors.textTertiary,

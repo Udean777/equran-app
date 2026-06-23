@@ -2,21 +2,6 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
-/// Chip label read-only — dipakai untuk tag, badge surat/ayat, kategori.
-///
-/// Otomatis menyesuaikan warna berdasarkan theme (light/dark).
-///
-/// Contoh:
-/// ```dart
-/// // Label surat · ayat
-/// LabelChip(label: 'Al-Baqarah · 255')
-///
-/// // Tag kategori
-/// LabelChip(label: 'Pagi')
-///
-/// // Dengan icon
-/// LabelChip(label: 'Hafalan', icon: Icons.star_rounded)
-/// ```
 class LabelChip extends StatelessWidget {
   const LabelChip({
     required this.label,
@@ -25,13 +10,8 @@ class LabelChip extends StatelessWidget {
     super.key,
   });
 
-  /// Teks label.
   final String label;
-
-  /// Icon opsional di sisi kiri label.
   final IconData? icon;
-
-  /// Override warna teks dan icon. Jika null, pakai primary dari theme.
   final Color? color;
 
   @override

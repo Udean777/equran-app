@@ -2,18 +2,6 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
-/// Chip filter aktif yang bisa di-dismiss — menampilkan label filter
-/// yang sedang aktif dengan tombol close di sisi kanan.
-///
-/// Otomatis menyesuaikan warna berdasarkan theme (light/dark).
-///
-/// Contoh:
-/// ```dart
-/// ActiveFilterChip(
-///   label: 'Doa Pagi',
-///   onClear: () => cubit.clearFilter(),
-/// )
-/// ```
 class ActiveFilterChip extends StatelessWidget {
   const ActiveFilterChip({
     required this.label,
@@ -21,10 +9,7 @@ class ActiveFilterChip extends StatelessWidget {
     super.key,
   });
 
-  /// Label filter yang sedang aktif.
   final String label;
-
-  /// Callback saat user tap tombol close.
   final VoidCallback onClear;
 
   @override

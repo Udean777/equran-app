@@ -2,9 +2,9 @@ import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/widgets/label_chip.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/widgets/label_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

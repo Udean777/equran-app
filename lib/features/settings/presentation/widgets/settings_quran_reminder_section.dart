@@ -16,9 +16,12 @@ class SettingsQuranReminderSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = context.isDark;
 
-    return BlocBuilder<QuranReminderCubit, QuranReminderPrefs>(
-      builder: (context, prefs) {
+    return BlocBuilder<QuranReminderCubit, QuranReminderState>(
+      builder: (context, state) {
         final cubit = context.read<QuranReminderCubit>();
+        final prefs =
+            state.mapOrNull(loaded: (s) => s.prefs) ??
+            const QuranReminderPrefs();
         final timeLabel =
             '${prefs.hour.toString().padLeft(2, '0')}:'
             '${prefs.minute.toString().padLeft(2, '0')}';

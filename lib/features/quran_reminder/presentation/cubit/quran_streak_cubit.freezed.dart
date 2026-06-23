@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'quran_streak_state.dart';
+part of 'quran_streak_cubit.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -55,12 +55,13 @@ extension QuranStreakStatePatterns on QuranStreakState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( QuranStreakInitial value)?  initial,TResult Function( QuranStreakLoaded value)?  loaded,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( QuranStreakInitial value)?  initial,TResult Function( QuranStreakLoaded value)?  loaded,TResult Function( QuranStreakError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case QuranStreakInitial() when initial != null:
 return initial(_that);case QuranStreakLoaded() when loaded != null:
-return loaded(_that);case _:
+return loaded(_that);case QuranStreakError() when error != null:
+return error(_that);case _:
   return orElse();
 
 }
@@ -78,12 +79,13 @@ return loaded(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( QuranStreakInitial value)  initial,required TResult Function( QuranStreakLoaded value)  loaded,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( QuranStreakInitial value)  initial,required TResult Function( QuranStreakLoaded value)  loaded,required TResult Function( QuranStreakError value)  error,}){
 final _that = this;
 switch (_that) {
 case QuranStreakInitial():
 return initial(_that);case QuranStreakLoaded():
-return loaded(_that);}
+return loaded(_that);case QuranStreakError():
+return error(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -97,12 +99,13 @@ return loaded(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( QuranStreakInitial value)?  initial,TResult? Function( QuranStreakLoaded value)?  loaded,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( QuranStreakInitial value)?  initial,TResult? Function( QuranStreakLoaded value)?  loaded,TResult? Function( QuranStreakError value)?  error,}){
 final _that = this;
 switch (_that) {
 case QuranStreakInitial() when initial != null:
 return initial(_that);case QuranStreakLoaded() when loaded != null:
-return loaded(_that);case _:
+return loaded(_that);case QuranStreakError() when error != null:
+return error(_that);case _:
   return null;
 
 }
@@ -119,11 +122,12 @@ return loaded(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( int streak)?  loaded,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( int streak)?  loaded,TResult Function( Failure failure)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case QuranStreakInitial() when initial != null:
 return initial();case QuranStreakLoaded() when loaded != null:
-return loaded(_that.streak);case _:
+return loaded(_that.streak);case QuranStreakError() when error != null:
+return error(_that.failure);case _:
   return orElse();
 
 }
@@ -141,11 +145,12 @@ return loaded(_that.streak);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( int streak)  loaded,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( int streak)  loaded,required TResult Function( Failure failure)  error,}) {final _that = this;
 switch (_that) {
 case QuranStreakInitial():
 return initial();case QuranStreakLoaded():
-return loaded(_that.streak);}
+return loaded(_that.streak);case QuranStreakError():
+return error(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +164,12 @@ return loaded(_that.streak);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( int streak)?  loaded,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( int streak)?  loaded,TResult? Function( Failure failure)?  error,}) {final _that = this;
 switch (_that) {
 case QuranStreakInitial() when initial != null:
 return initial();case QuranStreakLoaded() when loaded != null:
-return loaded(_that.streak);case _:
+return loaded(_that.streak);case QuranStreakError() when error != null:
+return error(_that.failure);case _:
   return null;
 
 }
@@ -267,6 +273,81 @@ as int,
 }
 
 
+}
+
+/// @nodoc
+
+
+class QuranStreakError implements QuranStreakState {
+  const QuranStreakError(this.failure);
+  
+
+ final  Failure failure;
+
+/// Create a copy of QuranStreakState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QuranStreakErrorCopyWith<QuranStreakError> get copyWith => _$QuranStreakErrorCopyWithImpl<QuranStreakError>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuranStreakError&&(identical(other.failure, failure) || other.failure == failure));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,failure);
+
+@override
+String toString() {
+  return 'QuranStreakState.error(failure: $failure)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QuranStreakErrorCopyWith<$Res> implements $QuranStreakStateCopyWith<$Res> {
+  factory $QuranStreakErrorCopyWith(QuranStreakError value, $Res Function(QuranStreakError) _then) = _$QuranStreakErrorCopyWithImpl;
+@useResult
+$Res call({
+ Failure failure
+});
+
+
+$FailureCopyWith<$Res> get failure;
+
+}
+/// @nodoc
+class _$QuranStreakErrorCopyWithImpl<$Res>
+    implements $QuranStreakErrorCopyWith<$Res> {
+  _$QuranStreakErrorCopyWithImpl(this._self, this._then);
+
+  final QuranStreakError _self;
+  final $Res Function(QuranStreakError) _then;
+
+/// Create a copy of QuranStreakState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? failure = null,}) {
+  return _then(QuranStreakError(
+null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
+as Failure,
+  ));
+}
+
+/// Create a copy of QuranStreakState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FailureCopyWith<$Res> get failure {
+  
+  return $FailureCopyWith<$Res>(_self.failure, (value) {
+    return _then(_self.copyWith(failure: value));
+  });
+}
 }
 
 // dart format on

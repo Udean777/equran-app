@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/core/location/string_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Mixin untuk cubit yang membutuhkan GPS detection + location selection.
@@ -55,12 +54,12 @@ mixin LocationSelectionMixin<T> on Cubit<T> {
     final detected = await locationService.detectCurrentLocation();
 
     if (detected != null) {
-      final matchedProvinsi = fuzzyMatch(detected.provinsi, provinsiList);
+      final matchedProvinsi = _fuzzyMatch(detected.provinsi, provinsiList);
 
       if (matchedProvinsi != null) {
         final kabkota = await getKabkotaList(matchedProvinsi);
         if (kabkota != null) {
-          final matchedKabkota = fuzzyMatch(detected.kabkota, kabkota);
+          final matchedKabkota = _fuzzyMatch(detected.kabkota, kabkota);
 
           if (matchedKabkota != null) {
             unawaited(
@@ -83,6 +82,36 @@ mixin LocationSelectionMixin<T> on Cubit<T> {
 
     // GPS gagal / tidak cocok → fallback
     await onLocationDetectFailed(provinsiList);
+  }
+
+  /// Fuzzy match [query] terhadap list [candidates].
+  String? _fuzzyMatch(String query, List<String> candidates) {
+    final q = query.toUpperCase().trim();
+
+    final exact = candidates.where((c) => c.toUpperCase() == q);
+    if (exact.isNotEmpty) return exact.first;
+
+    final containsQ = candidates.where((c) => c.toUpperCase().contains(q));
+    if (containsQ.isNotEmpty) return containsQ.first;
+
+    final stripped = candidates.where((c) {
+      final upper = c.toUpperCase();
+      final clean = upper
+          .replaceFirst(RegExp(r'^KAB\.\s*'), '')
+          .replaceFirst(RegExp(r'^KABUPATEN\s+'), '')
+          .replaceFirst(RegExp(r'^KOTA\s+'), '')
+          .trim();
+      return clean == q || clean.contains(q) || q.contains(clean);
+    });
+    if (stripped.isNotEmpty) return stripped.first;
+
+    final qTokens = q.split(RegExp(r'\s+'));
+    bool allTokensIn(String c) {
+      final upper = c.toUpperCase();
+      return qTokens.every(upper.contains);
+    }
+
+    return candidates.where(allTokensIn).firstOrNull;
   }
 
   /// Load jadwal dengan lokasi default Jakarta Pusat.

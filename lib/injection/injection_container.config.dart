@@ -17,8 +17,6 @@ import 'package:equran_app/core/notifications/notification_module.dart'
     as _i1066;
 import 'package:equran_app/core/notifications/notification_service.dart'
     as _i175;
-import 'package:equran_app/core/notifications/shalat_checklist_reminder_scheduler.dart'
-    as _i1057;
 import 'package:equran_app/core/router/app_router.dart' as _i222;
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart' as _i205;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
@@ -284,6 +282,8 @@ import 'package:equran_app/features/quran_reminder/data/repositories/quran_remin
     as _i258;
 import 'package:equran_app/features/quran_reminder/data/repositories/quran_streak_repository_impl.dart'
     as _i54;
+import 'package:equran_app/features/quran_reminder/data/services/quran_reminder_scheduler.dart'
+    as _i423;
 import 'package:equran_app/features/quran_reminder/domain/repositories/quran_reminder_repository.dart'
     as _i698;
 import 'package:equran_app/features/quran_reminder/domain/repositories/quran_streak_repository.dart'
@@ -296,8 +296,6 @@ import 'package:equran_app/features/quran_reminder/domain/usecases/record_quran_
     as _i659;
 import 'package:equran_app/features/quran_reminder/domain/usecases/save_quran_reminder_prefs.dart'
     as _i0;
-import 'package:equran_app/features/quran_reminder/notifications/quran_reminder_scheduler.dart'
-    as _i621;
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart'
     as _i443;
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart'
@@ -646,8 +644,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i702.HafalanReminderScheduler>(
       () => _i702.HafalanReminderScheduler(gh<_i175.NotificationService>()),
     );
-    gh.lazySingleton<_i621.QuranReminderScheduler>(
-      () => _i621.QuranReminderScheduler(gh<_i175.NotificationService>()),
+    gh.lazySingleton<_i423.QuranReminderScheduler>(
+      () => _i423.QuranReminderScheduler(gh<_i175.NotificationService>()),
     );
     gh.factory<_i321.InitQibla>(
       () => _i321.InitQibla(gh<_i480.QiblaRepository>()),
@@ -749,7 +747,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i443.QuranReminderCubit(
         gh<_i23.GetQuranReminderPrefs>(),
         gh<_i0.SaveQuranReminderPrefs>(),
-        gh<_i621.QuranReminderScheduler>(),
+        gh<_i423.QuranReminderScheduler>(),
       ),
     );
     gh.lazySingleton<_i183.ShalatLocationRepository>(
@@ -850,12 +848,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i380.DeleteAyatAudio>(),
         gh<_i425.DeleteAllAudio>(),
         gh<_i115.GetSuratDetail>(),
-      ),
-    );
-    gh.lazySingleton<_i1057.ShalatChecklistReminderScheduler>(
-      () => _i1057.ShalatChecklistReminderScheduler(
-        gh<_i175.NotificationService>(),
-        gh<_i163.FlutterLocalNotificationsPlugin>(),
       ),
     );
     gh.factory<_i451.DeleteCatatan>(

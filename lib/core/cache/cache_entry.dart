@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:equran_app/core/cache/cache_config.dart';
-
 /// Wrapper cache entry dengan timestamp untuk TTL check.
 class CacheEntry {
   const CacheEntry({
@@ -21,7 +19,9 @@ class CacheEntry {
   final DateTime cachedAt;
 
   /// Return true jika cache sudah melewati TTL.
-  bool get isExpired => DateTime.now().difference(cachedAt) > CacheConfig.ttl;
+  static const _ttl = Duration(days: 7);
+
+  bool get isExpired => DateTime.now().difference(cachedAt) > _ttl;
 
   Map<String, dynamic> toJson() => {
     'data': data,

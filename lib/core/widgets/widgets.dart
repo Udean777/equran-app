@@ -1,4 +1,3 @@
-export 'active_filter_chip.dart';
 export 'app_drawer.dart';
 export 'app_logo.dart';
 export 'app_search_bar.dart';
@@ -8,7 +7,6 @@ export 'detecting_location_widget.dart';
 export 'empty_state_widget.dart';
 export 'error_state_widget.dart';
 export 'gradient_button.dart';
-export 'label_chip.dart';
 export 'loading_widget.dart';
 export 'location/location_selector_sheet.dart';
 export 'luxury_app_bar.dart';
