@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/router/app_routes.dart';
-import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/onboarding/constants/onboarding_constants.dart';
 import 'package:equran_app/features/onboarding/data/onboarding_service.dart';
+import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_bottom_nav.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_1.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_2.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_3.dart';
@@ -102,7 +102,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0A2E1A),
+        backgroundColor: OnboardingColors.background,
         body: Column(
           children: [
             // PageView — mengisi sisa ruang
@@ -132,7 +132,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
             // Bottom nav — sembunyikan saat slide izin belum selesai
             if (_currentPage != 1 || _permissionRequested)
-              _BottomNav(
+              OnboardingBottomNav(
                 currentPage: _currentPage,
                 totalPages: _totalPages,
                 isLastPage: _currentPage == _totalPages - 1,
@@ -146,197 +146,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 onFinish: _finish,
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Bottom navigation
-// ---------------------------------------------------------------------------
-
-class _BottomNav extends StatelessWidget {
-  const _BottomNav({
-    required this.currentPage,
-    required this.totalPages,
-    required this.isLastPage,
-    required this.isPermissionSlide,
-    required this.permissionRequested,
-    required this.allPermissionsGranted,
-    required this.bottomPadding,
-    required this.onNext,
-    required this.onPrev,
-    required this.onSkip,
-    required this.onFinish,
-  });
-
-  final int currentPage;
-  final int totalPages;
-  final bool isLastPage;
-  final bool isPermissionSlide;
-  final bool permissionRequested;
-  final bool allPermissionsGranted;
-  final double bottomPadding;
-  final VoidCallback onNext;
-  final VoidCallback onPrev;
-  final VoidCallback onSkip;
-  final VoidCallback onFinish;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            const Color(0xFF0A2E1A).withValues(alpha: 0),
-            const Color(0xFF0A2E1A),
-          ],
-        ),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        AppDimens.pagePadding,
-        AppDimens.spaceLG,
-        AppDimens.pagePadding,
-        bottomPadding + AppDimens.spaceLG,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Dot indicators
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              totalPages,
-              (i) => AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.spaceXS,
-                ),
-                width: i == currentPage ? 24 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: i == currentPage
-                      ? AppColors.gold
-                      : AppColors.gold.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceMD),
-
-          // Buttons row
-          Row(
-            children: [
-              if (currentPage > 0) ...[
-                Expanded(
-                  child: _NavButton(
-                    label: 'Kembali',
-                    isPrimary: false,
-                    onTap: onPrev,
-                  ),
-                ),
-                const SizedBox(width: AppDimens.spaceMD),
-              ],
-              Expanded(
-                flex: currentPage > 0 ? 1 : 1,
-                child: isLastPage
-                    ? _NavButton(
-                        label: 'Mulai Sekarang',
-                        isPrimary: true,
-                        onTap: onFinish,
-                      )
-                    : isPermissionSlide && allPermissionsGranted
-                    ? _NavButton(
-                        label: 'Lewati',
-                        isPrimary: false,
-                        onTap: onSkip,
-                      )
-                    : _NavButton(
-                        label: 'Lanjut',
-                        isPrimary: true,
-                        onTap: onNext,
-                      ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Nav button
-// ---------------------------------------------------------------------------
-
-class _NavButton extends StatelessWidget {
-  const _NavButton({
-    required this.label,
-    required this.isPrimary,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isPrimary;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isPrimary) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.gold, AppColors.goldDark],
-            ),
-            borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.gold.withValues(alpha: 0.35),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.onGold,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              letterSpacing: 0.3,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
-          ),
         ),
       ),
     );
