@@ -50,17 +50,50 @@ class LastReadCard extends StatelessWidget {
                 ),
               ],
             ),
-            child: Stack(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _DecorativeCircles(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    _CardHeader(lastRead: lastRead, l10n: l10n),
-                    if (lastRead.totalAyat > 0)
-                      _ProgressSection(lastRead: lastRead)
-                    else
-                      const SizedBox(height: AppDimens.spaceMD),
+                    // Content
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _CardHeader(lastRead: lastRead, l10n: l10n),
+                        if (lastRead.totalAyat > 0)
+                          _ProgressSection(lastRead: lastRead)
+                        else
+                          const SizedBox(height: AppDimens.spaceMD),
+                      ],
+                    ),
+                    // Decorative circles
+                    Positioned(
+                      right: -12,
+                      top: -12,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.onPrimary.withValues(alpha: 0.05),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 20,
+                      top: -20,
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.onPrimary.withValues(alpha: 0.04),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -72,41 +105,7 @@ class LastReadCard extends StatelessWidget {
   }
 }
 
-class _DecorativeCircles extends StatelessWidget {
-  const _DecorativeCircles();
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          right: -12,
-          top: -12,
-          child: Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.onPrimary.withValues(alpha: 0.05),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 20,
-          top: -20,
-          child: Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.onPrimary.withValues(alpha: 0.04),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
+// Decorative circles now inlined in main Stack to avoid nested Stack issues
 
 class _CardHeader extends StatelessWidget {
   const _CardHeader({required this.lastRead, required this.l10n});

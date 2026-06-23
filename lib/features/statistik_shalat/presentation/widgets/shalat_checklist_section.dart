@@ -1,7 +1,9 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_card.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/widgets/shalat_status_buttons.dart';
 import 'package:flutter/material.dart';
 
@@ -18,11 +20,6 @@ class ShalatChecklistSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppDimens.pagePadding,
@@ -30,19 +27,10 @@ class ShalatChecklistSection extends StatelessWidget {
         AppDimens.pagePadding,
         AppDimens.spaceXS,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+      child: LuxuryCard(
+        radius: AppDimens.radiusXL,
+        hasShadow: true,
+        padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -66,9 +54,9 @@ class ShalatChecklistSection extends StatelessWidget {
                   ),
                   const SizedBox(width: AppDimens.spaceSM),
                   Text(
-                    'Shalat Hari Ini',
+                    StatistikShalatStrings.sectionChecklistHariIni,
                     style: AppTypography.serifHeadingSmall.copyWith(
-                      color: isDark
+                      color: context.isDark
                           ? AppColors.onSurfaceDark
                           : AppColors.textPrimary,
                       fontSize: 15,
@@ -84,7 +72,9 @@ class ShalatChecklistSection extends StatelessWidget {
               margin: const EdgeInsets.symmetric(
                 horizontal: AppDimens.cardPadding,
               ),
-              color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+              color: context.isDark
+                  ? AppColors.outlineDark
+                  : AppColors.outlineVariant,
             ),
 
             // Rows
@@ -92,7 +82,7 @@ class ShalatChecklistSection extends StatelessWidget {
               (waktu) => _ShalatRow(
                 waktu: waktu,
                 log: today.logFor(waktu),
-                isDark: isDark,
+                isDark: context.isDark,
                 onStatusChanged: (status) => onStatusChanged(waktu, status),
               ),
             ),

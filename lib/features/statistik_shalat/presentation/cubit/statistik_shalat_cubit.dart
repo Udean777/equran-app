@@ -1,8 +1,11 @@
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_stats.dart';
+import 'package:equran_app/features/statistik_shalat/domain/usecases/params/get_shalat_stats_params.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/save_shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -17,11 +20,13 @@ class StatistikShalatCubit extends Cubit<StatistikShalatState> {
     this._getShalatByDate,
     this._getShalatStats,
     this._saveShalatLog,
+    this._deleteShalatByDate,
   ) : super(const StatistikShalatState.initial());
 
   final GetShalatByDate _getShalatByDate;
   final GetShalatStats _getShalatStats;
   final SaveShalatLog _saveShalatLog;
+  final DeleteShalatByDate _deleteShalatByDate;
 
   static final _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -32,10 +37,15 @@ class StatistikShalatCubit extends Cubit<StatistikShalatState> {
     emit(const StatistikShalatState.loading());
 
     final today = _dateFormat.format(DateTime.now());
-    final last30 = _generateDateRange(today, 30);
+    final last30 = _generateDateRange(
+      today,
+      StatistikShalatConstants.statsDaysRange,
+    );
 
-    final todayResult = _getShalatByDate(today);
-    final statsResult = _getShalatStats(dates: last30, today: today);
+    final todayResult = await _getShalatByDate(today);
+    final statsResult = await _getShalatStats(
+      GetShalatStatsParams(dates: last30, today: today),
+    );
 
     todayResult.fold(
       (failure) => emit(StatistikShalatState.failure(failure.toUserMessage())),
@@ -93,6 +103,15 @@ class StatistikShalatCubit extends Cubit<StatistikShalatState> {
     );
 
     final result = await _saveShalatLog(log);
+    result.fold(
+      (failure) => emit(StatistikShalatState.failure(failure.toUserMessage())),
+      (_) => load(),
+    );
+  }
+
+  /// Hapus semua shalat untuk tanggal tertentu.
+  Future<void> deleteShalatForDate(String date) async {
+    final result = await _deleteShalatByDate(date);
     result.fold(
       (failure) => emit(StatistikShalatState.failure(failure.toUserMessage())),
       (_) => load(),

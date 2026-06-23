@@ -326,6 +326,10 @@ import 'package:equran_app/features/statistik_shalat/data/repositories/statistik
     as _i892;
 import 'package:equran_app/features/statistik_shalat/domain/repositories/statistik_shalat_repository.dart'
     as _i278;
+import 'package:equran_app/features/statistik_shalat/domain/services/shalat_stats_calculator.dart'
+    as _i17;
+import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart'
+    as _i533;
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date.dart'
     as _i696;
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date_range.dart'
@@ -790,6 +794,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i659.RecordQuranRead>(
       () => _i659.RecordQuranRead(gh<_i1011.QuranStreakRepository>()),
     );
+    gh.lazySingleton<_i17.ShalatStatsCalculator>(
+      () => _i17.ShalatStatsCalculator(gh<_i815.ShalatLogLocalDataSource>()),
+    );
     gh.lazySingleton<_i1042.GetJadwalShalat>(
       () => _i1042.GetJadwalShalat(gh<_i414.JadwalShalatRepository>()),
     );
@@ -818,14 +825,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i206.ImsakAlarmScheduler>(
       () => _i420.ImsakAlarmSchedulerImpl(gh<_i175.NotificationService>()),
     );
+    gh.lazySingleton<_i533.DeleteShalatByDate>(
+      () => _i533.DeleteShalatByDate(gh<_i278.StatistikShalatRepository>()),
+    );
     gh.lazySingleton<_i696.GetShalatByDate>(
       () => _i696.GetShalatByDate(gh<_i278.StatistikShalatRepository>()),
     );
     gh.lazySingleton<_i302.GetShalatByDateRange>(
       () => _i302.GetShalatByDateRange(gh<_i278.StatistikShalatRepository>()),
-    );
-    gh.lazySingleton<_i525.GetShalatStats>(
-      () => _i525.GetShalatStats(gh<_i278.StatistikShalatRepository>()),
     );
     gh.lazySingleton<_i413.SaveShalatLog>(
       () => _i413.SaveShalatLog(gh<_i278.StatistikShalatRepository>()),
@@ -893,6 +900,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i107.SuratLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i525.GetShalatStats>(
+      () => _i525.GetShalatStats(
+        gh<_i815.ShalatLogLocalDataSource>(),
+        gh<_i17.ShalatStatsCalculator>(),
+      ),
+    );
     gh.lazySingleton<_i485.TafsirRepository>(
       () => _i734.TafsirRepositoryImpl(
         gh<_i713.TafsirRemoteDataSource>(),
@@ -934,19 +947,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i960.SaveAyatReadBatch>(
       () => _i960.SaveAyatReadBatch(gh<_i203.ReadingProgressRepository>()),
     );
-    gh.factory<_i265.StatistikShalatCubit>(
-      () => _i265.StatistikShalatCubit(
-        gh<_i696.GetShalatByDate>(),
-        gh<_i525.GetShalatStats>(),
-        gh<_i413.SaveShalatLog>(),
-      ),
-    );
     gh.lazySingleton<_i1068.TasbihCubit>(
       () => _i1068.TasbihCubit(
         gh<_i998.GetTasbihSessions>(),
         gh<_i259.SaveTasbihSession>(),
         gh<_i1029.DeleteTasbihSession>(),
         gh<_i603.ClearTasbihSessions>(),
+      ),
+    );
+    gh.factory<_i265.StatistikShalatCubit>(
+      () => _i265.StatistikShalatCubit(
+        gh<_i696.GetShalatByDate>(),
+        gh<_i525.GetShalatStats>(),
+        gh<_i413.SaveShalatLog>(),
+        gh<_i533.DeleteShalatByDate>(),
       ),
     );
     gh.factory<_i665.PauseAudio>(
