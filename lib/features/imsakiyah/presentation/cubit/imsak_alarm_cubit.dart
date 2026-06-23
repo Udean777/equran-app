@@ -1,10 +1,9 @@
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
+import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_imsak_alarm_prefs.dart';
-import 'package:equran_app/features/imsakiyah/notifications/imsak_alarm_config.dart';
-import 'package:equran_app/features/imsakiyah/notifications/imsak_alarm_scheduler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27,8 +26,11 @@ class ImsakAlarmCubit extends Cubit<ImsakAlarmState> {
 
   /// Load preferensi alarm dari Hive.
   Future<void> load() async {
-    final prefs = await _getPrefs();
-    emit(ImsakAlarmState.loaded(prefs: prefs));
+    final result = await _getPrefs();
+    result.fold(
+      (_) => emit(const ImsakAlarmState.loaded(prefs: ImsakAlarmPrefs())),
+      (prefs) => emit(ImsakAlarmState.loaded(prefs: prefs)),
+    );
   }
 
   /// Toggle alarm imsak on/off, lalu reschedule jika [entry] tersedia.
@@ -82,18 +84,12 @@ class ImsakAlarmCubit extends Cubit<ImsakAlarmState> {
     emit(ImsakAlarmState.loaded(prefs: prefs));
 
     if (entry != null) {
-      final config = ImsakAlarmConfig(
-        imsakEnabled: prefs.imsakEnabled,
-        sahurEnabled: prefs.sahurEnabled,
-        menitSebelumImsak: prefs.menitSebelumImsak,
-      );
       try {
-        await _scheduler.scheduleForToday(entry, config);
+        await _scheduler.scheduleForToday(entry, prefs);
       } on Object catch (e) {
         debugPrint('ImsakAlarmCubit: schedule error: $e');
       }
     } else {
-      // Tidak ada entry → cancel semua alarm imsak/sahur
       await _scheduler.cancelAll();
     }
   }

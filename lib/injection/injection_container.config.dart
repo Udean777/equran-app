@@ -162,14 +162,24 @@ import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cu
     as _i739;
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart'
     as _i939;
-import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_local_data_source.dart'
-    as _i555;
+import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_cache_data_source.dart'
+    as _i762;
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_remote_data_source.dart'
     as _i575;
+import 'package:equran_app/features/imsakiyah/data/repositories/imsak_alarm_repository_impl.dart'
+    as _i320;
+import 'package:equran_app/features/imsakiyah/data/repositories/imsakiyah_location_repository_impl.dart'
+    as _i965;
 import 'package:equran_app/features/imsakiyah/data/repositories/imsakiyah_repository_impl.dart'
     as _i648;
+import 'package:equran_app/features/imsakiyah/domain/repositories/imsak_alarm_repository.dart'
+    as _i49;
+import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_location_repository.dart'
+    as _i395;
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart'
     as _i36;
+import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart'
+    as _i206;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart'
     as _i395;
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart'
@@ -518,6 +528,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i778.RemoveBookmark>(
       () => _i778.RemoveBookmark(gh<_i182.BookmarkRepository>()),
     );
+    gh.lazySingleton<_i49.ImsakAlarmRepository>(
+      () => _i320.ImsakAlarmRepositoryImpl(
+        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
     gh.lazySingleton<_i425.DeleteAllAudio>(
       () => _i425.DeleteAllAudio(gh<_i965.AudioDownloadRepository>()),
     );
@@ -530,8 +545,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i232.GetDownloadedAyats>(
       () => _i232.GetDownloadedAyats(gh<_i965.AudioDownloadRepository>()),
     );
+    gh.lazySingleton<_i395.ImsakiyahLocationRepository>(
+      () => _i965.ImsakiyahLocationRepositoryImpl(
+        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
+      ),
+    );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioCompositeHandler>()),
+    );
+    gh.lazySingleton<_i762.ImsakiyahCacheDataSource>(
+      () => _i762.ImsakiyahCacheDataSourceImpl(
+        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
+      ),
     );
     gh.lazySingleton<_i264.JadwalShalatRemoteDataSource>(
       () => _i264.JadwalShalatRemoteDataSourceImpl(gh<_i870.DioClient>()),
@@ -542,16 +567,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i175.NotificationService>(
       () => _i175.NotificationService(
         gh<_i163.FlutterLocalNotificationsPlugin>(),
-      ),
-    );
-    gh.lazySingleton<_i395.GetImsakAlarmPrefs>(
-      () => _i395.GetImsakAlarmPrefs(
-        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
-      ),
-    );
-    gh.lazySingleton<_i578.SaveImsakAlarmPrefs>(
-      () => _i578.SaveImsakAlarmPrefs(
-        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
       ),
     );
     gh.lazySingleton<_i575.ImsakiyahRemoteDataSource>(
@@ -573,11 +588,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i419.TasbihRepository>(
       () => _i940.TasbihRepositoryImpl(gh<_i415.TasbihLocalDataSource>()),
     );
-    gh.lazySingleton<_i555.ImsakiyahLocalDataSource>(
-      () => _i555.ImsakiyahLocalDataSourceImpl(
-        gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
-      ),
-    );
     gh.lazySingleton<_i553.DoaBookmarkDataSource>(
       () => _i553.DoaBookmarkDataSourceImpl(
         gh<_i738.Box<String>>(instanceName: 'doaBookmarkBox'),
@@ -593,9 +603,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i702.HafalanReminderScheduler>(
       () => _i702.HafalanReminderScheduler(gh<_i175.NotificationService>()),
-    );
-    gh.lazySingleton<_i420.ImsakAlarmScheduler>(
-      () => _i420.ImsakAlarmScheduler(gh<_i175.NotificationService>()),
     );
     gh.lazySingleton<_i76.ShalatNotificationScheduler>(
       () => _i76.ShalatNotificationScheduler(gh<_i175.NotificationService>()),
@@ -630,6 +637,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'shalatBox'),
       ),
     );
+    gh.lazySingleton<_i387.GetLastLocationImsakiyah>(
+      () => _i387.GetLastLocationImsakiyah(
+        gh<_i395.ImsakiyahLocationRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i1070.SaveLastLocationImsakiyah>(
+      () => _i1070.SaveLastLocationImsakiyah(
+        gh<_i395.ImsakiyahLocationRepository>(),
+      ),
+    );
     gh.factory<_i146.AudioDownloadCubit>(
       () => _i146.AudioDownloadCubit(
         gh<_i434.DownloadAyatAudio>(),
@@ -654,6 +671,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i892.StatistikShalatRepositoryImpl(
         gh<_i815.ShalatLogLocalDataSource>(),
       ),
+    );
+    gh.lazySingleton<_i395.GetImsakAlarmPrefs>(
+      () => _i395.GetImsakAlarmPrefs(gh<_i49.ImsakAlarmRepository>()),
+    );
+    gh.lazySingleton<_i578.SaveImsakAlarmPrefs>(
+      () => _i578.SaveImsakAlarmPrefs(gh<_i49.ImsakAlarmRepository>()),
     );
     gh.lazySingleton<_i357.ReadingProgressLocalDataSource>(
       () => _i357.ReadingProgressLocalDataSourceImpl(
@@ -711,10 +734,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'hafalanBox'),
       ),
     );
+    gh.lazySingleton<_i36.ImsakiyahRepository>(
+      () => _i648.ImsakiyahRepositoryImpl(
+        gh<_i575.ImsakiyahRemoteDataSource>(),
+        gh<_i762.ImsakiyahCacheDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i203.ReadingProgressRepository>(
       () => _i403.ReadingProgressRepositoryImpl(
         gh<_i607.ReadingHistoryLocalDataSource>(),
       ),
+    );
+    gh.lazySingleton<_i206.ImsakAlarmScheduler>(
+      () => _i420.ImsakAlarmSchedulerImpl(gh<_i175.NotificationService>()),
     );
     gh.lazySingleton<_i696.GetShalatByDate>(
       () => _i696.GetShalatByDate(gh<_i278.StatistikShalatRepository>()),
@@ -728,23 +760,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i413.SaveShalatLog>(
       () => _i413.SaveShalatLog(gh<_i278.StatistikShalatRepository>()),
     );
-    gh.factory<_i12.ImsakAlarmCubit>(
-      () => _i12.ImsakAlarmCubit(
-        gh<_i395.GetImsakAlarmPrefs>(),
-        gh<_i578.SaveImsakAlarmPrefs>(),
-        gh<_i420.ImsakAlarmScheduler>(),
-      ),
-    );
     gh.singleton<_i451.AudioRepository>(
       () => _i550.AudioRepositoryImpl(
         gh<_i945.AudioPlayerDataSource>(),
         gh<_i503.AudioDownloadDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i36.ImsakiyahRepository>(
-      () => _i648.ImsakiyahRepositoryImpl(
-        gh<_i575.ImsakiyahRemoteDataSource>(),
-        gh<_i555.ImsakiyahLocalDataSource>(),
       ),
     );
     gh.lazySingleton<_i1019.LastReadRepository>(
@@ -878,6 +897,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i710.StopAudio>(
       () => _i710.StopAudio(gh<_i451.AudioRepository>()),
     );
+    gh.factory<_i12.ImsakAlarmCubit>(
+      () => _i12.ImsakAlarmCubit(
+        gh<_i395.GetImsakAlarmPrefs>(),
+        gh<_i578.SaveImsakAlarmPrefs>(),
+        gh<_i206.ImsakAlarmScheduler>(),
+      ),
+    );
     gh.singleton<_i69.QuranStreakCubit>(
       () => _i69.QuranStreakCubit(
         gh<_i458.GetStreakCount>(),
@@ -896,14 +922,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i815.GetKabkota>(
       () => _i815.GetKabkota(gh<_i36.ImsakiyahRepository>()),
     );
-    gh.lazySingleton<_i387.GetLastLocationImsakiyah>(
-      () => _i387.GetLastLocationImsakiyah(gh<_i36.ImsakiyahRepository>()),
-    );
     gh.lazySingleton<_i410.GetProvinsi>(
       () => _i410.GetProvinsi(gh<_i36.ImsakiyahRepository>()),
-    );
-    gh.lazySingleton<_i1070.SaveLastLocationImsakiyah>(
-      () => _i1070.SaveLastLocationImsakiyah(gh<_i36.ImsakiyahRepository>()),
     );
     gh.factory<_i438.SuratDetailCubit>(
       () => _i438.SuratDetailCubit(gh<_i115.GetSuratDetail>()),

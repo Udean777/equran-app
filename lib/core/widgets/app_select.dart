@@ -4,7 +4,6 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:flutter/material.dart';
 
-/// Model representasi dari satu opsi pada [AppSelect].
 class AppSelectOption<T> {
   const AppSelectOption({
     required this.value,
@@ -17,7 +16,6 @@ class AppSelectOption<T> {
   final IconData? icon;
 }
 
-/// Widget custom select / dropdown selector dengan desain luxury premium.
 class AppSelect<T> extends StatelessWidget {
   const AppSelect({
     required this.title,
@@ -40,7 +38,7 @@ class AppSelect<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final currentOption = options.cast<AppSelectOption<T>?>().firstWhere(
       (opt) => opt?.value == selectedValue,

@@ -5,7 +5,7 @@ import 'package:equran_app/features/imsakiyah/data/models/imsakiyah_dto.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
 
-abstract interface class ImsakiyahLocalDataSource {
+abstract interface class ImsakiyahCacheDataSource {
   Future<List<String>?> getCachedProvinsi();
   Future<void> cacheProvinsi(List<String> provinsi);
 
@@ -14,26 +14,18 @@ abstract interface class ImsakiyahLocalDataSource {
 
   Future<ImsakiyahDto?> getCachedImsakiyah(String provinsi, String kabkota);
   Future<void> cacheImsakiyah(ImsakiyahDto dto);
-
-  Future<String?> getLastProvinsi();
-  Future<void> saveLastProvinsi(String provinsi);
-  Future<String?> getLastKabkota();
-  Future<void> saveLastKabkota(String kabkota);
 }
 
-@LazySingleton(as: ImsakiyahLocalDataSource)
-class ImsakiyahLocalDataSourceImpl implements ImsakiyahLocalDataSource {
-  const ImsakiyahLocalDataSourceImpl(
+@LazySingleton(as: ImsakiyahCacheDataSource)
+class ImsakiyahCacheDataSourceImpl implements ImsakiyahCacheDataSource {
+  const ImsakiyahCacheDataSourceImpl(
     @Named('imsakiyahBox') this._box,
   );
 
   final Box<String> _box;
 
   static const _provinsiKey = 'provinsi_list';
-  static const _lastProvinsiKey = 'last_provinsi';
-  static const _lastKabkotaKey = 'last_kabkota';
 
-  // Cache TTL: 30 hari untuk provinsi/kabkota, 1 hari untuk jadwal
   static const _longTtl = Duration(days: 30);
   static const _shortTtl = Duration(days: 1);
 
@@ -112,18 +104,4 @@ class ImsakiyahLocalDataSourceImpl implements ImsakiyahLocalDataSource {
     );
     await _box.put(_imsakiyahKey(dto.provinsi, dto.kabkota), entry.encode());
   }
-
-  @override
-  Future<String?> getLastProvinsi() async => _box.get(_lastProvinsiKey);
-
-  @override
-  Future<void> saveLastProvinsi(String provinsi) async =>
-      _box.put(_lastProvinsiKey, provinsi);
-
-  @override
-  Future<String?> getLastKabkota() async => _box.get(_lastKabkotaKey);
-
-  @override
-  Future<void> saveLastKabkota(String kabkota) async =>
-      _box.put(_lastKabkotaKey, kabkota);
 }

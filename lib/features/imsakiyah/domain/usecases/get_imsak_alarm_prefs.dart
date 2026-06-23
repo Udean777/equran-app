@@ -1,26 +1,16 @@
-import 'dart:convert';
-
+import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
-import 'package:hive_ce/hive.dart';
+import 'package:equran_app/features/imsakiyah/domain/repositories/imsak_alarm_repository.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
-class GetImsakAlarmPrefs {
-  const GetImsakAlarmPrefs(@Named('imsakiyahBox') this._box);
+class GetImsakAlarmPrefs implements UseCaseNoParams<ImsakAlarmPrefs> {
+  const GetImsakAlarmPrefs(this._repository);
 
-  final Box<String> _box;
+  final ImsakAlarmRepository _repository;
 
-  static const _key = 'imsak_alarm_prefs';
-
-  Future<ImsakAlarmPrefs> call() async {
-    try {
-      final raw = _box.get(_key);
-      if (raw == null) return const ImsakAlarmPrefs();
-      return ImsakAlarmPrefs.fromJson(
-        jsonDecode(raw) as Map<String, dynamic>,
-      );
-    } on Object catch (_) {
-      return const ImsakAlarmPrefs();
-    }
-  }
+  @override
+  Future<Either<Failure, ImsakAlarmPrefs>> call() => _repository.getPrefs();
 }

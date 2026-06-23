@@ -1,30 +1,30 @@
 import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/utils/time_parsing.dart';
+import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
-import 'package:equran_app/features/imsakiyah/notifications/imsak_alarm_config.dart';
+import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-@lazySingleton
-class ImsakAlarmScheduler {
-  ImsakAlarmScheduler(this._notificationService);
+@LazySingleton(as: ImsakAlarmScheduler)
+class ImsakAlarmSchedulerImpl implements ImsakAlarmScheduler {
+  ImsakAlarmSchedulerImpl(this._notificationService);
 
   final NotificationService _notificationService;
 
   /// Schedule alarm imsak dan/atau sahur untuk hari ini
-  /// berdasarkan [entry] dan [config].
+  /// berdasarkan [entry] dan [prefs].
+  @override
   Future<void> scheduleForToday(
     ImsakiyahEntry entry,
-    ImsakAlarmConfig config,
+    ImsakAlarmPrefs prefs,
   ) async {
-    // Cancel alarm imsak & sahur lama sebelum reschedule
     await cancelAll();
 
-    // Alarm imsak — tepat di waktu imsak
-    if (config.imsakEnabled) {
+    if (prefs.imsakEnabled) {
       final scheduledTime = parseWaktu(
         date: DateTime.now(),
         waktuStr: entry.imsak,
@@ -48,12 +48,11 @@ class ImsakAlarmScheduler {
       }
     }
 
-    // Alarm sahur — [menitSebelumImsak] menit sebelum imsak
-    if (config.sahurEnabled) {
+    if (prefs.sahurEnabled) {
       final scheduledTime = parseWaktu(
         date: DateTime.now(),
         waktuStr: entry.imsak,
-        offsetMinutes: -config.menitSebelumImsak,
+        offsetMinutes: -prefs.menitSebelumImsak,
         rescheduleNextDayIfPast: true,
       );
 
@@ -62,12 +61,12 @@ class ImsakAlarmScheduler {
         await _scheduleAlarm(
           id: NotificationIds.sahur,
           title: 'Alarm Sahur',
-          body: 'Sahur sekarang! Imsak ${config.menitSebelumImsak} menit lagi',
+          body: 'Sahur sekarang! Imsak ${prefs.menitSebelumImsak} menit lagi',
           scheduledTime: scheduledTime,
         );
         debugPrint(
           'ImsakAlarmScheduler: scheduled sahur at $scheduledTime '
-          '(${config.menitSebelumImsak} menit sebelum imsak)',
+          '(${prefs.menitSebelumImsak} menit sebelum imsak)',
         );
       } else {
         debugPrint(
@@ -77,16 +76,11 @@ class ImsakAlarmScheduler {
     }
   }
 
-  /// Cancel alarm imsak (ID 6) dan sahur (ID 7).
-  /// Tidak mengganggu notifikasi shalat (ID 1–5) maupun reminder Quran (ID 10).
+  @override
   Future<void> cancelAll() async {
     await _notificationService.cancelById(NotificationIds.imsak);
     await _notificationService.cancelById(NotificationIds.sahur);
   }
-
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
 
   Future<void> _scheduleAlarm({
     required int id,

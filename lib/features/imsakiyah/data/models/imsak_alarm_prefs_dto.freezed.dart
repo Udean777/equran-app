@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'imsak_alarm_prefs.dart';
+part of 'imsak_alarm_prefs_dto.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -11,38 +11,41 @@ part of 'imsak_alarm_prefs.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
+
 /// @nodoc
-mixin _$ImsakAlarmPrefs {
+mixin _$ImsakAlarmPrefsDto {
 
  bool get imsakEnabled; bool get sahurEnabled; int get menitSebelumImsak;
-/// Create a copy of ImsakAlarmPrefs
+/// Create a copy of ImsakAlarmPrefsDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ImsakAlarmPrefsCopyWith<ImsakAlarmPrefs> get copyWith => _$ImsakAlarmPrefsCopyWithImpl<ImsakAlarmPrefs>(this as ImsakAlarmPrefs, _$identity);
+$ImsakAlarmPrefsDtoCopyWith<ImsakAlarmPrefsDto> get copyWith => _$ImsakAlarmPrefsDtoCopyWithImpl<ImsakAlarmPrefsDto>(this as ImsakAlarmPrefsDto, _$identity);
 
+  /// Serializes this ImsakAlarmPrefsDto to a JSON map.
+  Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImsakAlarmPrefs&&(identical(other.imsakEnabled, imsakEnabled) || other.imsakEnabled == imsakEnabled)&&(identical(other.sahurEnabled, sahurEnabled) || other.sahurEnabled == sahurEnabled)&&(identical(other.menitSebelumImsak, menitSebelumImsak) || other.menitSebelumImsak == menitSebelumImsak));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImsakAlarmPrefsDto&&(identical(other.imsakEnabled, imsakEnabled) || other.imsakEnabled == imsakEnabled)&&(identical(other.sahurEnabled, sahurEnabled) || other.sahurEnabled == sahurEnabled)&&(identical(other.menitSebelumImsak, menitSebelumImsak) || other.menitSebelumImsak == menitSebelumImsak));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,imsakEnabled,sahurEnabled,menitSebelumImsak);
 
 @override
 String toString() {
-  return 'ImsakAlarmPrefs(imsakEnabled: $imsakEnabled, sahurEnabled: $sahurEnabled, menitSebelumImsak: $menitSebelumImsak)';
+  return 'ImsakAlarmPrefsDto(imsakEnabled: $imsakEnabled, sahurEnabled: $sahurEnabled, menitSebelumImsak: $menitSebelumImsak)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ImsakAlarmPrefsCopyWith<$Res>  {
-  factory $ImsakAlarmPrefsCopyWith(ImsakAlarmPrefs value, $Res Function(ImsakAlarmPrefs) _then) = _$ImsakAlarmPrefsCopyWithImpl;
+abstract mixin class $ImsakAlarmPrefsDtoCopyWith<$Res>  {
+  factory $ImsakAlarmPrefsDtoCopyWith(ImsakAlarmPrefsDto value, $Res Function(ImsakAlarmPrefsDto) _then) = _$ImsakAlarmPrefsDtoCopyWithImpl;
 @useResult
 $Res call({
  bool imsakEnabled, bool sahurEnabled, int menitSebelumImsak
@@ -53,14 +56,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$ImsakAlarmPrefsCopyWithImpl<$Res>
-    implements $ImsakAlarmPrefsCopyWith<$Res> {
-  _$ImsakAlarmPrefsCopyWithImpl(this._self, this._then);
+class _$ImsakAlarmPrefsDtoCopyWithImpl<$Res>
+    implements $ImsakAlarmPrefsDtoCopyWith<$Res> {
+  _$ImsakAlarmPrefsDtoCopyWithImpl(this._self, this._then);
 
-  final ImsakAlarmPrefs _self;
-  final $Res Function(ImsakAlarmPrefs) _then;
+  final ImsakAlarmPrefsDto _self;
+  final $Res Function(ImsakAlarmPrefsDto) _then;
 
-/// Create a copy of ImsakAlarmPrefs
+/// Create a copy of ImsakAlarmPrefsDto
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? imsakEnabled = null,Object? sahurEnabled = null,Object? menitSebelumImsak = null,}) {
   return _then(_self.copyWith(
@@ -74,8 +77,8 @@ as int,
 }
 
 
-/// Adds pattern-matching-related methods to [ImsakAlarmPrefs].
-extension ImsakAlarmPrefsPatterns on ImsakAlarmPrefs {
+/// Adds pattern-matching-related methods to [ImsakAlarmPrefsDto].
+extension ImsakAlarmPrefsDtoPatterns on ImsakAlarmPrefsDto {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -88,10 +91,10 @@ extension ImsakAlarmPrefsPatterns on ImsakAlarmPrefs {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ImsakAlarmPrefs value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ImsakAlarmPrefsDto value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _ImsakAlarmPrefs() when $default != null:
+case _ImsakAlarmPrefsDto() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -110,10 +113,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ImsakAlarmPrefs value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ImsakAlarmPrefsDto value)  $default,){
 final _that = this;
 switch (_that) {
-case _ImsakAlarmPrefs():
+case _ImsakAlarmPrefsDto():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -131,10 +134,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ImsakAlarmPrefs value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ImsakAlarmPrefsDto value)?  $default,){
 final _that = this;
 switch (_that) {
-case _ImsakAlarmPrefs() when $default != null:
+case _ImsakAlarmPrefsDto() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -154,7 +157,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool imsakEnabled,  bool sahurEnabled,  int menitSebelumImsak)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _ImsakAlarmPrefs() when $default != null:
+case _ImsakAlarmPrefsDto() when $default != null:
 return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);case _:
   return orElse();
 
@@ -175,7 +178,7 @@ return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);c
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool imsakEnabled,  bool sahurEnabled,  int menitSebelumImsak)  $default,) {final _that = this;
 switch (_that) {
-case _ImsakAlarmPrefs():
+case _ImsakAlarmPrefsDto():
 return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);case _:
   throw StateError('Unexpected subclass');
 
@@ -195,7 +198,7 @@ return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);c
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool imsakEnabled,  bool sahurEnabled,  int menitSebelumImsak)?  $default,) {final _that = this;
 switch (_that) {
-case _ImsakAlarmPrefs() when $default != null:
+case _ImsakAlarmPrefsDto() when $default != null:
 return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);case _:
   return null;
 
@@ -205,44 +208,47 @@ return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);c
 }
 
 /// @nodoc
+@JsonSerializable()
 
-
-class _ImsakAlarmPrefs implements ImsakAlarmPrefs {
-  const _ImsakAlarmPrefs({this.imsakEnabled = false, this.sahurEnabled = false, this.menitSebelumImsak = 60});
-  
+class _ImsakAlarmPrefsDto implements ImsakAlarmPrefsDto {
+  const _ImsakAlarmPrefsDto({this.imsakEnabled = false, this.sahurEnabled = false, this.menitSebelumImsak = 60});
+  factory _ImsakAlarmPrefsDto.fromJson(Map<String, dynamic> json) => _$ImsakAlarmPrefsDtoFromJson(json);
 
 @override@JsonKey() final  bool imsakEnabled;
 @override@JsonKey() final  bool sahurEnabled;
 @override@JsonKey() final  int menitSebelumImsak;
 
-/// Create a copy of ImsakAlarmPrefs
+/// Create a copy of ImsakAlarmPrefsDto
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$ImsakAlarmPrefsCopyWith<_ImsakAlarmPrefs> get copyWith => __$ImsakAlarmPrefsCopyWithImpl<_ImsakAlarmPrefs>(this, _$identity);
+_$ImsakAlarmPrefsDtoCopyWith<_ImsakAlarmPrefsDto> get copyWith => __$ImsakAlarmPrefsDtoCopyWithImpl<_ImsakAlarmPrefsDto>(this, _$identity);
 
-
+@override
+Map<String, dynamic> toJson() {
+  return _$ImsakAlarmPrefsDtoToJson(this, );
+}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImsakAlarmPrefs&&(identical(other.imsakEnabled, imsakEnabled) || other.imsakEnabled == imsakEnabled)&&(identical(other.sahurEnabled, sahurEnabled) || other.sahurEnabled == sahurEnabled)&&(identical(other.menitSebelumImsak, menitSebelumImsak) || other.menitSebelumImsak == menitSebelumImsak));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImsakAlarmPrefsDto&&(identical(other.imsakEnabled, imsakEnabled) || other.imsakEnabled == imsakEnabled)&&(identical(other.sahurEnabled, sahurEnabled) || other.sahurEnabled == sahurEnabled)&&(identical(other.menitSebelumImsak, menitSebelumImsak) || other.menitSebelumImsak == menitSebelumImsak));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,imsakEnabled,sahurEnabled,menitSebelumImsak);
 
 @override
 String toString() {
-  return 'ImsakAlarmPrefs(imsakEnabled: $imsakEnabled, sahurEnabled: $sahurEnabled, menitSebelumImsak: $menitSebelumImsak)';
+  return 'ImsakAlarmPrefsDto(imsakEnabled: $imsakEnabled, sahurEnabled: $sahurEnabled, menitSebelumImsak: $menitSebelumImsak)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ImsakAlarmPrefsCopyWith<$Res> implements $ImsakAlarmPrefsCopyWith<$Res> {
-  factory _$ImsakAlarmPrefsCopyWith(_ImsakAlarmPrefs value, $Res Function(_ImsakAlarmPrefs) _then) = __$ImsakAlarmPrefsCopyWithImpl;
+abstract mixin class _$ImsakAlarmPrefsDtoCopyWith<$Res> implements $ImsakAlarmPrefsDtoCopyWith<$Res> {
+  factory _$ImsakAlarmPrefsDtoCopyWith(_ImsakAlarmPrefsDto value, $Res Function(_ImsakAlarmPrefsDto) _then) = __$ImsakAlarmPrefsDtoCopyWithImpl;
 @override @useResult
 $Res call({
  bool imsakEnabled, bool sahurEnabled, int menitSebelumImsak
@@ -253,17 +259,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$ImsakAlarmPrefsCopyWithImpl<$Res>
-    implements _$ImsakAlarmPrefsCopyWith<$Res> {
-  __$ImsakAlarmPrefsCopyWithImpl(this._self, this._then);
+class __$ImsakAlarmPrefsDtoCopyWithImpl<$Res>
+    implements _$ImsakAlarmPrefsDtoCopyWith<$Res> {
+  __$ImsakAlarmPrefsDtoCopyWithImpl(this._self, this._then);
 
-  final _ImsakAlarmPrefs _self;
-  final $Res Function(_ImsakAlarmPrefs) _then;
+  final _ImsakAlarmPrefsDto _self;
+  final $Res Function(_ImsakAlarmPrefsDto) _then;
 
-/// Create a copy of ImsakAlarmPrefs
+/// Create a copy of ImsakAlarmPrefsDto
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? imsakEnabled = null,Object? sahurEnabled = null,Object? menitSebelumImsak = null,}) {
-  return _then(_ImsakAlarmPrefs(
+  return _then(_ImsakAlarmPrefsDto(
 imsakEnabled: null == imsakEnabled ? _self.imsakEnabled : imsakEnabled // ignore: cast_nullable_to_non_nullable
 as bool,sahurEnabled: null == sahurEnabled ? _self.sahurEnabled : sahurEnabled // ignore: cast_nullable_to_non_nullable
 as bool,menitSebelumImsak: null == menitSebelumImsak ? _self.menitSebelumImsak : menitSebelumImsak // ignore: cast_nullable_to_non_nullable

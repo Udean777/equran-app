@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart';
@@ -215,18 +216,13 @@ class _AlarmCard extends StatelessWidget {
   }
 
   String _sahurTime(String imsak, int menit) {
-    try {
-      final parts = imsak.trim().split(':');
-      if (parts.length != 2) return '--:--';
-      final h = int.parse(parts[0]);
-      final m = int.parse(parts[1]);
-      final total = h * 60 + m - menit;
-      final hh = (total ~/ 60) % 24;
-      final mm = total % 60;
-      return '${hh.toString().padLeft(2, '0')}:${mm.abs().toString().padLeft(2, '0')}';
-    } on Object catch (_) {
-      return '--:--';
-    }
+    final parsed = parseWaktu(
+      date: DateTime.now(),
+      waktuStr: imsak,
+      offsetMinutes: -menit,
+    );
+    if (parsed == null) return '--:--';
+    return '${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}';
   }
 }
 

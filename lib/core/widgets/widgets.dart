@@ -1,11 +1,3 @@
-/// Barrel export untuk semua shared widgets di core.
-///
-/// Import satu baris untuk akses semua widget:
-/// ```dart
-/// import 'package:equran_app/core/widgets/widgets.dart';
-/// ```
-library;
-
 export 'active_filter_chip.dart';
 export 'app_drawer.dart';
 export 'app_logo.dart';
