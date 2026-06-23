@@ -1,24 +1,23 @@
 import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/utils/time_parsing.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_notif_config.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-@lazySingleton
-class ShalatNotificationScheduler {
-  ShalatNotificationScheduler(this._notificationService);
+@LazySingleton(as: IShalatNotificationScheduler)
+class ShalatNotificationSchedulerImpl implements IShalatNotificationScheduler {
+  ShalatNotificationSchedulerImpl(this._notificationService);
 
   final NotificationService _notificationService;
 
-  /// Schedule notifikasi untuk 10 hari ke depan
-  /// berdasarkan [entries] dan [config].
+  @override
   Future<void> scheduleForNextDays(
     List<ShalatScheduleEntry> entries,
-    ShalatNotifConfig config,
+    ShalatNotifPrefs prefs,
   ) async {
-    // Cancel semua alarm + notifikasi lama
     await cancelAll();
 
     var dayIndex = 0;
@@ -28,35 +27,35 @@ class ShalatNotificationScheduler {
           id: NotificationIds.subuh,
           nama: 'Subuh',
           waktu: entry.subuh,
-          enabled: config.subuh,
+          enabled: prefs.subuh,
           isSubuh: true,
         ),
         _WaktuShalat(
           id: NotificationIds.dzuhur,
           nama: 'Dzuhur',
           waktu: entry.dzuhur,
-          enabled: config.dzuhur,
+          enabled: prefs.dzuhur,
           isSubuh: false,
         ),
         _WaktuShalat(
           id: NotificationIds.ashar,
           nama: 'Ashar',
           waktu: entry.ashar,
-          enabled: config.ashar,
+          enabled: prefs.ashar,
           isSubuh: false,
         ),
         _WaktuShalat(
           id: NotificationIds.maghrib,
           nama: 'Maghrib',
           waktu: entry.maghrib,
-          enabled: config.maghrib,
+          enabled: prefs.maghrib,
           isSubuh: false,
         ),
         _WaktuShalat(
           id: NotificationIds.isya,
           nama: 'Isya',
           waktu: entry.isya,
-          enabled: config.isya,
+          enabled: prefs.isya,
           isSubuh: false,
         ),
       ];
@@ -67,17 +66,15 @@ class ShalatNotificationScheduler {
         final scheduledTime = parseWaktu(
           date: entry.date,
           waktuStr: waktu.waktu,
-          offsetMinutes: -config.menitSebelum,
+          offsetMinutes: -prefs.menitSebelum,
         );
 
         if (scheduledTime == null) continue;
 
-        // Jangan schedule untuk waktu yang sudah lewat (mencegah spam notif instan)
         if (scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
           continue;
         }
 
-        // Hindari bentrok ID dengan ID eksisting atau hari lain.
         final uniqueId = waktu.id + (dayIndex * 1000);
 
         await _notificationService.scheduleNotification(
@@ -92,7 +89,7 @@ class ShalatNotificationScheduler {
     }
   }
 
-  /// Cancel semua notifikasi adzan
+  @override
   Future<void> cancelAll() async {
     for (final baseId in [
       NotificationIds.subuh,
@@ -104,22 +101,17 @@ class ShalatNotificationScheduler {
       for (var day = 0; day < 60; day++) {
         await _notificationService.cancelById(baseId + (day * 1000));
       }
-      // Bersihkan ID lama yang mungkin masih terschedule
       await _notificationService.cancelById(baseId);
     }
   }
 
-  /// Cancel notifikasi untuk waktu shalat tertentu secara spesifik
+  @override
   Future<void> cancelById(int id) async {
     for (var day = 0; day < 60; day++) {
       await _notificationService.cancelById(id + (day * 1000));
     }
     await _notificationService.cancelById(id);
   }
-
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
 }
 
 class _WaktuShalat {

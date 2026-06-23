@@ -1,0 +1,42 @@
+import 'package:equatable/equatable.dart';
+import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/core/usecase/use_case.dart';
+import 'package:equran_app/features/notification_test/domain/repositories/notification_test_repository.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
+import 'package:timezone/timezone.dart' as tz;
+
+class ScheduleHafalanReminderParams extends Equatable {
+  const ScheduleHafalanReminderParams({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.scheduledTime,
+  });
+
+  final int id;
+  final String title;
+  final String body;
+  final tz.TZDateTime scheduledTime;
+
+  @override
+  List<Object?> get props => [id, title, body, scheduledTime];
+}
+
+@injectable
+class ScheduleHafalanReminder
+    implements UseCase<Unit, ScheduleHafalanReminderParams> {
+  const ScheduleHafalanReminder(this._repository);
+
+  final NotificationTestRepository _repository;
+
+  @override
+  Future<Either<Failure, Unit>> call(
+    ScheduleHafalanReminderParams params,
+  ) => _repository.scheduleHafalan(
+    id: params.id,
+    title: params.title,
+    body: params.body,
+    scheduledTime: params.scheduledTime,
+  );
+}

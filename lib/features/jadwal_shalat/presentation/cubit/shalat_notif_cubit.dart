@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/params/jadwal_shalat_params.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_notif_config.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +24,7 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
 
   final GetShalatNotifPrefs _getPrefs;
   final SaveShalatNotifPrefs _savePrefs;
-  final ShalatNotificationScheduler _scheduler;
+  final IShalatNotificationScheduler _scheduler;
   final GetJadwalShalat _getJadwal;
   final GetLastLocationShalat _getLastLocation;
 
@@ -78,10 +78,12 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
     // 3. Load jadwal bulan ini
     final now = DateTime.now();
     final jadwalResult = await _getJadwal(
-      provinsi: provinsi,
-      kabkota: kabkota,
-      bulan: now.month,
-      tahun: now.year,
+      GetJadwalShalatParams(
+        provinsi: provinsi,
+        kabkota: kabkota,
+        bulan: now.month,
+        tahun: now.year,
+      ),
     );
 
     jadwalResult.fold(
@@ -152,18 +154,9 @@ class ShalatNotifCubit extends Cubit<ShalatNotifPrefs> {
       return;
     }
 
-    final config = ShalatNotifConfig(
-      subuh: prefs.subuh,
-      dzuhur: prefs.dzuhur,
-      ashar: prefs.ashar,
-      maghrib: prefs.maghrib,
-      isya: prefs.isya,
-      menitSebelum: prefs.menitSebelum,
-    );
-
     _isRescheduling = true;
     try {
-      await _scheduler.scheduleForNextDays(_entries, config);
+      await _scheduler.scheduleForNextDays(_entries, prefs);
     } on Object catch (e) {
       debugPrint('ShalatNotifCubit: reschedule error: $e');
     } finally {

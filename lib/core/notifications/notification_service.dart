@@ -301,6 +301,109 @@ class NotificationService {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // NotificationDetails helpers
+  // ---------------------------------------------------------------------------
+
+  /// Notification details untuk notifikasi adzan.
+  NotificationDetails adzanNotificationDetails({required bool isSubuh}) {
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        isSubuh ? kAdzanSubuhChannelId : kAdzanChannelId,
+        'Adzan',
+        channelDescription: 'Notifikasi waktu shalat',
+        importance: Importance.max,
+        priority: Priority.high,
+        sound: RawResourceAndroidNotificationSound(
+          isSubuh ? 'adzan_subuh' : 'adzan',
+        ),
+      ),
+      iOS: const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+      ),
+    );
+  }
+
+  /// Notification details untuk alarm imsak.
+  NotificationDetails imsakNotificationDetails() {
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+        kImsakChannelId,
+        'Alarm Imsak & Sahur',
+        channelDescription: 'Alarm pengingat waktu imsak dan sahur Ramadan',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+      ),
+    );
+  }
+
+  /// Notification details untuk reminder baca Quran.
+  NotificationDetails quranReminderNotificationDetails() {
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+        kQuranReminderChannelId,
+        'Reminder Baca Quran',
+        channelDescription: 'Pengingat harian untuk membaca Al-Quran',
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+      ),
+    );
+  }
+
+  /// Notification details untuk reminder checklist shalat.
+  NotificationDetails checklistNotificationDetails() {
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+        NotificationIds.shalatChecklistChannelId,
+        'Reminder Checklist Shalat',
+        channelDescription: 'Pengingat untuk mencatat status shalat harian',
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+      ),
+    );
+  }
+
+  /// Notification details untuk reminder hafalan.
+  NotificationDetails hafalanNotificationDetails() {
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+        kHafalanChannelId,
+        'Pengingat Hafalan',
+        channelDescription: 'Pengingat jadwal murajaah hafalan Al-Quran',
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        presentBanner: true,
+        presentList: true,
+      ),
+    );
+  }
+
   /// Cancel notifikasi berdasarkan [id].
   Future<void> cancelById(int id) => _plugin.cancel(id);
 

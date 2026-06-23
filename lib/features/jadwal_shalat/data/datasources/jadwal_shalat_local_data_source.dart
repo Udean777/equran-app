@@ -19,11 +19,6 @@ abstract interface class JadwalShalatLocalDataSource {
     int tahun,
   );
   Future<void> cacheJadwalShalat(JadwalShalatDto dto);
-
-  Future<String?> getLastProvinsi();
-  Future<void> saveLastProvinsi(String provinsi);
-  Future<String?> getLastKabkota();
-  Future<void> saveLastKabkota(String kabkota);
 }
 
 @LazySingleton(as: JadwalShalatLocalDataSource)
@@ -35,8 +30,6 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
   final Box<String> _box;
 
   static const _provinsiKey = 'provinsi_list';
-  static const _lastProvinsiKey = 'last_provinsi';
-  static const _lastKabkotaKey = 'last_kabkota';
 
   // Cache TTL: 30 hari untuk provinsi/kabkota, 1 hari untuk jadwal
   static const _longTtl = Duration(days: 30);
@@ -122,18 +115,4 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
       entry.encode(),
     );
   }
-
-  @override
-  Future<String?> getLastProvinsi() async => _box.get(_lastProvinsiKey);
-
-  @override
-  Future<void> saveLastProvinsi(String provinsi) async =>
-      _box.put(_lastProvinsiKey, provinsi);
-
-  @override
-  Future<String?> getLastKabkota() async => _box.get(_lastKabkotaKey);
-
-  @override
-  Future<void> saveLastKabkota(String kabkota) async =>
-      _box.put(_lastKabkotaKey, kabkota);
 }

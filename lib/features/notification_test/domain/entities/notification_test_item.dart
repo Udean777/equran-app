@@ -1,28 +1,28 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+enum NotificationTestType {
+  adzanDirect,
+  adzanStop,
+  adzanNotification,
+  imsak,
+  sahur,
+  quranReminder,
+  checklist,
+  hafalan,
+}
 
-/// Model representing a single notification test trigger item
 class NotificationTestItem {
   const NotificationTestItem({
     required this.id,
-    required this.icon,
     required this.title,
     required this.subtitle,
-    required this.color,
-    required this.onTest,
-    this.duration,
+    required this.type,
   });
 
   final String id;
-  final IconData icon;
   final String title;
   final String subtitle;
-  final Color color;
-  final Future<void> Function() onTest;
-  final Duration? duration;
+  final NotificationTestType type;
 }
 
-/// Model representing a group/section of notification test triggers
 class NotificationTestSection {
   const NotificationTestSection({
     required this.label,

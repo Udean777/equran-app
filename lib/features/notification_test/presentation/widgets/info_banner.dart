@@ -3,12 +3,12 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
 class InfoBanner extends StatelessWidget {
-  const InfoBanner({required this.isDark, super.key});
-
-  final bool isDark;
+  const InfoBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
+
     return Container(
       padding: const EdgeInsets.all(AppDimens.cardPadding),
       decoration: BoxDecoration(
