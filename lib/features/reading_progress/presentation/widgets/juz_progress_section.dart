@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_strings.dart';
 import 'package:flutter/material.dart';
 
 /// Progress bar 30 juz Al-Quran.
@@ -55,7 +56,7 @@ class JuzProgressSection extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 Text(
-                  'Progress Per Juz',
+                  ReadingProgressStrings.progressPerJuz,
                   style: AppTypography.serifHeadingSmall.copyWith(
                     color: isDark
                         ? AppColors.onSurfaceDark

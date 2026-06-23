@@ -9,10 +9,10 @@ import 'package:intl/intl.dart';
 
 abstract interface class ReadingHistoryLocalDataSource {
   /// Ambil riwayat baca untuk tanggal tertentu.
-  ReadingHistory? getByDate(String date);
+  Future<ReadingHistory?> getByDate(String date);
 
   /// Ambil riwayat baca untuk range tanggal.
-  List<ReadingHistory> getByDateRange(List<String> dates);
+  Future<List<ReadingHistory>> getByDateRange(List<String> dates);
 
   /// Tambah ayat ke riwayat baca hari ini.
   /// [ayatId] format: 'suratNomor:ayatNomor' (contoh: '2:255')
@@ -28,7 +28,7 @@ abstract interface class ReadingHistoryLocalDataSource {
   Future<void> cleanupOldData(int retentionDays);
 
   /// Ambil semua tanggal yang punya data (sorted ascending).
-  List<String> getAllDates();
+  Future<List<String>> getAllDates();
 }
 
 @LazySingleton(as: ReadingHistoryLocalDataSource)
@@ -46,7 +46,7 @@ class ReadingHistoryLocalDataSourceImpl
   String _key(String date) => 'reading_$date';
 
   @override
-  ReadingHistory? getByDate(String date) {
+  Future<ReadingHistory?> getByDate(String date) async {
     try {
       final raw = _box.get(_key(date));
       if (raw == null) return null;
@@ -60,10 +60,10 @@ class ReadingHistoryLocalDataSourceImpl
   }
 
   @override
-  List<ReadingHistory> getByDateRange(List<String> dates) {
+  Future<List<ReadingHistory>> getByDateRange(List<String> dates) async {
     final result = <ReadingHistory>[];
     for (final date in dates) {
-      final history = getByDate(date);
+      final history = await getByDate(date);
       if (history != null) result.add(history);
     }
     return result;
@@ -71,7 +71,7 @@ class ReadingHistoryLocalDataSourceImpl
 
   @override
   Future<void> saveAyat(String date, String ayatId) async {
-    final existing = getByDate(date);
+    final existing = await getByDate(date);
     final currentAyat = existing?.ayatRead ?? <String>{};
     if (currentAyat.contains(ayatId)) return; // sudah ada, skip
 
@@ -85,7 +85,7 @@ class ReadingHistoryLocalDataSourceImpl
   @override
   Future<void> saveAyatBatch(String date, Set<String> ayatIds) async {
     if (ayatIds.isEmpty) return;
-    final existing = getByDate(date);
+    final existing = await getByDate(date);
     final currentAyat = existing?.ayatRead ?? <String>{};
     final merged = {...currentAyat, ...ayatIds};
     if (merged.length == currentAyat.length) return; // tidak ada yang baru
@@ -119,7 +119,7 @@ class ReadingHistoryLocalDataSourceImpl
   }
 
   @override
-  List<String> getAllDates() {
+  Future<List<String>> getAllDates() async {
     return _box.keys
         .whereType<String>()
         .where((k) => k.startsWith('reading_'))

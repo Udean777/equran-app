@@ -1,7 +1,9 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/reading_progress/domain/constants/reading_progress_constants.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
+import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -12,7 +14,8 @@ class ReadingHeatmap extends StatelessWidget {
   final List<ReadingHistory> last90Days;
 
   static final _dayFormat = DateFormat('E', 'id_ID');
-  static const _thresholds = [0, 5, 15, 30, 50];
+  static const List<int> _thresholds =
+      ReadingProgressConstants.heatmapThresholds;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +66,7 @@ class ReadingHeatmap extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 Text(
-                  'Aktivitas Membaca (90 Hari)',
+                  ReadingProgressStrings.heatmapTitle,
                   style: AppTypography.serifHeadingSmall.copyWith(
                     color: isDark
                         ? AppColors.onSurfaceDark
@@ -121,7 +124,7 @@ class ReadingHeatmap extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  'Sedikit',
+                  ReadingProgressStrings.legendLow,
                   style: TextStyle(
                     fontSize: 10,
                     color: isDark
@@ -143,7 +146,7 @@ class ReadingHeatmap extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.spaceXS),
                 Text(
-                  'Banyak',
+                  ReadingProgressStrings.legendHigh,
                   style: TextStyle(
                     fontSize: 10,
                     color: isDark
@@ -177,10 +180,18 @@ class ReadingHeatmap extends StatelessWidget {
     if (count == 0) {
       return isDark ? AppColors.outlineDark : AppColors.outlineVariant;
     }
-    if (count < 5) return AppColors.primary.withValues(alpha: 0.2);
-    if (count < 15) return AppColors.primary.withValues(alpha: 0.4);
-    if (count < 30) return AppColors.primary.withValues(alpha: 0.65);
-    if (count < 50) return AppColors.primary.withValues(alpha: 0.85);
+    if (count < ReadingProgressConstants.heatmapThresholds[1]) {
+      return AppColors.primary.withValues(alpha: 0.2);
+    }
+    if (count < ReadingProgressConstants.heatmapThresholds[2]) {
+      return AppColors.primary.withValues(alpha: 0.4);
+    }
+    if (count < ReadingProgressConstants.heatmapThresholds[3]) {
+      return AppColors.primary.withValues(alpha: 0.65);
+    }
+    if (count < ReadingProgressConstants.heatmapThresholds[4]) {
+      return AppColors.primary.withValues(alpha: 0.85);
+    }
     return AppColors.primary;
   }
 }

@@ -55,13 +55,15 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnknownFailure value)?  unknown,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnknownFailure value)?  unknown,TResult Function( StorageFailure value)?  storage,TResult Function( ParsingFailure value)?  parsing,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnknownFailure() when unknown != null:
-return unknown(_that);case _:
+return unknown(_that);case StorageFailure() when storage != null:
+return storage(_that);case ParsingFailure() when parsing != null:
+return parsing(_that);case _:
   return orElse();
 
 }
@@ -79,13 +81,15 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnknownFailure value)  unknown,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnknownFailure value)  unknown,required TResult Function( StorageFailure value)  storage,required TResult Function( ParsingFailure value)  parsing,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network(_that);case ServerFailure():
 return server(_that);case UnknownFailure():
-return unknown(_that);}
+return unknown(_that);case StorageFailure():
+return storage(_that);case ParsingFailure():
+return parsing(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -99,13 +103,15 @@ return unknown(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnknownFailure value)?  unknown,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnknownFailure value)?  unknown,TResult? Function( StorageFailure value)?  storage,TResult? Function( ParsingFailure value)?  parsing,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnknownFailure() when unknown != null:
-return unknown(_that);case _:
+return unknown(_that);case StorageFailure() when storage != null:
+return storage(_that);case ParsingFailure() when parsing != null:
+return parsing(_that);case _:
   return null;
 
 }
@@ -122,12 +128,14 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function( int statusCode)?  server,TResult Function( String message)?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  network,TResult Function( int statusCode)?  server,TResult Function( String message)?  unknown,TResult Function()?  storage,TResult Function()?  parsing,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network();case ServerFailure() when server != null:
 return server(_that.statusCode);case UnknownFailure() when unknown != null:
-return unknown(_that.message);case _:
+return unknown(_that.message);case StorageFailure() when storage != null:
+return storage();case ParsingFailure() when parsing != null:
+return parsing();case _:
   return orElse();
 
 }
@@ -145,12 +153,14 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function( int statusCode)  server,required TResult Function( String message)  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  network,required TResult Function( int statusCode)  server,required TResult Function( String message)  unknown,required TResult Function()  storage,required TResult Function()  parsing,}) {final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network();case ServerFailure():
 return server(_that.statusCode);case UnknownFailure():
-return unknown(_that.message);}
+return unknown(_that.message);case StorageFailure():
+return storage();case ParsingFailure():
+return parsing();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -164,12 +174,14 @@ return unknown(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function( int statusCode)?  server,TResult? Function( String message)?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  network,TResult? Function( int statusCode)?  server,TResult? Function( String message)?  unknown,TResult? Function()?  storage,TResult? Function()?  parsing,}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network();case ServerFailure() when server != null:
 return server(_that.statusCode);case UnknownFailure() when unknown != null:
-return unknown(_that.message);case _:
+return unknown(_that.message);case StorageFailure() when storage != null:
+return storage();case ParsingFailure() when parsing != null:
+return parsing();case _:
   return null;
 
 }
@@ -340,5 +352,69 @@ as String,
 
 
 }
+
+/// @nodoc
+
+
+class StorageFailure implements Failure {
+  const StorageFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StorageFailure);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.storage()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ParsingFailure implements Failure {
+  const ParsingFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParsingFailure);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.parsing()';
+}
+
+
+}
+
+
+
 
 // dart format on

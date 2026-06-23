@@ -12,6 +12,8 @@ extension FailureExtension on Failure {
       _ => 'Terjadi kesalahan (kode: $statusCode).',
     },
     unknown: (message) => 'Terjadi kesalahan yang tidak diketahui.',
+    storage: () => 'Gagal mengakses penyimpanan lokal.',
+    parsing: () => 'Data tidak dapat diproses.',
   );
 
   /// Pesan yang sudah dilokalisasi — gunakan ini di widget.
@@ -24,5 +26,8 @@ extension FailureExtension on Failure {
       _ => l10n.errorServer,
     },
     unknown: (_) => l10n.errorUnknown,
+    storage: () =>
+        'Gagal mengakses penyimpanan lokal.', // Bisa ditambah di app_en.arb / app_id.arb nanti
+    parsing: () => 'Data tidak dapat diproses.',
   );
 }

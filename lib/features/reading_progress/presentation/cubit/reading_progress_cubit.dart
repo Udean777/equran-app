@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/reading_progress/domain/constants/reading_progress_constants.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
 import 'package:equran_app/features/reading_progress/domain/usecases/cleanup_old_reading_data.dart';
 import 'package:equran_app/features/reading_progress/domain/usecases/get_reading_stats.dart';
-import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read.dart';
+import 'package:equran_app/features/reading_progress/domain/usecases/params/save_ayat_read_batch_params.dart';
+import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read_batch.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,7 +16,7 @@ import 'package:intl/intl.dart';
 part 'reading_progress_cubit.freezed.dart';
 part 'reading_progress_state.dart';
 
-@injectable
+@singleton
 class ReadingProgressCubit extends Cubit<ReadingProgressState>
     with WidgetsBindingObserver {
   ReadingProgressCubit(
@@ -35,13 +37,13 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState>
   /// Buffer ayat yang belum di-flush ke Hive.
   final _pendingAyat = <String, Set<String>>{};
 
-  /// Timer untuk auto-flush setiap 30 detik — safety net jika app di-kill.
+  /// Timer untuk auto-flush setiap autoFlushSeconds detik — safety net jika app di-kill.
   Timer? _autoFlushTimer;
 
   /// Mulai periodic auto-flush.
   void _startAutoFlush() {
     _autoFlushTimer = Timer.periodic(
-      const Duration(seconds: 30),
+      const Duration(seconds: ReadingProgressConstants.autoFlushSeconds),
       (_) => unawaited(flushBuffer()),
     );
   }
@@ -59,19 +61,16 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState>
   Future<void> load() async {
     emit(const ReadingProgressState.loading());
 
-    // Auto-cleanup data > 90 hari (fire and forget)
-    unawaited(_cleanupOldReadingData());
+    // Auto-cleanup data > retentionDays (fire and forget)
+    unawaited(_cleanupOldReadingData(ReadingProgressConstants.retentionDays));
 
     final today = _dateFormat.format(DateTime.now());
-    final result = _getReadingStats(today: today);
+    final result = await _getReadingStats(today);
 
-    final stats = result.getOrElse(
-      (failure) {
-        emit(ReadingProgressState.failure(failure.toUserMessage()));
-        return const ReadingStats();
-      },
+    result.fold(
+      (failure) => emit(ReadingProgressState.failure(failure.toUserMessage())),
+      (stats) => emit(ReadingProgressState.success(stats)),
     );
-    if (result.isRight()) emit(ReadingProgressState.success(stats));
   }
 
   /// Tambah ayat ke buffer. Dipanggil saat ayat masuk viewport.
@@ -91,7 +90,9 @@ class ReadingProgressCubit extends Cubit<ReadingProgressState>
     _pendingAyat.clear();
     for (final entry in snapshot.entries) {
       if (entry.value.isEmpty) continue;
-      await _saveAyatReadBatch(entry.key, entry.value);
+      await _saveAyatReadBatch(
+        SaveAyatReadBatchParams(date: entry.key, ayatIds: entry.value),
+      );
     }
   }
 

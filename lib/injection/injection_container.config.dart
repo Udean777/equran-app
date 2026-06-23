@@ -306,6 +306,8 @@ import 'package:equran_app/features/reading_progress/data/repositories/reading_p
     as _i403;
 import 'package:equran_app/features/reading_progress/domain/repositories/reading_progress_repository.dart'
     as _i203;
+import 'package:equran_app/features/reading_progress/domain/services/reading_stats_calculator.dart'
+    as _i972;
 import 'package:equran_app/features/reading_progress/domain/usecases/cleanup_old_reading_data.dart'
     as _i230;
 import 'package:equran_app/features/reading_progress/domain/usecases/get_reading_history_by_date.dart'
@@ -314,6 +316,8 @@ import 'package:equran_app/features/reading_progress/domain/usecases/get_reading
     as _i821;
 import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read.dart'
     as _i91;
+import 'package:equran_app/features/reading_progress/domain/usecases/save_ayat_read_batch.dart'
+    as _i960;
 import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart'
     as _i924;
 import 'package:equran_app/features/statistik_shalat/data/datasources/shalat_log_local_data_source.dart'
@@ -410,6 +414,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => notificationModule.flutterLocalNotificationsPlugin,
     );
     gh.lazySingleton<_i473.QiblaDataSource>(() => _i473.QiblaDataSource());
+    gh.lazySingleton<_i972.ReadingStatsCalculator>(
+      () => _i972.ReadingStatsCalculator(),
+    );
     gh.lazySingleton<_i503.AudioDownloadDataSource>(
       () => _i503.AudioDownloadDataSourceImpl(gh<_i870.DioClient>()),
     );
@@ -652,6 +659,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i247.WatchQiblaDirection>(
       () => _i247.WatchQiblaDirection(gh<_i480.QiblaRepository>()),
+    );
+    gh.lazySingleton<_i821.GetReadingStats>(
+      () => _i821.GetReadingStats(
+        gh<_i607.ReadingHistoryLocalDataSource>(),
+        gh<_i972.ReadingStatsCalculator>(),
+      ),
     );
     gh.lazySingleton<_i398.TafsirLocalDataSource>(
       () => _i398.TafsirLocalDataSourceImpl(
@@ -915,14 +928,11 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i251.GetReadingHistoryByDate(gh<_i203.ReadingProgressRepository>()),
     );
-    gh.lazySingleton<_i821.GetReadingStats>(
-      () => _i821.GetReadingStats(gh<_i203.ReadingProgressRepository>()),
-    );
     gh.lazySingleton<_i91.SaveAyatRead>(
       () => _i91.SaveAyatRead(gh<_i203.ReadingProgressRepository>()),
     );
-    gh.lazySingleton<_i91.SaveAyatReadBatch>(
-      () => _i91.SaveAyatReadBatch(gh<_i203.ReadingProgressRepository>()),
+    gh.lazySingleton<_i960.SaveAyatReadBatch>(
+      () => _i960.SaveAyatReadBatch(gh<_i203.ReadingProgressRepository>()),
     );
     gh.factory<_i265.StatistikShalatCubit>(
       () => _i265.StatistikShalatCubit(
@@ -1084,18 +1094,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i88.GetLastLocationShalat>(),
       ),
     );
-    gh.factory<_i924.ReadingProgressCubit>(
-      () => _i924.ReadingProgressCubit(
-        gh<_i821.GetReadingStats>(),
-        gh<_i91.SaveAyatReadBatch>(),
-        gh<_i230.CleanupOldReadingData>(),
-      ),
-    );
     gh.lazySingleton<_i552.DoaBookmarkCubit>(
       () => _i552.DoaBookmarkCubit(
         gh<_i254.GetDoaBookmarks>(),
         gh<_i107.ToggleDoaBookmark>(),
         gh<_i254.GetDoaList>(),
+      ),
+    );
+    gh.singleton<_i924.ReadingProgressCubit>(
+      () => _i924.ReadingProgressCubit(
+        gh<_i821.GetReadingStats>(),
+        gh<_i960.SaveAyatReadBatch>(),
+        gh<_i230.CleanupOldReadingData>(),
       ),
     );
     gh.factory<_i29.DeleteHafalanSurat>(
