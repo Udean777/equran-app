@@ -75,10 +75,9 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
           builder: (context, themeState) {
             return IconButton(
               icon: Icon(
-                themeState.map(
-                  light: (_) => Icons.dark_mode_outlined,
-                  dark: (_) => Icons.light_mode_outlined,
-                ),
+                themeState.isDark
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
                 color: contentColor,
               ),
               onPressed: () => context.read<ThemeCubit>().cycle(),

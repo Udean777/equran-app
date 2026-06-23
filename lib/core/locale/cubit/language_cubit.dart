@@ -9,6 +9,11 @@ part 'language_cubit.freezed.dart';
 
 const _languageKey = 'locale';
 
+/// Cubit untuk manage bahasa aplikasi (Bahasa Indonesia, English, Arabic).
+///
+/// State tersimpan di Hive [Box<String>] dengan key `locale`.
+/// Mendukung empat state: [LanguageId], [LanguageEn], [LanguageAr],
+/// dan [LanguageError] (jika operasi Hive gagal).
 @singleton
 class LanguageCubit extends Cubit<LanguageState> {
   LanguageCubit(@Named('settingsBox') this._box)
@@ -25,13 +30,34 @@ class LanguageCubit extends Cubit<LanguageState> {
     });
   }
 
+  /// Mengubah bahasa aktif dan menyimpan ke Hive.
+  ///
+  /// Jika [language] adalah [LanguageError], operasi dibatalkan.
+  /// Jika Hive gagal, emit [LanguageError] dengan pesan error.
   Future<void> changeLanguage(LanguageState language) async {
-    final code = switch (language) {
-      LanguageId() => 'id',
-      LanguageEn() => 'en',
-      LanguageAr() => 'ar',
-    };
-    await _box.put(_languageKey, code);
-    emit(language);
+    try {
+      if (language is LanguageError) return;
+
+      final code = switch (language) {
+        LanguageId() => 'id',
+        LanguageEn() => 'en',
+        LanguageAr() => 'ar',
+        LanguageError() => 'id',
+      };
+      await _box.put(_languageKey, code);
+      emit(language);
+    } on Object catch (e) {
+      emit(LanguageState.error('Gagal mengubah bahasa: $e'));
+    }
+  }
+
+  /// Reset bahasa ke default (Indonesia) dan hapus preferensi dari Hive.
+  Future<void> reset() async {
+    try {
+      await _box.delete(_languageKey);
+      emit(const LanguageState.id());
+    } on Object catch (e) {
+      emit(LanguageState.error('Gagal mereset bahasa: $e'));
+    }
   }
 }

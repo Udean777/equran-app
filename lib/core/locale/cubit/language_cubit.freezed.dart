@@ -55,13 +55,14 @@ extension LanguageStatePatterns on LanguageState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LanguageId value)?  id,TResult Function( LanguageEn value)?  en,TResult Function( LanguageAr value)?  ar,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LanguageId value)?  id,TResult Function( LanguageEn value)?  en,TResult Function( LanguageAr value)?  ar,TResult Function( LanguageError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LanguageId() when id != null:
 return id(_that);case LanguageEn() when en != null:
 return en(_that);case LanguageAr() when ar != null:
-return ar(_that);case _:
+return ar(_that);case LanguageError() when error != null:
+return error(_that);case _:
   return orElse();
 
 }
@@ -79,13 +80,14 @@ return ar(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LanguageId value)  id,required TResult Function( LanguageEn value)  en,required TResult Function( LanguageAr value)  ar,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LanguageId value)  id,required TResult Function( LanguageEn value)  en,required TResult Function( LanguageAr value)  ar,required TResult Function( LanguageError value)  error,}){
 final _that = this;
 switch (_that) {
 case LanguageId():
 return id(_that);case LanguageEn():
 return en(_that);case LanguageAr():
-return ar(_that);}
+return ar(_that);case LanguageError():
+return error(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -99,13 +101,14 @@ return ar(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LanguageId value)?  id,TResult? Function( LanguageEn value)?  en,TResult? Function( LanguageAr value)?  ar,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LanguageId value)?  id,TResult? Function( LanguageEn value)?  en,TResult? Function( LanguageAr value)?  ar,TResult? Function( LanguageError value)?  error,}){
 final _that = this;
 switch (_that) {
 case LanguageId() when id != null:
 return id(_that);case LanguageEn() when en != null:
 return en(_that);case LanguageAr() when ar != null:
-return ar(_that);case _:
+return ar(_that);case LanguageError() when error != null:
+return error(_that);case _:
   return null;
 
 }
@@ -122,12 +125,13 @@ return ar(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  id,TResult Function()?  en,TResult Function()?  ar,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  id,TResult Function()?  en,TResult Function()?  ar,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LanguageId() when id != null:
 return id();case LanguageEn() when en != null:
 return en();case LanguageAr() when ar != null:
-return ar();case _:
+return ar();case LanguageError() when error != null:
+return error(_that.message);case _:
   return orElse();
 
 }
@@ -145,12 +149,13 @@ return ar();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  id,required TResult Function()  en,required TResult Function()  ar,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  id,required TResult Function()  en,required TResult Function()  ar,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case LanguageId():
 return id();case LanguageEn():
 return en();case LanguageAr():
-return ar();}
+return ar();case LanguageError():
+return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -164,12 +169,13 @@ return ar();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  id,TResult? Function()?  en,TResult? Function()?  ar,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  id,TResult? Function()?  en,TResult? Function()?  ar,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case LanguageId() when id != null:
 return id();case LanguageEn() when en != null:
 return en();case LanguageAr() when ar != null:
-return ar();case _:
+return ar();case LanguageError() when error != null:
+return error(_that.message);case _:
   return null;
 
 }
@@ -272,5 +278,71 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class LanguageError implements LanguageState {
+  const LanguageError(this.message);
+  
+
+ final  String message;
+
+/// Create a copy of LanguageState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$LanguageErrorCopyWith<LanguageError> get copyWith => _$LanguageErrorCopyWithImpl<LanguageError>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LanguageError&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'LanguageState.error(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $LanguageErrorCopyWith<$Res> implements $LanguageStateCopyWith<$Res> {
+  factory $LanguageErrorCopyWith(LanguageError value, $Res Function(LanguageError) _then) = _$LanguageErrorCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$LanguageErrorCopyWithImpl<$Res>
+    implements $LanguageErrorCopyWith<$Res> {
+  _$LanguageErrorCopyWithImpl(this._self, this._then);
+
+  final LanguageError _self;
+  final $Res Function(LanguageError) _then;
+
+/// Create a copy of LanguageState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(LanguageError(
+null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
 
 // dart format on

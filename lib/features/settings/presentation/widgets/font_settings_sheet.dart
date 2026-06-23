@@ -5,12 +5,21 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Bottom sheet untuk mengatur ukuran font Arab & terjemahan,
-/// serta memilih jenis font Arab (Amiri / KFGQPC Uthmani).
+/// Bottom sheet untuk mengatur preferensi teks Al-Quran.
+///
+/// Memungkinkan user untuk:
+/// - Memilih jenis font Arab (Amiri atau KFGQPC Uthmani)
+/// - Mengatur ukuran font Arab (range: 18–40px)
+/// - Mengatur ukuran font terjemahan (range: 12–22px)
+///
+/// Menggunakan [QuranFontCubit] untuk manage state font.
+/// Menampilkan preview teks Arab dan terjemahan secara real-time.
 class FontSettingsSheet extends StatelessWidget {
   const FontSettingsSheet({super.key});
 
@@ -18,6 +27,12 @@ class FontSettingsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<QuranFontCubit, QuranFontState>(
       builder: (context, state) {
+        if (state.errorMessage != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showSettingsToast(context, state.errorMessage!, isSuccess: false);
+          });
+        }
+
         final cubit = context.read<QuranFontCubit>();
 
         return SafeArea(
@@ -38,7 +53,7 @@ class FontSettingsSheet extends StatelessWidget {
 
                 // Judul
                 Text(
-                  'Tampilan Teks',
+                  SettingsStrings.fontSettingsTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -47,7 +62,7 @@ class FontSettingsSheet extends StatelessWidget {
 
                 // ── Pilihan Font Arab ──────────────────────────────────────
                 Text(
-                  'Font Arab',
+                  SettingsStrings.fontArabicLabel,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
@@ -57,20 +72,26 @@ class FontSettingsSheet extends StatelessWidget {
                 Row(
                   children: [
                     _FontChip(
-                      label: 'Amiri',
+                      label: SettingsStrings.fontAmiri,
                       selected: state.arabicFontFamily == kFontAmiri,
                       onTap: () {
                         unawaited(cubit.setArabicFontFamily(kFontAmiri));
-                        showSettingsToast(context, 'Font Amiri digunakan');
+                        showSettingsToast(
+                          context,
+                          SettingsStrings.fontAmiriActive,
+                        );
                       },
                     ),
                     const SizedBox(width: AppDimens.spaceSM),
                     _FontChip(
-                      label: 'Uthmani',
+                      label: SettingsStrings.fontUthmani,
                       selected: state.arabicFontFamily == kFontKFGQPC,
                       onTap: () {
                         unawaited(cubit.setArabicFontFamily(kFontKFGQPC));
-                        showSettingsToast(context, 'Font Uthmani digunakan');
+                        showSettingsToast(
+                          context,
+                          SettingsStrings.fontUthmaniActive,
+                        );
                       },
                     ),
                   ],
@@ -93,7 +114,7 @@ class FontSettingsSheet extends StatelessWidget {
                     children: [
                       // Preview Arab
                       Text(
-                        'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                        SettingsStrings.previewArabic,
                         textAlign: TextAlign.right,
                         style: AppTypography.arabicDynamic(state).copyWith(
                           color: AppColors.primary,
@@ -102,7 +123,7 @@ class FontSettingsSheet extends StatelessWidget {
                       const SizedBox(height: AppDimens.spaceSM),
                       // Preview terjemahan
                       Text(
-                        'Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.',
+                        SettingsStrings.previewTranslation,
                         style: AppTypography.translationDynamic(state).copyWith(
                           color: Theme.of(
                             context,
@@ -116,28 +137,28 @@ class FontSettingsSheet extends StatelessWidget {
 
                 // ── Slider Ukuran Font Arab ────────────────────────────────
                 _FontSizeSlider(
-                  label: 'Ukuran Teks Arab',
+                  label: SettingsStrings.fontArabicSizeLabel,
                   value: state.arabicFontSize,
-                  min: 18,
-                  max: 40,
+                  min: SettingsConstants.minArabicFontSize,
+                  max: SettingsConstants.maxArabicFontSize,
                   onChanged: cubit.setArabicFontSize,
                   onChangeEnd: (v) => showSettingsToast(
                     context,
-                    'Ukuran teks Arab: ${v.round()}px',
+                    SettingsStrings.fontArabicSizeValue(v.round()),
                   ),
                 ),
                 const SizedBox(height: AppDimens.spaceMD),
 
                 // ── Slider Ukuran Font Terjemahan ──────────────────────────
                 _FontSizeSlider(
-                  label: 'Ukuran Terjemahan',
+                  label: SettingsStrings.fontTranslationSizeLabel,
                   value: state.translationFontSize,
-                  min: 12,
-                  max: 22,
+                  min: SettingsConstants.minTranslationFontSize,
+                  max: SettingsConstants.maxTranslationFontSize,
                   onChanged: cubit.setTranslationFontSize,
                   onChangeEnd: (v) => showSettingsToast(
                     context,
-                    'Ukuran terjemahan: ${v.round()}px',
+                    SettingsStrings.fontTranslationSizeValue(v.round()),
                   ),
                 ),
                 const SizedBox(height: AppDimens.spaceMD),
@@ -146,16 +167,24 @@ class FontSettingsSheet extends StatelessWidget {
                 Center(
                   child: TextButton.icon(
                     onPressed: () {
-                      unawaited(cubit.setArabicFontSize(28));
-                      unawaited(cubit.setTranslationFontSize(14));
+                      unawaited(
+                        cubit.setArabicFontSize(
+                          SettingsConstants.defaultArabicFontSize,
+                        ),
+                      );
+                      unawaited(
+                        cubit.setTranslationFontSize(
+                          SettingsConstants.defaultTranslationFontSize,
+                        ),
+                      );
                       unawaited(cubit.setArabicFontFamily(kFontAmiri));
                       showSettingsToast(
                         context,
-                        'Tampilan teks direset ke default',
+                        SettingsStrings.fontResetSuccess,
                       );
                     },
                     icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: const Text('Reset ke Default'),
+                    label: const Text(SettingsStrings.fontResetButton),
                     style: TextButton.styleFrom(
                       foregroundColor: context.isDark
                           ? AppColors.onSurfaceDarkVariant
@@ -177,6 +206,8 @@ class FontSettingsSheet extends StatelessWidget {
 // Private widgets
 // ---------------------------------------------------------------------------
 
+/// Chip selector untuk memilih jenis font Arab.
+/// Menampilkan label font dan merespons tap untuk mengubah [QuranFontCubit].
 class _FontChip extends StatelessWidget {
   const _FontChip({
     required this.label,
@@ -193,7 +224,9 @@ class _FontChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(
+          milliseconds: SettingsConstants.themeToggleAnimationMs,
+        ),
         padding: const EdgeInsets.symmetric(
           horizontal: AppDimens.spaceMD,
           vertical: AppDimens.spaceSM,
@@ -222,6 +255,8 @@ class _FontChip extends StatelessWidget {
   }
 }
 
+/// Slider untuk mengatur ukuran font dengan label dan nilai saat ini.
+/// Memanggil [onChanged] saat nilai berubah dan [onChangeEnd] saat selesai geser.
 class _FontSizeSlider extends StatelessWidget {
   const _FontSizeSlider({
     required this.label,

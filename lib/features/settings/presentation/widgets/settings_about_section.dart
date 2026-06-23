@@ -2,10 +2,16 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Section sumber data & API — card equran.id dengan link.
+/// Section informasi sumber data dan API yang digunakan aplikasi.
+///
+/// Menampilkan daftar sumber data beserta link yang dapat diklik:
+/// API Al-Quran, terjemahan Kemenag, jadwal shalat MyQuran, dan audio adzan.
+/// Link dibuka menggunakan [launchUrl] dari package `url_launcher`.
 class SettingsAboutSection extends StatelessWidget {
   const SettingsAboutSection({super.key});
 
@@ -38,8 +44,8 @@ class SettingsAboutSection extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: SettingsConstants.iconContainerSizeLarge,
+                  height: SettingsConstants.iconContainerSizeLarge,
                   decoration: BoxDecoration(
                     color: isDark
                         ? AppColors.primaryDark
@@ -63,19 +69,19 @@ class SettingsAboutSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sumber Data',
+                        SettingsStrings.aboutDataSourceTitle,
                         style: AppTypography.serifHeadingSmall.copyWith(
                           color: isDark
                               ? AppColors.onSurfaceDark
                               : AppColors.textPrimary,
-                          fontSize: 15,
+                          fontSize: SettingsConstants.fontSizeDisplay,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Data Al-Quran & Audio Pendukung',
+                        SettingsStrings.aboutDataSourceSubtitle,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: SettingsConstants.fontSizeSecondary,
                           color: isDark
                               ? AppColors.onSurfaceDarkVariant
                               : AppColors.textTertiary,
@@ -95,30 +101,30 @@ class SettingsAboutSection extends StatelessWidget {
 
             _LinkTile(
               icon: Icons.api_rounded,
-              label: 'API Al-Quran',
-              url: 'https://equran.id',
+              label: SettingsStrings.aboutEquranAPI,
+              url: SettingsStrings.aboutEquranURL,
               isDark: isDark,
             ),
             const SizedBox(height: AppDimens.spaceXS),
             _LinkTile(
               icon: Icons.translate_rounded,
-              label: 'Terjemahan Kemenag RI',
-              url: 'https://quran.kemenag.go.id',
+              label: SettingsStrings.aboutKemenagTranslation,
+              url: SettingsStrings.aboutKemenagURL,
               isDark: isDark,
             ),
             const SizedBox(height: AppDimens.spaceXS),
             _LinkTile(
               icon: Icons.location_on_outlined,
-              label: 'Jadwal Shalat MyQuran',
-              url: 'https://api.myquran.com',
+              label: SettingsStrings.aboutMyQuranAPI,
+              url: SettingsStrings.aboutMyQuranURL,
               isDark: isDark,
             ),
             const SizedBox(height: AppDimens.spaceXS),
             _LinkTile(
               icon: Icons.volume_up_outlined,
-              label: 'Audio Adzan (IslamDownload)',
-              url: 'https://islamdownload.net/123801-download-suara-adzan.html',
-              displayUrl: 'islamdownload.net',
+              label: SettingsStrings.aboutAdzanAudio,
+              url: SettingsStrings.aboutAdzanURL,
+              displayUrl: SettingsStrings.aboutAdzanDomain,
               isDark: isDark,
             ),
           ],
@@ -128,6 +134,10 @@ class SettingsAboutSection extends StatelessWidget {
   }
 }
 
+/// Tile yang dapat diklik untuk membuka URL eksternal.
+///
+/// Menampilkan ikon, label sumber data, dan domain URL.
+/// Menggunakan [launchUrl] untuk membuka browser.
 class _LinkTile extends StatelessWidget {
   const _LinkTile({
     required this.icon,
@@ -165,7 +175,7 @@ class _LinkTile extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: SettingsConstants.fontSizeSmall,
                   color: isDark
                       ? AppColors.onSurfaceDark
                       : AppColors.textPrimary,
@@ -175,7 +185,7 @@ class _LinkTile extends StatelessWidget {
             Text(
               displayUrl ?? url.replaceFirst('https://', ''),
               style: TextStyle(
-                fontSize: 11,
+                fontSize: SettingsConstants.fontSizeTertiary,
                 color: isDark ? AppColors.primaryLighter : AppColors.primary,
                 decoration: TextDecoration.underline,
                 decorationColor: isDark

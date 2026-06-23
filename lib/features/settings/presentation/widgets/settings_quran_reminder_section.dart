@@ -4,11 +4,17 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_reminder_cubit.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Section reminder baca Quran — toggle + jam reminder.
+/// Section pengaturan reminder harian membaca Al-Quran.
+///
+/// Menampilkan toggle aktif/nonaktif dan jam pengingat.
+/// Menggunakan `QuranReminderCubit` untuk manage state reminder.
+/// User dapat memilih waktu via system time picker.
 class SettingsQuranReminderSection extends StatelessWidget {
   const SettingsQuranReminderSection({super.key});
 
@@ -37,8 +43,8 @@ class SettingsQuranReminderSection extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: SettingsConstants.iconContainerSize,
+                    height: SettingsConstants.iconContainerSize,
                     decoration: BoxDecoration(
                       color: prefs.enabled
                           ? (isDark
@@ -67,19 +73,19 @@ class SettingsQuranReminderSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Aktifkan Reminder',
+                          SettingsStrings.quranReminderToggle,
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 14,
+                            fontSize: SettingsConstants.fontSizeMedium,
                             color: isDark
                                 ? AppColors.onSurfaceDark
                                 : AppColors.textPrimary,
                           ),
                         ),
                         Text(
-                          'Pengingat harian membaca Al-Quran',
+                          SettingsStrings.quranReminderSubtitle,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: SettingsConstants.fontSizeSecondary,
                             color: isDark
                                 ? AppColors.onSurfaceDarkVariant
                                 : AppColors.textTertiary,
@@ -95,8 +101,8 @@ class SettingsQuranReminderSection extends StatelessWidget {
                       showSettingsToast(
                         context,
                         prefs.enabled
-                            ? 'Reminder Quran dimatikan'
-                            : 'Reminder Quran aktif',
+                            ? SettingsStrings.quranReminderInactive
+                            : SettingsStrings.quranReminderActive,
                         isSuccess: !prefs.enabled,
                       );
                     },
@@ -136,8 +142,8 @@ class SettingsQuranReminderSection extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 36,
-                        height: 36,
+                        width: SettingsConstants.iconContainerSize,
+                        height: SettingsConstants.iconContainerSize,
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppColors.primaryDark
@@ -160,19 +166,19 @@ class SettingsQuranReminderSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Jam Reminder',
+                              SettingsStrings.quranReminderTimeLabel,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                                fontSize: SettingsConstants.fontSizeMedium,
                                 color: isDark
                                     ? AppColors.onSurfaceDark
                                     : AppColors.textPrimary,
                               ),
                             ),
                             Text(
-                              'Setiap hari pukul $timeLabel',
+                              SettingsStrings.quranReminderTimeValue(timeLabel),
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: SettingsConstants.fontSizeSecondary,
                                 color: isDark
                                     ? AppColors.onSurfaceDarkVariant
                                     : AppColors.textTertiary,
@@ -201,7 +207,7 @@ class SettingsQuranReminderSection extends StatelessWidget {
                                 ? AppColors.primaryLighter
                                 : AppColors.primary,
                             fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontSize: SettingsConstants.fontSizeMedium,
                           ),
                         ),
                       ),
@@ -216,6 +222,10 @@ class SettingsQuranReminderSection extends StatelessWidget {
     );
   }
 
+  /// Membuka dialog system time picker untuk memilih jam pengingat.
+  ///
+  /// Setelah user memilih waktu, memanggil `QuranReminderCubit.setTime`
+  /// dan menampilkan toast konfirmasi.
   Future<void> _pickTime(
     BuildContext context,
     QuranReminderPrefs prefs,
@@ -230,7 +240,10 @@ class SettingsQuranReminderSection extends StatelessWidget {
       if (context.mounted) {
         final hh = picked.hour.toString().padLeft(2, '0');
         final mm = picked.minute.toString().padLeft(2, '0');
-        showSettingsToast(context, 'Reminder diset pukul $hh:$mm');
+        showSettingsToast(
+          context,
+          SettingsStrings.quranReminderTimeChanged(hh, mm),
+        );
       }
     }
   }

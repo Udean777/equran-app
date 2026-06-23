@@ -3,11 +3,17 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Section tema tampilan — segmented button light/dark.
+/// Section pengaturan tema tampilan — pilihan light / dark mode.
+///
+/// Menampilkan dua [_ThemeChip] (Terang & Gelap) yang terhubung dengan
+/// [ThemeCubit]. Menangani error state dari [ThemeCubit] dengan menampilkan
+/// toast notifikasi.
 class SettingsThemeSection extends StatelessWidget {
   const SettingsThemeSection({super.key});
 
@@ -17,6 +23,12 @@ class SettingsThemeSection extends StatelessWidget {
 
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, themeState) {
+        if (themeState is ThemeError) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showSettingsToast(context, themeState.message, isSuccess: false);
+          });
+        }
+
         final selected = themeState.isDark ? 'dark' : 'light';
 
         return Padding(
@@ -27,8 +39,8 @@ class SettingsThemeSection extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: SettingsConstants.iconContainerSize,
+                    height: SettingsConstants.iconContainerSize,
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppColors.primaryDark
@@ -48,10 +60,10 @@ class SettingsThemeSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tema Tampilan',
+                        SettingsStrings.themeLabel,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                          fontSize: SettingsConstants.fontSizeMedium,
                           color: isDark
                               ? AppColors.onSurfaceDark
                               : AppColors.textPrimary,
@@ -60,7 +72,7 @@ class SettingsThemeSection extends StatelessWidget {
                       Text(
                         _themeLabel(selected),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: SettingsConstants.fontSizeSecondary,
                           color: isDark
                               ? AppColors.onSurfaceDarkVariant
                               : AppColors.textTertiary,
@@ -75,28 +87,34 @@ class SettingsThemeSection extends StatelessWidget {
                 children: [
                   _ThemeChip(
                     value: 'light',
-                    label: 'Terang',
+                    label: SettingsStrings.themeLight,
                     icon: Icons.light_mode_rounded,
                     isSelected: selected == 'light',
                     isDark: isDark,
                     onTap: () {
                       if (selected != 'light') {
                         unawaited(context.read<ThemeCubit>().cycle());
-                        showSettingsToast(context, 'Mode Terang aktif');
+                        showSettingsToast(
+                          context,
+                          SettingsStrings.themeLightActive,
+                        );
                       }
                     },
                   ),
                   const SizedBox(width: AppDimens.spaceSM),
                   _ThemeChip(
                     value: 'dark',
-                    label: 'Gelap',
+                    label: SettingsStrings.themeDark,
                     icon: Icons.dark_mode_rounded,
                     isSelected: selected == 'dark',
                     isDark: isDark,
                     onTap: () {
                       if (selected != 'dark') {
                         unawaited(context.read<ThemeCubit>().cycle());
-                        showSettingsToast(context, 'Mode Gelap aktif');
+                        showSettingsToast(
+                          context,
+                          SettingsStrings.themeDarkActive,
+                        );
                       }
                     },
                   ),
@@ -110,11 +128,15 @@ class SettingsThemeSection extends StatelessWidget {
   }
 
   String _themeLabel(String value) => switch (value) {
-    'dark' => 'Mode Gelap aktif',
-    _ => 'Mode Terang aktif',
+    'dark' => SettingsStrings.themeDarkActive,
+    _ => SettingsStrings.themeLightActive,
   };
 }
 
+/// Chip animated untuk memilih mode tema (Terang / Gelap).
+///
+/// Menampilkan ikon dan label mode, serta animasi warna berdasarkan
+/// [isSelected] menggunakan [AnimatedContainer].
 class _ThemeChip extends StatelessWidget {
   const _ThemeChip({
     required this.value,
@@ -138,7 +160,9 @@ class _ThemeChip extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(
+            milliseconds: SettingsConstants.themeToggleAnimationMs,
+          ),
           padding: const EdgeInsets.symmetric(
             vertical: AppDimens.spaceSM,
             horizontal: AppDimens.spaceXS,
@@ -172,7 +196,7 @@ class _ThemeChip extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: SettingsConstants.fontSizeTertiary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   color: isSelected
                       ? AppColors.onPrimary

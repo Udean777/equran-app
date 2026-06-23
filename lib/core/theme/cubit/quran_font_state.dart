@@ -19,5 +19,8 @@ sealed class QuranFontState with _$QuranFontState {
 
     /// Nama font Arab yang aktif. Salah satu dari [kFontAmiri] atau [kFontKFGQPC].
     @Default(kFontAmiri) String arabicFontFamily,
+
+    /// Error message jika operasi pada Hive gagal. Null = no error.
+    String? errorMessage,
   }) = _QuranFontState;
 }
