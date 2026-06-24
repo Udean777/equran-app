@@ -17,7 +17,7 @@ class CardViewGestureHandler {
   }
 
   late final AnimationController animController;
-  late final Animation<double> snapAnimation;
+  late Animation<double> snapAnimation;
   bool isAnimating = false;
 
   void dispose() {

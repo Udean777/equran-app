@@ -57,10 +57,9 @@ android {
             }
 
             // --- OPTIMASI: Aktifkan R8 code shrinking ---
-            // isShrinkResources dimatikan karena R8 me-rename res/raw/*.ogg
-            // sehingga custom notification sound tidak bisa di-resolve Android
+            // isShrinkResources dihidupkan, dan res/raw dilindungi oleh keep.xml
             isMinifyEnabled = true
-            isShrinkResources = false
+            isShrinkResources = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
