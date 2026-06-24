@@ -115,12 +115,11 @@ class CardStackController extends ChangeNotifier {
   @override
   void dispose() {
     // Reset semua state saat controller di-dispose untuk mencegah
-    // state tersisa saat kembali ke halaman sebelumnya
+    // state tersisa saat kembali ke halaman sebelumnya.
+    // JANGAN call notifyListeners() karena widget mungkin sudah defunct.
     _currentIndex = 0;
     _maxReachedIndex = 0;
     _dragOffset = 0;
-    // Notify listeners sehingga widget yang masih hidup bisa rebuild
-    notifyListeners();
     super.dispose();
   }
 
