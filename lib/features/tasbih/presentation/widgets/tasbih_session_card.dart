@@ -107,8 +107,8 @@ class TasbihSessionCard extends StatelessWidget {
                     dateStr,
                     style: TextStyle(
                       color: context.textTertiaryColor,
-                    fontSize: TasbihConstants.sessionMetaSize,
-                  ),
+                      fontSize: TasbihConstants.sessionMetaSize,
+                    ),
                   ),
                 ],
               ),

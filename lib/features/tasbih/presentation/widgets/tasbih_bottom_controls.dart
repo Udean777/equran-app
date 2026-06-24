@@ -35,7 +35,7 @@ class TasbihBottomControls extends StatelessWidget {
             child: OutlinedButton.icon(
               icon: Icon(
                 Icons.swap_horiz_rounded,
-                  color: context.primaryActionColor,
+                color: context.primaryActionColor,
               ),
               label: Text(l10n.tasbihChangeDzikir),
               style: OutlinedButton.styleFrom(
@@ -49,7 +49,7 @@ class TasbihBottomControls extends StatelessWidget {
                   decoration: TextDecoration.none,
                 ),
                 side: BorderSide(
-                color: context.primaryActionColor,
+                  color: context.primaryActionColor,
                 ),
                 padding: const EdgeInsets.symmetric(
                   vertical: AppDimens.spaceMD,

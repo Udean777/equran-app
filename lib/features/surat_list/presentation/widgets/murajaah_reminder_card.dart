@@ -23,7 +23,8 @@ class MurajaahReminderCard extends StatelessWidget {
     final displaySurats = suratList
         .take(SuratListConstants.murajaahMaxDisplaySurat)
         .toList();
-    final hasExtra = suratList.length > SuratListConstants.murajaahMaxDisplaySurat;
+    final hasExtra =
+        suratList.length > SuratListConstants.murajaahMaxDisplaySurat;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -85,7 +86,8 @@ class MurajaahReminderCard extends StatelessWidget {
                                     ? AppColors.goldLight
                                     : AppColors.goldDark,
                                 fontWeight: FontWeight.w800,
-                                fontSize: SuratListConstants.murajaahTitleFontSize,
+                                fontSize:
+                                    SuratListConstants.murajaahTitleFontSize,
                                 letterSpacing: 0.8,
                               ),
                             ),
@@ -97,7 +99,8 @@ class MurajaahReminderCard extends StatelessWidget {
                         _MurajaahChips(
                           displaySurats: displaySurats,
                           hasExtra: hasExtra,
-                          extraCount: suratList.length -
+                          extraCount:
+                              suratList.length -
                               SuratListConstants.murajaahMaxDisplaySurat,
                           l10n: l10n,
                         ),
@@ -224,9 +227,7 @@ class _MurajaahSuratChip extends StatelessWidget {
       child: Text(
         namaLatin,
         style: theme.textTheme.labelSmall?.copyWith(
-          color: isDark
-              ? AppColors.goldLight
-              : AppColors.goldDark,
+          color: isDark ? AppColors.goldLight : AppColors.goldDark,
           fontWeight: FontWeight.w600,
           fontSize: SuratListConstants.murajaahChipFontSize,
         ),
@@ -291,9 +292,7 @@ class _MurajaahActionButton extends StatelessWidget {
         vertical: 7,
       ),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.gold.withValues(alpha: 0.2)
-            : AppColors.gold,
+        color: isDark ? AppColors.gold.withValues(alpha: 0.2) : AppColors.gold,
         borderRadius: BorderRadius.circular(AppDimens.radiusMD),
         border: isDark
             ? Border.all(
@@ -315,9 +314,7 @@ class _MurajaahActionButton extends StatelessWidget {
           Text(
             l10n.start,
             style: theme.textTheme.labelMedium?.copyWith(
-              color: isDark
-                  ? AppColors.goldLighter
-                  : Colors.white,
+              color: isDark ? AppColors.goldLighter : Colors.white,
               fontWeight: FontWeight.w800,
               fontSize: SuratListConstants.murajaahButtonFontSize,
               letterSpacing: 0.4,

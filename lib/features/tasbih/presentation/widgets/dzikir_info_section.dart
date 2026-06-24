@@ -40,7 +40,9 @@ class DzikirInfoSection extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: context.isDark ? 0.04 : 0.06),
+            color: AppColors.primary.withValues(
+              alpha: context.isDark ? 0.04 : 0.06,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),

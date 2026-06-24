@@ -38,7 +38,10 @@ class SearchBarDelegate extends SliverPersistentHeaderDelegate {
                         : SuratListConstants.searchBarShadowAlphaLight,
                   ),
                   blurRadius: SuratListConstants.searchBarShadowBlur,
-                  offset: const Offset(0, SuratListConstants.searchBarShadowOffset),
+                  offset: const Offset(
+                    0,
+                    SuratListConstants.searchBarShadowOffset,
+                  ),
                 ),
               ]
             : null,

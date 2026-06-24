@@ -35,12 +35,13 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
       vsync: this,
       duration: TasbihConstants.tapAnimationDuration,
     );
-    _scaleAnimation = Tween<double>(
-      begin: TasbihConstants.tapScaleBegin,
-      end: TasbihConstants.tapScaleEnd,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation =
+        Tween<double>(
+          begin: TasbihConstants.tapScaleBegin,
+          end: TasbihConstants.tapScaleEnd,
+        ).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+        );
   }
 
   @override

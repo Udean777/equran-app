@@ -286,9 +286,7 @@ class _SuratProgressBar extends StatelessWidget {
         minHeight: SuratListConstants.progressMinHeight,
         backgroundColor: context.primaryContainerColor,
         valueColor: AlwaysStoppedAnimation<Color>(
-          isCompleted
-              ? AppColors.gold
-              : context.primaryActionColor,
+          isCompleted ? AppColors.gold : context.primaryActionColor,
         ),
       ),
     );
