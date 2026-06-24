@@ -98,6 +98,9 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
 
   @override
   void dispose() {
+    // Reset drag offset ke 0 sebelum dispose untuk menghindari visual artifact
+    widget.controller.updateDrag(0);
+
     _animController.dispose();
     widget.controller.removeListener(_onControllerChanged);
     // AutoReadController mungkin belum diinisialisasi jika addPostFrameCallback
