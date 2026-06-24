@@ -269,4 +269,47 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get backToHome => 'Kembali ke Beranda';
+
+  @override
+  String get suratListHeader => 'Daftar Surah';
+
+  @override
+  String totalSurat(int count) {
+    return '$count Surah';
+  }
+
+  @override
+  String get suratCompletedEmpty => 'Belum ada surat yang selesai dibaca';
+
+  @override
+  String get suratInProgressEmpty => 'Belum ada surat yang sedang dibaca';
+
+  @override
+  String filterAll(int count) {
+    return 'Semua ($count)';
+  }
+
+  @override
+  String filterInProgress(int count) {
+    return 'Sedang Dibaca ($count)';
+  }
+
+  @override
+  String filterCompleted(int count) {
+    return 'Selesai ($count)';
+  }
+
+  @override
+  String get filterReadingStatus => 'Filter Status Membaca';
+
+  @override
+  String get murajaahToday => 'MURAJA\'AH HARI INI';
+
+  @override
+  String get start => 'Mulai';
+
+  @override
+  String andMore(int count) {
+    return '+$count lainnya';
+  }
 }

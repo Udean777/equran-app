@@ -71,6 +71,12 @@ abstract final class AppDimens {
   /// Tinggi card last read
   static const double lastReadCardHeight = 100;
 
+  /// Tinggi search bar sticky header
+  static const double searchBarHeight = 64;
+
+  /// Durasi animasi cepat (ms)
+  static const Duration animationFast = Duration(milliseconds: 200);
+
   /// Border width untuk gold accent
   static const double goldBorderWidth = 1.5;
 

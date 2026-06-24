@@ -269,4 +269,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToHome => 'Back to Home';
+
+  @override
+  String get suratListHeader => 'Surah List';
+
+  @override
+  String totalSurat(int count) {
+    return '$count Surah';
+  }
+
+  @override
+  String get suratCompletedEmpty => 'No completed surah yet';
+
+  @override
+  String get suratInProgressEmpty => 'No surah in progress';
+
+  @override
+  String filterAll(int count) {
+    return 'All ($count)';
+  }
+
+  @override
+  String filterInProgress(int count) {
+    return 'In Progress ($count)';
+  }
+
+  @override
+  String filterCompleted(int count) {
+    return 'Completed ($count)';
+  }
+
+  @override
+  String get filterReadingStatus => 'Filter Reading Status';
+
+  @override
+  String get murajaahToday => 'TODAY\'S MURAJAAH';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String andMore(int count) {
+    return '+$count more';
+  }
 }

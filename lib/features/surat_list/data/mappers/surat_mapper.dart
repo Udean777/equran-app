@@ -15,5 +15,5 @@ extension SuratDtoMapper on SuratDto {
 TempatTurun _parseTempatTurun(String raw) => switch (raw.toLowerCase()) {
   'mekah' => TempatTurun.mekah,
   'madinah' => TempatTurun.madinah,
-  _ => TempatTurun.mekah,
+  _ => throw FormatException('Unknown tempatTurun value: $raw'),
 };

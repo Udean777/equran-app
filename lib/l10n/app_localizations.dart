@@ -603,6 +603,72 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kembali ke Beranda'**
   String get backToHome;
+
+  /// Header daftar surah
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar Surah'**
+  String get suratListHeader;
+
+  /// Total jumlah surah
+  ///
+  /// In id, this message translates to:
+  /// **'{count} Surah'**
+  String totalSurat(int count);
+
+  /// Pesan kosong filter completed
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada surat yang selesai dibaca'**
+  String get suratCompletedEmpty;
+
+  /// Pesan kosong filter in progress
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada surat yang sedang dibaca'**
+  String get suratInProgressEmpty;
+
+  /// Label filter semua surat
+  ///
+  /// In id, this message translates to:
+  /// **'Semua ({count})'**
+  String filterAll(int count);
+
+  /// Label filter surat sedang dibaca
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang Dibaca ({count})'**
+  String filterInProgress(int count);
+
+  /// Label filter surat selesai
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai ({count})'**
+  String filterCompleted(int count);
+
+  /// Judul filter status membaca
+  ///
+  /// In id, this message translates to:
+  /// **'Filter Status Membaca'**
+  String get filterReadingStatus;
+
+  /// Judul card murajaah hari ini
+  ///
+  /// In id, this message translates to:
+  /// **'MURAJA\'AH HARI INI'**
+  String get murajaahToday;
+
+  /// Tombol mulai
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai'**
+  String get start;
+
+  /// Label X surat lainnya
+  ///
+  /// In id, this message translates to:
+  /// **'+{count} lainnya'**
+  String andMore(int count);
 }
 
 class _AppLocalizationsDelegate

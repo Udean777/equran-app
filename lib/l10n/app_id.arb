@@ -358,5 +358,74 @@
   "backToHome": "Kembali ke Beranda",
   "@backToHome": {
     "description": "Tombol kembali ke beranda"
+  },
+  "suratListHeader": "Daftar Surah",
+  "@suratListHeader": {
+    "description": "Header daftar surah"
+  },
+  "totalSurat": "{count} Surah",
+  "@totalSurat": {
+    "description": "Total jumlah surah",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratCompletedEmpty": "Belum ada surat yang selesai dibaca",
+  "@suratCompletedEmpty": {
+    "description": "Pesan kosong filter completed"
+  },
+  "suratInProgressEmpty": "Belum ada surat yang sedang dibaca",
+  "@suratInProgressEmpty": {
+    "description": "Pesan kosong filter in progress"
+  },
+  "filterAll": "Semua ({count})",
+  "@filterAll": {
+    "description": "Label filter semua surat",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterInProgress": "Sedang Dibaca ({count})",
+  "@filterInProgress": {
+    "description": "Label filter surat sedang dibaca",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCompleted": "Selesai ({count})",
+  "@filterCompleted": {
+    "description": "Label filter surat selesai",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterReadingStatus": "Filter Status Membaca",
+  "@filterReadingStatus": {
+    "description": "Judul filter status membaca"
+  },
+  "murajaahToday": "MURAJA'AH HARI INI",
+  "@murajaahToday": {
+    "description": "Judul card murajaah hari ini"
+  },
+  "start": "Mulai",
+  "@start": {
+    "description": "Tombol mulai"
+  },
+  "andMore": "+{count} lainnya",
+  "@andMore": {
+    "description": "Label X surat lainnya",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

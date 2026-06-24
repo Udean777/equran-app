@@ -7,6 +7,7 @@ sealed class SuratListState with _$SuratListState {
   const factory SuratListState.success({
     required List<Surat> surats,
     @Default('') String query,
+    @Default(SuratCompletionFilter.all) SuratCompletionFilter activeFilter,
   }) = SuratListSuccess;
   const factory SuratListState.failure({
     required Failure failure,

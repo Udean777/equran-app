@@ -50,7 +50,7 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(width: AppDimens.spaceSM),
               Text(
-                'eQuran',
+                l10n.appTitle,
                 style: AppTypography.serifHeadingMedium.copyWith(
                   color: contentColor,
                   height: 1,

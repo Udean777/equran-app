@@ -110,5 +110,51 @@
   "pengaturanDrawer": "الإعدادات",
   "pageNotFound": "الصفحة غير موجودة",
   "pageNotFoundDesc": "الصفحة التي تبحث عنها غير متوفرة\nأو تم نقلها.",
-  "backToHome": "العودة إلى الصفحة الرئيسية"
+  "backToHome": "العودة إلى الصفحة الرئيسية",
+  "suratListHeader": "قائمة السور",
+  "totalSurat": "{count} سورة",
+  "@totalSurat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratCompletedEmpty": "لا توجد سور مكتملة بعد",
+  "suratInProgressEmpty": "لا توجد سور قيد القراءة",
+  "filterAll": "الكل ({count})",
+  "@filterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterInProgress": "قيد القراءة ({count})",
+  "@filterInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCompleted": "مكتملة ({count})",
+  "@filterCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterReadingStatus": "تصفية حالة القراءة",
+  "murajaahToday": "مراجعة اليوم",
+  "start": "ابدأ",
+  "andMore": "+{count} أخرى",
+  "@andMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

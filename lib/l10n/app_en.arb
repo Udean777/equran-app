@@ -110,5 +110,51 @@
   "pengaturanDrawer": "Settings",
   "pageNotFound": "Page Not Found",
   "pageNotFoundDesc": "The page you're looking for is not available\nor has been moved.",
-  "backToHome": "Back to Home"
+  "backToHome": "Back to Home",
+  "suratListHeader": "Surah List",
+  "totalSurat": "{count} Surah",
+  "@totalSurat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratCompletedEmpty": "No completed surah yet",
+  "suratInProgressEmpty": "No surah in progress",
+  "filterAll": "All ({count})",
+  "@filterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterInProgress": "In Progress ({count})",
+  "@filterInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCompleted": "Completed ({count})",
+  "@filterCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterReadingStatus": "Filter Reading Status",
+  "murajaahToday": "TODAY'S MURAJAAH",
+  "start": "Start",
+  "andMore": "+{count} more",
+  "@andMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -270,4 +270,47 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get backToHome => 'العودة إلى الصفحة الرئيسية';
+
+  @override
+  String get suratListHeader => 'قائمة السور';
+
+  @override
+  String totalSurat(int count) {
+    return '$count سورة';
+  }
+
+  @override
+  String get suratCompletedEmpty => 'لا توجد سور مكتملة بعد';
+
+  @override
+  String get suratInProgressEmpty => 'لا توجد سور قيد القراءة';
+
+  @override
+  String filterAll(int count) {
+    return 'الكل ($count)';
+  }
+
+  @override
+  String filterInProgress(int count) {
+    return 'قيد القراءة ($count)';
+  }
+
+  @override
+  String filterCompleted(int count) {
+    return 'مكتملة ($count)';
+  }
+
+  @override
+  String get filterReadingStatus => 'تصفية حالة القراءة';
+
+  @override
+  String get murajaahToday => 'مراجعة اليوم';
+
+  @override
+  String get start => 'ابدأ';
+
+  @override
+  String andMore(int count) {
+    return '+$count أخرى';
+  }
 }
