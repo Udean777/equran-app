@@ -1,8 +1,8 @@
 name: CI
 
 # ─── Trigger ────────────────────────────────────────────────────────────────
-# PR ke main        → analyze + lint + test (wajib pass sebelum merge)
-# Push/merge ke main → analyze + lint + test (validasi ulang setelah merge)
+# PR ke main        → analyze + lint (wajib pass sebelum merge)
+# Push/merge ke main → analyze + lint (validasi ulang setelah merge)
 on:
   pull_request:
     branches:
@@ -21,10 +21,10 @@ concurrency:
 
 jobs:
   # ═══════════════════════════════════════════════════════════════════════════
-  # JOB — Analyze, Lint & Test
+  # JOB — Analyze & Lint
   # ═══════════════════════════════════════════════════════════════════════════
   check:
-    name: Analyze, Lint & Test
+    name: Analyze & Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -58,12 +58,3 @@ jobs:
       # ── Analyze (very_good_analysis) ────────────────────────────────────────
       - name: Dart analyze
         run: flutter analyze --fatal-infos --fatal-warnings
-
-
-      # ── Coverage report (opsional, tampil di PR summary) ────────────────────
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage/lcov.info
-          retention-days: 7
