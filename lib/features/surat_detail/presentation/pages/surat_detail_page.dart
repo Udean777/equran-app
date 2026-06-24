@@ -117,6 +117,10 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
     }
 
     _saveLastRead();
+
+    // Reset controller state sebelum dispose untuk mencegah
+    // animasi/state tersisa saat back navigation
+    _cardController?.reset();
     _cardController?.dispose();
     super.dispose();
   }

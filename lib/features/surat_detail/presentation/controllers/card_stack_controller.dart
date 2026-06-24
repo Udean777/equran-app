@@ -104,6 +104,22 @@ class CardStackController extends ChangeNotifier {
     }
   }
 
+  /// Reset controller ke state awal
+  void reset() {
+    _currentIndex = 0;
+    _maxReachedIndex = 0;
+    _dragOffset = 0;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    // Reset state saat controller di-dispose untuk mencegah
+    // state tersisa saat kembali ke halaman sebelumnya
+    _dragOffset = 0;
+    super.dispose();
+  }
+
   /// Ayat nomor terakhir yang dibaca (untuk saveLastRead)
   int get lastReadAyatNomor {
     if (_maxReachedIndex == 0) return 1;
