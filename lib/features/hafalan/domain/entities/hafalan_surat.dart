@@ -1,5 +1,5 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'hafalan_surat.freezed.dart';

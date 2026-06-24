@@ -1,9 +1,12 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
+import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_preset.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,6 +31,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
   Widget build(BuildContext context) {
     return BlocBuilder<TasbihCubit, TasbihState>(
       builder: (context, state) {
+        final l10n = AppLocalizations.of(context)!;
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -46,7 +50,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                   horizontal: AppDimens.spaceMD,
                 ),
                 child: Text(
-                  'Pilih Dzikir',
+                  l10n.tasbihSelectDzikir,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
@@ -58,7 +62,6 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
 
               ...TasbihPreset.defaults.map((preset) {
                 final isSelected = state.selectedPreset.id == preset.id;
-                final isDark = context.isDark;
                 return InkWell(
                   onTap: () {
                     context.read<TasbihCubit>().selectPreset(preset);
@@ -78,9 +81,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.primary
-                                : (isDark
-                                      ? AppColors.primaryDark
-                                      : AppColors.primaryContainer),
+                                : context.primaryContainerColor,
                             borderRadius: BorderRadius.circular(
                               AppDimens.radiusSM,
                             ),
@@ -89,13 +90,11 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                           child: Text(
                             '${preset.defaultTarget}',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: TasbihConstants.presetCountBadgeSize,
                               fontWeight: FontWeight.bold,
                               color: isSelected
                                   ? Colors.white
-                                  : (isDark
-                                        ? AppColors.primaryLighter
-                                        : AppColors.primary),
+                                  : context.primaryActionColor,
                             ),
                           ),
                         ),
@@ -111,25 +110,19 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                                   fontWeight: isSelected
                                       ? FontWeight.w600
                                       : FontWeight.normal,
-                                  fontSize: 14,
+                                  fontSize: TasbihConstants.presetNameSize,
                                   color: isSelected
-                                      ? (isDark
-                                            ? AppColors.primaryLighter
-                                            : AppColors.primary)
-                                      : (isDark
-                                            ? AppColors.onSurfaceDark
-                                            : AppColors.textPrimary),
+                                      ? context.primaryActionColor
+                                      : context.textPrimaryColor,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 preset.arabic,
                                 style: TextStyle(
-                                  fontFamily: 'Amiri',
-                                  fontSize: 15,
-                                  color: isDark
-                                      ? AppColors.onSurfaceDarkVariant
-                                      : AppColors.textSecondary,
+                                  fontFamily: kFontAmiri,
+                                  fontSize: TasbihConstants.presetArabicSize,
+                                  color: context.textSecondaryColor,
                                 ),
                               ),
                             ],
@@ -139,9 +132,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                         if (isSelected)
                           Icon(
                             Icons.check_circle_rounded,
-                            color: isDark
-                                ? AppColors.primaryLighter
-                                : AppColors.primary,
+                            color: context.primaryActionColor,
                             size: 20,
                           ),
                       ],
@@ -163,10 +154,10 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                       child: TextField(
                         controller: _targetController,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Target custom',
-                          hintText: 'Contoh: 200',
-                          prefixIcon: Icon(Icons.tune_rounded),
+                        decoration: InputDecoration(
+                          labelText: l10n.tasbihCustomTarget,
+                          hintText: l10n.tasbihCustomTargetHint,
+                          prefixIcon: const Icon(Icons.tune_rounded),
                         ),
                       ),
                     ),
@@ -189,7 +180,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                             Navigator.pop(context);
                           }
                         },
-                        child: const Text('Set'),
+                        child: Text(l10n.tasbihSetButton),
                       ),
                     ),
                   ],

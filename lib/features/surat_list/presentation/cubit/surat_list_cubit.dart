@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/domain/usecases/get_surat_list.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

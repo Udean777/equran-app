@@ -1,7 +1,9 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_session.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,11 +20,9 @@ class TasbihSessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final l10n = AppLocalizations.of(context)!;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderVariantColor;
     final dateStr = DateFormat('dd MMM yyyy, HH:mm', 'id').format(
       session.createdAt.toLocal(),
     );
@@ -73,10 +73,8 @@ class TasbihSessionCard extends StatelessWidget {
                   Text(
                     session.presetName,
                     style: AppTypography.serifHeadingSmall.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDark
-                          : AppColors.textPrimary,
-                      fontSize: 14,
+                      color: context.textPrimaryColor,
+                      fontSize: TasbihConstants.sessionTitleSize,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -88,9 +86,7 @@ class TasbihSessionCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.primaryDark
-                              : AppColors.primaryContainer,
+                          color: context.primaryContainerColor,
                           borderRadius: BorderRadius.circular(
                             AppDimens.radiusFull,
                           ),
@@ -98,11 +94,9 @@ class TasbihSessionCard extends StatelessWidget {
                         child: Text(
                           '${session.count} / ${session.target}x',
                           style: TextStyle(
-                            color: isDark
-                                ? AppColors.primaryLighter
-                                : AppColors.primary,
+                            color: context.primaryActionColor,
                             fontWeight: FontWeight.w600,
-                            fontSize: 11,
+                            fontSize: TasbihConstants.sessionMetaSize,
                           ),
                         ),
                       ),
@@ -112,11 +106,9 @@ class TasbihSessionCard extends StatelessWidget {
                   Text(
                     dateStr,
                     style: TextStyle(
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
-                      fontSize: 11,
-                    ),
+                      color: context.textTertiaryColor,
+                    fontSize: TasbihConstants.sessionMetaSize,
+                  ),
                   ),
                 ],
               ),
@@ -129,7 +121,7 @@ class TasbihSessionCard extends StatelessWidget {
                 color: AppColors.error.withValues(alpha: 0.6),
                 size: AppDimens.iconSM,
               ),
-              tooltip: 'Hapus',
+              tooltip: l10n.tasbihDelete,
               onPressed: onDelete,
             ),
           ],

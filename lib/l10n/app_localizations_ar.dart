@@ -40,6 +40,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get lihatTafsir => 'عرض التفسير';
 
   @override
+  String ayatNumber(int number) {
+    return 'آية $number';
+  }
+
+  @override
   String get bookmark => 'المفضلة';
 
   @override
@@ -313,4 +318,56 @@ class AppLocalizationsAr extends AppLocalizations {
   String andMore(int count) {
     return '+$count أخرى';
   }
+
+  @override
+  String get tasbihTitle => 'تسبيح وذكر';
+
+  @override
+  String get tasbihHistory => 'التاريخ';
+
+  @override
+  String get tasbihHistoryTitle => 'تاريخ التسبيح';
+
+  @override
+  String get tasbihDeleteAllHistory => 'حذف كل التاريخ';
+
+  @override
+  String get tasbihEmptyHistory => 'لا يوجد تاريخ تسبيح بعد.';
+
+  @override
+  String get tasbihDeleteAllConfirmTitle => 'حذف كل التاريخ؟';
+
+  @override
+  String get tasbihDeleteAllConfirmMessage =>
+      'سيتم حذف كل تاريخ التسبيح بشكل دائم.';
+
+  @override
+  String get tasbihCompleted => 'مكتمل';
+
+  @override
+  String get tasbihTarget => 'الهدف';
+
+  @override
+  String get tasbihRemaining => 'المتبقي';
+
+  @override
+  String get tasbihSelectDzikir => 'اختر الذكر';
+
+  @override
+  String get tasbihCustomTarget => 'هدف مخصص';
+
+  @override
+  String get tasbihCustomTargetHint => 'مثال: 200';
+
+  @override
+  String get tasbihSetButton => 'تعيين';
+
+  @override
+  String get tasbihChangeDzikir => 'تغيير الذكر';
+
+  @override
+  String get tasbihReset => 'إعادة ضبط';
+
+  @override
+  String get tasbihDelete => 'حذف';
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -19,7 +20,6 @@ import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_progres
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_section_header.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_selector.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';

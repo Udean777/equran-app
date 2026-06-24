@@ -1,3 +1,4 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/utils/html_stripper.dart';
 import 'package:equran_app/features/surat_detail/data/models/surat_detail_dto.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';

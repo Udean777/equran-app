@@ -154,6 +154,12 @@ abstract class AppLocalizations {
   /// **'Lihat Tafsir'**
   String get lihatTafsir;
 
+  /// Label nomor ayat pada tafsir
+  ///
+  /// In id, this message translates to:
+  /// **'Ayat {number}'**
+  String ayatNumber(int number);
+
   /// Label bookmark
   ///
   /// In id, this message translates to:
@@ -669,6 +675,108 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'+{count} lainnya'**
   String andMore(int count);
+
+  /// Judul halaman tasbih
+  ///
+  /// In id, this message translates to:
+  /// **'Tasbih & Dzikir'**
+  String get tasbihTitle;
+
+  /// Tooltip tombol riwayat
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat'**
+  String get tasbihHistory;
+
+  /// Judul halaman riwayat tasbih
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat Tasbih'**
+  String get tasbihHistoryTitle;
+
+  /// Tooltip tombol hapus semua riwayat
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus semua riwayat'**
+  String get tasbihDeleteAllHistory;
+
+  /// Pesan kosong halaman riwayat
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada riwayat tasbih.'**
+  String get tasbihEmptyHistory;
+
+  /// Judul dialog konfirmasi hapus semua
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus Semua Riwayat?'**
+  String get tasbihDeleteAllConfirmTitle;
+
+  /// Isi dialog konfirmasi hapus semua
+  ///
+  /// In id, this message translates to:
+  /// **'Semua riwayat tasbih akan dihapus permanen.'**
+  String get tasbihDeleteAllConfirmMessage;
+
+  /// Label status selesai
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get tasbihCompleted;
+
+  /// Label target hitungan
+  ///
+  /// In id, this message translates to:
+  /// **'Target'**
+  String get tasbihTarget;
+
+  /// Label sisa hitungan
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa'**
+  String get tasbihRemaining;
+
+  /// Judul sheet pilih dzikir
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih Dzikir'**
+  String get tasbihSelectDzikir;
+
+  /// Label input target custom
+  ///
+  /// In id, this message translates to:
+  /// **'Target custom'**
+  String get tasbihCustomTarget;
+
+  /// Hint input target custom
+  ///
+  /// In id, this message translates to:
+  /// **'Contoh: 200'**
+  String get tasbihCustomTargetHint;
+
+  /// Tombol set target
+  ///
+  /// In id, this message translates to:
+  /// **'Set'**
+  String get tasbihSetButton;
+
+  /// Tombol ganti dzikir
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti Dzikir'**
+  String get tasbihChangeDzikir;
+
+  /// Tombol reset hitungan
+  ///
+  /// In id, this message translates to:
+  /// **'Reset'**
+  String get tasbihReset;
+
+  /// Tooltip tombol hapus sesi
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get tasbihDelete;
 }
 
 class _AppLocalizationsDelegate

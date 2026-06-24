@@ -1,8 +1,7 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'surat_detail.freezed.dart';
-
-enum TempatTurun { mekah, madinah }
 
 @freezed
 abstract class SuratDetail with _$SuratDetail {

@@ -1,6 +1,6 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/usecase/use_case.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/domain/repositories/surat_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';

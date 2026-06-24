@@ -1,7 +1,7 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/widgets.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
 import 'package:equran_app/l10n/app_localizations.dart';

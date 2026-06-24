@@ -1,5 +1,5 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/data/models/surat_dto.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 
 extension SuratDtoMapper on SuratDto {
   Surat toEntity() => Surat(

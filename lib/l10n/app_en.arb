@@ -23,6 +23,14 @@
   "madinah": "Madinah",
   "tafsir": "Tafsir",
   "lihatTafsir": "View Tafsir",
+  "ayatNumber": "Ayat {number}",
+  "@ayatNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "bookmark": "Bookmark",
   "bookmarkEmpty": "No bookmarks yet.\nMark your favorite verses!",
   "ayatTersimpan": "Saved Verses",
@@ -156,5 +164,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "tasbihTitle": "Tasbih & Dzikir",
+  "tasbihHistory": "History",
+  "tasbihHistoryTitle": "Tasbih History",
+  "tasbihDeleteAllHistory": "Delete all history",
+  "tasbihEmptyHistory": "No tasbih history yet.",
+  "tasbihDeleteAllConfirmTitle": "Delete All History?",
+  "tasbihDeleteAllConfirmMessage": "All tasbih history will be permanently deleted.",
+  "tasbihCompleted": "Completed",
+  "tasbihTarget": "Target",
+  "tasbihRemaining": "Remaining",
+  "tasbihSelectDzikir": "Select Dzikir",
+  "tasbihCustomTarget": "Custom target",
+  "tasbihCustomTargetHint": "Example: 200",
+  "tasbihSetButton": "Set",
+  "tasbihChangeDzikir": "Change Dzikir",
+  "tasbihReset": "Reset",
+  "tasbihDelete": "Delete"
 }

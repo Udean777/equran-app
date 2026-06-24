@@ -40,6 +40,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get lihatTafsir => 'Lihat Tafsir';
 
   @override
+  String ayatNumber(int number) {
+    return 'Ayat $number';
+  }
+
+  @override
   String get bookmark => 'Bookmark';
 
   @override
@@ -312,4 +317,56 @@ class AppLocalizationsId extends AppLocalizations {
   String andMore(int count) {
     return '+$count lainnya';
   }
+
+  @override
+  String get tasbihTitle => 'Tasbih & Dzikir';
+
+  @override
+  String get tasbihHistory => 'Riwayat';
+
+  @override
+  String get tasbihHistoryTitle => 'Riwayat Tasbih';
+
+  @override
+  String get tasbihDeleteAllHistory => 'Hapus semua riwayat';
+
+  @override
+  String get tasbihEmptyHistory => 'Belum ada riwayat tasbih.';
+
+  @override
+  String get tasbihDeleteAllConfirmTitle => 'Hapus Semua Riwayat?';
+
+  @override
+  String get tasbihDeleteAllConfirmMessage =>
+      'Semua riwayat tasbih akan dihapus permanen.';
+
+  @override
+  String get tasbihCompleted => 'Selesai';
+
+  @override
+  String get tasbihTarget => 'Target';
+
+  @override
+  String get tasbihRemaining => 'Sisa';
+
+  @override
+  String get tasbihSelectDzikir => 'Pilih Dzikir';
+
+  @override
+  String get tasbihCustomTarget => 'Target custom';
+
+  @override
+  String get tasbihCustomTargetHint => 'Contoh: 200';
+
+  @override
+  String get tasbihSetButton => 'Set';
+
+  @override
+  String get tasbihChangeDzikir => 'Ganti Dzikir';
+
+  @override
+  String get tasbihReset => 'Reset';
+
+  @override
+  String get tasbihDelete => 'Hapus';
 }

@@ -4,8 +4,10 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
+import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/preset_selector_sheet.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,7 +19,7 @@ class TasbihBottomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -33,23 +35,21 @@ class TasbihBottomControls extends StatelessWidget {
             child: OutlinedButton.icon(
               icon: Icon(
                 Icons.swap_horiz_rounded,
-                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                  color: context.primaryActionColor,
               ),
-              label: const Text('Ganti Dzikir'),
+              label: Text(l10n.tasbihChangeDzikir),
               style: OutlinedButton.styleFrom(
-                foregroundColor: isDark
-                    ? AppColors.primaryLighter
-                    : AppColors.primary,
+                foregroundColor: context.primaryActionColor,
                 textStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
                   inherit: false,
-                  fontSize: 14,
+                  fontSize: TasbihConstants.buttonTextSize,
                   letterSpacing: 0.1,
                   height: 1.4,
                   decoration: TextDecoration.none,
                 ),
                 side: BorderSide(
-                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                color: context.primaryActionColor,
                 ),
                 padding: const EdgeInsets.symmetric(
                   vertical: AppDimens.spaceMD,
@@ -71,7 +71,7 @@ class TasbihBottomControls extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: state.isCompleted
                       ? [AppColors.goldDark, AppColors.gold]
-                      : (isDark
+                      : (context.isDark
                             ? [AppColors.primaryDark, AppColors.primary]
                             : [AppColors.primary, AppColors.primaryLight]),
                 ),
@@ -105,10 +105,10 @@ class TasbihBottomControls extends StatelessWidget {
                         ),
                         const SizedBox(width: AppDimens.spaceXS),
                         Text(
-                          'Reset',
+                          l10n.tasbihReset,
                           style: AppTypography.serifHeadingSmall.copyWith(
                             color: AppColors.onPrimary,
-                            fontSize: 14,
+                            fontSize: TasbihConstants.buttonTextSize,
                           ),
                         ),
                       ],

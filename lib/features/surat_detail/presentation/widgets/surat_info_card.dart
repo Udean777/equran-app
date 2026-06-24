@@ -1,3 +1,4 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';

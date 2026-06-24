@@ -1,7 +1,9 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
+import 'package:equran_app/features/tafsir/constants/tafsir_constants.dart';
 import 'package:equran_app/features/tafsir/domain/entities/tafsir_surat.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class TafsirAyatCard extends StatelessWidget {
@@ -15,6 +17,7 @@ class TafsirAyatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -35,10 +38,10 @@ class TafsirAyatCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppDimens.radiusFull),
             ),
             child: Text(
-              'Ayat ${tafsirAyat.nomorAyat}',
+              l10n.ayatNumber(tafsirAyat.nomorAyat),
               style: const TextStyle(
                 color: AppColors.ayatNumberText,
-                fontSize: 11,
+                fontSize: TafsirConstants.ayatBadgeFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -48,7 +51,7 @@ class TafsirAyatCard extends StatelessWidget {
           Text(
             tafsirAyat.teks,
             style: theme.textTheme.bodyMedium?.copyWith(
-              height: 1.7,
+              height: TafsirConstants.tafsirLineHeight,
             ),
           ),
           const SizedBox(height: AppDimens.spaceSM),

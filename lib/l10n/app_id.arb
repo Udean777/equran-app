@@ -46,6 +46,15 @@
   "@lihatTafsir": {
     "description": "Tombol lihat tafsir"
   },
+  "ayatNumber": "Ayat {number}",
+  "@ayatNumber": {
+    "description": "Label nomor ayat pada tafsir",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "bookmark": "Bookmark",
   "@bookmark": {
     "description": "Label bookmark"
@@ -427,5 +436,73 @@
         "type": "int"
       }
     }
+  },
+  "tasbihTitle": "Tasbih & Dzikir",
+  "@tasbihTitle": {
+    "description": "Judul halaman tasbih"
+  },
+  "tasbihHistory": "Riwayat",
+  "@tasbihHistory": {
+    "description": "Tooltip tombol riwayat"
+  },
+  "tasbihHistoryTitle": "Riwayat Tasbih",
+  "@tasbihHistoryTitle": {
+    "description": "Judul halaman riwayat tasbih"
+  },
+  "tasbihDeleteAllHistory": "Hapus semua riwayat",
+  "@tasbihDeleteAllHistory": {
+    "description": "Tooltip tombol hapus semua riwayat"
+  },
+  "tasbihEmptyHistory": "Belum ada riwayat tasbih.",
+  "@tasbihEmptyHistory": {
+    "description": "Pesan kosong halaman riwayat"
+  },
+  "tasbihDeleteAllConfirmTitle": "Hapus Semua Riwayat?",
+  "@tasbihDeleteAllConfirmTitle": {
+    "description": "Judul dialog konfirmasi hapus semua"
+  },
+  "tasbihDeleteAllConfirmMessage": "Semua riwayat tasbih akan dihapus permanen.",
+  "@tasbihDeleteAllConfirmMessage": {
+    "description": "Isi dialog konfirmasi hapus semua"
+  },
+  "tasbihCompleted": "Selesai",
+  "@tasbihCompleted": {
+    "description": "Label status selesai"
+  },
+  "tasbihTarget": "Target",
+  "@tasbihTarget": {
+    "description": "Label target hitungan"
+  },
+  "tasbihRemaining": "Sisa",
+  "@tasbihRemaining": {
+    "description": "Label sisa hitungan"
+  },
+  "tasbihSelectDzikir": "Pilih Dzikir",
+  "@tasbihSelectDzikir": {
+    "description": "Judul sheet pilih dzikir"
+  },
+  "tasbihCustomTarget": "Target custom",
+  "@tasbihCustomTarget": {
+    "description": "Label input target custom"
+  },
+  "tasbihCustomTargetHint": "Contoh: 200",
+  "@tasbihCustomTargetHint": {
+    "description": "Hint input target custom"
+  },
+  "tasbihSetButton": "Set",
+  "@tasbihSetButton": {
+    "description": "Tombol set target"
+  },
+  "tasbihChangeDzikir": "Ganti Dzikir",
+  "@tasbihChangeDzikir": {
+    "description": "Tombol ganti dzikir"
+  },
+  "tasbihReset": "Reset",
+  "@tasbihReset": {
+    "description": "Tombol reset hitungan"
+  },
+  "tasbihDelete": "Hapus",
+  "@tasbihDelete": {
+    "description": "Tooltip tombol hapus sesi"
   }
 }

@@ -23,6 +23,14 @@
   "madinah": "المدينة المنورة",
   "tafsir": "التفسير",
   "lihatTafsir": "عرض التفسير",
+  "ayatNumber": "آية {number}",
+  "@ayatNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "bookmark": "المفضلة",
   "bookmarkEmpty": "لا توجد إشارات مرجعية.\nضع علامة على آياتك المفضلة!",
   "ayatTersimpan": "الآيات المحفوظة",
@@ -156,5 +164,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "tasbihTitle": "تسبيح وذكر",
+  "tasbihHistory": "التاريخ",
+  "tasbihHistoryTitle": "تاريخ التسبيح",
+  "tasbihDeleteAllHistory": "حذف كل التاريخ",
+  "tasbihEmptyHistory": "لا يوجد تاريخ تسبيح بعد.",
+  "tasbihDeleteAllConfirmTitle": "حذف كل التاريخ؟",
+  "tasbihDeleteAllConfirmMessage": "سيتم حذف كل تاريخ التسبيح بشكل دائم.",
+  "tasbihCompleted": "مكتمل",
+  "tasbihTarget": "الهدف",
+  "tasbihRemaining": "المتبقي",
+  "tasbihSelectDzikir": "اختر الذكر",
+  "tasbihCustomTarget": "هدف مخصص",
+  "tasbihCustomTargetHint": "مثال: 200",
+  "tasbihSetButton": "تعيين",
+  "tasbihChangeDzikir": "تغيير الذكر",
+  "tasbihReset": "إعادة ضبط",
+  "tasbihDelete": "حذف"
 }
