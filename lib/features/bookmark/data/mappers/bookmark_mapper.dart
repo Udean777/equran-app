@@ -1,4 +1,5 @@
 import 'package:equran_app/features/bookmark/data/models/bookmark_dto.dart';
+import 'package:equran_app/features/bookmark/data/models/last_read_dto.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 

@@ -5,16 +5,17 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
-import 'package:equran_app/core/widgets/active_filter_chip.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/app_search_bar.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart';
+import 'package:equran_app/features/doa/presentation/widgets/active_filter_chip.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_filter_sheet.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_list_app_bar.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,9 @@ class _DoaListViewState extends State<_DoaListView> {
             state.mapOrNull(success: (s) => s.activeFilterLabel) ?? '';
 
         return Scaffold(
-          drawer: canPop ? null : const AppDrawer(),
+          drawer: canPop
+              ? null
+              : const AppDrawer(streakBadge: StreakBadgeSlot()),
           appBar: DoaListAppBar(
             l10n: l10n,
             canPop: canPop,

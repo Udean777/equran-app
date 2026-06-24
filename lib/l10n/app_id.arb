@@ -46,6 +46,15 @@
   "@lihatTafsir": {
     "description": "Tombol lihat tafsir"
   },
+  "ayatNumber": "Ayat {number}",
+  "@ayatNumber": {
+    "description": "Label nomor ayat pada tafsir",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "bookmark": "Bookmark",
   "@bookmark": {
     "description": "Label bookmark"
@@ -79,6 +88,18 @@
     "description": "Label nomor ayat",
     "placeholders": {
       "nomor": {
+        "type": "int"
+      }
+    }
+  },
+  "ayatFrom": "Ayat {ayatNomor} dari {totalAyat}",
+  "@ayatFrom": {
+    "description": "Label posisi ayat, misal Ayat 5 dari 10",
+    "placeholders": {
+      "ayatNomor": {
+        "type": "int"
+      },
+      "totalAyat": {
         "type": "int"
       }
     }
@@ -334,5 +355,154 @@
   "pengaturanDrawer": "Pengaturan",
   "@pengaturanDrawer": {
     "description": "Label menu drawer pengaturan"
+  },
+  "pageNotFound": "Halaman Tidak Ditemukan",
+  "@pageNotFound": {
+    "description": "Judul halaman 404"
+  },
+  "pageNotFoundDesc": "Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.",
+  "@pageNotFoundDesc": {
+    "description": "Deskripsi halaman 404"
+  },
+  "backToHome": "Kembali ke Beranda",
+  "@backToHome": {
+    "description": "Tombol kembali ke beranda"
+  },
+  "suratListHeader": "Daftar Surah",
+  "@suratListHeader": {
+    "description": "Header daftar surah"
+  },
+  "totalSurat": "{count} Surah",
+  "@totalSurat": {
+    "description": "Total jumlah surah",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratCompletedEmpty": "Belum ada surat yang selesai dibaca",
+  "@suratCompletedEmpty": {
+    "description": "Pesan kosong filter completed"
+  },
+  "suratInProgressEmpty": "Belum ada surat yang sedang dibaca",
+  "@suratInProgressEmpty": {
+    "description": "Pesan kosong filter in progress"
+  },
+  "filterAll": "Semua ({count})",
+  "@filterAll": {
+    "description": "Label filter semua surat",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterInProgress": "Sedang Dibaca ({count})",
+  "@filterInProgress": {
+    "description": "Label filter surat sedang dibaca",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCompleted": "Selesai ({count})",
+  "@filterCompleted": {
+    "description": "Label filter surat selesai",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterReadingStatus": "Filter Status Membaca",
+  "@filterReadingStatus": {
+    "description": "Judul filter status membaca"
+  },
+  "murajaahToday": "MURAJA'AH HARI INI",
+  "@murajaahToday": {
+    "description": "Judul card murajaah hari ini"
+  },
+  "start": "Mulai",
+  "@start": {
+    "description": "Tombol mulai"
+  },
+  "andMore": "+{count} lainnya",
+  "@andMore": {
+    "description": "Label X surat lainnya",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbihTitle": "Tasbih & Dzikir",
+  "@tasbihTitle": {
+    "description": "Judul halaman tasbih"
+  },
+  "tasbihHistory": "Riwayat",
+  "@tasbihHistory": {
+    "description": "Tooltip tombol riwayat"
+  },
+  "tasbihHistoryTitle": "Riwayat Tasbih",
+  "@tasbihHistoryTitle": {
+    "description": "Judul halaman riwayat tasbih"
+  },
+  "tasbihDeleteAllHistory": "Hapus semua riwayat",
+  "@tasbihDeleteAllHistory": {
+    "description": "Tooltip tombol hapus semua riwayat"
+  },
+  "tasbihEmptyHistory": "Belum ada riwayat tasbih.",
+  "@tasbihEmptyHistory": {
+    "description": "Pesan kosong halaman riwayat"
+  },
+  "tasbihDeleteAllConfirmTitle": "Hapus Semua Riwayat?",
+  "@tasbihDeleteAllConfirmTitle": {
+    "description": "Judul dialog konfirmasi hapus semua"
+  },
+  "tasbihDeleteAllConfirmMessage": "Semua riwayat tasbih akan dihapus permanen.",
+  "@tasbihDeleteAllConfirmMessage": {
+    "description": "Isi dialog konfirmasi hapus semua"
+  },
+  "tasbihCompleted": "Selesai",
+  "@tasbihCompleted": {
+    "description": "Label status selesai"
+  },
+  "tasbihTarget": "Target",
+  "@tasbihTarget": {
+    "description": "Label target hitungan"
+  },
+  "tasbihRemaining": "Sisa",
+  "@tasbihRemaining": {
+    "description": "Label sisa hitungan"
+  },
+  "tasbihSelectDzikir": "Pilih Dzikir",
+  "@tasbihSelectDzikir": {
+    "description": "Judul sheet pilih dzikir"
+  },
+  "tasbihCustomTarget": "Target custom",
+  "@tasbihCustomTarget": {
+    "description": "Label input target custom"
+  },
+  "tasbihCustomTargetHint": "Contoh: 200",
+  "@tasbihCustomTargetHint": {
+    "description": "Hint input target custom"
+  },
+  "tasbihSetButton": "Set",
+  "@tasbihSetButton": {
+    "description": "Tombol set target"
+  },
+  "tasbihChangeDzikir": "Ganti Dzikir",
+  "@tasbihChangeDzikir": {
+    "description": "Tombol ganti dzikir"
+  },
+  "tasbihReset": "Reset",
+  "@tasbihReset": {
+    "description": "Tombol reset hitungan"
+  },
+  "tasbihDelete": "Hapus",
+  "@tasbihDelete": {
+    "description": "Tooltip tombol hapus sesi"
   }
 }

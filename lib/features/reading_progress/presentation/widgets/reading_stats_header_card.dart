@@ -6,6 +6,7 @@ import 'package:equran_app/core/widgets/primary_gradient_card.dart';
 import 'package:equran_app/core/widgets/stats_row.dart';
 import 'package:equran_app/core/widgets/streak_badge.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
+import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_strings.dart';
 import 'package:flutter/material.dart';
 
 /// Header card: total ayat dibaca, rata-rata/hari, streak.
@@ -49,7 +50,7 @@ class ReadingStatsHeaderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Statistik Membaca',
+                      ReadingProgressStrings.headerTitle,
                       style: TextStyle(
                         color: AppColors.onPrimary.withValues(alpha: 0.7),
                         fontSize: 11,
@@ -83,17 +84,17 @@ class ReadingStatsHeaderCard extends StatelessWidget {
           StatsRow(
             items: [
               StatRowItem(
-                label: 'Total Ayat',
+                label: ReadingProgressStrings.totalAyat,
                 value: '${stats.totalAyatRead}',
                 icon: Icons.format_list_numbered_rounded,
               ),
               StatRowItem(
-                label: 'Rata-rata/Hari',
+                label: ReadingProgressStrings.rataRataPerHari,
                 value: stats.rataRataPerHari.toStringAsFixed(1),
                 icon: Icons.trending_up_rounded,
               ),
               StatRowItem(
-                label: 'Juz Dibaca',
+                label: ReadingProgressStrings.juzDibaca,
                 value:
                     '${stats.progressPerJuz.values.where((p) => p > 0).length}',
                 icon: Icons.auto_stories_rounded,

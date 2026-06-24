@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
+import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/cubit/statistik_shalat_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,7 +79,7 @@ class ShalatDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: AppDimens.spaceXS),
                 Text(
-                  '${dayStats.jumlahTepatWaktu}/5 tepat waktu • ${dayStats.jumlahShalat}/5 dilaksanakan',
+                  '${dayStats.jumlahTepatWaktu}/${StatistikShalatConstants.totalWaktuShalat} ${StatistikShalatStrings.labelTepatWaktu.toLowerCase()} • ${dayStats.jumlahShalat}/${StatistikShalatConstants.totalWaktuShalat} dilaksanakan',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -84,6 +87,39 @@ class ShalatDetailSheet extends StatelessWidget {
               ],
             ),
           ),
+          // Delete action
+          if (dayStats.hasData)
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.spaceMD,
+              ),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    final confirmed = await showConfirmDialog(
+                      context,
+                      title: StatistikShalatStrings.deleteDialogTitle,
+                      content: StatistikShalatStrings.deleteDialogContent,
+                    );
+
+                    if (confirmed && context.mounted) {
+                      await context
+                          .read<StatistikShalatCubit>()
+                          .deleteShalatForDate(dateStr);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.delete_outline, size: 20),
+                  label: const Text(StatistikShalatStrings.deleteConfirmButton),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                  ),
+                ),
+              ),
+            ),
           const Divider(height: 1),
           // Shalat list
           ...WaktuShalat.values.map(
@@ -168,18 +204,22 @@ class _DetailRow extends StatelessWidget {
             itemBuilder: (_) => [
               _menuItem(
                 ShalatStatus.tepatWaktu,
-                'Tepat Waktu',
+                StatistikShalatStrings.statusTepatWaktu,
                 AppColors.success,
               ),
-              _menuItem(ShalatStatus.qadha, 'Qadha', AppColors.warning),
+              _menuItem(
+                ShalatStatus.qadha,
+                StatistikShalatStrings.statusQadha,
+                AppColors.warning,
+              ),
               _menuItem(
                 ShalatStatus.tidakShalat,
-                'Tidak Shalat',
+                StatistikShalatStrings.statusTidakShalat,
                 AppColors.error,
               ),
               _menuItem(
                 ShalatStatus.belumDicatat,
-                'Belum Dicatat',
+                StatistikShalatStrings.statusBelumDicatat,
                 AppColors.outline,
               ),
             ],
@@ -227,13 +267,13 @@ class _DetailRow extends StatelessWidget {
   String _statusLabel(ShalatStatus status) {
     switch (status) {
       case ShalatStatus.tepatWaktu:
-        return 'Tepat Waktu';
+        return StatistikShalatStrings.statusTepatWaktu;
       case ShalatStatus.qadha:
-        return 'Qadha';
+        return StatistikShalatStrings.statusQadha;
       case ShalatStatus.tidakShalat:
-        return 'Tidak Shalat';
+        return StatistikShalatStrings.statusTidakShalat;
       case ShalatStatus.belumDicatat:
-        return 'Belum Dicatat';
+        return StatistikShalatStrings.statusBelumDicatat;
     }
   }
 }

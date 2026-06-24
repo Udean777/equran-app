@@ -8,6 +8,7 @@ import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_last_location_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart';
+import 'package:equran_app/features/imsakiyah/domain/usecases/params/imsakiyah_params.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_last_location_imsakiyah.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -40,7 +41,7 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
 
   @override
   Future<List<String>?> getKabkotaList(String provinsi) async {
-    final result = await _getKabkota(provinsi);
+    final result = await _getKabkota(GetKabkotaParams(provinsi));
     return result.fold((_) => null, (list) => list);
   }
 
@@ -48,7 +49,9 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
   Future<void> saveLocation({
     required String provinsi,
     required String kabkota,
-  }) => _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
+  }) => _saveLastLocation(
+    SaveLastLocationParams(provinsi: provinsi, kabkota: kabkota),
+  );
 
   @override
   Future<void> onLocationDetected({
@@ -121,7 +124,7 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
       ),
     );
 
-    final result = await _getKabkota(provinsi);
+    final result = await _getKabkota(GetKabkotaParams(provinsi));
     result.fold(
       (failure) => emit(
         ImsakiyahState.failure(
@@ -165,8 +168,10 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
     );
 
     final result = await _getImsakiyah(
-      provinsi: selectedProvinsi,
-      kabkota: kabkota,
+      GetImsakiyahParams(
+        provinsi: selectedProvinsi,
+        kabkota: kabkota,
+      ),
     );
     result.fold(
       (failure) => emit(
@@ -239,8 +244,10 @@ class ImsakiyahCubit extends Cubit<ImsakiyahState>
     );
 
     final jadwalResult = await _getImsakiyah(
-      provinsi: selectedProvinsi,
-      kabkota: selectedKabkota,
+      GetImsakiyahParams(
+        provinsi: selectedProvinsi,
+        kabkota: selectedKabkota,
+      ),
     );
     jadwalResult.fold(
       (failure) => emit(

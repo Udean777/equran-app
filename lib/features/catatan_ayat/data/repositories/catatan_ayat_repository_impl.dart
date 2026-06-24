@@ -1,5 +1,5 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_datasource.dart';
+import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_data_source.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
 import 'package:equran_app/features/catatan_ayat/domain/repositories/catatan_ayat_repository.dart';
 import 'package:fpdart/fpdart.dart';
@@ -9,7 +9,7 @@ import 'package:injectable/injectable.dart';
 class CatatanAyatRepositoryImpl implements CatatanAyatRepository {
   const CatatanAyatRepositoryImpl(this._datasource);
 
-  final CatatanAyatLocalDatasource _datasource;
+  final CatatanAyatLocalDataSource _datasource;
 
   @override
   Future<Either<Failure, List<CatatanAyat>>> getAll() async {

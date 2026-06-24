@@ -5,13 +5,13 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart';
-import 'package:equran_app/features/qibla/presentation/cubit/qibla_state.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_compass_widget.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_error_widget.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_how_to_card.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_info_panel.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_loading_view.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_tip_card.dart';
+import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,10 +37,10 @@ class _QiblaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: LuxuryAppBar(
         title: 'Qibla Finder',
         actions: [
@@ -101,8 +101,7 @@ class _QiblaContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
@@ -113,7 +112,7 @@ class _QiblaContent extends StatelessWidget {
         children: [
           Text(
             'Hadapkan diri Anda ke arah jarum kompas',
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: isDark
                   ? AppColors.onSurfaceDarkVariant
                   : AppColors.textTertiary,

@@ -2,6 +2,8 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
+import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_colors.dart';
+import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_strings.dart';
 import 'package:flutter/material.dart';
 
 /// Top 5 surat paling sering dibaca.
@@ -12,7 +14,7 @@ class TopSuratSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark
         ? AppColors.outlineDark
@@ -59,7 +61,7 @@ class TopSuratSection extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 Text(
-                  'Surat Paling Sering Dibaca',
+                  ReadingProgressStrings.topSuratTitle,
                   style: AppTypography.serifHeadingSmall.copyWith(
                     color: isDark
                         ? AppColors.onSurfaceDark
@@ -186,10 +188,12 @@ class _TopSuratRow extends StatelessWidget {
     );
   }
 
-  Color _rankColor(int rank) => switch (rank) {
-    1 => AppColors.gold,
-    2 => const Color(0xFFC0C0C0),
-    3 => const Color(0xFFCD7F32),
-    _ => AppColors.primary,
-  };
+  Color _rankColor(int rank) {
+    return switch (rank) {
+      1 => ReadingProgressColors.gold,
+      2 => ReadingProgressColors.silver,
+      3 => ReadingProgressColors.bronze,
+      _ => AppColors.primary.withValues(alpha: 0.1),
+    };
+  }
 }

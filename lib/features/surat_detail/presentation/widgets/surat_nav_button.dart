@@ -81,12 +81,9 @@ class _NavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final primaryColor = context.primaryActionColor;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
 
     return Material(
       color: surfaceColor,
@@ -111,9 +108,7 @@ class _NavButton extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.primaryDark
-                        : AppColors.primaryContainer,
+                    color: context.primaryContainerColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, size: 14, color: primaryColor),
@@ -129,9 +124,7 @@ class _NavButton extends StatelessWidget {
                     Text(
                       label.toUpperCase(),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: isDark
-                            ? AppColors.onSurfaceDarkVariant
-                            : AppColors.textTertiary,
+                        color: context.textTertiaryColor,
                         fontSize: 9,
                         letterSpacing: 0.8,
                         fontWeight: FontWeight.w600,
@@ -155,9 +148,7 @@ class _NavButton extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.primaryDark
-                        : AppColors.primaryContainer,
+                    color: context.primaryContainerColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, size: 14, color: primaryColor),

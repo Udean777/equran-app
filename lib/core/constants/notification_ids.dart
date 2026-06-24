@@ -16,6 +16,10 @@ abstract final class NotificationIds {
   // Hafalan reminder base (ID range: 20–133, satu per surat 1–114)
   static const int hafalanReminderBase = 20;
 
+  // Shalat checklist reminder
+  static const String shalatChecklistChannelId = 'shalat_checklist_channel';
+  static const int shalatChecklistBase = 140;
+
   // Debug/test IDs (hanya kDebugMode)
   static const int testSubuh = 901;
   static const int testDzuhur = 902;

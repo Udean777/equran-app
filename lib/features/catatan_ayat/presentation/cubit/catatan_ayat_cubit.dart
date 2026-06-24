@@ -47,8 +47,7 @@ class CatatanAyatCubit extends Cubit<CatatanAyatState> {
     required int ayatNomor,
   }) async {
     final result = await _delete(
-      suratNomor: suratNomor,
-      ayatNomor: ayatNomor,
+      DeleteCatatanParams(suratNomor: suratNomor, ayatNomor: ayatNomor),
     );
     result.fold(
       (failure) => emit(CatatanAyatState.failure(failure)),

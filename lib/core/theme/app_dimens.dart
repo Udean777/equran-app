@@ -36,14 +36,10 @@ abstract final class AppDimens {
   // ---------------------------------------------------------------------------
   static const double cardPadding = 16;
   static const double cardPaddingLG = 20;
-  static const double cardElevation = 0;
-  static const double cardElevationMD = 2;
-  static const double cardElevationLG = 4;
 
   // ---------------------------------------------------------------------------
   // AppBar
   // ---------------------------------------------------------------------------
-  static const double appBarHeight = 56;
   static const double appBarHeightLG = 72;
 
   // ---------------------------------------------------------------------------
@@ -75,14 +71,16 @@ abstract final class AppDimens {
   /// Tinggi card last read
   static const double lastReadCardHeight = 100;
 
+  /// Tinggi search bar sticky header
+  static const double searchBarHeight = 64;
+
+  /// Durasi animasi cepat (ms)
+  static const Duration animationFast = Duration(milliseconds: 200);
+
   /// Border width untuk gold accent
   static const double goldBorderWidth = 1.5;
 
   /// Opacity untuk surface overlay
-  static const double surfaceOverlayOpacity = 0.08;
-
   /// Blur radius untuk glassmorphism subtle
-  static const double blurRadiusSM = 8;
   static const double blurRadiusMD = 16;
-  static const double blurRadiusLG = 24;
 }

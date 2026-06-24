@@ -4,10 +4,12 @@ import 'package:fpdart/fpdart.dart';
 
 abstract interface class ReadingProgressRepository {
   /// Ambil riwayat baca untuk tanggal tertentu.
-  Either<Failure, ReadingHistory?> getByDate(String date);
+  Future<Either<Failure, ReadingHistory?>> getByDate(String date);
 
   /// Ambil riwayat baca untuk range tanggal.
-  Either<Failure, List<ReadingHistory>> getByDateRange(List<String> dates);
+  Future<Either<Failure, List<ReadingHistory>>> getByDateRange(
+    List<String> dates,
+  );
 
   /// Simpan ayat yang dibaca (single).
   Future<Either<Failure, Unit>> saveAyat(String date, String ayatId);
@@ -20,7 +22,4 @@ abstract interface class ReadingProgressRepository {
 
   /// Hapus data lama (lebih dari [retentionDays] hari).
   Future<Either<Failure, Unit>> cleanupOldData(int retentionDays);
-
-  /// Hitung statistik membaca dari data yang tersimpan.
-  Either<Failure, ReadingStats> getStats({required String today});
 }

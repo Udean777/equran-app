@@ -23,6 +23,14 @@
   "madinah": "المدينة المنورة",
   "tafsir": "التفسير",
   "lihatTafsir": "عرض التفسير",
+  "ayatNumber": "آية {number}",
+  "@ayatNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "bookmark": "المفضلة",
   "bookmarkEmpty": "لا توجد إشارات مرجعية.\nضع علامة على آياتك المفضلة!",
   "ayatTersimpan": "الآيات المحفوظة",
@@ -36,6 +44,13 @@
       "nomor": {
         "type": "int"
       }
+    }
+  },
+  "ayatFrom": "الآية {ayatNomor} من {totalAyat}",
+  "@ayatFrom": {
+    "placeholders": {
+      "ayatNomor": { "type": "int" },
+      "totalAyat": { "type": "int" }
     }
   },
   "errorNoInternet": "لا يوجد اتصال بالإنترنت.",
@@ -100,5 +115,71 @@
   "statistikBacaDrawer": "إحصائيات القراءة",
   "statistikShalatDrawer": "إحصائيات الصلاة",
   "manajemenAudioDrawer": "إدارة الصوت",
-  "pengaturanDrawer": "الإعدادات"
+  "pengaturanDrawer": "الإعدادات",
+  "pageNotFound": "الصفحة غير موجودة",
+  "pageNotFoundDesc": "الصفحة التي تبحث عنها غير متوفرة\nأو تم نقلها.",
+  "backToHome": "العودة إلى الصفحة الرئيسية",
+  "suratListHeader": "قائمة السور",
+  "totalSurat": "{count} سورة",
+  "@totalSurat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratCompletedEmpty": "لا توجد سور مكتملة بعد",
+  "suratInProgressEmpty": "لا توجد سور قيد القراءة",
+  "filterAll": "الكل ({count})",
+  "@filterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterInProgress": "قيد القراءة ({count})",
+  "@filterInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCompleted": "مكتملة ({count})",
+  "@filterCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterReadingStatus": "تصفية حالة القراءة",
+  "murajaahToday": "مراجعة اليوم",
+  "start": "ابدأ",
+  "andMore": "+{count} أخرى",
+  "@andMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbihTitle": "تسبيح وذكر",
+  "tasbihHistory": "التاريخ",
+  "tasbihHistoryTitle": "تاريخ التسبيح",
+  "tasbihDeleteAllHistory": "حذف كل التاريخ",
+  "tasbihEmptyHistory": "لا يوجد تاريخ تسبيح بعد.",
+  "tasbihDeleteAllConfirmTitle": "حذف كل التاريخ؟",
+  "tasbihDeleteAllConfirmMessage": "سيتم حذف كل تاريخ التسبيح بشكل دائم.",
+  "tasbihCompleted": "مكتمل",
+  "tasbihTarget": "الهدف",
+  "tasbihRemaining": "المتبقي",
+  "tasbihSelectDzikir": "اختر الذكر",
+  "tasbihCustomTarget": "هدف مخصص",
+  "tasbihCustomTargetHint": "مثال: 200",
+  "tasbihSetButton": "تعيين",
+  "tasbihChangeDzikir": "تغيير الذكر",
+  "tasbihReset": "إعادة ضبط",
+  "tasbihDelete": "حذف"
 }

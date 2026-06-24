@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/location/location_selection_mixin.dart';
 import 'package:equran_app/core/location/location_service.dart';
-import 'package:equran_app/core/notifications/shalat_schedule_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
@@ -11,8 +10,10 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_sha
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_shalat.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/usecases/params/jadwal_shalat_params.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/cubit/shalat_notif_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -48,7 +49,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
 
   @override
   Future<List<String>?> getKabkotaList(String provinsi) async {
-    final result = await _getKabkota(provinsi);
+    final result = await _getKabkota(GetKabkotaShalatParams(provinsi));
     return result.fold((_) => null, (list) => list);
   }
 
@@ -56,7 +57,9 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
   Future<void> saveLocation({
     required String provinsi,
     required String kabkota,
-  }) => _saveLastLocation(provinsi: provinsi, kabkota: kabkota);
+  }) => _saveLastLocation(
+    SaveLastLocationShalatParams(provinsi: provinsi, kabkota: kabkota),
+  );
 
   @override
   Future<void> onLocationDetected({
@@ -129,7 +132,7 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
       ),
     );
 
-    final result = await _getKabkota(provinsi);
+    final result = await _getKabkota(GetKabkotaShalatParams(provinsi));
     result.fold(
       (failure) => emit(
         JadwalShalatState.failure(
@@ -261,10 +264,12 @@ class JadwalShalatCubit extends Cubit<JadwalShalatState>
     );
 
     final jadwalResult = await _getJadwalShalat(
-      provinsi: selectedProvinsi,
-      kabkota: selectedKabkota,
-      bulan: targetBulan,
-      tahun: targetTahun,
+      GetJadwalShalatParams(
+        provinsi: selectedProvinsi,
+        kabkota: selectedKabkota,
+        bulan: targetBulan,
+        tahun: targetTahun,
+      ),
     );
     jadwalResult.fold(
       (failure) => emit(

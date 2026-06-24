@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/qibla/domain/entities/qibla_direction.dart';
 import 'package:equran_app/features/qibla/domain/usecases/init_qibla.dart';
 import 'package:equran_app/features/qibla/domain/usecases/watch_qibla_direction.dart';
-import 'package:equran_app/features/qibla/presentation/cubit/qibla_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+
+part 'qibla_cubit.freezed.dart';
+part 'qibla_state.dart';
 
 @injectable
 class QiblaCubit extends Cubit<QiblaState> {

@@ -1,5 +1,5 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/bookmark/data/datasources/bookmark_local_data_source.dart';
+import 'package:equran_app/features/bookmark/data/datasources/reading_progress_local_data_source.dart';
 import 'package:equran_app/features/bookmark/domain/repositories/reading_progress_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
@@ -8,7 +8,7 @@ import 'package:injectable/injectable.dart';
 class ReadingProgressRepositoryImpl implements ReadingProgressRepository {
   const ReadingProgressRepositoryImpl(this._local);
 
-  final BookmarkLocalDataSource _local;
+  final ReadingProgressLocalDataSource _local;
 
   @override
   Future<Either<Failure, Map<int, double>>> getAllSuratProgress() async {

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:equran_app/core/constants/juz_mapping.dart';
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -10,7 +10,9 @@ import 'package:equran_app/core/widgets/gradient_button.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/domain/services/hafalan_view_helper.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_state.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_ayat_grid.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_catatan_field.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_murajaah_section.dart';
@@ -18,8 +20,8 @@ import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_progres
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_section_header.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_selector.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
+import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -37,7 +39,14 @@ class HafalanDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return HafalanProviders(
-      child: _HafalanDetailView(suratNomor: suratNomor, juzNomor: juzNomor),
+      child: BlocProvider(
+        create: (_) {
+          final cubit = getIt<HafalanDetailCubit>();
+          unawaited(cubit.loadDetail(suratNomor));
+          return cubit;
+        },
+        child: _HafalanDetailView(suratNomor: suratNomor, juzNomor: juzNomor),
+      ),
     );
   }
 }
@@ -69,16 +78,10 @@ class _HafalanDetailView extends StatelessWidget {
         }
         final surat = suratMatches.first;
 
-        return BlocBuilder<HafalanCubit, HafalanState>(
+        return BlocBuilder<HafalanDetailCubit, HafalanDetailState>(
           builder: (context, hafalanState) {
-            final hafalan = hafalanState is HafalanSuccess
-                ? (hafalanState.hafalanList
-                          .where((h) => h.suratNomor == suratNomor)
-                          .isEmpty
-                      ? null
-                      : hafalanState.hafalanList.firstWhere(
-                          (h) => h.suratNomor == suratNomor,
-                        ))
+            final hafalan = hafalanState is HafalanDetailSuccess
+                ? hafalanState.hafalan
                 : null;
 
             return _HafalanDetailScaffold(
@@ -113,19 +116,18 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final ayatHafal = widget.hafalan?.ayatHafal ?? [];
 
-    // Cari range ayat untuk surat ini di juz yang aktif
-    final range = widget.juzNomor != null
-        ? kJuzSurahVerseRanges['${widget.juzNomor}:${widget.surat.nomor}']
-        : null;
+    final range = HafalanViewHelper.getAyatRange(
+      suratNomor: widget.surat.nomor,
+      jumlahAyat: widget.surat.jumlahAyat,
+      juzNomor: widget.juzNomor,
+    );
+    final startAyat = range.start;
+    final endAyat = range.end;
+    final totalAyatInRange = range.total;
 
-    final startAyat = range?.$1 ?? 1;
-    final endAyat = range?.$2 ?? widget.surat.jumlahAyat;
-    final totalAyatInRange = endAyat - startAyat + 1;
-
-    // Filter ayat yang dihafal hanya yang berada di range juz aktif
     final ayatHafalInRange = ayatHafal
         .where((a) => a >= startAyat && a <= endAyat)
         .toList();
@@ -192,17 +194,11 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
               ayatHafal: ayatHafal,
               startAyat: startAyat,
               onToggle: (ayatNomor) {
-                final suratAsHafalan = HafalanSurat(
-                  suratNomor: widget.surat.nomor,
-                  namaLatin: widget.surat.namaLatin,
-                  nama: widget.surat.nama,
-                  jumlahAyat: widget.surat.jumlahAyat,
-                );
                 unawaited(
-                  context.read<HafalanCubit>().toggleAyat(
+                  context.read<HafalanDetailCubit>().toggleAyat(
                     suratNomor: widget.surat.nomor,
                     ayatNomor: ayatNomor,
-                    suratInfo: suratAsHafalan,
+                    suratInfo: HafalanSurat.fromSurat(widget.surat),
                   ),
                 );
               },
@@ -284,12 +280,7 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
             HafalanCatatanField(
               suratNomor: widget.surat.nomor,
               initialValue: widget.hafalan?.catatan,
-              suratInfo: HafalanSurat(
-                suratNomor: widget.surat.nomor,
-                namaLatin: widget.surat.namaLatin,
-                nama: widget.surat.nama,
-                jumlahAyat: widget.surat.jumlahAyat,
-              ),
+              suratInfo: HafalanSurat.fromSurat(widget.surat),
             ),
 
             const SizedBox(height: AppDimens.spaceXL),
@@ -308,7 +299,7 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
           'Tindakan ini tidak bisa dibatalkan.',
     );
     if (confirmed && context.mounted) {
-      await context.read<HafalanCubit>().deleteSurat(widget.surat.nomor);
+      await context.read<HafalanDetailCubit>().deleteSurat(widget.surat.nomor);
       if (context.mounted) context.pop();
     }
   }

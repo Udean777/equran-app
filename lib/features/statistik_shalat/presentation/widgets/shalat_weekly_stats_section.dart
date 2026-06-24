@@ -1,7 +1,10 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_card.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,28 +27,12 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-      child: Container(
+      child: LuxuryCard(
+        radius: AppDimens.radiusXL,
+        hasShadow: true,
         padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -62,9 +49,9 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 Text(
-                  'Statistik 7 Hari Terakhir',
+                  StatistikShalatStrings.weeklyStatsTitle,
                   style: AppTypography.serifHeadingSmall.copyWith(
-                    color: isDark
+                    color: context.isDark
                         ? AppColors.onSurfaceDark
                         : AppColors.textPrimary,
                     fontSize: 15,
@@ -74,7 +61,7 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
                 Text(
                   '${(persentaseTepatWaktu * 100).toStringAsFixed(0)}%',
                   style: AppTypography.serifHeadingSmall.copyWith(
-                    color: isDark
+                    color: context.isDark
                         ? AppColors.primaryLighter
                         : AppColors.primary,
                     fontSize: 18,
@@ -86,10 +73,10 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
             const SizedBox(height: AppDimens.spaceXS),
 
             Text(
-              'tepat waktu',
+              StatistikShalatStrings.labelTepatWaktu.toLowerCase(),
               style: TextStyle(
                 fontSize: 11,
-                color: isDark
+                color: context.isDark
                     ? AppColors.onSurfaceDarkVariant
                     : AppColors.textTertiary,
               ),
@@ -102,23 +89,23 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
               children: [
                 _SummaryChip(
                   label: '$totalTepatWaktu',
-                  sublabel: 'Tepat Waktu',
+                  sublabel: StatistikShalatStrings.labelTepatWaktu,
                   color: AppColors.success,
-                  isDark: isDark,
+                  isDark: context.isDark,
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 _SummaryChip(
                   label: '$totalQadha',
-                  sublabel: 'Qadha',
+                  sublabel: StatistikShalatStrings.labelQadha,
                   color: AppColors.warning,
-                  isDark: isDark,
+                  isDark: context.isDark,
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 _SummaryChip(
                   label: '$totalTidakShalat',
-                  sublabel: 'Tidak Shalat',
+                  sublabel: StatistikShalatStrings.labelTidakShalat,
                   color: AppColors.error,
-                  isDark: isDark,
+                  isDark: context.isDark,
                 ),
               ],
             ),
@@ -127,12 +114,12 @@ class ShalatWeeklyStatsSection extends StatelessWidget {
               const SizedBox(height: AppDimens.spaceMD),
               Container(
                 height: 1,
-                color: isDark
+                color: context.isDark
                     ? AppColors.outlineDark
                     : AppColors.outlineVariant,
               ),
               const SizedBox(height: AppDimens.spaceMD),
-              _BarChart(dailyStats: dailyStats, isDark: isDark),
+              _BarChart(dailyStats: dailyStats, isDark: context.isDark),
             ],
           ],
         ),
@@ -241,8 +228,10 @@ class _Bar extends StatelessWidget {
     final qadha = dayStats.jumlahQadha;
     final total = tepatWaktu + qadha;
 
-    final tepatHeight = (tepatWaktu / 5) * maxHeight;
-    final qadhHeight = (qadha / 5) * maxHeight;
+    final tepatHeight =
+        (tepatWaktu / StatistikShalatConstants.totalWaktuShalat) * maxHeight;
+    final qadhHeight =
+        (qadha / StatistikShalatConstants.totalWaktuShalat) * maxHeight;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,

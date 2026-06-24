@@ -1,5 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Tombol besar di tengah layar untuk tap tasbih.
@@ -31,11 +33,15 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 100),
+      duration: TasbihConstants.tapAnimationDuration,
     );
-    _scaleAnimation = Tween<double>(begin: 1, end: 0.93).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation =
+        Tween<double>(
+          begin: TasbihConstants.tapScaleBegin,
+          end: TasbihConstants.tapScaleEnd,
+        ).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+        );
   }
 
   @override
@@ -52,23 +58,21 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
     final color = widget.isCompleted
         ? AppColors.gold
-        : (isDark ? AppColors.primaryLighter : AppColors.primary);
+        : context.primaryActionColor;
     final ringBg = widget.isCompleted
         ? AppColors.gold.withValues(alpha: 0.15)
-        : (isDark
-              ? AppColors.primaryLighter.withValues(alpha: 0.12)
-              : AppColors.primary.withValues(alpha: 0.12));
+        : context.primaryActionColor.withValues(alpha: 0.12);
 
     return GestureDetector(
       onTap: widget.isCompleted ? null : _handleTap,
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: SizedBox(
-          width: 220,
-          height: 220,
+          width: TasbihConstants.counterButtonSize,
+          height: TasbihConstants.counterButtonSize,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -98,8 +102,8 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
 
               // Inner circle
               Container(
-                width: 180,
-                height: 180,
+                width: TasbihConstants.counterInnerCircleSize,
+                height: TasbihConstants.counterInnerCircleSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: color.withValues(alpha: 0.07),
@@ -119,17 +123,17 @@ class _TasbihCounterButtonState extends State<TasbihCounterButton>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Selesai',
+                        l10n.tasbihCompleted,
                         style: AppTypography.serifHeadingSmall.copyWith(
                           color: AppColors.gold,
-                          fontSize: 16,
+                          fontSize: TasbihConstants.completedTextSize,
                         ),
                       ),
                     ] else
                       Text(
                         '${widget.count}',
                         style: TextStyle(
-                          fontSize: 64,
+                          fontSize: TasbihConstants.counterNumberSize,
                           fontWeight: FontWeight.w700,
                           color: color,
                           height: 1,

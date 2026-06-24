@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/widgets.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_filter.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_state.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_juz_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_stats_card.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
@@ -18,8 +20,8 @@ class HafalanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // HafalanCubit adalah @lazySingleton — pakai .value agar tidak di-close
-        BlocProvider.value(value: getIt<HafalanCubit>()),
+        // HafalanListCubit adalah @lazySingleton — pakai .value agar tidak di-close
+        BlocProvider.value(value: getIt<HafalanListCubit>()),
         BlocProvider(
           create: (_) {
             final cubit = getIt<SuratListCubit>();
@@ -45,21 +47,21 @@ class _HafalanView extends StatelessWidget {
             prev is! SuratListSuccess && next is SuratListSuccess,
         listener: (context, state) {
           if (state is SuratListSuccess) {
-            context.read<HafalanCubit>().setAllSurat(state.surats);
+            context.read<HafalanListCubit>().setAllSurat(state.surats);
           }
         },
-        child: BlocBuilder<HafalanCubit, HafalanState>(
+        child: BlocBuilder<HafalanListCubit, HafalanListState>(
           builder: (context, hafalanState) =>
               BlocBuilder<SuratListCubit, SuratListState>(
                 builder: (context, suratState) {
-                  if (hafalanState is HafalanLoading ||
+                  if (hafalanState is HafalanListLoading ||
                       suratState is SuratListLoading) {
                     return const LoadingWidget();
                   }
-                  if (hafalanState is HafalanFailure) {
+                  if (hafalanState is HafalanListFailure) {
                     return ErrorStateWidget(
                       message: hafalanState.message,
-                      onRetry: context.read<HafalanCubit>().load,
+                      onRetry: context.read<HafalanListCubit>().load,
                     );
                   }
                   if (suratState is SuratListFailure) {
@@ -68,7 +70,7 @@ class _HafalanView extends StatelessWidget {
                       onRetry: context.read<SuratListCubit>().retry,
                     );
                   }
-                  if (hafalanState is! HafalanSuccess ||
+                  if (hafalanState is! HafalanListSuccess ||
                       suratState is! SuratListSuccess) {
                     return const LoadingWidget();
                   }
@@ -85,7 +87,7 @@ class _HafalanView extends StatelessWidget {
 class _HafalanContent extends StatelessWidget {
   const _HafalanContent({required this.hafalanState});
 
-  final HafalanSuccess hafalanState;
+  final HafalanListSuccess hafalanState;
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +113,11 @@ class _HafalanContent extends StatelessWidget {
             selectedJuz: hafalanState.selectedJuz,
             currentStatusFilter: currentStatusFilter,
             onSearchChanged: (val) =>
-                context.read<HafalanCubit>().setSearchQuery(val),
+                context.read<HafalanListCubit>().setSearchQuery(val),
             onJuzSelected: (juz) =>
-                context.read<HafalanCubit>().setSelectedJuz(juz),
+                context.read<HafalanListCubit>().setSelectedJuz(juz),
             onStatusFilterChanged: (filter) =>
-                context.read<HafalanCubit>().setFilter(filter),
+                context.read<HafalanListCubit>().setFilter(filter),
           ),
         ),
 
@@ -191,7 +193,7 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final isPinned = shrinkOffset > 0 || overlapsContent;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;

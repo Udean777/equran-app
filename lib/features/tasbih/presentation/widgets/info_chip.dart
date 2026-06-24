@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
 import 'package:flutter/material.dart';
 
 /// Chip kecil untuk menampilkan label + value di TasbihPage.
@@ -34,14 +35,14 @@ class InfoChip extends StatelessWidget {
           Text(
             '$label: ',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: TasbihConstants.infoChipLabelSize,
               color: Colors.grey[600],
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: TasbihConstants.infoChipValueSize,
               fontWeight: FontWeight.bold,
               color: highlight ? AppColors.gold : AppColors.primary,
             ),

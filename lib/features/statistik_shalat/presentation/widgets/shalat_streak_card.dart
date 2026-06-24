@@ -5,6 +5,8 @@ import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/core/widgets/primary_gradient_card.dart';
 import 'package:equran_app/core/widgets/streak_badge.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:flutter/material.dart';
 
 /// Card header yang menampilkan streak dan progress shalat hari ini.
@@ -44,7 +46,7 @@ class ShalatStreakCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Shalat Hari Ini',
+                      StatistikShalatStrings.sectionChecklistHariIni,
                       style: TextStyle(
                         color: AppColors.onPrimary.withValues(alpha: 0.7),
                         fontSize: 11,
@@ -53,14 +55,14 @@ class ShalatStreakCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppDimens.spaceXS),
                     Text(
-                      '$jumlahShalat/5 Waktu',
+                      '$jumlahShalat/${StatistikShalatConstants.totalWaktuShalat} Waktu',
                       style: AppTypography.serifHeadingSmall.copyWith(
                         color: AppColors.onPrimary,
                         fontSize: 18,
                       ),
                     ),
                     Text(
-                      '$jumlahTepatWaktu tepat waktu',
+                      '$jumlahTepatWaktu ${StatistikShalatStrings.labelTepatWaktu.toLowerCase()}',
                       style: TextStyle(
                         color: AppColors.onPrimary.withValues(alpha: 0.8),
                         fontSize: 12,
@@ -87,7 +89,7 @@ class ShalatStreakCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDimens.radiusFull),
             child: LinearProgressIndicator(
-              value: jumlahShalat / 5,
+              value: jumlahShalat / StatistikShalatConstants.totalWaktuShalat,
               minHeight: 6,
               backgroundColor: AppColors.onPrimary.withValues(alpha: 0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(AppColors.gold),
@@ -121,13 +123,13 @@ class _ProgressCircle extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           CircularProgressIndicator(
-            value: jumlahShalat / 5,
+            value: jumlahShalat / StatistikShalatConstants.totalWaktuShalat,
             strokeWidth: 5,
             backgroundColor: AppColors.onPrimary.withValues(alpha: 0.2),
             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.gold),
           ),
           Text(
-            '$jumlahShalat/5',
+            '$jumlahShalat/${StatistikShalatConstants.totalWaktuShalat}',
             style: const TextStyle(
               color: AppColors.onPrimary,
               fontWeight: FontWeight.w700,

@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/surat_detail/constants/ayat_badge_config.dart';
 import 'package:flutter/material.dart';
 
 // ---------------------------------------------------------------------------
@@ -23,11 +24,13 @@ class AyatNumberBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = isPlaying
-        ? (isDark ? AppColors.primaryLight : AppColors.primary)
-        : (isDark ? AppColors.primaryDark : AppColors.primaryContainer);
+        ? isDark
+              ? AppColors.primaryLight
+              : AppColors.primary
+        : context.primaryContainerColor;
     final textColor = isPlaying
         ? AppColors.onPrimary
-        : (isDark ? AppColors.primaryLighter : AppColors.primary);
+        : context.primaryActionColor;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -52,7 +55,9 @@ class AyatNumberBadge extends StatelessWidget {
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.w700,
-              fontSize: nomor > 99 ? 10 : 12,
+              fontSize: nomor > AyatBadgeConfig.largeNumberThreshold
+                  ? AyatBadgeConfig.fontSizeLarge
+                  : AyatBadgeConfig.fontSizeSmall,
             ),
           ),
         ),
@@ -67,7 +72,7 @@ class AyatNumberBadge extends StatelessWidget {
                 color: AppColors.gold,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isDark ? AppColors.surfaceDark : AppColors.surface,
+                  color: context.surfaceColor,
                   width: 1.5,
                 ),
               ),
@@ -91,7 +96,6 @@ class AyatActionButtons extends StatelessWidget {
     required this.isDownloaded,
     required this.isDownloading,
     required this.downloadProgress,
-    required this.isDark,
     required this.onPlayTap,
     required this.onBookmarkToggle,
     required this.onShareTap,
@@ -107,21 +111,17 @@ class AyatActionButtons extends StatelessWidget {
   final bool isDownloaded;
   final bool isDownloading;
   final double downloadProgress;
-  final bool isDark;
   final VoidCallback? onPlayTap;
   final VoidCallback? onBookmarkToggle;
   final VoidCallback? onShareTap;
   final VoidCallback? onCatatanTap;
   final VoidCallback? onDownloadTap;
 
-  Color get _iconColor =>
-      isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary;
-
-  Color get _activeColor =>
-      isDark ? AppColors.primaryLighter : AppColors.primary;
-
   @override
   Widget build(BuildContext context) {
+    final iconColor = context.textTertiaryColor;
+    final activeColor = context.primaryActionColor;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -135,7 +135,7 @@ class AyatActionButtons extends StatelessWidget {
                     padding: const EdgeInsets.all(6),
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: _activeColor,
+                      color: activeColor,
                     ),
                   ),
                 )
@@ -143,7 +143,7 @@ class AyatActionButtons extends StatelessWidget {
                   icon: isPlaying
                       ? Icons.pause_circle_outline_rounded
                       : Icons.play_circle_outline_rounded,
-                  color: isPlaying ? _activeColor : _iconColor,
+                  color: isPlaying ? activeColor : iconColor,
                   onTap: onPlayTap,
                 ),
 
@@ -153,7 +153,7 @@ class AyatActionButtons extends StatelessWidget {
             icon: isBookmarked
                 ? Icons.bookmark_rounded
                 : Icons.bookmark_border_rounded,
-            color: isBookmarked ? AppColors.gold : _iconColor,
+            color: isBookmarked ? AppColors.gold : iconColor,
             onTap: onBookmarkToggle,
           ),
 
@@ -161,7 +161,7 @@ class AyatActionButtons extends StatelessWidget {
         if (onShareTap != null)
           _AyatActionBtn(
             icon: Icons.share_rounded,
-            color: _iconColor,
+            color: iconColor,
             onTap: onShareTap,
           ),
 
@@ -169,7 +169,7 @@ class AyatActionButtons extends StatelessWidget {
         if (onCatatanTap != null)
           _AyatActionBtn(
             icon: Icons.edit_note_rounded,
-            color: hasCatatan ? AppColors.gold : _iconColor,
+            color: hasCatatan ? AppColors.gold : iconColor,
             onTap: onCatatanTap,
           ),
 
@@ -184,7 +184,7 @@ class AyatActionButtons extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       value: downloadProgress > 0 ? downloadProgress : null,
-                      color: _activeColor,
+                      color: activeColor,
                     ),
                   ),
                 )
@@ -192,7 +192,7 @@ class AyatActionButtons extends StatelessWidget {
                   icon: isDownloaded
                       ? Icons.download_done_rounded
                       : Icons.download_outlined,
-                  color: isDownloaded ? AppColors.success : _iconColor,
+                  color: isDownloaded ? AppColors.success : iconColor,
                   onTap: isDownloaded ? null : onDownloadTap,
                 ),
       ],

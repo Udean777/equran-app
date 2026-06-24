@@ -125,12 +125,12 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Surat> surats,  String query)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Surat> surats,  String query,  SuratCompletionFilter activeFilter)?  success,TResult Function( Failure failure)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SuratListInitial() when initial != null:
 return initial();case SuratListLoading() when loading != null:
 return loading();case SuratListSuccess() when success != null:
-return success(_that.surats,_that.query);case SuratListFailure() when failure != null:
+return success(_that.surats,_that.query,_that.activeFilter);case SuratListFailure() when failure != null:
 return failure(_that.failure);case _:
   return orElse();
 
@@ -149,12 +149,12 @@ return failure(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Surat> surats,  String query)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Surat> surats,  String query,  SuratCompletionFilter activeFilter)  success,required TResult Function( Failure failure)  failure,}) {final _that = this;
 switch (_that) {
 case SuratListInitial():
 return initial();case SuratListLoading():
 return loading();case SuratListSuccess():
-return success(_that.surats,_that.query);case SuratListFailure():
+return success(_that.surats,_that.query,_that.activeFilter);case SuratListFailure():
 return failure(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +169,12 @@ return failure(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Surat> surats,  String query)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Surat> surats,  String query,  SuratCompletionFilter activeFilter)?  success,TResult? Function( Failure failure)?  failure,}) {final _that = this;
 switch (_that) {
 case SuratListInitial() when initial != null:
 return initial();case SuratListLoading() when loading != null:
 return loading();case SuratListSuccess() when success != null:
-return success(_that.surats,_that.query);case SuratListFailure() when failure != null:
+return success(_that.surats,_that.query,_that.activeFilter);case SuratListFailure() when failure != null:
 return failure(_that.failure);case _:
   return null;
 
@@ -251,7 +251,7 @@ String toString() {
 
 
 class SuratListSuccess implements SuratListState {
-  const SuratListSuccess({required final  List<Surat> surats, this.query = ''}): _surats = surats;
+  const SuratListSuccess({required final  List<Surat> surats, this.query = '', this.activeFilter = SuratCompletionFilter.all}): _surats = surats;
   
 
  final  List<Surat> _surats;
@@ -262,6 +262,7 @@ class SuratListSuccess implements SuratListState {
 }
 
 @JsonKey() final  String query;
+@JsonKey() final  SuratCompletionFilter activeFilter;
 
 /// Create a copy of SuratListState
 /// with the given fields replaced by the non-null parameter values.
@@ -273,16 +274,16 @@ $SuratListSuccessCopyWith<SuratListSuccess> get copyWith => _$SuratListSuccessCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SuratListSuccess&&const DeepCollectionEquality().equals(other._surats, _surats)&&(identical(other.query, query) || other.query == query));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SuratListSuccess&&const DeepCollectionEquality().equals(other._surats, _surats)&&(identical(other.query, query) || other.query == query)&&(identical(other.activeFilter, activeFilter) || other.activeFilter == activeFilter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_surats),query);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_surats),query,activeFilter);
 
 @override
 String toString() {
-  return 'SuratListState.success(surats: $surats, query: $query)';
+  return 'SuratListState.success(surats: $surats, query: $query, activeFilter: $activeFilter)';
 }
 
 
@@ -293,7 +294,7 @@ abstract mixin class $SuratListSuccessCopyWith<$Res> implements $SuratListStateC
   factory $SuratListSuccessCopyWith(SuratListSuccess value, $Res Function(SuratListSuccess) _then) = _$SuratListSuccessCopyWithImpl;
 @useResult
 $Res call({
- List<Surat> surats, String query
+ List<Surat> surats, String query, SuratCompletionFilter activeFilter
 });
 
 
@@ -310,11 +311,12 @@ class _$SuratListSuccessCopyWithImpl<$Res>
 
 /// Create a copy of SuratListState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? surats = null,Object? query = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? surats = null,Object? query = null,Object? activeFilter = null,}) {
   return _then(SuratListSuccess(
 surats: null == surats ? _self._surats : surats // ignore: cast_nullable_to_non_nullable
 as List<Surat>,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
-as String,
+as String,activeFilter: null == activeFilter ? _self.activeFilter : activeFilter // ignore: cast_nullable_to_non_nullable
+as SuratCompletionFilter,
   ));
 }
 

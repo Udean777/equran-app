@@ -25,12 +25,11 @@ class DownloadSuratSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final pending = detail.ayatList
         .where(
           (a) =>
               downloadCubit.state.stateFor(
-                detail.info.nomor,
+                detail.nomor,
                 a.nomorAyat,
                 qari.id,
               ) !=
@@ -49,28 +48,24 @@ class DownloadSuratSheet extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceMD),
 
           Text(
-            'Download ${detail.info.namaLatin}',
+            'Download ${detail.namaLatin}',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.primaryLighter : AppColors.primary,
+              color: context.primaryActionColor,
             ),
           ),
           const SizedBox(height: AppDimens.spaceSM),
           Text(
             '$pending ayat akan didownload untuk qari ${qari.name}.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: isDark
-                  ? AppColors.onSurfaceDarkVariant
-                  : AppColors.textSecondary,
+              color: context.textSecondaryColor,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Audio tersimpan lokal dan bisa diputar tanpa internet.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: isDark
-                  ? AppColors.onSurfaceDarkVariant
-                  : AppColors.textTertiary,
+              color: context.textTertiaryColor,
             ),
           ),
           const SizedBox(height: AppDimens.spaceLG),
@@ -80,11 +75,9 @@ class DownloadSuratSheet extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: isDark
-                        ? AppColors.primaryLighter
-                        : AppColors.primary,
+                    foregroundColor: context.primaryActionColor,
                     side: BorderSide(
-                      color: isDark ? AppColors.outlineDark : AppColors.outline,
+                      color: context.borderColor,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppDimens.radiusLG),
@@ -105,7 +98,7 @@ class DownloadSuratSheet extends StatelessWidget {
                     Navigator.pop(context);
                     unawaited(
                       downloadCubit.downloadSurat(
-                        suratNomor: detail.info.nomor,
+                        suratNomor: detail.nomor,
                         ayatList: detail.ayatList,
                         qari: qari,
                       ),

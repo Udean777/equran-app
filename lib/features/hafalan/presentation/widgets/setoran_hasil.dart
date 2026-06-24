@@ -63,7 +63,7 @@ class SetoranHasil extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        detail.info.namaLatin,
+                        detail.namaLatin,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: AppColors.onPrimary.withValues(alpha: 0.8),
                         ),

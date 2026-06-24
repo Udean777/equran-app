@@ -1,12 +1,10 @@
-import 'dart:async';
-
-import 'package:equran_app/core/constants/card_swipe_config.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/services/bookmark_toggle_helper.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_completion_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_card.dart';
@@ -139,7 +137,7 @@ class SuratCardStack extends StatelessWidget {
     if (index == 0) {
       final isCompleted =
           context.watch<BookmarkCubit>().state.mapOrNull(
-            success: (s) => s.suratProgressMap[detail.info.nomor] == 1.0,
+            success: (s) => s.suratProgressMap[detail.nomor] == 1.0,
           ) ??
           false;
       card = SuratInfoCard(
@@ -172,8 +170,7 @@ class SuratCardStack extends StatelessWidget {
               bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
           final isBookmarked = bookmarks.any(
             (b) =>
-                b.suratNomor == detail.info.nomor &&
-                b.ayatNomor == ayat.nomorAyat,
+                b.suratNomor == detail.nomor && b.ayatNomor == ayat.nomorAyat,
           );
 
           return AyatSwipeCard(
@@ -181,27 +178,12 @@ class SuratCardStack extends StatelessWidget {
             suratDetail: detail,
             isBookmarked: isBookmarked,
             onBookmarkToggle: () {
-              if (isBookmarked) {
-                unawaited(
-                  context.read<BookmarkCubit>().removeBookmark(
-                    suratNomor: detail.info.nomor,
-                    ayatNomor: ayat.nomorAyat,
-                  ),
-                );
-              } else {
-                unawaited(
-                  context.read<BookmarkCubit>().addBookmark(
-                    Bookmark(
-                      suratNomor: detail.info.nomor,
-                      ayatNomor: ayat.nomorAyat,
-                      namaLatin: detail.info.namaLatin,
-                      teksArab: ayat.teksArab,
-                      teksIndonesia: ayat.teksIndonesia,
-                      savedAt: DateTime.now(),
-                    ),
-                  ),
-                );
-              }
+              BookmarkToggleHelper.toggle(
+                cubit: context.read<BookmarkCubit>(),
+                detail: detail,
+                ayat: ayat,
+                isBookmarked: isBookmarked,
+              );
             },
           );
         },

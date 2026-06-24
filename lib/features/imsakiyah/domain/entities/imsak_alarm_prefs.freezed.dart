@@ -11,7 +11,6 @@ part of 'imsak_alarm_prefs.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$ImsakAlarmPrefs {
 
@@ -22,8 +21,6 @@ mixin _$ImsakAlarmPrefs {
 @pragma('vm:prefer-inline')
 $ImsakAlarmPrefsCopyWith<ImsakAlarmPrefs> get copyWith => _$ImsakAlarmPrefsCopyWithImpl<ImsakAlarmPrefs>(this as ImsakAlarmPrefs, _$identity);
 
-  /// Serializes this ImsakAlarmPrefs to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is ImsakAlarmPrefs&&(identical(other.imsakEnabled, imsakEnabled) || other.imsakEnabled == imsakEnabled)&&(identical(other.sahurEnabled, sahurEnabled) || other.sahurEnabled == sahurEnabled)&&(identical(other.menitSebelumImsak, menitSebelumImsak) || other.menitSebelumImsak == menitSebelumImsak));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,imsakEnabled,sahurEnabled,menitSebelumImsak);
 
@@ -208,11 +205,11 @@ return $default(_that.imsakEnabled,_that.sahurEnabled,_that.menitSebelumImsak);c
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _ImsakAlarmPrefs implements ImsakAlarmPrefs {
   const _ImsakAlarmPrefs({this.imsakEnabled = false, this.sahurEnabled = false, this.menitSebelumImsak = 60});
-  factory _ImsakAlarmPrefs.fromJson(Map<String, dynamic> json) => _$ImsakAlarmPrefsFromJson(json);
+  
 
 @override@JsonKey() final  bool imsakEnabled;
 @override@JsonKey() final  bool sahurEnabled;
@@ -224,17 +221,14 @@ class _ImsakAlarmPrefs implements ImsakAlarmPrefs {
 @pragma('vm:prefer-inline')
 _$ImsakAlarmPrefsCopyWith<_ImsakAlarmPrefs> get copyWith => __$ImsakAlarmPrefsCopyWithImpl<_ImsakAlarmPrefs>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$ImsakAlarmPrefsToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImsakAlarmPrefs&&(identical(other.imsakEnabled, imsakEnabled) || other.imsakEnabled == imsakEnabled)&&(identical(other.sahurEnabled, sahurEnabled) || other.sahurEnabled == sahurEnabled)&&(identical(other.menitSebelumImsak, menitSebelumImsak) || other.menitSebelumImsak == menitSebelumImsak));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,imsakEnabled,sahurEnabled,menitSebelumImsak);
 

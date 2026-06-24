@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:equran_app/core/constants/quran_constants.dart';
-import 'package:equran_app/core/error/exceptions.dart';
 import 'package:equran_app/features/hafalan/data/mappers/hafalan_mapper.dart';
 import 'package:equran_app/features/hafalan/data/models/hafalan_surat_dto.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
@@ -50,7 +49,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
       return results;
     } on Object catch (e, st) {
       debugPrint('HafalanLocalDatasource.getAll error: $e\n$st');
-      throw CacheException(message: e.toString());
+      throw Exception(e.toString());
     }
   }
 
@@ -73,7 +72,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
       return null;
     } on Object catch (e, st) {
       debugPrint('HafalanLocalDatasource.getBySurat error: $e\n$st');
-      throw CacheException(message: e.toString());
+      throw Exception(e.toString());
     }
   }
 

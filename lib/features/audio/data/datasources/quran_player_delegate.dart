@@ -32,16 +32,20 @@ class QuranPlayerDelegate {
   Duration? _savedPosition;
   bool _wasPlaying = false;
 
+  late final StreamSubscription<AudioInterruptionEvent> _interruptionSub;
+  late final StreamSubscription<PlayerState> _playerStateSub;
+  late final StreamSubscription<Duration> _positionSub;
+
   Future<void> init() async {
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());
 
-    session.interruptionEventStream.listen((event) {
+    _interruptionSub = session.interruptionEventStream.listen((event) {
       if (event.begin) unawaited(pause());
     });
 
-    _player.playerStateStream.listen(_onPlayerStateChanged);
-    _player.positionStream.listen(_onPositionChanged);
+    _playerStateSub = _player.playerStateStream.listen(_onPlayerStateChanged);
+    _positionSub = _player.positionStream.listen(_onPositionChanged);
   }
 
   void _onPlayerStateChanged(PlayerState playerState) {
@@ -188,6 +192,9 @@ class QuranPlayerDelegate {
   int? get currentAyat => _currentAyat;
 
   Future<void> dispose() async {
+    await _interruptionSub.cancel();
+    await _playerStateSub.cancel();
+    await _positionSub.cancel();
     await _player.dispose();
   }
 }

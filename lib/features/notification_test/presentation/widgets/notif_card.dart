@@ -11,9 +11,7 @@ class NotifCard extends StatefulWidget {
     required this.subtitle,
     required this.color,
     required this.status,
-    required this.isDark,
     required this.onTest,
-    this.duration,
     super.key,
   });
 
@@ -22,10 +20,8 @@ class NotifCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final Color color;
-  final bool? status; // null=idle, true=ok, false=error
-  final bool isDark;
+  final bool? status;
   final VoidCallback onTest;
-  final Duration? duration;
 
   @override
   State<NotifCard> createState() => _NotifCardState();
@@ -38,7 +34,7 @@ class _NotifCardState extends State<NotifCard> {
   @override
   void initState() {
     super.initState();
-    if (widget.status == true && widget.duration != null) {
+    if (widget.status == true) {
       _startCountdown();
     }
   }
@@ -46,17 +42,16 @@ class _NotifCardState extends State<NotifCard> {
   @override
   void didUpdateWidget(NotifCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.status != oldWidget.status ||
-        widget.duration != oldWidget.duration) {
+    if (widget.status != oldWidget.status) {
       _stopCountdown();
-      if (widget.status == true && widget.duration != null) {
+      if (widget.status == true) {
         _startCountdown();
       }
     }
   }
 
   void _startCountdown() {
-    _remainingSeconds = widget.duration!.inSeconds;
+    _remainingSeconds = 5;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -83,10 +78,9 @@ class _NotifCardState extends State<NotifCard> {
 
   @override
   Widget build(BuildContext context) {
-    final surfaceColor = widget.isDark
-        ? AppColors.surfaceDark
-        : AppColors.surface;
-    final borderColor = widget.isDark
+    final isDark = context.isDark;
+    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final borderColor = isDark
         ? AppColors.outlineDark
         : AppColors.outlineVariant;
 
@@ -103,7 +97,7 @@ class _NotifCardState extends State<NotifCard> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: widget.isDark ? 0.15 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -113,13 +107,12 @@ class _NotifCardState extends State<NotifCard> {
         padding: const EdgeInsets.all(AppDimens.cardPadding),
         child: Row(
           children: [
-            // Icon
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
                 color: widget.color.withValues(
-                  alpha: widget.isDark ? 0.15 : 0.1,
+                  alpha: isDark ? 0.15 : 0.1,
                 ),
                 borderRadius: BorderRadius.circular(AppDimens.radiusMD),
               ),
@@ -130,8 +123,6 @@ class _NotifCardState extends State<NotifCard> {
               ),
             ),
             const SizedBox(width: AppDimens.spaceMD),
-
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +135,7 @@ class _NotifCardState extends State<NotifCard> {
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: widget.isDark
+                            color: isDark
                                 ? AppColors.onSurfaceDark
                                 : AppColors.textPrimary,
                           ),
@@ -167,7 +158,7 @@ class _NotifCardState extends State<NotifCard> {
                     widget.subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: widget.isDark
+                      color: isDark
                           ? AppColors.onSurfaceDarkVariant
                           : AppColors.textTertiary,
                       height: 1.4,
@@ -176,8 +167,8 @@ class _NotifCardState extends State<NotifCard> {
                   if (widget.status == true) ...[
                     const SizedBox(height: AppDimens.spaceXS),
                     Text(
-                      widget.duration != null
-                          ? 'Dijadwalkan — ${_remainingSeconds > 0 ? "tunggu $_remainingSeconds detik" : "alarm berbunyi!"}'
+                      _remainingSeconds > 0
+                          ? 'Dijadwalkan — tunggu $_remainingSeconds detik'
                           : 'Berhasil dijalankan',
                       style: const TextStyle(
                         fontSize: 11,
@@ -190,11 +181,8 @@ class _NotifCardState extends State<NotifCard> {
               ),
             ),
             const SizedBox(width: AppDimens.spaceSM),
-
-            // Button
             _TestButton(
               color: widget.color,
-              isDark: widget.isDark,
               onTap: widget.onTest,
             ),
           ],
@@ -207,16 +195,16 @@ class _NotifCardState extends State<NotifCard> {
 class _TestButton extends StatelessWidget {
   const _TestButton({
     required this.color,
-    required this.isDark,
     required this.onTap,
   });
 
   final Color color;
-  final bool isDark;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(

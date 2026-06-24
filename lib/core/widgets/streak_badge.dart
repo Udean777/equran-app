@@ -43,7 +43,7 @@ class StreakBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return switch (variant) {
       StreakBadgeVariant.surface => _SurfaceBadge(

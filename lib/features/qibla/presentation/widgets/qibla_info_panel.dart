@@ -2,6 +2,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
+import 'package:equran_app/features/qibla/presentation/widgets/qibla_compass_painters.dart';
 import 'package:flutter/material.dart';
 
 /// Panel info: bearing, arah, dan status aligned.
@@ -17,13 +18,13 @@ class QiblaInfoPanel extends StatelessWidget {
 
   bool get _isAligned {
     final normalized = qiblaAngle % 360;
-    return normalized <= 5.0 || normalized >= 355.0;
+    return normalized <= qiblaAlignedThreshold ||
+        normalized >= (360 - qiblaAlignedThreshold);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = _isAligned
         ? AppColors.gold.withValues(alpha: 0.4)
@@ -197,7 +198,7 @@ class _InstructionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final color = isAligned
         ? AppColors.gold
         : (isDark ? AppColors.primaryLighter : AppColors.primary);

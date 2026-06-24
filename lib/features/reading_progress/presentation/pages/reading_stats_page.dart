@@ -5,6 +5,7 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
+import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_strings.dart';
 import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
 import 'package:equran_app/features/reading_progress/presentation/widgets/juz_progress_section.dart';
 import 'package:equran_app/features/reading_progress/presentation/widgets/reading_heatmap.dart';
@@ -36,7 +37,7 @@ class _ReadingStatsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const LuxuryAppBar(title: 'Statistik Bacaan'),
+      appBar: const LuxuryAppBar(title: ReadingProgressStrings.title),
       body: BlocBuilder<ReadingProgressCubit, ReadingProgressState>(
         builder: (context, state) => state.when(
           initial: () => const LoadingWidget(),

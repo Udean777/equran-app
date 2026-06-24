@@ -1,6 +1,8 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/features/surat_list/constants/surat_list_constants.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -16,25 +18,16 @@ class SuratCard extends StatelessWidget {
   final Surat surat;
   final VoidCallback onTap;
   final VoidCallback? onPlayTap;
-
-  /// Progress membaca surat ini (0.0–1.0).
   final double? scrollPercent;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
-
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final isCompleted = scrollPercent == 1.0;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimens.spaceSM),
       child: Material(
-        color: surfaceColor,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         child: InkWell(
           onTap: onTap,
@@ -45,162 +38,25 @@ class SuratCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppDimens.radiusLG),
               border: Border.all(
-                color: scrollPercent == 1.0
-                    ? (isDark
+                color: isCompleted
+                    ? (context.isDark
                           ? AppColors.gold.withValues(alpha: 0.3)
                           : AppColors.gold.withValues(alpha: 0.5))
-                    : borderColor,
-                width: scrollPercent == 1.0 ? 1.5 : 1.0,
+                    : context.borderSubtleColor,
+                width: isCompleted ? AppDimens.goldBorderWidth : 1.0,
               ),
             ),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.cardPaddingLG,
-                    vertical: AppDimens.cardPadding,
-                  ),
-                  child: Row(
-                    children: [
-                      // Nomor badge — diamond shape luxury
-                      _NomorBadge(nomor: surat.nomor, isDark: isDark),
-                      const SizedBox(width: AppDimens.spaceMD),
-
-                      // Info tengah
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  surat.namaLatin,
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark
-                                        ? AppColors.onSurfaceDark
-                                        : AppColors.textPrimary,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                if (scrollPercent == 1.0) ...[
-                                  const SizedBox(width: AppDimens.spaceXS),
-                                  const Icon(
-                                    Icons.verified_rounded,
-                                    color: AppColors.gold,
-                                    size: 16,
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 3),
-                            Row(
-                              children: [
-                                Text(
-                                  l10n.ayatCount(surat.jumlahAyat),
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: isDark
-                                        ? AppColors.onSurfaceDarkVariant
-                                        : AppColors.textTertiary,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                const SizedBox(width: AppDimens.spaceXS),
-                                _TempatTurunBadge(
-                                  tempatTurun: surat.tempatTurun,
-                                  l10n: l10n,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Kanan — arabic + play
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            surat.nama,
-                            style: TextStyle(
-                              fontFamily: 'Amiri',
-                              fontSize: 22,
-                              color: isDark
-                                  ? AppColors.primaryLighter
-                                  : AppColors.primary,
-                              height: 1.4,
-                            ),
-                          ),
-                          if (onPlayTap != null) ...[
-                            const SizedBox(height: 4),
-                            GestureDetector(
-                              onTap: onPlayTap,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppDimens.spaceSM,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? AppColors.primaryDark
-                                      : AppColors.primaryContainer,
-                                  borderRadius: BorderRadius.circular(
-                                    AppDimens.radiusFull,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.play_arrow_rounded,
-                                      size: 12,
-                                      color: isDark
-                                          ? AppColors.primaryLighter
-                                          : AppColors.primary,
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      'Play',
-                                      style: TextStyle(
-                                        color: isDark
-                                            ? AppColors.primaryLighter
-                                            : AppColors.primary,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
+                _SuratCardBody(
+                  surat: surat,
+                  isCompleted: isCompleted,
+                  onPlayTap: onPlayTap,
                 ),
-
-                // Progress bar — hanya tampil jika scrollPercent != null
                 if (scrollPercent != null)
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(AppDimens.radiusLG),
-                      bottomRight: Radius.circular(AppDimens.radiusLG),
-                    ),
-                    child: LinearProgressIndicator(
-                      value: scrollPercent,
-                      minHeight: 3,
-                      backgroundColor: isDark
-                          ? AppColors.primaryDark
-                          : AppColors.primaryContainer,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        scrollPercent == 1.0
-                            ? AppColors.gold
-                            : (isDark
-                                  ? AppColors.primaryLighter
-                                  : AppColors.primary),
-                      ),
-                    ),
+                  _SuratProgressBar(
+                    scrollPercent: scrollPercent!,
+                    isCompleted: isCompleted,
                   ),
               ],
             ),
@@ -211,21 +67,17 @@ class SuratCard extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Nomor badge — luxury diamond/octagon style
-// ---------------------------------------------------------------------------
-
-class _NomorBadge extends StatelessWidget {
-  const _NomorBadge({required this.nomor, required this.isDark});
+class SuratNomorBadge extends StatelessWidget {
+  const SuratNomorBadge({required this.nomor, super.key});
 
   final int nomor;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
     return Container(
-      width: 40,
-      height: 40,
+      width: SuratListConstants.badgeSize,
+      height: SuratListConstants.badgeSize,
       decoration: BoxDecoration(
         color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
         borderRadius: BorderRadius.circular(AppDimens.radiusSM),
@@ -241,21 +93,20 @@ class _NomorBadge extends StatelessWidget {
         style: TextStyle(
           color: isDark ? AppColors.primaryLighter : AppColors.primary,
           fontWeight: FontWeight.w700,
-          fontSize: nomor > 99 ? 10 : 12,
+          fontSize: nomor > SuratListConstants.badgeLargeNumberThreshold
+              ? SuratListConstants.badgeFontSizeLarge
+              : SuratListConstants.badgeFontSizeSmall,
         ),
       ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Tempat turun badge
-// ---------------------------------------------------------------------------
-
-class _TempatTurunBadge extends StatelessWidget {
-  const _TempatTurunBadge({
+class SuratTempatTurunBadge extends StatelessWidget {
+  const SuratTempatTurunBadge({
     required this.tempatTurun,
     required this.l10n,
+    super.key,
   });
 
   final TempatTurun tempatTurun;
@@ -267,7 +118,7 @@ class _TempatTurunBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.spaceSM,
-        vertical: 2,
+        vertical: AppDimens.spaceXXS,
       ),
       decoration: BoxDecoration(
         color: isMekah ? AppColors.mekahBadge : AppColors.madinahBadge,
@@ -279,9 +130,163 @@ class _TempatTurunBadge extends StatelessWidget {
           color: isMekah
               ? AppColors.mekahBadgeText
               : AppColors.madinahBadgeText,
-          fontSize: 9,
+          fontSize: SuratListConstants.tempatTurunFontSize,
           fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
+          letterSpacing: SuratListConstants.letterSpacingSubtle,
+        ),
+      ),
+    );
+  }
+}
+
+class _SuratCardBody extends StatelessWidget {
+  const _SuratCardBody({
+    required this.surat,
+    required this.isCompleted,
+    this.onPlayTap,
+  });
+
+  final Surat surat;
+  final bool isCompleted;
+  final VoidCallback? onPlayTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.cardPaddingLG,
+        vertical: AppDimens.cardPadding,
+      ),
+      child: Row(
+        children: [
+          SuratNomorBadge(nomor: surat.nomor),
+          const SizedBox(width: AppDimens.spaceMD),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      surat.namaLatin,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.textPrimaryColor,
+                        fontSize: SuratListConstants.namaLatinFontSize,
+                      ),
+                    ),
+                    if (isCompleted) ...[
+                      const SizedBox(width: AppDimens.spaceXS),
+                      const Icon(
+                        Icons.verified_rounded,
+                        color: AppColors.gold,
+                        size: AppDimens.iconSM,
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    Text(
+                      l10n.ayatCount(surat.jumlahAyat),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: context.textTertiaryColor,
+                        fontSize: SuratListConstants.ayatCountFontSize,
+                      ),
+                    ),
+                    const SizedBox(width: AppDimens.spaceXS),
+                    SuratTempatTurunBadge(
+                      tempatTurun: surat.tempatTurun,
+                      l10n: l10n,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                surat.nama,
+                style: TextStyle(
+                  fontFamily: kFontAmiri,
+                  fontSize: SuratListConstants.arabicFontSize,
+                  color: context.primaryActionColor,
+                  height: SuratListConstants.arabicLineHeight,
+                ),
+              ),
+              if (onPlayTap != null) ...[
+                const SizedBox(height: AppDimens.spaceXS),
+                GestureDetector(
+                  onTap: onPlayTap,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimens.spaceSM,
+                      vertical: SuratListConstants.progressMinHeight,
+                    ),
+                    decoration: BoxDecoration(
+                      color: context.primaryContainerColor,
+                      borderRadius: BorderRadius.circular(
+                        AppDimens.radiusFull,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.play_arrow_rounded,
+                          size: AppDimens.iconXS,
+                          color: context.primaryActionColor,
+                        ),
+                        const SizedBox(width: AppDimens.spaceXXS),
+                        Text(
+                          l10n.play,
+                          style: TextStyle(
+                            color: context.primaryActionColor,
+                            fontSize: SuratListConstants.playBadgeFontSize,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SuratProgressBar extends StatelessWidget {
+  const _SuratProgressBar({
+    required this.scrollPercent,
+    required this.isCompleted,
+  });
+
+  final double scrollPercent;
+  final bool isCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(AppDimens.radiusLG),
+        bottomRight: Radius.circular(AppDimens.radiusLG),
+      ),
+      child: LinearProgressIndicator(
+        value: scrollPercent,
+        minHeight: SuratListConstants.progressMinHeight,
+        backgroundColor: context.primaryContainerColor,
+        valueColor: AlwaysStoppedAnimation<Color>(
+          isCompleted ? AppColors.gold : context.primaryActionColor,
         ),
       ),
     );

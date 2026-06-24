@@ -1,4 +1,4 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
+import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
@@ -23,7 +23,7 @@ class HafalanSuratCard extends StatelessWidget {
 
     // Cari range ayat untuk surat ini di juz yang aktif jika ada
     final range = juzNomor != null
-        ? kJuzSurahVerseRanges['$juzNomor:${hafalan.suratNomor}']
+        ? JuzConstants.verseRanges['$juzNomor:${hafalan.suratNomor}']
         : null;
 
     final startAyat = range?.$1 ?? 1;

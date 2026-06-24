@@ -38,7 +38,7 @@ class _QiblaLoadingViewState extends State<QiblaLoadingView>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return Center(
       child: Padding(

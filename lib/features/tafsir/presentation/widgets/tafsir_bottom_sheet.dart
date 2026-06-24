@@ -9,6 +9,7 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/tafsir/presentation/cubit/tafsir_cubit.dart';
 import 'package:equran_app/features/tafsir/presentation/widgets/tafsir_ayat_card.dart';
 import 'package:equran_app/injection/injection_container.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -81,6 +82,7 @@ class _TafsirBottomSheetContent extends StatelessWidget {
 class _TafsirHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<TafsirCubit, TafsirState>(
       builder: (context, state) {
         final namaLatin = state.mapOrNull(
@@ -98,9 +100,7 @@ class _TafsirHeader extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.outlineDark
-                    : AppColors.outlineVariant,
+                color: context.borderVariantColor,
               ),
             ),
           ),
@@ -108,7 +108,7 @@ class _TafsirHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Tafsir',
+                l10n.tafsir,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -118,9 +118,7 @@ class _TafsirHeader extends StatelessWidget {
                 Text(
                   namaLatin,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.onSurfaceDarkVariant
-                        : AppColors.textSecondary,
+                    color: context.textSecondaryColor,
                   ),
                 ),
             ],

@@ -1,4 +1,4 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
+import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
@@ -26,47 +26,26 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG);
 
-  /// Cari juz untuk ayat tertentu menggunakan [kJuzSurahVerseRanges].
+  /// Cari juz untuk ayat tertentu menggunakan [JuzConstants].
   /// Jika [ayatNomor] 0 atau null, kembalikan semua juz surat ini.
   String _buildJuzLabel(int suratNomor, int? ayatNomor) {
-    // Info card atau tidak diketahui → tampilkan semua juz surat
     if (ayatNomor == null || ayatNomor == 0) {
-      final allJuz =
-          kJuzToSurahMapping.entries
-              .where((e) => e.value.contains(suratNomor))
-              .map((e) => e.key)
-              .toList()
-            ..sort();
+      final allJuz = JuzConstants.findJuzesForSurat(suratNomor);
       if (allJuz.isEmpty) return '';
       return 'Juz ${allJuz.join(', ')}';
     }
 
-    // Cari juz yang range-nya mencakup ayat ini
-    for (final entry in kJuzSurahVerseRanges.entries) {
-      // Key format: '$juzNomor:$suratNomor'
-      final parts = entry.key.split(':');
-      if (parts.length != 2) continue;
-      final juz = int.tryParse(parts[0]);
-      final surat = int.tryParse(parts[1]);
-      if (juz == null || surat == null) continue;
-      if (surat != suratNomor) continue;
-
-      final start = entry.value.$1;
-      final end = entry.value.$2;
-      if (ayatNomor >= start && ayatNomor <= end) {
-        return 'Juz $juz';
-      }
-    }
-
+    final juz = JuzConstants.findJuzForAyat(suratNomor, ayatNomor);
+    if (juz != null) return 'Juz $juz';
     return '';
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final iconColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final juzLabel = _buildJuzLabel(detail.info.nomor, currentAyatNomor);
+    final isDark = context.isDark;
+    final iconColor = context.textPrimaryColor;
+    final surfaceColor = context.surfaceColor;
+    final juzLabel = _buildJuzLabel(detail.nomor, currentAyatNomor);
 
     return AppBar(
       backgroundColor: surfaceColor,
@@ -83,9 +62,9 @@ class SuratDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            detail.info.namaLatin,
+            detail.namaLatin,
             style: AppTypography.serifHeadingSmall.copyWith(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              color: context.textPrimaryColor,
               fontSize: 17,
               height: 1,
             ),

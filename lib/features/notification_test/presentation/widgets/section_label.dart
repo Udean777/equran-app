@@ -4,13 +4,14 @@ import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class SectionLabel extends StatelessWidget {
-  const SectionLabel({required this.label, required this.isDark, super.key});
+  const SectionLabel({required this.label, super.key});
 
   final String label;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
+
     return Padding(
       padding: const EdgeInsets.only(left: AppDimens.spaceXS),
       child: Row(

@@ -19,7 +19,7 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final contentColor = isDark
         ? AppColors.onSurfaceDark
@@ -50,7 +50,7 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(width: AppDimens.spaceSM),
               Text(
-                'eQuran',
+                l10n.appTitle,
                 style: AppTypography.serifHeadingMedium.copyWith(
                   color: contentColor,
                   height: 1,
@@ -75,10 +75,9 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
           builder: (context, themeState) {
             return IconButton(
               icon: Icon(
-                themeState.map(
-                  light: (_) => Icons.dark_mode_outlined,
-                  dark: (_) => Icons.light_mode_outlined,
-                ),
+                themeState.isDark
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
                 color: contentColor,
               ),
               onPressed: () => context.read<ThemeCubit>().cycle(),

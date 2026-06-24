@@ -1,4 +1,4 @@
-import 'package:equran_app/core/constants/juz_mapping.dart';
+import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
@@ -31,13 +31,13 @@ class HafalanStatsCalculator {
     // Progress per juz: hitung ayat hafal per juz dibagi total ayat juz
     final progressPerJuz = <int, double>{};
     for (var juz = 1; juz <= 30; juz++) {
-      final totalAyatJuz = kTotalAyatPerJuz[juz] ?? 0;
+      final totalAyatJuz = JuzConstants.totalAyatPerJuz[juz] ?? 0;
       if (totalAyatJuz == 0) {
         progressPerJuz[juz] = 0;
         continue;
       }
 
-      final suratList = kJuzToSurahMapping[juz] ?? [];
+      final suratList = JuzConstants.surahPerJuz[juz] ?? [];
       var ayatHafalJuz = 0;
 
       for (final suratNomor in suratList) {
@@ -45,7 +45,7 @@ class HafalanStatsCalculator {
         if (matches.isEmpty) continue;
         final h = matches.first;
 
-        final range = kJuzSurahVerseRanges['$juz:$suratNomor'];
+        final range = JuzConstants.verseRanges['$juz:$suratNomor'];
         final start = range?.$1 ?? 1;
         final end = range?.$2 ?? h.jumlahAyat;
 
@@ -73,7 +73,7 @@ class HafalanStatsCalculator {
   /// Status ini tidak disimpan di Hive — selalu di-derive saat load.
   static HafalanSurat resolveStatus(HafalanSurat hafalan) {
     if (hafalan.status == HafalanStatus.sudahHafal &&
-        hafalan.isMurajaahJatuhTempo) {
+        hafalan.isMurajaahJatuhTempo()) {
       return hafalan.copyWith(status: HafalanStatus.perluMurajaah);
     }
     return hafalan;

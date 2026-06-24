@@ -5,19 +5,23 @@ import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/core/widgets/luxury_list_tile.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:equran_app/features/settings/presentation/widgets/font_settings_sheet.dart';
 import 'package:equran_app/features/settings/presentation/widgets/language_selector_sheet.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_about_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_brand_header.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_confirmation_dialog.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_luxury_card.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_quran_reminder_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_shalat_notif_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_theme_section.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +36,7 @@ class SettingsPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: const LuxuryAppBar(title: 'Pengaturan'),
+      appBar: const LuxuryAppBar(title: SettingsStrings.pageTitle),
       body: ListView(
         padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
         children: [
@@ -41,7 +45,7 @@ class SettingsPage extends StatelessWidget {
 
           // ── Tampilan ──────────────────────────────────────────────────
           const SectionHeader(
-            label: 'Tampilan',
+            label: SettingsStrings.sectionDisplay,
             icon: Icons.palette_outlined,
           ),
           SettingsLuxuryCard(
@@ -52,8 +56,8 @@ class SettingsPage extends StatelessWidget {
               // Tampilan Teks
               LuxuryListTile(
                 icon: Icons.text_fields_rounded,
-                title: 'Tampilan Teks',
-                subtitle: 'Ukuran & jenis font Arab',
+                title: SettingsStrings.fontSettingsTitle,
+                subtitle: SettingsStrings.fontSettingsSubtitle,
                 trailing: const Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
@@ -64,8 +68,17 @@ class SettingsPage extends StatelessWidget {
               // Bahasa
               BlocBuilder<LanguageCubit, LanguageState>(
                 builder: (context, langState) {
-                  final isDark =
-                      Theme.of(context).brightness == Brightness.dark;
+                  if (langState is LanguageError) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      showSettingsToast(
+                        context,
+                        langState.message,
+                        isSuccess: false,
+                      );
+                    });
+                  }
+
+                  final isDark = context.isDark;
                   return LuxuryListTile(
                     icon: Icons.language_rounded,
                     title: l10n.language,
@@ -102,7 +115,7 @@ class SettingsPage extends StatelessWidget {
 
           // ── Notifikasi Waktu Shalat ───────────────────────────────────
           const SectionHeader(
-            label: 'Notifikasi Waktu Shalat',
+            label: SettingsStrings.shalatNotifTitle,
             icon: Icons.notifications_outlined,
           ),
           const SettingsLuxuryCard(
@@ -113,7 +126,7 @@ class SettingsPage extends StatelessWidget {
 
           // ── Reminder Baca Quran ───────────────────────────────────────
           const SectionHeader(
-            label: 'Reminder Baca Quran',
+            label: SettingsStrings.quranReminderTitle,
             icon: Icons.auto_stories_rounded,
           ),
           const SettingsLuxuryCard(
@@ -128,7 +141,7 @@ class SettingsPage extends StatelessWidget {
 
             // ── Developer ─────────────────────────────────────────────────
             const SectionHeader(
-              label: 'Developer',
+              label: SettingsStrings.sectionDeveloper,
               icon: Icons.developer_mode_rounded,
             ),
             SettingsLuxuryCard(
@@ -151,15 +164,70 @@ class SettingsPage extends StatelessWidget {
 
           // ── Sumber Data ───────────────────────────────────────────────
           const SectionHeader(
-            label: 'Sumber Data',
+            label: SettingsStrings.sectionDataSource,
             icon: Icons.cloud_outlined,
           ),
           const SettingsAboutSection(),
+
+          const SizedBox(height: AppDimens.spaceXL),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceLG),
+            child: ElevatedButton.icon(
+              onPressed: () => _handleResetAll(context),
+              icon: const Icon(Icons.restore_rounded),
+              label: const Text(SettingsStrings.resetAllButton),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.error.withValues(alpha: 0.1),
+                foregroundColor: AppColors.error,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppDimens.spaceMD,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
+  /// Menampilkan dialog konfirmasi sebelum mereset semua pengaturan ke default.
+  ///
+  /// Jika user mengkonfirmasi, akan memanggil `reset()` pada [ThemeCubit],
+  /// [QuranFontCubit], dan [LanguageCubit], lalu menampilkan toast sukses.
+  Future<void> _handleResetAll(BuildContext context) async {
+    final confirmed = await showSettingsConfirmationDialog(
+      context: context,
+      title: SettingsStrings.resetAllDialogTitle,
+      message: SettingsStrings.resetAllDialogMessage,
+      isDestructive: true,
+      confirmText: 'Reset',
+    );
+
+    if (confirmed == true && context.mounted) {
+      final themeCubit = context.read<ThemeCubit>();
+      final fontCubit = context.read<QuranFontCubit>();
+      final langCubit = context.read<LanguageCubit>();
+
+      // Execute resets
+      await themeCubit.reset();
+      await fontCubit.reset();
+      await langCubit.reset();
+      // Add more cubits if necessary, but these are the core 3
+
+      if (context.mounted) {
+        showSettingsToast(context, SettingsStrings.resetAllSuccess);
+      }
+    }
+  }
+
+  /// Membuka bottom sheet pengaturan font Al-Quran.
+  ///
+  /// Menyediakan [QuranFontCubit] ke dalam bottom sheet
+  /// menggunakan [BlocProvider.value].
   void _showFontSettingsSheet(BuildContext context) {
     unawaited(
       showAppBottomSheet<void>(
@@ -172,6 +240,10 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  /// Membuka bottom sheet pemilih bahasa aplikasi.
+  ///
+  /// Menyediakan [LanguageCubit] ke dalam bottom sheet
+  /// dan meneruskan state bahasa saat ini sebagai [current].
   void _showLanguageSheet(BuildContext context, LanguageState current) {
     final l10n = AppLocalizations.of(context)!;
     unawaited(

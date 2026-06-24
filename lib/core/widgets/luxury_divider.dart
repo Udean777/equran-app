@@ -23,7 +23,7 @@ class LuxuryDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     return Container(
       height: 1,
       margin: const EdgeInsets.symmetric(horizontal: AppDimens.cardPadding),

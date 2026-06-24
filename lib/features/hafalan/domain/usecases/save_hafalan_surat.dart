@@ -1,15 +1,17 @@
 import 'package:equran_app/core/error/failure.dart';
-import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/params/save_hafalan_params.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class SaveHafalanSurat {
+class SaveHafalanSurat implements UseCase<Unit, SaveHafalanParams> {
   const SaveHafalanSurat(this._repository);
 
   final HafalanRepository _repository;
 
-  Future<Either<Failure, Unit>> call(HafalanSurat hafalan) =>
-      _repository.saveHafalanSurat(hafalan);
+  @override
+  Future<Either<Failure, Unit>> call(SaveHafalanParams params) =>
+      _repository.saveHafalanSurat(params.hafalan);
 }

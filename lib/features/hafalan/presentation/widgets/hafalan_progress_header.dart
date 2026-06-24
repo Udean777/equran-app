@@ -1,9 +1,9 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_badge.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:flutter/material.dart';
 
 /// Header progress hafalan — nama Arab, progress bar, persentase.

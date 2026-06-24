@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/features/onboarding/constants/onboarding_constants.dart';
 import 'package:flutter/material.dart';
 
 // ---------------------------------------------------------------------------
@@ -20,9 +23,9 @@ class OnboardingSlideBase extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF0A2E1A),
-            Color(0xFF0D3D22),
-            Color(0xFF0A2E1A),
+            OnboardingColors.background,
+            OnboardingColors.backgroundEnd,
+            OnboardingColors.background,
           ],
         ),
       ),
@@ -95,12 +98,12 @@ class _ArabesquePainter extends CustomPainter {
 
     final path = Path();
     for (var i = 0; i < 8; i++) {
-      final angle = i * 45 * (3.14159265 / 180);
-      final outerX = center.dx + radius * 0.55 * _cos(angle);
-      final outerY = center.dy + radius * 0.55 * _sin(angle);
-      final innerAngle = angle + 22.5 * (3.14159265 / 180);
-      final innerX = center.dx + radius * 0.28 * _cos(innerAngle);
-      final innerY = center.dy + radius * 0.28 * _sin(innerAngle);
+      final angle = i * 45 * (pi / 180);
+      final outerX = center.dx + radius * 0.55 * cos(angle);
+      final outerY = center.dy + radius * 0.55 * sin(angle);
+      final innerAngle = angle + 22.5 * (pi / 180);
+      final innerX = center.dx + radius * 0.28 * cos(innerAngle);
+      final innerY = center.dy + radius * 0.28 * sin(innerAngle);
       if (i == 0) {
         path.moveTo(outerX, outerY);
       } else {
@@ -123,34 +126,19 @@ class _ArabesquePainter extends CustomPainter {
       ..color = AppColors.gold.withValues(alpha: 0.15)
       ..strokeWidth = 1;
     for (var i = 0; i < 16; i++) {
-      final angle = i * 22.5 * (3.14159265 / 180);
+      final angle = i * 22.5 * (pi / 180);
       canvas.drawLine(
         Offset(
-          center.dx + radius * 0.65 * _cos(angle),
-          center.dy + radius * 0.65 * _sin(angle),
+          center.dx + radius * 0.65 * cos(angle),
+          center.dy + radius * 0.65 * sin(angle),
         ),
         Offset(
-          center.dx + radius * 0.85 * _cos(angle),
-          center.dy + radius * 0.85 * _sin(angle),
+          center.dx + radius * 0.85 * cos(angle),
+          center.dy + radius * 0.85 * sin(angle),
         ),
         linePaint,
       );
     }
-  }
-
-  double _cos(double a) => _approxCos(a % (2 * 3.14159265));
-  double _sin(double a) => _approxSin(a % (2 * 3.14159265));
-
-  double _approxCos(double x) {
-    final v = x > 3.14159265 ? 2 * 3.14159265 - x : x;
-    return 1 - v * v / 2 + v * v * v * v / 24;
-  }
-
-  double _approxSin(double x) {
-    final neg = x > 3.14159265;
-    final v = neg ? x - 3.14159265 : x;
-    final result = v - v * v * v / 6 + v * v * v * v * v / 120;
-    return neg ? -result : result;
   }
 
   @override

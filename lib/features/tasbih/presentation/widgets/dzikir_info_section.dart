@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
+import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
 import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/info_chip.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/preset_selector_sheet.dart';
+import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,11 +21,9 @@ class DzikirInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final l10n = AppLocalizations.of(context)!;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderVariantColor;
 
     return Container(
       width: double.infinity,
@@ -39,7 +40,9 @@ class DzikirInfoSection extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
+            color: AppColors.primary.withValues(
+              alpha: context.isDark ? 0.04 : 0.06,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -49,8 +52,8 @@ class DzikirInfoSection extends StatelessWidget {
         children: [
           // Gold ornamen atas
           Container(
-            width: 32,
-            height: 2,
+            width: TasbihConstants.ornamentWidth,
+            height: TasbihConstants.ornamentHeight,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -73,16 +76,14 @@ class DzikirInfoSection extends StatelessWidget {
                 Text(
                   state.selectedPreset.name,
                   style: AppTypography.serifHeadingMedium.copyWith(
-                    color: isDark
-                        ? AppColors.primaryLighter
-                        : AppColors.primary,
-                    fontSize: 22,
+                    color: context.primaryActionColor,
+                    fontSize: TasbihConstants.dzikirNameFontSize,
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceXS),
                 Icon(
                   Icons.expand_more_rounded,
-                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                  color: context.primaryActionColor,
                   size: 20,
                 ),
               ],
@@ -95,10 +96,10 @@ class DzikirInfoSection extends StatelessWidget {
           Text(
             state.selectedPreset.arabic,
             style: TextStyle(
-              fontFamily: 'Amiri',
-              fontSize: 26,
-              height: 1.8,
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              fontFamily: kFontAmiri,
+              fontSize: TasbihConstants.arabicTextFontSize,
+              height: TasbihConstants.arabicTextLineHeight,
+              color: context.textPrimaryColor,
             ),
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.center,
@@ -127,12 +128,12 @@ class DzikirInfoSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               InfoChip(
-                label: 'Target',
+                label: l10n.tasbihTarget,
                 value: '${state.target}x',
               ),
               const SizedBox(width: AppDimens.spaceSM),
               InfoChip(
-                label: 'Sisa',
+                label: l10n.tasbihRemaining,
                 value: state.isCompleted ? '0' : '${state.remaining}x',
                 highlight: state.isCompleted,
               ),

@@ -100,7 +100,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
 
         if (doa1 == null && doa2 == null) return const SizedBox.shrink();
 
-        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final isDark = context.isDark;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(

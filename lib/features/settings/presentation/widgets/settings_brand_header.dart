@@ -2,6 +2,8 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/app_logo.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
 
 /// Widget header brand premium untuk halaman Pengaturan (Settings).
@@ -13,7 +15,7 @@ class SettingsBrandHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return Container(
       width: double.infinity,
@@ -26,16 +28,16 @@ class SettingsBrandHeader extends StatelessWidget {
         children: [
           // App Logo container dengan bingkai emas dan bayangan mewah
           AppLogo(
-            size: 80,
+            size: SettingsConstants.logoSize,
             borderRadius: BorderRadius.circular(AppDimens.radiusXL),
           ),
           const SizedBox(height: AppDimens.spaceMD),
 
           // Nama Aplikasi
           Text(
-            'eQuran',
+            SettingsStrings.brandName,
             style: AppTypography.serifHeadingLarge.copyWith(
-              fontSize: 28,
+              fontSize: SettingsConstants.fontSizeLarge,
               color: isDark ? Colors.white : AppColors.textPrimary,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,
@@ -45,9 +47,9 @@ class SettingsBrandHeader extends StatelessWidget {
 
           // Tagline
           Text(
-            'Teman Ibadah Sehari-hari',
+            SettingsStrings.brandTagline,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: SettingsConstants.fontSizeSmall,
               color: isDark
                   ? AppColors.onSurfaceDarkVariant
                   : AppColors.textTertiary,
@@ -73,8 +75,8 @@ class SettingsBrandHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 6,
-                  height: 6,
+                  width: SettingsConstants.badgeSize,
+                  height: SettingsConstants.badgeSize,
                   decoration: const BoxDecoration(
                     color: AppColors.gold,
                     shape: BoxShape.circle,
@@ -82,9 +84,9 @@ class SettingsBrandHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: AppDimens.spaceXS),
                 const Text(
-                  'v1.0.0 (Official Release)',
+                  SettingsStrings.brandVersion,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: SettingsConstants.fontSizeExtraSmall,
                     fontWeight: FontWeight.bold,
                     color: AppColors.gold,
                     letterSpacing: 0.5,

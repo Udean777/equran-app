@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/dio_client.dart';
+import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart'
-    show DownloadedAyatInfo;
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,13 +17,6 @@ abstract interface class AudioDownloadDataSource {
     required int ayatNomor,
     required Qari qari,
     required String url,
-  });
-
-  /// Cek apakah file audio sudah tersedia lokal.
-  Future<bool> isDownloaded({
-    required int suratNomor,
-    required int ayatNomor,
-    required Qari qari,
   });
 
   /// Dapatkan path file lokal untuk ayat tertentu.
@@ -47,9 +40,6 @@ abstract interface class AudioDownloadDataSource {
   /// Dapatkan list semua file yang sudah didownload.
   /// Return list of [DownloadedAyatInfo].
   Future<List<DownloadedAyatInfo>> getDownloadedAyats();
-
-  /// Total ukuran storage yang digunakan (bytes).
-  Future<int> getTotalStorageBytes();
 }
 
 @LazySingleton(as: AudioDownloadDataSource)
@@ -90,57 +80,74 @@ class AudioDownloadDataSourceImpl implements AudioDownloadDataSource {
     required int ayatNomor,
     required Qari qari,
     required String url,
-  }) async* {
-    final filePath = await _buildFilePath(
-      suratNomor: suratNomor,
-      ayatNomor: ayatNomor,
-      qari: qari,
+  }) {
+    final controller = StreamController<double>();
+
+    unawaited(
+      _streamDownload(
+        controller,
+        suratNomor: suratNomor,
+        ayatNomor: ayatNomor,
+        qari: qari,
+        url: url,
+      ),
     );
 
-    // Jika sudah ada, langsung done
-    if (File(filePath).existsSync()) {
-      yield 1.0;
-      return;
-    }
+    return controller.stream;
+  }
 
-    final tempPath = '$filePath.tmp';
-
+  Future<void> _streamDownload(
+    StreamController<double> controller, {
+    required int suratNomor,
+    required int ayatNomor,
+    required Qari qari,
+    required String url,
+  }) async {
     try {
+      final filePath = await _buildFilePath(
+        suratNomor: suratNomor,
+        ayatNomor: ayatNomor,
+        qari: qari,
+      );
+
+      if (File(filePath).existsSync()) {
+        controller.add(1);
+        return;
+      }
+
+      final tempPath = '$filePath.tmp';
+
       await _dio.download(
         url,
         tempPath,
         onReceiveProgress: (received, total) {
-          // Progress tidak bisa yield dari callback — handled via controller
+          if (total > 0) {
+            controller.add(received / total);
+          }
         },
         options: Options(responseType: ResponseType.bytes),
       );
 
-      // Rename temp file ke final
       await File(tempPath).rename(filePath);
-      yield 1.0;
+      controller.add(1);
     } on Object catch (e) {
-      // Hapus temp file jika ada
-      final tempFile = File(tempPath);
-      if (tempFile.existsSync()) {
-        await tempFile.delete();
-      }
-      debugPrint('AudioDownloadDataSource: download error: $e');
-      rethrow;
-    }
-  }
+      try {
+        final filePath = await _buildFilePath(
+          suratNomor: suratNomor,
+          ayatNomor: ayatNomor,
+          qari: qari,
+        );
+        final tempFile = File('$filePath.tmp');
+        if (tempFile.existsSync()) {
+          await tempFile.delete();
+        }
+      } on Object catch (_) {}
 
-  @override
-  Future<bool> isDownloaded({
-    required int suratNomor,
-    required int ayatNomor,
-    required Qari qari,
-  }) async {
-    final filePath = await _buildFilePath(
-      suratNomor: suratNomor,
-      ayatNomor: ayatNomor,
-      qari: qari,
-    );
-    return File(filePath).existsSync();
+      controller.addError(e);
+      debugPrint('AudioDownloadDataSource: download error: $e');
+    } finally {
+      await controller.close();
+    }
   }
 
   @override
@@ -224,11 +231,5 @@ class AudioDownloadDataSourceImpl implements AudioDownloadDataSource {
     }
 
     return result;
-  }
-
-  @override
-  Future<int> getTotalStorageBytes() async {
-    final files = await getDownloadedAyats();
-    return files.fold<int>(0, (sum, f) => sum + f.sizeBytes);
   }
 }

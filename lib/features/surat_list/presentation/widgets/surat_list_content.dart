@@ -1,11 +1,12 @@
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/widgets.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// Sliver content untuk daftar surat — filter chips + list surat.
@@ -13,20 +14,19 @@ class SuratListContent extends StatelessWidget {
   const SuratListContent({
     required this.surats,
     required this.suratProgressMap,
-    required this.activeFilter,
-    required this.onFilterChanged,
     super.key,
   });
 
   final List<Surat> surats;
   final Map<int, double> suratProgressMap;
-  final SuratCompletionFilter activeFilter;
-  final ValueChanged<SuratCompletionFilter> onFilterChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cubit = context.read<SuratListCubit>();
+    final activeFilter = cubit.state is SuratListSuccess
+        ? (cubit.state as SuratListSuccess).activeFilter
+        : SuratCompletionFilter.all;
 
     final allCount = surats.length;
     final completedCount = surats
@@ -67,8 +67,7 @@ class SuratListContent extends StatelessWidget {
                 completedCount: completedCount,
                 incompleteCount: incompleteCount,
                 activeFilter: activeFilter,
-                onFilterChanged: onFilterChanged,
-                isDark: isDark,
+                onFilterChanged: cubit.setFilter,
               ),
             );
           }
@@ -78,9 +77,9 @@ class SuratListContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceXXL),
               child: EmptyStateWidget(
                 message: activeFilter == SuratCompletionFilter.completed
-                    ? 'Belum ada surat yang selesai dibaca'
+                    ? l10n.suratCompletedEmpty
                     : (activeFilter == SuratCompletionFilter.incomplete
-                          ? 'Belum ada surat yang sedang dibaca'
+                          ? l10n.suratInProgressEmpty
                           : l10n.emptySearch),
               ),
             );
@@ -116,7 +115,6 @@ class _SuratFilterRow extends StatelessWidget {
     required this.incompleteCount,
     required this.activeFilter,
     required this.onFilterChanged,
-    required this.isDark,
   });
 
   final int allCount;
@@ -124,30 +122,30 @@ class _SuratFilterRow extends StatelessWidget {
   final int incompleteCount;
   final SuratCompletionFilter activeFilter;
   final ValueChanged<SuratCompletionFilter> onFilterChanged;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final statusOptions = [
       AppSelectOption<SuratCompletionFilter>(
         value: SuratCompletionFilter.all,
-        label: 'Semua ($allCount)',
+        label: l10n.filterAll(allCount),
         icon: Icons.layers_rounded,
       ),
       AppSelectOption<SuratCompletionFilter>(
         value: SuratCompletionFilter.incomplete,
-        label: 'Sedang Dibaca ($incompleteCount)',
+        label: l10n.filterInProgress(incompleteCount),
         icon: Icons.play_circle_outline_rounded,
       ),
       AppSelectOption<SuratCompletionFilter>(
         value: SuratCompletionFilter.completed,
-        label: 'Selesai ($completedCount)',
+        label: l10n.filterCompleted(completedCount),
         icon: Icons.check_circle_rounded,
       ),
     ];
 
     return AppSelect<SuratCompletionFilter>(
-      title: 'Filter Status Membaca',
+      title: l10n.filterReadingStatus,
       options: statusOptions,
       selectedValue: activeFilter,
       leadingIcon: Icons.filter_list_rounded,

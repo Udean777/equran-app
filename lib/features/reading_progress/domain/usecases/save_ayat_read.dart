@@ -1,22 +1,16 @@
 import 'package:equran_app/core/error/failure.dart';
+import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/reading_progress/domain/repositories/reading_progress_repository.dart';
+import 'package:equran_app/features/reading_progress/domain/usecases/params/save_ayat_read_params.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
-class SaveAyatRead {
+class SaveAyatRead implements UseCase<Unit, SaveAyatReadParams> {
   const SaveAyatRead(this._repository);
   final ReadingProgressRepository _repository;
 
-  Future<Either<Failure, Unit>> call(String date, String ayatId) =>
-      _repository.saveAyat(date, ayatId);
-}
-
-@lazySingleton
-class SaveAyatReadBatch {
-  const SaveAyatReadBatch(this._repository);
-  final ReadingProgressRepository _repository;
-
-  Future<Either<Failure, Unit>> call(String date, Set<String> ayatIds) =>
-      _repository.saveAyatBatch(date, ayatIds);
+  @override
+  Future<Either<Failure, Unit>> call(SaveAyatReadParams params) =>
+      _repository.saveAyat(params.date, params.ayatId);
 }

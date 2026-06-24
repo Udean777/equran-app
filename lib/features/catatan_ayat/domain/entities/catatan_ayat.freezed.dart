@@ -11,7 +11,6 @@ part of 'catatan_ayat.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$CatatanAyat {
 
@@ -22,8 +21,6 @@ mixin _$CatatanAyat {
 @pragma('vm:prefer-inline')
 $CatatanAyatCopyWith<CatatanAyat> get copyWith => _$CatatanAyatCopyWithImpl<CatatanAyat>(this as CatatanAyat, _$identity);
 
-  /// Serializes this CatatanAyat to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is CatatanAyat&&(identical(other.suratNomor, suratNomor) || other.suratNomor == suratNomor)&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.teksArab, teksArab) || other.teksArab == teksArab)&&(identical(other.isi, isi) || other.isi == isi)&&(identical(other.savedAt, savedAt) || other.savedAt == savedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,suratNomor,ayatNomor,namaLatin,teksArab,isi,savedAt);
 
@@ -211,11 +208,11 @@ return $default(_that.suratNomor,_that.ayatNomor,_that.namaLatin,_that.teksArab,
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _CatatanAyat implements CatatanAyat {
   const _CatatanAyat({required this.suratNomor, required this.ayatNomor, required this.namaLatin, required this.teksArab, required this.isi, required this.savedAt});
-  factory _CatatanAyat.fromJson(Map<String, dynamic> json) => _$CatatanAyatFromJson(json);
+  
 
 @override final  int suratNomor;
 @override final  int ayatNomor;
@@ -230,17 +227,14 @@ class _CatatanAyat implements CatatanAyat {
 @pragma('vm:prefer-inline')
 _$CatatanAyatCopyWith<_CatatanAyat> get copyWith => __$CatatanAyatCopyWithImpl<_CatatanAyat>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$CatatanAyatToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _CatatanAyat&&(identical(other.suratNomor, suratNomor) || other.suratNomor == suratNomor)&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.teksArab, teksArab) || other.teksArab == teksArab)&&(identical(other.isi, isi) || other.isi == isi)&&(identical(other.savedAt, savedAt) || other.savedAt == savedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,suratNomor,ayatNomor,namaLatin,teksArab,isi,savedAt);
 

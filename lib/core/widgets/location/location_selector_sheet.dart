@@ -285,7 +285,7 @@ class _LocationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
 
     return InkWell(
       onTap: onTap,

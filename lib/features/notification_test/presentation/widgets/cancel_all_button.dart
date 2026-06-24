@@ -3,13 +3,14 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
 class CancelAllButton extends StatelessWidget {
-  const CancelAllButton({required this.isDark, required this.onTap, super.key});
+  const CancelAllButton({required this.onTap, super.key});
 
-  final bool isDark;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(

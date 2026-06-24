@@ -4,7 +4,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_reminder_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,7 +66,7 @@ class HafalanMurajaahSection extends StatelessWidget {
                         Text(
                           'Berikutnya: $dateStr',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: hafalan.isMurajaahJatuhTempo
+                            color: hafalan.isMurajaahJatuhTempo()
                                 ? AppColors.error
                                 : Colors.grey[500],
                           ),
@@ -83,7 +83,7 @@ class HafalanMurajaahSection extends StatelessWidget {
               showAppBottomSheet<void>(
                 context,
                 builder: (_) => BlocProvider.value(
-                  value: context.read<HafalanCubit>(),
+                  value: context.read<HafalanDetailCubit>(),
                   child: HafalanReminderSheet(hafalan: hafalan),
                 ),
               ),

@@ -1,6 +1,7 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:flutter/material.dart';
 
 /// Tiga tombol status shalat: tepat waktu, qadha, tidak shalat.
@@ -21,7 +22,7 @@ class ShalatStatusButtons extends StatelessWidget {
       children: [
         ShalatStatusChip(
           label: '✓',
-          tooltip: 'Tepat Waktu',
+          tooltip: StatistikShalatStrings.statusTepatWaktu,
           isSelected: currentStatus == ShalatStatus.tepatWaktu,
           selectedColor: AppColors.success,
           onTap: () => onStatusChanged(
@@ -33,7 +34,7 @@ class ShalatStatusButtons extends StatelessWidget {
         const SizedBox(width: AppDimens.spaceXS),
         ShalatStatusChip(
           label: 'Q',
-          tooltip: 'Qadha',
+          tooltip: StatistikShalatStrings.statusQadha,
           isSelected: currentStatus == ShalatStatus.qadha,
           selectedColor: AppColors.warning,
           onTap: () => onStatusChanged(
@@ -45,7 +46,7 @@ class ShalatStatusButtons extends StatelessWidget {
         const SizedBox(width: AppDimens.spaceXS),
         ShalatStatusChip(
           label: '✗',
-          tooltip: 'Tidak Shalat',
+          tooltip: StatistikShalatStrings.statusTidakShalat,
           isSelected: currentStatus == ShalatStatus.tidakShalat,
           selectedColor: AppColors.error,
           onTap: () => onStatusChanged(

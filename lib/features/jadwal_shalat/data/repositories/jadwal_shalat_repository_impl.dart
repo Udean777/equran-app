@@ -10,7 +10,10 @@ import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: JadwalShalatRepository)
 class JadwalShalatRepositoryImpl implements JadwalShalatRepository {
-  const JadwalShalatRepositoryImpl(this._remote, this._local);
+  const JadwalShalatRepositoryImpl(
+    this._remote,
+    this._local,
+  );
 
   final JadwalShalatRemoteDataSource _remote;
   final JadwalShalatLocalDataSource _local;
@@ -64,43 +67,5 @@ class JadwalShalatRepositoryImpl implements JadwalShalatRepository {
       await _local.cacheJadwalShalat(dto.data);
       return dto.data.toEntity();
     });
-  }
-
-  @override
-  Future<Either<Failure, String?>> getLastProvinsi() async {
-    try {
-      return right(await _local.getLastProvinsi());
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> saveLastProvinsi(String provinsi) async {
-    try {
-      await _local.saveLastProvinsi(provinsi);
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, String?>> getLastKabkota() async {
-    try {
-      return right(await _local.getLastKabkota());
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> saveLastKabkota(String kabkota) async {
-    try {
-      await _local.saveLastKabkota(kabkota);
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
   }
 }

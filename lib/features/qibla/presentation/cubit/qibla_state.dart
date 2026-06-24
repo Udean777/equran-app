@@ -1,7 +1,4 @@
-import 'package:equran_app/features/qibla/domain/entities/qibla_direction.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'qibla_state.freezed.dart';
+part of 'qibla_cubit.dart';
 
 @freezed
 sealed class QiblaState with _$QiblaState {

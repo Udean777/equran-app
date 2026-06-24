@@ -1,4 +1,4 @@
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
+import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'tafsir_surat.freezed.dart';

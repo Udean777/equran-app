@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/surat_list/data/models/surat_dto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
 
@@ -34,7 +35,8 @@ class SuratLocalDataSourceImpl implements SuratLocalDataSource {
       return list
           .map((e) => SuratDto.fromJson(e as Map<String, dynamic>))
           .toList();
-    } on Object catch (_) {
+    } on Object catch (e) {
+      debugPrint('Failed to get cached surat list: $e');
       return null;
     }
   }
@@ -54,7 +56,8 @@ class SuratLocalDataSourceImpl implements SuratLocalDataSource {
       final entry = CacheEntry.decode(await _box.get(_detailKey(nomor)));
       if (entry == null || entry.isExpired) return null;
       return jsonDecode(entry.data) as Map<String, dynamic>;
-    } on Object catch (_) {
+    } on Object catch (e) {
+      debugPrint('Failed to get cached surat detail $nomor: $e');
       return null;
     }
   }

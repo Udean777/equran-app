@@ -23,6 +23,14 @@
   "madinah": "Madinah",
   "tafsir": "Tafsir",
   "lihatTafsir": "View Tafsir",
+  "ayatNumber": "Ayat {number}",
+  "@ayatNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "bookmark": "Bookmark",
   "bookmarkEmpty": "No bookmarks yet.\nMark your favorite verses!",
   "ayatTersimpan": "Saved Verses",
@@ -36,6 +44,13 @@
       "nomor": {
         "type": "int"
       }
+    }
+  },
+  "ayatFrom": "Verse {ayatNomor} of {totalAyat}",
+  "@ayatFrom": {
+    "placeholders": {
+      "ayatNomor": { "type": "int" },
+      "totalAyat": { "type": "int" }
     }
   },
   "errorNoInternet": "No internet connection.",
@@ -100,5 +115,71 @@
   "statistikBacaDrawer": "Reading Stats",
   "statistikShalatDrawer": "Prayer Stats",
   "manajemenAudioDrawer": "Audio Management",
-  "pengaturanDrawer": "Settings"
+  "pengaturanDrawer": "Settings",
+  "pageNotFound": "Page Not Found",
+  "pageNotFoundDesc": "The page you're looking for is not available\nor has been moved.",
+  "backToHome": "Back to Home",
+  "suratListHeader": "Surah List",
+  "totalSurat": "{count} Surah",
+  "@totalSurat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suratCompletedEmpty": "No completed surah yet",
+  "suratInProgressEmpty": "No surah in progress",
+  "filterAll": "All ({count})",
+  "@filterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterInProgress": "In Progress ({count})",
+  "@filterInProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCompleted": "Completed ({count})",
+  "@filterCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterReadingStatus": "Filter Reading Status",
+  "murajaahToday": "TODAY'S MURAJAAH",
+  "start": "Start",
+  "andMore": "+{count} more",
+  "@andMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbihTitle": "Tasbih & Dzikir",
+  "tasbihHistory": "History",
+  "tasbihHistoryTitle": "Tasbih History",
+  "tasbihDeleteAllHistory": "Delete all history",
+  "tasbihEmptyHistory": "No tasbih history yet.",
+  "tasbihDeleteAllConfirmTitle": "Delete All History?",
+  "tasbihDeleteAllConfirmMessage": "All tasbih history will be permanently deleted.",
+  "tasbihCompleted": "Completed",
+  "tasbihTarget": "Target",
+  "tasbihRemaining": "Remaining",
+  "tasbihSelectDzikir": "Select Dzikir",
+  "tasbihCustomTarget": "Custom target",
+  "tasbihCustomTargetHint": "Example: 200",
+  "tasbihSetButton": "Set",
+  "tasbihChangeDzikir": "Change Dzikir",
+  "tasbihReset": "Reset",
+  "tasbihDelete": "Delete"
 }

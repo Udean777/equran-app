@@ -7,6 +7,7 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/cubit/statistik_shalat_cubit.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/widgets/shalat_calendar_section.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/widgets/shalat_checklist_section.dart';
@@ -39,7 +40,7 @@ class _StatistikShalatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const LuxuryAppBar(title: 'Statistik Shalat'),
+      appBar: const LuxuryAppBar(title: StatistikShalatStrings.pageTitle),
       body: BlocBuilder<StatistikShalatCubit, StatistikShalatState>(
         builder: (context, state) => state.when(
           initial: () => const LoadingWidget(),
@@ -72,7 +73,7 @@ class _StatistikContent extends StatelessWidget {
       children: [
         ShalatStreakCard(streak: stats.streak, today: today),
         const SectionHeader(
-          label: 'Kalender',
+          label: StatistikShalatStrings.sectionKalender,
           icon: Icons.calendar_month_rounded,
         ),
         ShalatCalendarSection(
@@ -82,7 +83,7 @@ class _StatistikContent extends StatelessWidget {
           onDayTap: (date, dayStats) => _showDetail(context, date, dayStats),
         ),
         const SectionHeader(
-          label: 'Statistik Mingguan',
+          label: StatistikShalatStrings.sectionStatistikMingguan,
           icon: Icons.bar_chart_rounded,
         ),
         ShalatWeeklyStatsSection(
@@ -93,7 +94,7 @@ class _StatistikContent extends StatelessWidget {
           persentaseTepatWaktu: stats.persentaseTepatWaktu,
         ),
         const SectionHeader(
-          label: 'Checklist Hari Ini',
+          label: StatistikShalatStrings.sectionChecklistHariIni,
           icon: Icons.checklist_rounded,
         ),
         ShalatChecklistSection(

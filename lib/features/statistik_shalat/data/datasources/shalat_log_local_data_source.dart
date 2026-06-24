@@ -9,11 +9,11 @@ import 'package:injectable/injectable.dart';
 abstract interface class ShalatLogLocalDataSource {
   /// Ambil data shalat untuk tanggal tertentu.
   /// [date] format: yyyy-MM-dd
-  ShalatDayStats? getByDate(String date);
+  Future<ShalatDayStats?> getByDate(String date);
 
   /// Ambil data shalat untuk range tanggal.
   /// [dates] list format: yyyy-MM-dd
-  List<ShalatDayStats> getByDateRange(List<String> dates);
+  Future<List<ShalatDayStats>> getByDateRange(List<String> dates);
 
   /// Simpan/update log shalat untuk satu waktu.
   Future<void> saveLog(ShalatLog log);
@@ -37,7 +37,7 @@ class ShalatLogLocalDataSourceImpl implements ShalatLogLocalDataSource {
   String _key(String date) => 'shalat_$date';
 
   @override
-  ShalatDayStats? getByDate(String date) {
+  Future<ShalatDayStats?> getByDate(String date) async {
     try {
       final raw = _box.get(_key(date));
       if (raw == null) return null;
@@ -51,10 +51,10 @@ class ShalatLogLocalDataSourceImpl implements ShalatLogLocalDataSource {
   }
 
   @override
-  List<ShalatDayStats> getByDateRange(List<String> dates) {
+  Future<List<ShalatDayStats>> getByDateRange(List<String> dates) async {
     final result = <ShalatDayStats>[];
     for (final date in dates) {
-      final stats = getByDate(date);
+      final stats = await getByDate(date);
       if (stats != null) result.add(stats);
     }
     return result;
@@ -62,7 +62,7 @@ class ShalatLogLocalDataSourceImpl implements ShalatLogLocalDataSource {
 
   @override
   Future<void> saveLog(ShalatLog log) async {
-    final existing = getByDate(log.date);
+    final existing = await getByDate(log.date);
     final currentLogs = existing?.logs ?? {};
 
     // Update log untuk waktu shalat ini

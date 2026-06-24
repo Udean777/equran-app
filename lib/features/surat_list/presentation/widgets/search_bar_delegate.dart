@@ -1,19 +1,18 @@
 import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/surat_list/constants/surat_list_constants.dart';
 import 'package:flutter/material.dart';
 
-/// Sticky search bar delegate untuk [SliverPersistentHeader].
-///
-/// Menampilkan shadow saat di-pin (scroll melewati posisi awal).
 class SearchBarDelegate extends SliverPersistentHeaderDelegate {
   const SearchBarDelegate({required this.child});
 
   final Widget child;
 
   @override
-  double get maxExtent => 64;
+  double get maxExtent => AppDimens.searchBarHeight;
 
   @override
-  double get minExtent => 64;
+  double get minExtent => AppDimens.searchBarHeight;
 
   @override
   Widget build(
@@ -21,21 +20,28 @@ class SearchBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final isPinned = shrinkOffset > 0 || overlapsContent;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+      duration: AppDimens.animationFast,
       decoration: BoxDecoration(
         color: isPinned ? surfaceColor : bgColor,
         boxShadow: isPinned
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withValues(
+                    alpha: isDark
+                        ? SuratListConstants.searchBarShadowAlphaDark
+                        : SuratListConstants.searchBarShadowAlphaLight,
+                  ),
+                  blurRadius: SuratListConstants.searchBarShadowBlur,
+                  offset: const Offset(
+                    0,
+                    SuratListConstants.searchBarShadowOffset,
+                  ),
                 ),
               ]
             : null,
@@ -46,5 +52,5 @@ class SearchBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
-      true;
+      oldDelegate is! SearchBarDelegate || child != oldDelegate.child;
 }

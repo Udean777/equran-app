@@ -4,12 +4,18 @@ import 'package:equran_app/core/locale/cubit/language_cubit.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
+import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Bottom sheet pemilih bahasa aplikasi.
+/// Bottom sheet untuk memilih bahasa aplikasi (Indonesia, English, Arabic).
+///
+/// Menggunakan [LanguageCubit] untuk manage state bahasa.
+/// Setelah user memilih bahasa, akan menampilkan toast konfirmasi
+/// dan sheet otomatis tertutup.
 class LanguageSelectorSheet extends StatelessWidget {
   const LanguageSelectorSheet({
     required this.current,
@@ -23,9 +29,21 @@ class LanguageSelectorSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final languages = [
-      (const LanguageState.id(), l10n.indonesia, 'Bahasa diubah ke Indonesia'),
-      (const LanguageState.en(), l10n.english, 'Language changed to English'),
-      (const LanguageState.ar(), l10n.arabic, 'تم تغيير اللغة إلى العربية'),
+      (
+        const LanguageState.id(),
+        l10n.indonesia,
+        SettingsStrings.languageChangedId,
+      ),
+      (
+        const LanguageState.en(),
+        l10n.english,
+        SettingsStrings.languageChangedEn,
+      ),
+      (
+        const LanguageState.ar(),
+        l10n.arabic,
+        SettingsStrings.languageChangedAr,
+      ),
     ];
 
     return Padding(
@@ -53,7 +71,7 @@ class LanguageSelectorSheet extends StatelessWidget {
             (entry) {
               final (lang, label, toastMessage) = entry;
               final isSelected = lang.runtimeType == current.runtimeType;
-              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final isDark = context.isDark;
 
               return InkWell(
                 onTap: () {
@@ -71,8 +89,8 @@ class LanguageSelectorSheet extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 36,
-                        height: 36,
+                        width: SettingsConstants.iconContainerSize,
+                        height: SettingsConstants.iconContainerSize,
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.primary
@@ -101,7 +119,7 @@ class LanguageSelectorSheet extends StatelessWidget {
                             fontWeight: isSelected
                                 ? FontWeight.w600
                                 : FontWeight.normal,
-                            fontSize: 15,
+                            fontSize: SettingsConstants.fontSizeDisplay,
                             color: isSelected
                                 ? AppColors.primary
                                 : (isDark

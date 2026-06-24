@@ -54,7 +54,7 @@ class AudioPlayerBar extends StatelessWidget {
             : cubit.lastAudioMap;
         final isPlaylist = cubit.isPlaylistMode;
         final suratName = cubit.playlistSuratName;
-        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final isDark = context.isDark;
 
         return _AudioPlayerBarContent(
           state: state,

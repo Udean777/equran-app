@@ -1,3 +1,4 @@
+import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/theme/share_templates_theme.dart';
@@ -24,7 +25,7 @@ class AyatShareCard extends StatelessWidget {
     return Container(
       width: 380,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppDimens.radiusXL),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -40,7 +41,7 @@ class AyatShareCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppDimens.radiusXL),
         child: Stack(
           children: [
             // Ornamen circle besar kanan atas
@@ -119,7 +120,7 @@ class AyatShareCard extends StatelessWidget {
 
             // Content
             Padding(
-              padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+              padding: const EdgeInsets.fromLTRB(28, 28, 28, AppDimens.spaceLG),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,7 +176,7 @@ class AyatShareCard extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppDimens.spaceLG),
 
                   // Teks Arab
                   Text(

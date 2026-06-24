@@ -17,7 +17,8 @@ mixin _$QuranFontState {
 /// Ukuran font teks Arab. Range: 18–40.
  double get arabicFontSize;/// Ukuran font teks terjemahan & latin. Range: 12–22.
  double get translationFontSize;/// Nama font Arab yang aktif. Salah satu dari [kFontAmiri] atau [kFontKFGQPC].
- String get arabicFontFamily;
+ String get arabicFontFamily;/// Error message jika operasi pada Hive gagal. Null = no error.
+ String? get errorMessage;
 /// Create a copy of QuranFontState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $QuranFontStateCopyWith<QuranFontState> get copyWith => _$QuranFontStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuranFontState&&(identical(other.arabicFontSize, arabicFontSize) || other.arabicFontSize == arabicFontSize)&&(identical(other.translationFontSize, translationFontSize) || other.translationFontSize == translationFontSize)&&(identical(other.arabicFontFamily, arabicFontFamily) || other.arabicFontFamily == arabicFontFamily));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuranFontState&&(identical(other.arabicFontSize, arabicFontSize) || other.arabicFontSize == arabicFontSize)&&(identical(other.translationFontSize, translationFontSize) || other.translationFontSize == translationFontSize)&&(identical(other.arabicFontFamily, arabicFontFamily) || other.arabicFontFamily == arabicFontFamily)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,arabicFontSize,translationFontSize,arabicFontFamily);
+int get hashCode => Object.hash(runtimeType,arabicFontSize,translationFontSize,arabicFontFamily,errorMessage);
 
 @override
 String toString() {
-  return 'QuranFontState(arabicFontSize: $arabicFontSize, translationFontSize: $translationFontSize, arabicFontFamily: $arabicFontFamily)';
+  return 'QuranFontState(arabicFontSize: $arabicFontSize, translationFontSize: $translationFontSize, arabicFontFamily: $arabicFontFamily, errorMessage: $errorMessage)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $QuranFontStateCopyWith<$Res>  {
   factory $QuranFontStateCopyWith(QuranFontState value, $Res Function(QuranFontState) _then) = _$QuranFontStateCopyWithImpl;
 @useResult
 $Res call({
- double arabicFontSize, double translationFontSize, String arabicFontFamily
+ double arabicFontSize, double translationFontSize, String arabicFontFamily, String? errorMessage
 });
 
 
@@ -65,12 +66,13 @@ class _$QuranFontStateCopyWithImpl<$Res>
 
 /// Create a copy of QuranFontState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? arabicFontSize = null,Object? translationFontSize = null,Object? arabicFontFamily = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? arabicFontSize = null,Object? translationFontSize = null,Object? arabicFontFamily = null,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 arabicFontSize: null == arabicFontSize ? _self.arabicFontSize : arabicFontSize // ignore: cast_nullable_to_non_nullable
 as double,translationFontSize: null == translationFontSize ? _self.translationFontSize : translationFontSize // ignore: cast_nullable_to_non_nullable
 as double,arabicFontFamily: null == arabicFontFamily ? _self.arabicFontFamily : arabicFontFamily // ignore: cast_nullable_to_non_nullable
-as String,
+as String,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -152,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double arabicFontSize,  double translationFontSize,  String arabicFontFamily)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double arabicFontSize,  double translationFontSize,  String arabicFontFamily,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _QuranFontState() when $default != null:
-return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontFamily);case _:
+return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontFamily,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -173,10 +175,10 @@ return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontF
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double arabicFontSize,  double translationFontSize,  String arabicFontFamily)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double arabicFontSize,  double translationFontSize,  String arabicFontFamily,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _QuranFontState():
-return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontFamily);}
+return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontFamily,_that.errorMessage);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -190,10 +192,10 @@ return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontF
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double arabicFontSize,  double translationFontSize,  String arabicFontFamily)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double arabicFontSize,  double translationFontSize,  String arabicFontFamily,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _QuranFontState() when $default != null:
-return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontFamily);case _:
+return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontFamily,_that.errorMessage);case _:
   return null;
 
 }
@@ -205,7 +207,7 @@ return $default(_that.arabicFontSize,_that.translationFontSize,_that.arabicFontF
 
 
 class _QuranFontState implements QuranFontState {
-  const _QuranFontState({this.arabicFontSize = 28.0, this.translationFontSize = 14.0, this.arabicFontFamily = kFontAmiri});
+  const _QuranFontState({this.arabicFontSize = 28.0, this.translationFontSize = 14.0, this.arabicFontFamily = kFontAmiri, this.errorMessage});
   
 
 /// Ukuran font teks Arab. Range: 18–40.
@@ -214,6 +216,8 @@ class _QuranFontState implements QuranFontState {
 @override@JsonKey() final  double translationFontSize;
 /// Nama font Arab yang aktif. Salah satu dari [kFontAmiri] atau [kFontKFGQPC].
 @override@JsonKey() final  String arabicFontFamily;
+/// Error message jika operasi pada Hive gagal. Null = no error.
+@override final  String? errorMessage;
 
 /// Create a copy of QuranFontState
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +229,16 @@ _$QuranFontStateCopyWith<_QuranFontState> get copyWith => __$QuranFontStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuranFontState&&(identical(other.arabicFontSize, arabicFontSize) || other.arabicFontSize == arabicFontSize)&&(identical(other.translationFontSize, translationFontSize) || other.translationFontSize == translationFontSize)&&(identical(other.arabicFontFamily, arabicFontFamily) || other.arabicFontFamily == arabicFontFamily));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuranFontState&&(identical(other.arabicFontSize, arabicFontSize) || other.arabicFontSize == arabicFontSize)&&(identical(other.translationFontSize, translationFontSize) || other.translationFontSize == translationFontSize)&&(identical(other.arabicFontFamily, arabicFontFamily) || other.arabicFontFamily == arabicFontFamily)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,arabicFontSize,translationFontSize,arabicFontFamily);
+int get hashCode => Object.hash(runtimeType,arabicFontSize,translationFontSize,arabicFontFamily,errorMessage);
 
 @override
 String toString() {
-  return 'QuranFontState(arabicFontSize: $arabicFontSize, translationFontSize: $translationFontSize, arabicFontFamily: $arabicFontFamily)';
+  return 'QuranFontState(arabicFontSize: $arabicFontSize, translationFontSize: $translationFontSize, arabicFontFamily: $arabicFontFamily, errorMessage: $errorMessage)';
 }
 
 
@@ -245,7 +249,7 @@ abstract mixin class _$QuranFontStateCopyWith<$Res> implements $QuranFontStateCo
   factory _$QuranFontStateCopyWith(_QuranFontState value, $Res Function(_QuranFontState) _then) = __$QuranFontStateCopyWithImpl;
 @override @useResult
 $Res call({
- double arabicFontSize, double translationFontSize, String arabicFontFamily
+ double arabicFontSize, double translationFontSize, String arabicFontFamily, String? errorMessage
 });
 
 
@@ -262,12 +266,13 @@ class __$QuranFontStateCopyWithImpl<$Res>
 
 /// Create a copy of QuranFontState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? arabicFontSize = null,Object? translationFontSize = null,Object? arabicFontFamily = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? arabicFontSize = null,Object? translationFontSize = null,Object? arabicFontFamily = null,Object? errorMessage = freezed,}) {
   return _then(_QuranFontState(
 arabicFontSize: null == arabicFontSize ? _self.arabicFontSize : arabicFontSize // ignore: cast_nullable_to_non_nullable
 as double,translationFontSize: null == translationFontSize ? _self.translationFontSize : translationFontSize // ignore: cast_nullable_to_non_nullable
 as double,arabicFontFamily: null == arabicFontFamily ? _self.arabicFontFamily : arabicFontFamily // ignore: cast_nullable_to_non_nullable
-as String,
+as String,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

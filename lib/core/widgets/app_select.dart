@@ -4,7 +4,6 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:flutter/material.dart';
 
-/// Model representasi dari satu opsi pada [AppSelect].
 class AppSelectOption<T> {
   const AppSelectOption({
     required this.value,
@@ -12,33 +11,11 @@ class AppSelectOption<T> {
     this.icon,
   });
 
-  /// Nilai generic dari opsi ini.
   final T value;
-
-  /// Label teks yang ditampilkan kepada user.
   final String label;
-
-  /// Icon opsional untuk mempercantik visual.
   final IconData? icon;
 }
 
-/// Widget custom select / dropdown selector dengan desain luxury premium.
-///
-/// Ketika di-tap, akan memunculkan Modern Modal Bottom Sheet berisi pilihan.
-/// Mendukung generic type `T`, auto dark/light mode, leading icon, dan checkmark indicator.
-///
-/// Contoh Penggunaan:
-/// ```dart
-/// AppSelect<HafalanFilter>(
-///   title: 'Pilih Status Hafalan',
-///   selectedValue: currentFilter,
-///   options: [
-///     AppSelectOption(value: HafalanFilter.semua, label: 'Semua Status'),
-///     AppSelectOption(value: HafalanFilter.sedangDihafal, label: 'Sedang Dihafal'),
-///   ],
-///   onChanged: (newFilter) => cubit.setFilter(newFilter),
-/// )
-/// ```
 class AppSelect<T> extends StatelessWidget {
   const AppSelect({
     required this.title,
@@ -51,32 +28,18 @@ class AppSelect<T> extends StatelessWidget {
     super.key,
   });
 
-  /// Judul bottom sheet modal.
   final String title;
-
-  /// Daftar opsi yang bisa dipilih.
   final List<AppSelectOption<T>> options;
-
-  /// Nilai opsi yang saat ini aktif/terpilih.
   final T selectedValue;
-
-  /// Callback ketika nilai terpilih berubah.
   final ValueChanged<T> onChanged;
-
-  /// Hint placeholder jika tidak ada yang terpilih. Default: 'Pilih...'.
   final String placeholder;
-
-  /// Icon di sisi kiri widget select.
   final IconData? leadingIcon;
-
-  /// Apakah widget ini mengambil lebar penuh atau membungkus kontennya.
   final bool isFullWidth;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Menemukan label untuk nilai terpilih saat ini
     final currentOption = options.cast<AppSelectOption<T>?>().firstWhere(
       (opt) => opt?.value == selectedValue,
       orElse: () => null,
@@ -85,7 +48,6 @@ class AppSelect<T> extends StatelessWidget {
     final displayIcon = currentOption?.icon ?? leadingIcon;
     final hasActiveSelection = currentOption != null;
 
-    // Palette warna luxury sesuai theme
     final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
     final iconColor = isDark ? AppColors.primaryLighter : AppColors.primary;
     final activeTextColor = isDark
@@ -199,8 +161,6 @@ class AppSelect<T> extends StatelessWidget {
                     const SizedBox(height: AppDimens.spaceSM),
                     const BottomSheetHandle(),
                     const SizedBox(height: AppDimens.spaceMD),
-
-                    // Header bottom sheet
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppDimens.pagePadding,
@@ -236,8 +196,6 @@ class AppSelect<T> extends StatelessWidget {
                     const SizedBox(height: AppDimens.spaceSM),
                     Divider(color: dividerColor, height: 1),
                     const SizedBox(height: AppDimens.spaceSM),
-
-                    // List Opsi Selector
                     Expanded(
                       child: ListView.builder(
                         controller: scrollController,

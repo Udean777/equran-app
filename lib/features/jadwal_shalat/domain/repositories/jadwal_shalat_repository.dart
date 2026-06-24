@@ -11,9 +11,4 @@ abstract interface class JadwalShalatRepository {
     required int bulan,
     required int tahun,
   });
-
-  Future<Either<Failure, String?>> getLastProvinsi();
-  Future<Either<Failure, Unit>> saveLastProvinsi(String provinsi);
-  Future<Either<Failure, String?>> getLastKabkota();
-  Future<Either<Failure, Unit>> saveLastKabkota(String kabkota);
 }

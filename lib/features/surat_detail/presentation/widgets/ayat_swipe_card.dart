@@ -1,10 +1,10 @@
-import 'dart:async';
-
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
+import 'package:equran_app/features/surat_detail/constants/ayat_badge_config.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/pages/share_ayat_page.dart';
+import 'package:equran_app/features/surat_detail/presentation/services/ayat_navigation_helper.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_audio_footer.dart';
 import 'package:flutter/material.dart';
 
@@ -29,19 +29,11 @@ class AyatSwipeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
-    final textPrimary = isDark
-        ? AppColors.onSurfaceDark
-        : AppColors.textPrimary;
-    final textSecondary = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textSecondary;
-    final textTertiary = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textTertiary;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
+    final textPrimary = context.textPrimaryColor;
+    final textSecondary = context.textSecondaryColor;
+    final textTertiary = context.textTertiaryColor;
 
     return Container(
       width: double.infinity,
@@ -72,22 +64,11 @@ class AyatSwipeCard extends StatelessWidget {
           ),
 
           // Divider gold
-          Padding(
-            padding: const EdgeInsets.symmetric(
+          const Padding(
+            padding: EdgeInsets.symmetric(
               horizontal: AppDimens.spaceLG,
             ),
-            child: Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    AppColors.gold.withValues(alpha: 0.4),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
+            child: GoldDivider(verticalMargin: 0),
           ),
 
           // Content — scrollable if content exceeds constraints
@@ -108,9 +89,7 @@ class AyatSwipeCard extends StatelessWidget {
                     Text(
                       ayat.teksArab,
                       style: AppTypography.arabicLarge.copyWith(
-                        color: isDark
-                            ? AppColors.primaryLighter
-                            : AppColors.primary,
+                        color: context.primaryActionColor,
                         fontSize: 28,
                         height: 2.2,
                       ),
@@ -173,7 +152,6 @@ class AyatSwipeCard extends StatelessWidget {
           AyatAudioFooter(
             ayat: ayat,
             suratDetail: suratDetail,
-            isDark: isDark,
           ),
         ],
       ),
@@ -219,9 +197,7 @@ class _CardHeader extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.primaryDark
-                  : AppColors.primaryContainer,
+              color: context.primaryContainerColor,
               borderRadius: BorderRadius.circular(AppDimens.radiusSM),
               border: Border.all(
                 color: isDark
@@ -233,9 +209,11 @@ class _CardHeader extends StatelessWidget {
             child: Text(
               '${ayat.nomorAyat}',
               style: TextStyle(
-                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                color: context.primaryActionColor,
                 fontWeight: FontWeight.w700,
-                fontSize: ayat.nomorAyat > 99 ? 10 : 12,
+                fontSize: ayat.nomorAyat > AyatBadgeConfig.largeNumberThreshold
+                    ? AyatBadgeConfig.fontSizeLarge
+                    : AyatBadgeConfig.fontSizeSmall,
               ),
             ),
           ),
@@ -245,7 +223,7 @@ class _CardHeader extends StatelessWidget {
           // Label
           Expanded(
             child: Text(
-              'Ayat ${ayat.nomorAyat} / ${suratDetail.info.jumlahAyat}',
+              'Ayat ${ayat.nomorAyat} / ${suratDetail.jumlahAyat}',
               style: theme.textTheme.labelSmall?.copyWith(
                 color: textTertiary,
                 fontSize: 11,
@@ -287,17 +265,11 @@ class _CardHeader extends StatelessWidget {
   }
 
   void _showSharePage(BuildContext context) {
-    unawaited(
-      Navigator.push<void>(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ShareAyatPage(
-            ayat: ayat,
-            namaLatin: suratDetail.info.namaLatin,
-            suratNomor: suratDetail.info.nomor,
-          ),
-        ),
-      ),
+    AyatNavigationHelper.openSharePage(
+      context,
+      ayat: ayat,
+      namaLatin: suratDetail.namaLatin,
+      suratNomor: suratDetail.nomor,
     );
   }
 }

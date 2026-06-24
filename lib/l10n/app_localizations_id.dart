@@ -40,6 +40,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get lihatTafsir => 'Lihat Tafsir';
 
   @override
+  String ayatNumber(int number) {
+    return 'Ayat $number';
+  }
+
+  @override
   String get bookmark => 'Bookmark';
 
   @override
@@ -64,6 +69,11 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String ayat(int nomor) {
     return 'Ayat $nomor';
+  }
+
+  @override
+  String ayatFrom(int ayatNomor, int totalAyat) {
+    return 'Ayat $ayatNomor dari $totalAyat';
   }
 
   @override
@@ -254,4 +264,109 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get pengaturanDrawer => 'Pengaturan';
+
+  @override
+  String get pageNotFound => 'Halaman Tidak Ditemukan';
+
+  @override
+  String get pageNotFoundDesc =>
+      'Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.';
+
+  @override
+  String get backToHome => 'Kembali ke Beranda';
+
+  @override
+  String get suratListHeader => 'Daftar Surah';
+
+  @override
+  String totalSurat(int count) {
+    return '$count Surah';
+  }
+
+  @override
+  String get suratCompletedEmpty => 'Belum ada surat yang selesai dibaca';
+
+  @override
+  String get suratInProgressEmpty => 'Belum ada surat yang sedang dibaca';
+
+  @override
+  String filterAll(int count) {
+    return 'Semua ($count)';
+  }
+
+  @override
+  String filterInProgress(int count) {
+    return 'Sedang Dibaca ($count)';
+  }
+
+  @override
+  String filterCompleted(int count) {
+    return 'Selesai ($count)';
+  }
+
+  @override
+  String get filterReadingStatus => 'Filter Status Membaca';
+
+  @override
+  String get murajaahToday => 'MURAJA\'AH HARI INI';
+
+  @override
+  String get start => 'Mulai';
+
+  @override
+  String andMore(int count) {
+    return '+$count lainnya';
+  }
+
+  @override
+  String get tasbihTitle => 'Tasbih & Dzikir';
+
+  @override
+  String get tasbihHistory => 'Riwayat';
+
+  @override
+  String get tasbihHistoryTitle => 'Riwayat Tasbih';
+
+  @override
+  String get tasbihDeleteAllHistory => 'Hapus semua riwayat';
+
+  @override
+  String get tasbihEmptyHistory => 'Belum ada riwayat tasbih.';
+
+  @override
+  String get tasbihDeleteAllConfirmTitle => 'Hapus Semua Riwayat?';
+
+  @override
+  String get tasbihDeleteAllConfirmMessage =>
+      'Semua riwayat tasbih akan dihapus permanen.';
+
+  @override
+  String get tasbihCompleted => 'Selesai';
+
+  @override
+  String get tasbihTarget => 'Target';
+
+  @override
+  String get tasbihRemaining => 'Sisa';
+
+  @override
+  String get tasbihSelectDzikir => 'Pilih Dzikir';
+
+  @override
+  String get tasbihCustomTarget => 'Target custom';
+
+  @override
+  String get tasbihCustomTargetHint => 'Contoh: 200';
+
+  @override
+  String get tasbihSetButton => 'Set';
+
+  @override
+  String get tasbihChangeDzikir => 'Ganti Dzikir';
+
+  @override
+  String get tasbihReset => 'Reset';
+
+  @override
+  String get tasbihDelete => 'Hapus';
 }

@@ -154,6 +154,12 @@ abstract class AppLocalizations {
   /// **'Lihat Tafsir'**
   String get lihatTafsir;
 
+  /// Label nomor ayat pada tafsir
+  ///
+  /// In id, this message translates to:
+  /// **'Ayat {number}'**
+  String ayatNumber(int number);
+
   /// Label bookmark
   ///
   /// In id, this message translates to:
@@ -201,6 +207,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Ayat {nomor}'**
   String ayat(int nomor);
+
+  /// Label posisi ayat, misal Ayat 5 dari 10
+  ///
+  /// In id, this message translates to:
+  /// **'Ayat {ayatNomor} dari {totalAyat}'**
+  String ayatFrom(int ayatNomor, int totalAyat);
 
   /// Pesan error tidak ada internet
   ///
@@ -579,6 +591,192 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pengaturan'**
   String get pengaturanDrawer;
+
+  /// Judul halaman 404
+  ///
+  /// In id, this message translates to:
+  /// **'Halaman Tidak Ditemukan'**
+  String get pageNotFound;
+
+  /// Deskripsi halaman 404
+  ///
+  /// In id, this message translates to:
+  /// **'Halaman yang Anda cari tidak tersedia\natau telah dipindahkan.'**
+  String get pageNotFoundDesc;
+
+  /// Tombol kembali ke beranda
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke Beranda'**
+  String get backToHome;
+
+  /// Header daftar surah
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar Surah'**
+  String get suratListHeader;
+
+  /// Total jumlah surah
+  ///
+  /// In id, this message translates to:
+  /// **'{count} Surah'**
+  String totalSurat(int count);
+
+  /// Pesan kosong filter completed
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada surat yang selesai dibaca'**
+  String get suratCompletedEmpty;
+
+  /// Pesan kosong filter in progress
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada surat yang sedang dibaca'**
+  String get suratInProgressEmpty;
+
+  /// Label filter semua surat
+  ///
+  /// In id, this message translates to:
+  /// **'Semua ({count})'**
+  String filterAll(int count);
+
+  /// Label filter surat sedang dibaca
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang Dibaca ({count})'**
+  String filterInProgress(int count);
+
+  /// Label filter surat selesai
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai ({count})'**
+  String filterCompleted(int count);
+
+  /// Judul filter status membaca
+  ///
+  /// In id, this message translates to:
+  /// **'Filter Status Membaca'**
+  String get filterReadingStatus;
+
+  /// Judul card murajaah hari ini
+  ///
+  /// In id, this message translates to:
+  /// **'MURAJA\'AH HARI INI'**
+  String get murajaahToday;
+
+  /// Tombol mulai
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai'**
+  String get start;
+
+  /// Label X surat lainnya
+  ///
+  /// In id, this message translates to:
+  /// **'+{count} lainnya'**
+  String andMore(int count);
+
+  /// Judul halaman tasbih
+  ///
+  /// In id, this message translates to:
+  /// **'Tasbih & Dzikir'**
+  String get tasbihTitle;
+
+  /// Tooltip tombol riwayat
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat'**
+  String get tasbihHistory;
+
+  /// Judul halaman riwayat tasbih
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat Tasbih'**
+  String get tasbihHistoryTitle;
+
+  /// Tooltip tombol hapus semua riwayat
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus semua riwayat'**
+  String get tasbihDeleteAllHistory;
+
+  /// Pesan kosong halaman riwayat
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada riwayat tasbih.'**
+  String get tasbihEmptyHistory;
+
+  /// Judul dialog konfirmasi hapus semua
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus Semua Riwayat?'**
+  String get tasbihDeleteAllConfirmTitle;
+
+  /// Isi dialog konfirmasi hapus semua
+  ///
+  /// In id, this message translates to:
+  /// **'Semua riwayat tasbih akan dihapus permanen.'**
+  String get tasbihDeleteAllConfirmMessage;
+
+  /// Label status selesai
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get tasbihCompleted;
+
+  /// Label target hitungan
+  ///
+  /// In id, this message translates to:
+  /// **'Target'**
+  String get tasbihTarget;
+
+  /// Label sisa hitungan
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa'**
+  String get tasbihRemaining;
+
+  /// Judul sheet pilih dzikir
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih Dzikir'**
+  String get tasbihSelectDzikir;
+
+  /// Label input target custom
+  ///
+  /// In id, this message translates to:
+  /// **'Target custom'**
+  String get tasbihCustomTarget;
+
+  /// Hint input target custom
+  ///
+  /// In id, this message translates to:
+  /// **'Contoh: 200'**
+  String get tasbihCustomTargetHint;
+
+  /// Tombol set target
+  ///
+  /// In id, this message translates to:
+  /// **'Set'**
+  String get tasbihSetButton;
+
+  /// Tombol ganti dzikir
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti Dzikir'**
+  String get tasbihChangeDzikir;
+
+  /// Tombol reset hitungan
+  ///
+  /// In id, this message translates to:
+  /// **'Reset'**
+  String get tasbihReset;
+
+  /// Tooltip tombol hapus sesi
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get tasbihDelete;
 }
 
 class _AppLocalizationsDelegate

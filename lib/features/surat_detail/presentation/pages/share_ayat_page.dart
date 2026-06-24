@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/utils/share_ayat_service.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/theme/share_templates_theme.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_share_card.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/save_options_sheet.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/share_ayat_action_bar.dart';
+import 'package:equran_app/features/surat_detail/presentation/widgets/template_selector.dart';
+import 'package:equran_app/features/surat_detail/utils/share_ayat_service.dart';
 import 'package:flutter/material.dart';
 
 class ShareAyatPage extends StatefulWidget {
@@ -34,18 +37,10 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
-    final textPrimary = isDark
-        ? AppColors.onSurfaceDark
-        : AppColors.textPrimary;
-    final textTertiary = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textTertiary;
+    final isDark = context.isDark;
+    final bgColor = context.scaffoldBackgroundColor;
+    final textPrimary = context.textPrimaryColor;
+    final textTertiary = context.textTertiaryColor;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -105,9 +100,9 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: surfaceColor,
+          color: context.surfaceColor,
           border: Border(
-            top: BorderSide(color: borderColor),
+            top: BorderSide(color: context.borderVariantColor),
           ),
           boxShadow: [
             BoxShadow(
@@ -128,149 +123,26 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Template Selector Title
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppDimens.pagePadding,
                 ),
-                child: Text(
-                  'PILIH DESAIN',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: textTertiary,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppDimens.spaceSM),
-
-              // Template Selector Slider
-              SizedBox(
-                height: 80,
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.pagePadding,
-                  ),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: ShareTemplateStyle.values.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: AppDimens.spaceMD),
-                  itemBuilder: (context, index) {
-                    final style = ShareTemplateStyle.values[index];
-                    final isSelected = _selectedStyle == style;
-                    return _buildTemplateSelectorItem(
-                      style,
-                      isSelected,
-                      isDark,
-                    );
+                child: TemplateSelector(
+                  selectedStyle: _selectedStyle,
+                  onTemplateChanged: (style) {
+                    setState(() => _selectedStyle = style);
                   },
                 ),
               ),
-
               const SizedBox(height: AppDimens.spaceMD),
-              Divider(color: borderColor, height: 1),
+              Divider(color: context.borderVariantColor, height: 1),
               const SizedBox(height: AppDimens.spaceMD),
-
-              // Action Buttons
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.pagePadding,
-                ),
-                child: Row(
-                  children: [
-                    // Button 1: Bagikan (FilledButton, 50% width)
-                    Expanded(
-                      child: FilledButton.icon(
-                        key: _shareImageButtonKey,
-                        onPressed: (_isGenerating || _isSaving)
-                            ? null
-                            : _shareImage,
-                        icon: _isGenerating
-                            ? const SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColors.onPrimary,
-                                ),
-                              )
-                            : const Icon(Icons.share_rounded, size: 16),
-                        label: Text(
-                          _isGenerating ? 'Membuat...' : 'Bagikan',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: isDark
-                              ? AppColors.primaryLight
-                              : AppColors.primary,
-                          foregroundColor: AppColors.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppDimens.radiusMD,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: AppDimens.spaceSM),
-
-                    // Button 2: Simpan (OutlinedButton, 50% width)
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: (_isGenerating || _isSaving)
-                            ? null
-                            : _showSaveOptionsSheet,
-                        icon: _isSaving
-                            ? SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: isDark
-                                      ? AppColors.primaryLighter
-                                      : AppColors.primary,
-                                ),
-                              )
-                            : Icon(
-                                Icons.download_rounded,
-                                size: 16,
-                                color: isDark
-                                    ? AppColors.primaryLighter
-                                    : AppColors.primary,
-                              ),
-                        label: Text(
-                          _isSaving ? 'Menyimpan...' : 'Simpan',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: isDark
-                              ? AppColors.primaryLighter
-                              : AppColors.primary,
-                          side: BorderSide(
-                            color: isDark
-                                ? AppColors.primaryLighter
-                                : AppColors.primary,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppDimens.radiusMD,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              ShareAyatActionBar(
+                onShare: _shareImage,
+                onSaveToGallery: _showSaveOptionsSheet,
+                isGenerating: _isGenerating,
+                isSaving: _isSaving,
+                shareButtonKey: _shareImageButtonKey,
               ),
             ],
           ),
@@ -295,137 +167,11 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
   }
 
   void _showSaveOptionsSheet() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final textPrimary = isDark
-        ? AppColors.onSurfaceDark
-        : AppColors.textPrimary;
-    final textSecondary = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textSecondary;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
-
     unawaited(
-      showModalBottomSheet<void>(
+      SaveOptionsSheet.show(
         context: context,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return Container(
-            decoration: BoxDecoration(
-              color: surfaceColor,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(AppDimens.radiusXL),
-              ),
-              border: Border(
-                top: BorderSide(color: borderColor),
-              ),
-            ),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Handle bar
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppDimens.spaceMD),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.outlineDark
-                            : AppColors.outlineVariant,
-                        borderRadius: BorderRadius.circular(
-                          AppDimens.radiusFull,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppDimens.spaceMD),
-                  Text(
-                    'Pilih Lokasi Penyimpanan',
-                    style: AppTypography.serifHeadingSmall.copyWith(
-                      color: textPrimary,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: AppDimens.spaceLG),
-                  ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.primaryDark
-                            : AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-                      ),
-                      child: Icon(
-                        Icons.photo_library_rounded,
-                        color: isDark
-                            ? AppColors.primaryLighter
-                            : AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
-                    title: Text(
-                      'Simpan ke Galeri / Foto',
-                      style: TextStyle(
-                        color: textPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'Menyimpan gambar langsung ke album foto perangkat Anda',
-                      style: TextStyle(color: textSecondary, fontSize: 11),
-                    ),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await _saveImage(toGallery: true);
-                    },
-                  ),
-                  Divider(color: borderColor, height: 1),
-                  ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.primaryDark
-                            : AppColors.primaryContainer,
-                        borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-                      ),
-                      child: Icon(
-                        Icons.folder_open_rounded,
-                        color: isDark
-                            ? AppColors.primaryLighter
-                            : AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
-                    title: Text(
-                      'Simpan ke Folder Kustom (File)',
-                      style: TextStyle(
-                        color: textPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'Pilih lokasi penyimpanan kustom sendiri di memori perangkat',
-                      style: TextStyle(color: textSecondary, fontSize: 11),
-                    ),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await _saveImage(toGallery: false);
-                    },
-                  ),
-                  const SizedBox(height: AppDimens.spaceLG),
-                ],
-              ),
-            ),
-          );
-        },
+        onGallerySave: () => _saveImage(toGallery: true),
+        onCustomDirectorySave: () => _saveImage(toGallery: false),
       ),
     );
   }
@@ -455,11 +201,9 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
             : (success
                   ? 'Gambar berhasil disimpan ke lokasi pilihan'
                   : 'Penyimpanan gambar dibatalkan');
-
         final bgColor = success
             ? AppColors.primary
             : (toGallery ? AppColors.error : AppColors.outlineDark);
-
         messenger.showSnackBar(
           SnackBar(
             content: Text(message),
@@ -484,86 +228,5 @@ class _ShareAyatPageState extends State<ShareAyatPage> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
-  }
-
-  Widget _buildTemplateSelectorItem(
-    ShareTemplateStyle style,
-    bool isSelected,
-    bool isDark,
-  ) {
-    final textTertiary = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textTertiary;
-    final textPrimary = isDark
-        ? AppColors.onSurfaceDark
-        : AppColors.textPrimary;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedStyle = style;
-        });
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: style.backgroundColors,
-                stops: style.stops,
-              ),
-              border: isSelected
-                  ? Border.all(
-                      color: AppColors.gold,
-                      width: 2.5,
-                    )
-                  : Border.all(
-                      color: isDark ? AppColors.outlineDark : AppColors.outline,
-                    ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: AppColors.gold.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: isSelected
-                ? Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppColors.gold,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ),
-                  )
-                : null,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            style.displayName,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected ? textPrimary : textTertiary,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 
 /// Menampilkan dialog konfirmasi dengan luxury styling yang konsisten.
@@ -57,7 +56,7 @@ class _LuxuryConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = isDark ? AppColors.outlineDark : AppColors.outline;
     final textPrimary = isDark
@@ -106,118 +105,6 @@ class _LuxuryConfirmDialog extends StatelessWidget {
           child: Text(confirmLabel),
         ),
       ],
-    );
-  }
-}
-
-/// Menampilkan dialog sukses saat selesai membaca surah.
-Future<void> showSuccessReadDialog(
-  BuildContext context, {
-  required String namaSurah,
-  required VoidCallback onBackToHome,
-}) async {
-  await showDialog<void>(
-    context: context,
-    barrierDismissible: false, // User must interact with it
-    builder: (ctx) => _LuxurySuccessReadDialog(
-      namaSurah: namaSurah,
-      onBackToHome: onBackToHome,
-    ),
-  );
-}
-
-class _LuxurySuccessReadDialog extends StatelessWidget {
-  const _LuxurySuccessReadDialog({
-    required this.namaSurah,
-    required this.onBackToHome,
-  });
-
-  final String namaSurah;
-  final VoidCallback onBackToHome;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark ? AppColors.outlineDark : AppColors.outline;
-    final textPrimary = isDark
-        ? AppColors.onSurfaceDark
-        : AppColors.textPrimary;
-    final textSecondary = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textSecondary;
-
-    return AlertDialog(
-      backgroundColor: surfaceColor,
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusXL),
-        side: BorderSide(color: borderColor, width: 1.5),
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceLG,
-        vertical: AppDimens.spaceXL,
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Icon/Badge of achievement
-          Container(
-            padding: const EdgeInsets.all(AppDimens.spaceMD),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? AppColors.primaryDark.withValues(alpha: 0.3)
-                  : AppColors.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.stars_rounded,
-              color: isDark ? AppColors.primaryLighter : AppColors.primary,
-              size: 56,
-            ),
-          ),
-          const SizedBox(height: AppDimens.spaceLG),
-
-          // Congratulations text
-          Text(
-            'Alhamdulillah!',
-            style: AppTypography.serifHeadingMedium.copyWith(
-              color: isDark ? AppColors.primaryLighter : AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppDimens.spaceXS),
-          Text(
-            'Kamu berhasil membaca surah',
-            style: TextStyle(
-              color: textSecondary,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            namaSurah,
-            style: AppTypography.serifHeadingSmall.copyWith(
-              color: textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppDimens.spaceXL),
-
-          // Action button - Back to main
-          GradientButton(
-            label: 'Kembali ke Halaman Utama',
-            icon: Icons.home_rounded,
-            onTap: () {
-              Navigator.of(context).pop(); // close dialog
-              onBackToHome();
-            },
-          ),
-        ],
-      ),
     );
   }
 }

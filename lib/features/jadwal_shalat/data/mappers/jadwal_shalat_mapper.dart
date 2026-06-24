@@ -1,6 +1,8 @@
 import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
+import 'package:equran_app/features/jadwal_shalat/data/models/shalat_notif_prefs_dto.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 
 extension JadwalShalatEntryDtoX on JadwalShalatEntryDto {
   JadwalShalatEntry toEntity() => JadwalShalatEntry(
@@ -26,5 +28,27 @@ extension JadwalShalatDtoX on JadwalShalatDto {
     tahun: tahun,
     bulanNama: bulanNama,
     jadwal: jadwal.map((e) => e.toEntity()).toList(),
+  );
+}
+
+extension ShalatNotifPrefsDtoX on ShalatNotifPrefsDto {
+  ShalatNotifPrefs toEntity() => ShalatNotifPrefs(
+    subuh: subuh,
+    dzuhur: dzuhur,
+    ashar: ashar,
+    maghrib: maghrib,
+    isya: isya,
+    menitSebelum: menitSebelum,
+  );
+}
+
+extension ShalatNotifPrefsX on ShalatNotifPrefs {
+  ShalatNotifPrefsDto toDto() => ShalatNotifPrefsDto(
+    subuh: subuh,
+    dzuhur: dzuhur,
+    ashar: ashar,
+    maghrib: maghrib,
+    isya: isya,
+    menitSebelum: menitSebelum,
   );
 }

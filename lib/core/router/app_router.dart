@@ -1,4 +1,4 @@
-import 'package:equran_app/core/pages/main_page.dart';
+import 'package:equran_app/app/pages/main_page.dart';
 import 'package:equran_app/core/pages/not_found_page.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';
@@ -6,6 +6,7 @@ import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.da
 import 'package:equran_app/features/catatan_ayat/presentation/pages/catatan_ayat_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_detail_page.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
+import 'package:equran_app/features/doa/presentation/widgets/doa_bookmark_section.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_detail_page.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_page.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_setoran_page.dart';
@@ -157,7 +158,11 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.bookmark,
-        builder: (context, state) => const BookmarkPage(),
+        builder: (context, state) => BookmarkPage(
+          doaSectionBuilder: (onEmptyStateChanged) => DoaBookmarkSection(
+            onEmptyStateChanged: onEmptyStateChanged,
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.audioStorage,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+export 'context_ext.dart';
+
 abstract final class AppColors {
   // ---------------------------------------------------------------------------
   // Primary — Forest Green
@@ -28,7 +30,6 @@ abstract final class AppColors {
   // Background & Surface — Light (Luxury Warm White)
   // ---------------------------------------------------------------------------
   static const Color background = Color(0xFFFAFCFA);
-  static const Color backgroundSecondary = Color(0xFFF2F7F4);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceVariant = Color(0xFFF0F7F3);
   static const Color surfaceTint = Color(0xFFE8F5EE);

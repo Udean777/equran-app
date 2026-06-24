@@ -1,7 +1,10 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/luxury_card.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -27,28 +30,15 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final isDark = context.isDark;
     final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
-      child: Container(
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.circular(AppDimens.radiusXL),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: isDark ? 0.04 : 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+      child: LuxuryCard(
+        radius: AppDimens.radiusXL,
+        hasShadow: true,
+        padding: EdgeInsets.zero,
         child: Column(
           children: [
             // Header
@@ -71,7 +61,7 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
                   ),
                   const SizedBox(width: AppDimens.spaceSM),
                   Text(
-                    'Riwayat Shalat',
+                    StatistikShalatStrings.sectionKalender,
                     style: AppTypography.serifHeadingSmall.copyWith(
                       color: textColor,
                       fontSize: 15,
@@ -86,7 +76,9 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
               margin: const EdgeInsets.symmetric(
                 horizontal: AppDimens.cardPaddingLG,
               ),
-              color: borderColor,
+              color: context.isDark
+                  ? AppColors.outlineDark
+                  : AppColors.outlineVariant,
             ),
 
             TableCalendar<ShalatDayStats>(
@@ -162,7 +154,7 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
             ),
 
             const SizedBox(height: AppDimens.spaceSM),
-            _Legend(isDark: isDark),
+            _Legend(isDark: context.isDark),
             const SizedBox(height: AppDimens.spaceMD),
           ],
         ),
@@ -201,10 +193,16 @@ class _ShalatCalendarSectionState extends State<ShalatCalendarSection> {
   }
 
   Color _colorForStats(ShalatDayStats? stats) {
-    if (stats == null || !stats.hasData) return Colors.transparent;
+    if (stats == null || !stats.hasData) {
+      return Colors.transparent;
+    }
     final tepatWaktu = stats.jumlahTepatWaktu;
-    if (tepatWaktu == 5) return AppColors.success;
-    if (tepatWaktu >= 3) return AppColors.warning;
+    if (tepatWaktu == StatistikShalatConstants.totalWaktuShalat) {
+      return AppColors.success;
+    }
+    if (tepatWaktu >= 3) {
+      return AppColors.warning;
+    }
     return AppColors.error;
   }
 }
@@ -224,17 +222,19 @@ class _Legend extends StatelessWidget {
         children: [
           _LegendItem(
             color: AppColors.success,
-            label: '5 tepat waktu',
+            label:
+                '${StatistikShalatConstants.totalWaktuShalat} ${StatistikShalatStrings.labelTepatWaktu.toLowerCase()}',
             isDark: isDark,
           ),
           _LegendItem(
             color: AppColors.warning,
-            label: '3–4 tepat waktu',
+            label:
+                '3–4 ${StatistikShalatStrings.labelTepatWaktu.toLowerCase()}',
             isDark: isDark,
           ),
           _LegendItem(
             color: AppColors.error,
-            label: '<3 tepat waktu',
+            label: '<3 ${StatistikShalatStrings.labelTepatWaktu.toLowerCase()}',
             isDark: isDark,
           ),
         ],
