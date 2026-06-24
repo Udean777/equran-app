@@ -6,13 +6,13 @@ import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dar
 import 'package:equran_app/features/audio/domain/entities/download_state.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
-import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/widgets/catatan_editor_sheet.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/viewport_detection_controller.dart';
-import 'package:equran_app/features/surat_detail/presentation/pages/share_ayat_page.dart';
+import 'package:equran_app/features/surat_detail/presentation/services/ayat_navigation_helper.dart';
+import 'package:equran_app/features/surat_detail/presentation/services/bookmark_toggle_helper.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,7 +62,7 @@ class AyatListView extends StatelessWidget {
 
                     final isBookmarked = bookmarks.any(
                       (b) =>
-                          b.suratNomor == detail.info.nomor &&
+                          b.suratNomor == detail.nomor &&
                           b.ayatNomor == ayat.nomorAyat,
                     );
 
@@ -76,7 +76,7 @@ class AyatListView extends StatelessWidget {
                         ayat.audio[qari.id] ?? ayat.audio.values.firstOrNull;
 
                     final ayatDownloadState = downloadState.stateFor(
-                      detail.info.nomor,
+                      detail.nomor,
                       ayat.nomorAyat,
                       qari.id,
                     );
@@ -102,9 +102,7 @@ class AyatListView extends StatelessWidget {
                                     ),
                               border: Border(
                                 left: BorderSide(
-                                  color: isDark
-                                      ? AppColors.primaryLighter
-                                      : AppColors.primary,
+                                  color: context.primaryActionColor,
                                   width: 3,
                                 ),
                               ),
@@ -120,27 +118,12 @@ class AyatListView extends StatelessWidget {
                         downloadProgress: dlProgress,
                         onBookmarkToggle: () {
                           onSaveLastRead(detail, ayat.nomorAyat);
-                          if (isBookmarked) {
-                            unawaited(
-                              context.read<BookmarkCubit>().removeBookmark(
-                                suratNomor: detail.info.nomor,
-                                ayatNomor: ayat.nomorAyat,
-                              ),
-                            );
-                          } else {
-                            unawaited(
-                              context.read<BookmarkCubit>().addBookmark(
-                                Bookmark(
-                                  suratNomor: detail.info.nomor,
-                                  ayatNomor: ayat.nomorAyat,
-                                  namaLatin: detail.info.namaLatin,
-                                  teksArab: ayat.teksArab,
-                                  teksIndonesia: ayat.teksIndonesia,
-                                  savedAt: DateTime.now(),
-                                ),
-                              ),
-                            );
-                          }
+                          BookmarkToggleHelper.toggle(
+                            cubit: context.read<BookmarkCubit>(),
+                            detail: detail,
+                            ayat: ayat,
+                            isBookmarked: isBookmarked,
+                          );
                         },
                         onPlayTap: audioUrl == null
                             ? null
@@ -157,8 +140,8 @@ class AyatListView extends StatelessWidget {
                                       ayatList: detail.ayatList,
                                       startIndex: i,
                                       qari: qari,
-                                      suratNomor: detail.info.nomor,
-                                      suratName: detail.info.namaLatin,
+                                      suratNomor: detail.nomor,
+                                      suratName: detail.namaLatin,
                                       audioMap: detail.audioFull,
                                     ),
                                   );
@@ -166,7 +149,7 @@ class AyatListView extends StatelessWidget {
                               },
                         onShareTap: () => _showSharePage(context, ayat),
                         hasCatatan: context.read<CatatanAyatCubit>().hasCatatan(
-                          suratNomor: detail.info.nomor,
+                          suratNomor: detail.nomor,
                           ayatNomor: ayat.nomorAyat,
                         ),
                         onCatatanTap: () => _showCatatanSheet(context, ayat),
@@ -175,7 +158,7 @@ class AyatListView extends StatelessWidget {
                             : () {
                                 unawaited(
                                   downloadCubit.downloadAyat(
-                                    suratNomor: detail.info.nomor,
+                                    suratNomor: detail.nomor,
                                     ayat: ayat,
                                     qari: qari,
                                   ),
@@ -194,23 +177,17 @@ class AyatListView extends StatelessWidget {
   }
 
   void _showSharePage(BuildContext context, Ayat ayat) {
-    unawaited(
-      Navigator.push<void>(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ShareAyatPage(
-            ayat: ayat,
-            namaLatin: detail.info.namaLatin,
-            suratNomor: detail.info.nomor,
-          ),
-        ),
-      ),
+    AyatNavigationHelper.openSharePage(
+      context,
+      ayat: ayat,
+      namaLatin: detail.namaLatin,
+      suratNomor: detail.nomor,
     );
   }
 
   void _showCatatanSheet(BuildContext context, Ayat ayat) {
     final existing = context.read<CatatanAyatCubit>().getCatatan(
-      suratNomor: detail.info.nomor,
+      suratNomor: detail.nomor,
       ayatNomor: ayat.nomorAyat,
     );
     unawaited(
@@ -219,9 +196,9 @@ class AyatListView extends StatelessWidget {
         builder: (_) => BlocProvider.value(
           value: context.read<CatatanAyatCubit>(),
           child: CatatanEditorSheet(
-            suratNomor: detail.info.nomor,
+            suratNomor: detail.nomor,
             ayatNomor: ayat.nomorAyat,
-            namaLatin: detail.info.namaLatin,
+            namaLatin: detail.namaLatin,
             teksArab: ayat.teksArab,
             existing: existing,
           ),

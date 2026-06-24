@@ -1,18 +1,15 @@
 import 'package:equran_app/core/utils/html_stripper.dart';
 import 'package:equran_app/features/surat_detail/data/models/surat_detail_dto.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 
 extension SuratDetailDtoMapper on SuratDetailDto {
   SuratDetail toEntity() => SuratDetail(
-    info: Surat(
-      nomor: nomor,
-      nama: nama,
-      namaLatin: namaLatin,
-      jumlahAyat: jumlahAyat,
-      tempatTurun: _parseTempatTurun(tempatTurun),
-      arti: arti,
-    ),
+    nomor: nomor,
+    nama: nama,
+    namaLatin: namaLatin,
+    jumlahAyat: jumlahAyat,
+    tempatTurun: _parseTempatTurun(tempatTurun),
+    arti: arti,
     deskripsi: deskripsi.stripHtml(),
     audioFull: audioFull,
     ayatList: ayat.map((a) => a.toEntity()).toList(),

@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_filter.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_state.dart';
-import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -141,7 +141,7 @@ class HafalanListCubit extends Cubit<HafalanListState> {
     final hafalanMap = {for (final h in list) h.suratNomor: h};
     final juzGroups = <int, List<HafalanSurat>>{};
 
-    for (final entry in kJuzToSurahMapping.entries) {
+    for (final entry in JuzConstants.surahPerJuz.entries) {
       final juzNomor = entry.key;
       if (selectedJuz != null && selectedJuz != juzNomor) continue;
 

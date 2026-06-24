@@ -21,7 +21,7 @@ class SuratCompletionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final surat = detail.info;
+    final surat = detail;
 
     return Container(
       width: double.infinity,

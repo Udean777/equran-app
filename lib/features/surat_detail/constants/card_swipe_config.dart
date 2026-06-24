@@ -10,4 +10,9 @@ abstract final class CardSwipeConfig {
   static const double sideCardOpacity = 0.6;
   static const double sideCardTranslateY = 20;
   static const double sideCardRotation = 0.2;
+
+  // Rubber band effect for edge resistance
+  static const double rubberBandFactor = 0.2;
+  static const double rubberBandMin = -60;
+  static const double rubberBandMax = 0;
 }

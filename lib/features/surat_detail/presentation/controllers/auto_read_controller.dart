@@ -43,8 +43,8 @@ class AutoReadController extends ChangeNotifier {
         ayatList: detail.ayatList,
         startIndex: 0,
         qari: _audioCubit.state.currentQari,
-        suratNomor: detail.info.nomor,
-        suratName: detail.info.namaLatin,
+        suratNomor: detail.nomor,
+        suratName: detail.namaLatin,
         audioMap: detail.audioFull,
       ),
     );

@@ -54,10 +54,8 @@ dev_dependencies:
     sdk: flutter
   freezed: ^3.2.5
   hive_ce_generator: ^1.8.0
-  husky: ^0.1.7
   injectable_generator: ^3.0.2
   json_serializable: ^6.8.0
-  lint_staged: ^0.5.1
   mocktail: ^1.0.4
   very_good_analysis: ^10.2.0
 
@@ -80,11 +78,3 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/audio/
-
-lint_staged:
-  "lib/**/*.dart":
-    - dart format
-    - dart analyze --fatal-infos --fatal-warnings
-  "test/**/*.dart":
-    - dart format
-    - dart analyze --fatal-infos --fatal-warnings

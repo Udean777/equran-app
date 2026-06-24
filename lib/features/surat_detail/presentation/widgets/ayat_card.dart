@@ -2,6 +2,7 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_action_bar.dart';
 import 'package:flutter/material.dart';
@@ -49,10 +50,10 @@ class AyatCard extends StatelessWidget {
           prev.translationFontSize != curr.translationFontSize ||
           prev.arabicFontFamily != curr.arabicFontFamily,
       builder: (context, fontState) {
-        final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+        final surfaceColor = context.surfaceColor;
         final borderColor = isPlaying
-            ? (isDark ? AppColors.primaryLighter : AppColors.primary)
-            : (isDark ? AppColors.outlineDark : AppColors.outlineVariant);
+            ? context.primaryActionColor
+            : context.borderSubtleColor;
         final borderWidth = isPlaying ? 1.5 : 1.0;
 
         return Padding(
@@ -103,7 +104,6 @@ class AyatCard extends StatelessWidget {
                         isDownloaded: isDownloaded,
                         isDownloading: isDownloading,
                         downloadProgress: downloadProgress,
-                        isDark: isDark,
                         onPlayTap: onPlayTap,
                         onBookmarkToggle: onBookmarkToggle,
                         onShareTap: onShareTap,
@@ -126,30 +126,17 @@ class AyatCard extends StatelessWidget {
                     ayat.teksArab,
                     textAlign: TextAlign.right,
                     style: AppTypography.arabicDynamic(fontState).copyWith(
-                      color: isDark
-                          ? AppColors.primaryLighter
-                          : AppColors.primary,
+                      color: context.primaryActionColor,
                     ),
                   ),
                 ),
 
                 // Divider gold tipis
-                Padding(
-                  padding: const EdgeInsets.symmetric(
+                const Padding(
+                  padding: EdgeInsets.symmetric(
                     horizontal: AppDimens.cardPaddingLG,
                   ),
-                  child: Container(
-                    height: 1,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.gold.withValues(alpha: 0),
-                          AppColors.gold.withValues(alpha: 0.4),
-                          AppColors.gold.withValues(alpha: 0),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: GoldDivider(verticalMargin: 0),
                 ),
 
                 // Teks Latin + Indonesia
@@ -171,9 +158,7 @@ class AyatCard extends StatelessWidget {
                               fontState,
                             ).copyWith(
                               fontStyle: FontStyle.italic,
-                              color: isDark
-                                  ? AppColors.onSurfaceDarkVariant
-                                  : AppColors.textTertiary,
+                              color: context.textTertiaryColor,
                             ),
                       ),
                       const SizedBox(height: AppDimens.spaceSM),
@@ -184,9 +169,7 @@ class AyatCard extends StatelessWidget {
                             AppTypography.translationDynamic(
                               fontState,
                             ).copyWith(
-                              color: isDark
-                                  ? AppColors.onSurfaceDark
-                                  : AppColors.textSecondary,
+                              color: context.textSecondaryColor,
                               height: 1.6,
                             ),
                       ),

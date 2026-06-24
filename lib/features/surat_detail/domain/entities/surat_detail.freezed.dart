@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SuratDetail {
 
- Surat get info; String get deskripsi; Map<String, String> get audioFull; List<Ayat> get ayatList; SuratNavigation? get suratSelanjutnya; SuratNavigation? get suratSebelumnya;
+ int get nomor; String get nama; String get namaLatin; int get jumlahAyat; TempatTurun get tempatTurun; String get arti; String get deskripsi; Map<String, String> get audioFull; List<Ayat> get ayatList; SuratNavigation? get suratSelanjutnya; SuratNavigation? get suratSebelumnya;
 /// Create a copy of SuratDetail
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SuratDetailCopyWith<SuratDetail> get copyWith => _$SuratDetailCopyWithImpl<Sura
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SuratDetail&&(identical(other.info, info) || other.info == info)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&const DeepCollectionEquality().equals(other.audioFull, audioFull)&&const DeepCollectionEquality().equals(other.ayatList, ayatList)&&(identical(other.suratSelanjutnya, suratSelanjutnya) || other.suratSelanjutnya == suratSelanjutnya)&&(identical(other.suratSebelumnya, suratSebelumnya) || other.suratSebelumnya == suratSebelumnya));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SuratDetail&&(identical(other.nomor, nomor) || other.nomor == nomor)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.jumlahAyat, jumlahAyat) || other.jumlahAyat == jumlahAyat)&&(identical(other.tempatTurun, tempatTurun) || other.tempatTurun == tempatTurun)&&(identical(other.arti, arti) || other.arti == arti)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&const DeepCollectionEquality().equals(other.audioFull, audioFull)&&const DeepCollectionEquality().equals(other.ayatList, ayatList)&&(identical(other.suratSelanjutnya, suratSelanjutnya) || other.suratSelanjutnya == suratSelanjutnya)&&(identical(other.suratSebelumnya, suratSebelumnya) || other.suratSebelumnya == suratSebelumnya));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,info,deskripsi,const DeepCollectionEquality().hash(audioFull),const DeepCollectionEquality().hash(ayatList),suratSelanjutnya,suratSebelumnya);
+int get hashCode => Object.hash(runtimeType,nomor,nama,namaLatin,jumlahAyat,tempatTurun,arti,deskripsi,const DeepCollectionEquality().hash(audioFull),const DeepCollectionEquality().hash(ayatList),suratSelanjutnya,suratSebelumnya);
 
 @override
 String toString() {
-  return 'SuratDetail(info: $info, deskripsi: $deskripsi, audioFull: $audioFull, ayatList: $ayatList, suratSelanjutnya: $suratSelanjutnya, suratSebelumnya: $suratSebelumnya)';
+  return 'SuratDetail(nomor: $nomor, nama: $nama, namaLatin: $namaLatin, jumlahAyat: $jumlahAyat, tempatTurun: $tempatTurun, arti: $arti, deskripsi: $deskripsi, audioFull: $audioFull, ayatList: $ayatList, suratSelanjutnya: $suratSelanjutnya, suratSebelumnya: $suratSebelumnya)';
 }
 
 
@@ -45,11 +45,11 @@ abstract mixin class $SuratDetailCopyWith<$Res>  {
   factory $SuratDetailCopyWith(SuratDetail value, $Res Function(SuratDetail) _then) = _$SuratDetailCopyWithImpl;
 @useResult
 $Res call({
- Surat info, String deskripsi, Map<String, String> audioFull, List<Ayat> ayatList, SuratNavigation? suratSelanjutnya, SuratNavigation? suratSebelumnya
+ int nomor, String nama, String namaLatin, int jumlahAyat, TempatTurun tempatTurun, String arti, String deskripsi, Map<String, String> audioFull, List<Ayat> ayatList, SuratNavigation? suratSelanjutnya, SuratNavigation? suratSebelumnya
 });
 
 
-$SuratCopyWith<$Res> get info;$SuratNavigationCopyWith<$Res>? get suratSelanjutnya;$SuratNavigationCopyWith<$Res>? get suratSebelumnya;
+$SuratNavigationCopyWith<$Res>? get suratSelanjutnya;$SuratNavigationCopyWith<$Res>? get suratSebelumnya;
 
 }
 /// @nodoc
@@ -62,10 +62,15 @@ class _$SuratDetailCopyWithImpl<$Res>
 
 /// Create a copy of SuratDetail
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? info = null,Object? deskripsi = null,Object? audioFull = null,Object? ayatList = null,Object? suratSelanjutnya = freezed,Object? suratSebelumnya = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? nomor = null,Object? nama = null,Object? namaLatin = null,Object? jumlahAyat = null,Object? tempatTurun = null,Object? arti = null,Object? deskripsi = null,Object? audioFull = null,Object? ayatList = null,Object? suratSelanjutnya = freezed,Object? suratSebelumnya = freezed,}) {
   return _then(_self.copyWith(
-info: null == info ? _self.info : info // ignore: cast_nullable_to_non_nullable
-as Surat,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
+nomor: null == nomor ? _self.nomor : nomor // ignore: cast_nullable_to_non_nullable
+as int,nama: null == nama ? _self.nama : nama // ignore: cast_nullable_to_non_nullable
+as String,namaLatin: null == namaLatin ? _self.namaLatin : namaLatin // ignore: cast_nullable_to_non_nullable
+as String,jumlahAyat: null == jumlahAyat ? _self.jumlahAyat : jumlahAyat // ignore: cast_nullable_to_non_nullable
+as int,tempatTurun: null == tempatTurun ? _self.tempatTurun : tempatTurun // ignore: cast_nullable_to_non_nullable
+as TempatTurun,arti: null == arti ? _self.arti : arti // ignore: cast_nullable_to_non_nullable
+as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
 as String,audioFull: null == audioFull ? _self.audioFull : audioFull // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,ayatList: null == ayatList ? _self.ayatList : ayatList // ignore: cast_nullable_to_non_nullable
 as List<Ayat>,suratSelanjutnya: freezed == suratSelanjutnya ? _self.suratSelanjutnya : suratSelanjutnya // ignore: cast_nullable_to_non_nullable
@@ -74,15 +79,6 @@ as SuratNavigation?,
   ));
 }
 /// Create a copy of SuratDetail
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$SuratCopyWith<$Res> get info {
-  
-  return $SuratCopyWith<$Res>(_self.info, (value) {
-    return _then(_self.copyWith(info: value));
-  });
-}/// Create a copy of SuratDetail
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -188,10 +184,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Surat info,  String deskripsi,  Map<String, String> audioFull,  List<Ayat> ayatList,  SuratNavigation? suratSelanjutnya,  SuratNavigation? suratSebelumnya)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int nomor,  String nama,  String namaLatin,  int jumlahAyat,  TempatTurun tempatTurun,  String arti,  String deskripsi,  Map<String, String> audioFull,  List<Ayat> ayatList,  SuratNavigation? suratSelanjutnya,  SuratNavigation? suratSebelumnya)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SuratDetail() when $default != null:
-return $default(_that.info,_that.deskripsi,_that.audioFull,_that.ayatList,_that.suratSelanjutnya,_that.suratSebelumnya);case _:
+return $default(_that.nomor,_that.nama,_that.namaLatin,_that.jumlahAyat,_that.tempatTurun,_that.arti,_that.deskripsi,_that.audioFull,_that.ayatList,_that.suratSelanjutnya,_that.suratSebelumnya);case _:
   return orElse();
 
 }
@@ -209,10 +205,10 @@ return $default(_that.info,_that.deskripsi,_that.audioFull,_that.ayatList,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Surat info,  String deskripsi,  Map<String, String> audioFull,  List<Ayat> ayatList,  SuratNavigation? suratSelanjutnya,  SuratNavigation? suratSebelumnya)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int nomor,  String nama,  String namaLatin,  int jumlahAyat,  TempatTurun tempatTurun,  String arti,  String deskripsi,  Map<String, String> audioFull,  List<Ayat> ayatList,  SuratNavigation? suratSelanjutnya,  SuratNavigation? suratSebelumnya)  $default,) {final _that = this;
 switch (_that) {
 case _SuratDetail():
-return $default(_that.info,_that.deskripsi,_that.audioFull,_that.ayatList,_that.suratSelanjutnya,_that.suratSebelumnya);case _:
+return $default(_that.nomor,_that.nama,_that.namaLatin,_that.jumlahAyat,_that.tempatTurun,_that.arti,_that.deskripsi,_that.audioFull,_that.ayatList,_that.suratSelanjutnya,_that.suratSebelumnya);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -229,10 +225,10 @@ return $default(_that.info,_that.deskripsi,_that.audioFull,_that.ayatList,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Surat info,  String deskripsi,  Map<String, String> audioFull,  List<Ayat> ayatList,  SuratNavigation? suratSelanjutnya,  SuratNavigation? suratSebelumnya)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int nomor,  String nama,  String namaLatin,  int jumlahAyat,  TempatTurun tempatTurun,  String arti,  String deskripsi,  Map<String, String> audioFull,  List<Ayat> ayatList,  SuratNavigation? suratSelanjutnya,  SuratNavigation? suratSebelumnya)?  $default,) {final _that = this;
 switch (_that) {
 case _SuratDetail() when $default != null:
-return $default(_that.info,_that.deskripsi,_that.audioFull,_that.ayatList,_that.suratSelanjutnya,_that.suratSebelumnya);case _:
+return $default(_that.nomor,_that.nama,_that.namaLatin,_that.jumlahAyat,_that.tempatTurun,_that.arti,_that.deskripsi,_that.audioFull,_that.ayatList,_that.suratSelanjutnya,_that.suratSebelumnya);case _:
   return null;
 
 }
@@ -244,10 +240,15 @@ return $default(_that.info,_that.deskripsi,_that.audioFull,_that.ayatList,_that.
 
 
 class _SuratDetail implements SuratDetail {
-  const _SuratDetail({required this.info, required this.deskripsi, required final  Map<String, String> audioFull, required final  List<Ayat> ayatList, this.suratSelanjutnya, this.suratSebelumnya}): _audioFull = audioFull,_ayatList = ayatList;
+  const _SuratDetail({required this.nomor, required this.nama, required this.namaLatin, required this.jumlahAyat, required this.tempatTurun, required this.arti, required this.deskripsi, required final  Map<String, String> audioFull, required final  List<Ayat> ayatList, this.suratSelanjutnya, this.suratSebelumnya}): _audioFull = audioFull,_ayatList = ayatList;
   
 
-@override final  Surat info;
+@override final  int nomor;
+@override final  String nama;
+@override final  String namaLatin;
+@override final  int jumlahAyat;
+@override final  TempatTurun tempatTurun;
+@override final  String arti;
 @override final  String deskripsi;
  final  Map<String, String> _audioFull;
 @override Map<String, String> get audioFull {
@@ -276,16 +277,16 @@ _$SuratDetailCopyWith<_SuratDetail> get copyWith => __$SuratDetailCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SuratDetail&&(identical(other.info, info) || other.info == info)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&const DeepCollectionEquality().equals(other._audioFull, _audioFull)&&const DeepCollectionEquality().equals(other._ayatList, _ayatList)&&(identical(other.suratSelanjutnya, suratSelanjutnya) || other.suratSelanjutnya == suratSelanjutnya)&&(identical(other.suratSebelumnya, suratSebelumnya) || other.suratSebelumnya == suratSebelumnya));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SuratDetail&&(identical(other.nomor, nomor) || other.nomor == nomor)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.namaLatin, namaLatin) || other.namaLatin == namaLatin)&&(identical(other.jumlahAyat, jumlahAyat) || other.jumlahAyat == jumlahAyat)&&(identical(other.tempatTurun, tempatTurun) || other.tempatTurun == tempatTurun)&&(identical(other.arti, arti) || other.arti == arti)&&(identical(other.deskripsi, deskripsi) || other.deskripsi == deskripsi)&&const DeepCollectionEquality().equals(other._audioFull, _audioFull)&&const DeepCollectionEquality().equals(other._ayatList, _ayatList)&&(identical(other.suratSelanjutnya, suratSelanjutnya) || other.suratSelanjutnya == suratSelanjutnya)&&(identical(other.suratSebelumnya, suratSebelumnya) || other.suratSebelumnya == suratSebelumnya));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,info,deskripsi,const DeepCollectionEquality().hash(_audioFull),const DeepCollectionEquality().hash(_ayatList),suratSelanjutnya,suratSebelumnya);
+int get hashCode => Object.hash(runtimeType,nomor,nama,namaLatin,jumlahAyat,tempatTurun,arti,deskripsi,const DeepCollectionEquality().hash(_audioFull),const DeepCollectionEquality().hash(_ayatList),suratSelanjutnya,suratSebelumnya);
 
 @override
 String toString() {
-  return 'SuratDetail(info: $info, deskripsi: $deskripsi, audioFull: $audioFull, ayatList: $ayatList, suratSelanjutnya: $suratSelanjutnya, suratSebelumnya: $suratSebelumnya)';
+  return 'SuratDetail(nomor: $nomor, nama: $nama, namaLatin: $namaLatin, jumlahAyat: $jumlahAyat, tempatTurun: $tempatTurun, arti: $arti, deskripsi: $deskripsi, audioFull: $audioFull, ayatList: $ayatList, suratSelanjutnya: $suratSelanjutnya, suratSebelumnya: $suratSebelumnya)';
 }
 
 
@@ -296,11 +297,11 @@ abstract mixin class _$SuratDetailCopyWith<$Res> implements $SuratDetailCopyWith
   factory _$SuratDetailCopyWith(_SuratDetail value, $Res Function(_SuratDetail) _then) = __$SuratDetailCopyWithImpl;
 @override @useResult
 $Res call({
- Surat info, String deskripsi, Map<String, String> audioFull, List<Ayat> ayatList, SuratNavigation? suratSelanjutnya, SuratNavigation? suratSebelumnya
+ int nomor, String nama, String namaLatin, int jumlahAyat, TempatTurun tempatTurun, String arti, String deskripsi, Map<String, String> audioFull, List<Ayat> ayatList, SuratNavigation? suratSelanjutnya, SuratNavigation? suratSebelumnya
 });
 
 
-@override $SuratCopyWith<$Res> get info;@override $SuratNavigationCopyWith<$Res>? get suratSelanjutnya;@override $SuratNavigationCopyWith<$Res>? get suratSebelumnya;
+@override $SuratNavigationCopyWith<$Res>? get suratSelanjutnya;@override $SuratNavigationCopyWith<$Res>? get suratSebelumnya;
 
 }
 /// @nodoc
@@ -313,10 +314,15 @@ class __$SuratDetailCopyWithImpl<$Res>
 
 /// Create a copy of SuratDetail
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? info = null,Object? deskripsi = null,Object? audioFull = null,Object? ayatList = null,Object? suratSelanjutnya = freezed,Object? suratSebelumnya = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? nomor = null,Object? nama = null,Object? namaLatin = null,Object? jumlahAyat = null,Object? tempatTurun = null,Object? arti = null,Object? deskripsi = null,Object? audioFull = null,Object? ayatList = null,Object? suratSelanjutnya = freezed,Object? suratSebelumnya = freezed,}) {
   return _then(_SuratDetail(
-info: null == info ? _self.info : info // ignore: cast_nullable_to_non_nullable
-as Surat,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
+nomor: null == nomor ? _self.nomor : nomor // ignore: cast_nullable_to_non_nullable
+as int,nama: null == nama ? _self.nama : nama // ignore: cast_nullable_to_non_nullable
+as String,namaLatin: null == namaLatin ? _self.namaLatin : namaLatin // ignore: cast_nullable_to_non_nullable
+as String,jumlahAyat: null == jumlahAyat ? _self.jumlahAyat : jumlahAyat // ignore: cast_nullable_to_non_nullable
+as int,tempatTurun: null == tempatTurun ? _self.tempatTurun : tempatTurun // ignore: cast_nullable_to_non_nullable
+as TempatTurun,arti: null == arti ? _self.arti : arti // ignore: cast_nullable_to_non_nullable
+as String,deskripsi: null == deskripsi ? _self.deskripsi : deskripsi // ignore: cast_nullable_to_non_nullable
 as String,audioFull: null == audioFull ? _self._audioFull : audioFull // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,ayatList: null == ayatList ? _self._ayatList : ayatList // ignore: cast_nullable_to_non_nullable
 as List<Ayat>,suratSelanjutnya: freezed == suratSelanjutnya ? _self.suratSelanjutnya : suratSelanjutnya // ignore: cast_nullable_to_non_nullable
@@ -326,15 +332,6 @@ as SuratNavigation?,
 }
 
 /// Create a copy of SuratDetail
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$SuratCopyWith<$Res> get info {
-  
-  return $SuratCopyWith<$Res>(_self.info, (value) {
-    return _then(_self.copyWith(info: value));
-  });
-}/// Create a copy of SuratDetail
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')

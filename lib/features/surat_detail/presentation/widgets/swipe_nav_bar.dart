@@ -18,14 +18,12 @@ class SwipeNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
-    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final primaryColor = context.primaryActionColor;
     final disabledColor = isDark
         ? AppColors.outlineDark
         : AppColors.textDisabled;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
 
     final isFirst = controller.isFirst;
     final isLast = controller.isLast;
@@ -58,9 +56,7 @@ class SwipeNavBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: controller.currentProgress,
               minHeight: 3,
-              backgroundColor: isDark
-                  ? AppColors.primaryDark
-                  : AppColors.primaryContainer,
+              backgroundColor: context.primaryContainerColor,
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
             ),
           ),
@@ -75,7 +71,6 @@ class SwipeNavBar extends StatelessWidget {
                 icon: Icons.arrow_back_ios_rounded,
                 onPressed: isFirst ? null : controller.goPrev,
                 color: isFirst ? disabledColor : primaryColor,
-                isDark: isDark,
               ),
 
               // Label + ayat counter
@@ -87,9 +82,7 @@ class SwipeNavBar extends StatelessWidget {
                       label,
                       style: AppTypography.serifHeadingSmall.copyWith(
                         fontSize: 13,
-                        color: isDark
-                            ? AppColors.onSurfaceDark
-                            : AppColors.textPrimary,
+                        color: context.textPrimaryColor,
                         height: 1,
                       ),
                       textAlign: TextAlign.center,
@@ -100,9 +93,7 @@ class SwipeNavBar extends StatelessWidget {
                         '${(controller.currentProgress * 100).round()}% selesai',
                         style: TextStyle(
                           fontSize: 10,
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
+                          color: context.textTertiaryColor,
                           letterSpacing: 0.3,
                         ),
                         textAlign: TextAlign.center,
@@ -119,9 +110,10 @@ class SwipeNavBar extends StatelessWidget {
                     : Icons.arrow_forward_ios_rounded,
                 onPressed: isLast ? onComplete : controller.goNext,
                 color: isLast
-                    ? (isDark ? AppColors.goldLight : AppColors.goldDark)
+                    ? isDark
+                          ? AppColors.goldLight
+                          : AppColors.goldDark
                     : primaryColor,
-                isDark: isDark,
               ),
             ],
           ),
@@ -135,13 +127,11 @@ class _NavButton extends StatelessWidget {
   const _NavButton({
     required this.icon,
     required this.color,
-    required this.isDark,
     this.onPressed,
   });
 
   final IconData icon;
   final Color color;
-  final bool isDark;
   final VoidCallback? onPressed;
 
   @override
@@ -157,7 +147,7 @@ class _NavButton extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: onPressed != null
-                ? (isDark ? AppColors.primaryDark : AppColors.primaryContainer)
+                ? context.primaryContainerColor
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(AppDimens.radiusMD),
           ),

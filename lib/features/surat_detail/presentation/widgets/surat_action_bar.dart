@@ -30,16 +30,13 @@ class SuratActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
 
     return BlocSelector<BookmarkCubit, BookmarkState, bool>(
       selector: (state) =>
           state.mapOrNull(
-            success: (s) => s.suratProgressMap[detail.info.nomor] == 1.0,
+            success: (s) => s.suratProgressMap[detail.nomor] == 1.0,
           ) ??
           false,
       builder: (context, isCompleted) {
@@ -54,7 +51,7 @@ class SuratActionBar extends StatelessWidget {
                 final qari = audioState.currentQari;
 
                 final isAllDownloaded = downloadState.isAllDownloaded(
-                  detail.info.nomor,
+                  detail.nomor,
                   detail.ayatList,
                   qari.id,
                 );
@@ -76,14 +73,13 @@ class SuratActionBar extends StatelessWidget {
                         _ActionPill(
                           icon: Icons.auto_stories_outlined,
                           label: 'Hafalan',
-                          isDark: isDark,
                           onTap: () => unawaited(
                             context.push(
-                              AppRoutes.hafalanSurat(detail.info.nomor),
+                              AppRoutes.hafalanSurat(detail.nomor),
                             ),
                           ),
                         ),
-                        _ActionDivider(isDark: isDark),
+                        const _ActionDivider(),
                       ],
 
                       // Download — terkunci jika belum selesai baca semua ayat
@@ -91,7 +87,6 @@ class SuratActionBar extends StatelessWidget {
                         _DownloadingPill(
                           downloadState: downloadState,
                           onCancel: downloadCubit.cancelSuratDownload,
-                          isDark: isDark,
                         )
                       else
                         _ActionPill(
@@ -101,14 +96,11 @@ class SuratActionBar extends StatelessWidget {
                                     ? Icons.download_for_offline_outlined
                                     : Icons.lock_outline_rounded),
                           label: isAllDownloaded ? 'Terunduh' : 'Unduh Audio',
-                          isDark: isDark,
                           iconColor: isAllDownloaded
                               ? AppColors.success
                               : (isCompleted
                                     ? null
-                                    : (isDark
-                                          ? AppColors.onSurfaceDarkVariant
-                                          : AppColors.textTertiary)),
+                                    : context.textTertiaryColor),
                           onTap: isAllDownloaded
                               ? null
                               : (isCompleted
@@ -116,7 +108,7 @@ class SuratActionBar extends StatelessWidget {
                                         context
                                             .read<AudioDownloadCubit>()
                                             .downloadSurat(
-                                              suratNomor: detail.info.nomor,
+                                              suratNomor: detail.nomor,
                                               ayatList: detail.ayatList,
                                               qari: qari,
                                             ),
@@ -129,17 +121,14 @@ class SuratActionBar extends StatelessWidget {
 
                       // Auto-scroll toggle — hanya muncul saat playlist aktif
                       if (audioCubit.isPlaylistMode) ...[
-                        _ActionDivider(isDark: isDark),
+                        const _ActionDivider(),
                         _ActionPill(
                           icon: autoScrollEnabled
                               ? Icons.gps_fixed_rounded
                               : Icons.gps_not_fixed_rounded,
                           label: autoScrollEnabled ? 'Sinkron' : 'Manual',
-                          isDark: isDark,
                           iconColor: autoScrollEnabled
-                              ? (isDark
-                                    ? AppColors.primaryLighter
-                                    : AppColors.primary)
+                              ? context.primaryActionColor
                               : null,
                           onTap: onToggleAutoScroll,
                         ),
@@ -160,23 +149,19 @@ class _ActionPill extends StatelessWidget {
   const _ActionPill({
     required this.icon,
     required this.label,
-    required this.isDark,
     required this.onTap,
     this.iconColor,
   });
 
   final IconData icon;
   final String label;
-  final bool isDark;
   final VoidCallback? onTap;
   final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final disabledColor = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textTertiary;
+    final primaryColor = context.primaryActionColor;
+    final disabledColor = context.textTertiaryColor;
     final resolvedIconColor = onTap == null
         ? disabledColor
         : (iconColor ?? primaryColor);
@@ -200,11 +185,7 @@ class _ActionPill extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color:
-                    labelColor ??
-                    (isDark
-                        ? AppColors.onSurfaceDarkVariant
-                        : AppColors.textSecondary),
+                color: labelColor ?? context.textSecondaryColor,
                 letterSpacing: 0.2,
               ),
             ),
@@ -219,16 +200,14 @@ class _DownloadingPill extends StatelessWidget {
   const _DownloadingPill({
     required this.downloadState,
     required this.onCancel,
-    required this.isDark,
   });
 
   final AudioDownloadState downloadState;
   final VoidCallback onCancel;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final primaryColor = context.primaryActionColor;
     final progress = downloadState.suratDownloadTotal > 0
         ? downloadState.suratDownloadDone / downloadState.suratDownloadTotal
         : null;
@@ -265,9 +244,7 @@ class _DownloadingPill extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textSecondary,
+                color: context.textSecondaryColor,
                 letterSpacing: 0.2,
               ),
             ),
@@ -279,15 +256,14 @@ class _DownloadingPill extends StatelessWidget {
 }
 
 class _ActionDivider extends StatelessWidget {
-  const _ActionDivider({required this.isDark});
-  final bool isDark;
+  const _ActionDivider();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 1,
       height: 28,
-      color: (isDark ? AppColors.outlineDark : AppColors.outlineVariant),
+      color: context.borderSubtleColor,
     );
   }
 }

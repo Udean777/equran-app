@@ -6,7 +6,6 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
 import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
-import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
 import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
@@ -14,6 +13,7 @@ import 'package:equran_app/features/reading_progress/presentation/cubit/reading_
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
+import 'package:equran_app/features/surat_detail/presentation/services/last_read_helper.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_card_view.dart';
 import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
@@ -131,7 +131,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
     // Buffer ayat yang sedang dibaca ke ReadingProgressCubit
     final ayatNomor = controller.currentAyatNomor;
     if (ayatNomor > 0) {
-      _readingProgressCubit?.bufferAyat(detail.info.nomor, ayatNomor);
+      _readingProgressCubit?.bufferAyat(detail.nomor, ayatNomor);
     }
   }
 
@@ -141,25 +141,10 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
     final cubit = _bookmarkCubit;
     if (controller == null || detail == null || cubit == null) return;
 
-    final totalAyat = detail.ayatList.length;
-    final ayatNomor = controller.lastReadAyatNomor.clamp(1, totalAyat);
-    final scrollPercent = totalAyat > 0
-        ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
-        : 0.0;
-    final maxScrollPercent = controller.maxProgress.clamp(0.0, 1.0);
-
-    unawaited(
-      cubit.saveLastRead(
-        LastRead(
-          suratNomor: detail.info.nomor,
-          ayatNomor: ayatNomor,
-          namaLatin: detail.info.namaLatin,
-          readAt: DateTime.now(),
-          scrollPercent: scrollPercent,
-          maxScrollPercent: maxScrollPercent,
-          totalAyat: totalAyat,
-        ),
-      ),
+    LastReadHelper.saveLastRead(
+      cubit: cubit,
+      controller: controller,
+      detail: detail,
     );
   }
 
@@ -178,7 +163,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
       final lastRead = context.read<BookmarkCubit>().state.mapOrNull(
         success: (s) => s.lastRead,
       );
-      if (lastRead != null && lastRead.suratNomor == detail.info.nomor) {
+      if (lastRead != null && lastRead.suratNomor == detail.nomor) {
         initialIndex = lastRead.ayatNomor.clamp(1, detail.ayatList.length);
       }
     }
@@ -222,7 +207,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
         final qari = audioCubit.state.currentQari;
         unawaited(
           context.read<AudioDownloadCubit>().loadDownloadedStatus(
-            suratNomor: detail.info.nomor,
+            suratNomor: detail.nomor,
             ayatList: detail.ayatList,
             qari: qari,
           ),
@@ -233,8 +218,8 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
               ayatList: detail.ayatList,
               startIndex: 0,
               qari: qari,
-              suratNomor: detail.info.nomor,
-              suratName: detail.info.namaLatin,
+              suratNomor: detail.nomor,
+              suratName: detail.namaLatin,
               audioMap: detail.audioFull,
             ),
           );

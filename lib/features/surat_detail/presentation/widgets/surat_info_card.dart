@@ -1,9 +1,9 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/widgets/info_chip.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:flutter/material.dart';
 
 /// Card index 0 — info surat (nama arab, latin, arti, chips, deskripsi).
@@ -27,7 +27,7 @@ class SuratInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final surat = detail.info;
+    final surat = detail;
 
     return Container(
       width: double.infinity,
@@ -137,17 +137,17 @@ class SuratInfoCard extends StatelessWidget {
                   spacing: AppDimens.spaceSM,
                   runSpacing: AppDimens.spaceSM,
                   children: [
-                    _InfoChip(
+                    InfoChip(
                       label: surat.tempatTurun == TempatTurun.mekah
                           ? 'Mekah'
                           : 'Madinah',
                       icon: Icons.location_on_outlined,
                     ),
-                    _InfoChip(
+                    InfoChip(
                       label: '${surat.jumlahAyat} Ayat',
                       icon: Icons.format_list_numbered_rounded,
                     ),
-                    _InfoChip(
+                    InfoChip(
                       label: 'Surat ke-${surat.nomor}',
                       icon: Icons.tag_rounded,
                     ),
@@ -241,45 +241,6 @@ class SuratInfoCard extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.label, required this.icon});
-
-  final String label;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.spaceSM + 2,
-        vertical: AppDimens.spaceXS,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.onPrimary.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-        border: Border.all(
-          color: AppColors.gold.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: AppColors.gold),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.onPrimary,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
             ),
           ),
         ],

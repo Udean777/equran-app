@@ -13,20 +13,16 @@ class AyatAudioFooter extends StatelessWidget {
   const AyatAudioFooter({
     required this.ayat,
     required this.suratDetail,
-    required this.isDark,
     super.key,
   });
 
   final Ayat ayat;
   final SuratDetail suratDetail;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
-    final primaryColor = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final borderColor = context.borderSubtleColor;
+    final primaryColor = context.primaryActionColor;
 
     return BlocBuilder<AudioCubit, AudioPlayerState>(
       buildWhen: (prev, next) =>
@@ -62,9 +58,7 @@ class AyatAudioFooter extends StatelessWidget {
                 Text(
                   'Audio tidak tersedia',
                   style: TextStyle(
-                    color: isDark
-                        ? AppColors.onSurfaceDarkVariant
-                        : AppColors.textTertiary,
+                    color: context.textTertiaryColor,
                     fontSize: 12,
                   ),
                 )
@@ -73,7 +67,6 @@ class AyatAudioFooter extends StatelessWidget {
                   isPlaying: isPlaying,
                   isLoading: isLoading,
                   primaryColor: primaryColor,
-                  isDark: isDark,
                   onTap: () {
                     if (isCurrentAyat) {
                       if (isPlaying) {
@@ -88,7 +81,7 @@ class AyatAudioFooter extends StatelessWidget {
                           url: audioUrl,
                           ayatNomor: ayat.nomorAyat,
                           qari: qari,
-                          suratNomor: suratDetail.info.nomor,
+                          suratNomor: suratDetail.nomor,
                           audioMap: suratDetail.audioFull,
                         ),
                       );
@@ -109,7 +102,6 @@ class AyatAudioButton extends StatelessWidget {
     required this.isPlaying,
     required this.isLoading,
     required this.primaryColor,
-    required this.isDark,
     required this.onTap,
     super.key,
   });
@@ -117,7 +109,6 @@ class AyatAudioButton extends StatelessWidget {
   final bool isPlaying;
   final bool isLoading;
   final Color primaryColor;
-  final bool isDark;
   final VoidCallback onTap;
 
   @override
@@ -130,7 +121,7 @@ class AyatAudioButton extends StatelessWidget {
           vertical: AppDimens.spaceXS + 2,
         ),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
+          color: context.primaryContainerColor,
           borderRadius: BorderRadius.circular(AppDimens.radiusFull),
           border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
         ),

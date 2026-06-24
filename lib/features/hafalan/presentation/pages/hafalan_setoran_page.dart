@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
@@ -10,7 +11,6 @@ import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cu
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
-import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
 import 'package:equran_app/injection/injection_container.dart';
@@ -116,7 +116,7 @@ class _SetoranSessionState extends State<_SetoranSession> {
 
     // Ambil range ayat untuk surat ini di juz yang aktif
     final range = widget.juzNomor != null
-        ? kJuzSurahVerseRanges['${widget.juzNomor}:${widget.suratNomor}']
+        ? JuzConstants.verseRanges['${widget.juzNomor}:${widget.suratNomor}']
         : null;
 
     if (range != null) {
@@ -138,7 +138,7 @@ class _SetoranSessionState extends State<_SetoranSession> {
   Widget build(BuildContext context) {
     final title = _isSelesai
         ? 'Hasil Setoran'
-        : 'Setoran: ${widget.detail.info.namaLatin}';
+        : 'Setoran: ${widget.detail.namaLatin}';
 
     return Scaffold(
       appBar: LuxuryAppBar(
@@ -194,7 +194,12 @@ class _SetoranSessionState extends State<_SetoranSession> {
     await context.read<HafalanDetailCubit>().saveSetoranHasil(
       suratNomor: widget.suratNomor,
       hasil: _hasil,
-      suratInfo: HafalanSurat.fromSurat(widget.detail.info),
+      suratInfo: HafalanSurat(
+        suratNomor: widget.detail.nomor,
+        namaLatin: widget.detail.namaLatin,
+        nama: widget.detail.nama,
+        jumlahAyat: widget.detail.jumlahAyat,
+      ),
     );
 
     if (context.mounted) {

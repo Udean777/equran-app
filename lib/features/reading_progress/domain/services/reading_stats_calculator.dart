@@ -1,7 +1,7 @@
+import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/features/reading_progress/domain/constants/reading_progress_constants.dart';
 import 'package:equran_app/features/reading_progress/domain/constants/surat_names.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
-import 'package:equran_app/features/surat_detail/constants/juz_mapping.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 
@@ -34,14 +34,14 @@ class ReadingStatsCalculator {
 
     final progressPerJuz = <int, double>{};
     for (var juz = 1; juz <= ReadingProgressConstants.juzCount; juz++) {
-      final totalAyatJuz = kTotalAyatPerJuz[juz] ?? 0;
+      final totalAyatJuz = JuzConstants.totalAyatPerJuz[juz] ?? 0;
       if (totalAyatJuz == 0) {
         progressPerJuz[juz] = 0;
         continue;
       }
 
       // Cari semua surat yang berada di juz ini
-      final suratList = kJuzToSurahMapping[juz] ?? [];
+      final suratList = JuzConstants.surahPerJuz[juz] ?? [];
       var ayatDibacaJuz = 0;
 
       for (final suratNomor in suratList) {
@@ -49,7 +49,7 @@ class ReadingStatsCalculator {
         if (readSet == null || readSet.isEmpty) continue;
 
         // Cari range untuk surat ini di juz ini
-        final range = kJuzSurahVerseRanges['$juz:$suratNomor'];
+        final range = JuzConstants.verseRanges['$juz:$suratNomor'];
         final start = range?.$1 ?? 1;
         final end =
             range?.$2 ??

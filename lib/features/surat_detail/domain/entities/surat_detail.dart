@@ -1,12 +1,18 @@
-import 'package:equran_app/features/surat_list/domain/entities/surat.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'surat_detail.freezed.dart';
 
+enum TempatTurun { mekah, madinah }
+
 @freezed
 abstract class SuratDetail with _$SuratDetail {
   const factory SuratDetail({
-    required Surat info,
+    required int nomor,
+    required String nama,
+    required String namaLatin,
+    required int jumlahAyat,
+    required TempatTurun tempatTurun,
+    required String arti,
     required String deskripsi,
     required Map<String, String> audioFull,
     required List<Ayat> ayatList,
