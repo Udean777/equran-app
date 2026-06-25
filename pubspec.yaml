@@ -1,7 +1,7 @@
 name: equran_app
 description: "Qurva: Quran & Islamic Habit Tracker"
 publish_to: "none"
-version: 0.3.0+3
+version: 0.3.1+4
 
 environment:
   sdk: ">=3.8.0 <4.0.0"

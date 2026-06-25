@@ -58,7 +58,7 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 - **Statistik Baca (Reading Progress)** — Lacak progress tilawah secara otomatis melalui deteksi scroll aktif (_viewport detection_). Menampilkan visualisasi premium berupa heatmap aktivitas 90 hari (GitHub-style), progress bar juz (30 juz), surat yang paling sering dibaca, dan grafik membaca harian.
 - **Statistik Shalat Harian** — Pencatatan mandiri (_self-logging_) shalat fardhu dengan status shalat (Tepat Waktu, Qadha, Tidak Shalat). Dilengkapi kalender interaktif bulanan, streak shalat berturut-turut, grafik batang (bar chart) mingguan, checklist reminder otomatis, serta fitur export log data shalat ke format CSV.
 - **Hafalan Tracker & Spaced Repetition** — Lacak progres hafalan per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test mode dengan menyembunyikan teks Arab), pengingat muraja'ah otomatis berbasis metode _spaced repetition_ (interval 1 → 3 → 7 → 30 → 90 hari), dan notifikasi muraja'ah harian.
-- **🤖 AI Setoran Hafalan (Whisper STT)** — Fitur revolusioner untuk mengevaluasi hafalan secara otomatis menggunakan teknologi **Whisper Speech-to-Text** dari OpenAI. Rekam bacaan hafalan, sistem AI akan mentranskrip dan membandingkan dengan teks asli, lalu memberikan skor akurasi real-time (Character Error Rate). Threshold passing default 85%, dengan feedback detail per kata yang salah. Backend Python (FastAPI + faster-whisper) berjalan di server cloud (Render) atau local development.
+- **🤖 AI Setoran Hafalan (Whisper STT)** — Fitur revolusioner untuk mengevaluasi hafalan secara otomatis menggunakan teknologi **Whisper Speech-to-Text** dari OpenAI. Rekam bacaan hafalan, sistem AI akan mentranskrip dan membandingkan dengan teks asli, lalu memberikan skor akurasi real-time (Character Error Rate). Threshold passing default 85%, dengan feedback detail per kata yang salah. Backend Python (FastAPI + faster-whisper) berjalan di **Hugging Face Spaces** dengan 2 vCPU dan 16GB RAM untuk performa optimal.
 - **Quran Daily Streak & Bookmark** — Hitung konsistensi membaca Al-Quran harian dengan streak counter serta sistem penanda halaman/bookmark multi-kategori yang aman.
 
 ### ⚙️ Kustomisasi Premium & UX Modern
@@ -178,8 +178,19 @@ Qurva dilengkapi dengan backend Python berbasis **FastAPI** dan **faster-whisper
 - **Framework**: FastAPI 0.138.0
 - **Speech-to-Text**: faster-whisper (tiny model, ~39MB)
 - **Scoring**: Levenshtein Distance → Character Error Rate (CER)
-- **Deployment**: Render (cloud) atau local development
+- **Deployment**: **Hugging Face Spaces** (production) atau local development
 - **Testing**: pytest (19 unit tests)
+
+### Deployment Production
+
+Backend di-host di **Hugging Face Spaces** dengan spesifikasi:
+- ✅ **2 vCPU dedicated** + **16GB RAM** (free tier)
+- ✅ Model load: **1.3 seconds**
+- ✅ Transcription: **~3-5 seconds** (vs Render ~85 seconds)
+- ✅ Cold start: setelah **48 jam** idle (vs Render 15 menit)
+- ✅ URL: `https://ssajudn-equran-hafalan-api.hf.space`
+
+**Repository**: https://huggingface.co/spaces/ssajudn/equran-hafalan-api
 
 ### Cara Menjalankan Backend (Local)
 
@@ -214,16 +225,21 @@ curl http://localhost:8000/health
 static const String apiBaseUrl = 'http://YOUR_IP:8000'; // ganti YOUR_IP dengan IP laptop
 ```
 
-### Deployment ke Render
+### Deployment ke Cloud
 
-Lihat panduan lengkap di: **[DEPLOY_RENDER.md](DEPLOY_RENDER.md)**
+#### Hugging Face Spaces (Recommended) ⭐
 
-- ✅ Auto-deploy dari GitHub (branch `dev` atau `main`)
-- ✅ Free tier: 750 compute hours/month, 512MB RAM
-- ✅ Blueprint config: `render.yaml`
-- ✅ CI/CD: `.github/workflows/server.yml`
+Production backend menggunakan **HF Spaces** dengan Docker SDK:
 
-**Endpoint Production**: `https://equran-hafalan-api.onrender.com`
+- ✅ **2 vCPU dedicated + 16GB RAM** (free tier)
+- ✅ Model load: **1.3s** (instant from cache)
+- ✅ Transcription: **~3-5 seconds** (17-28x faster than Render)
+- ✅ Cold start: **48 hours** idle (vs Render 15 minutes)
+- ✅ No cold start issues untuk production use
+
+**HF Space**: https://huggingface.co/spaces/ssajudn/equran-hafalan-api
+
+**Setup**: Clone HF Space repo → copy `server/` files → update Dockerfile untuk port 7860 → push
 
 ### API Endpoints
 
