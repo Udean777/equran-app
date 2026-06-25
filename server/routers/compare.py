@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Request
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from models.schemas import CompareResponse, WordErrorItem
 from services.scorer import Scorer

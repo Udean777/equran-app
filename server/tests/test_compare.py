@@ -1,4 +1,4 @@
-from services.scorer import Scorer, WordError
+from services.scorer import Scorer
 
 
 def test_word_errors_detected():

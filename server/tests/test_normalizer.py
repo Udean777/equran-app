@@ -1,4 +1,4 @@
-from utils.normalizer import normalize_arabic, normalize
+from utils.normalizer import normalize, normalize_arabic
 
 
 def test_remove_tashkeel():

@@ -37,7 +37,7 @@ def create_app() -> FastAPI:
 
             app.state.transcriber = TranscriberService()
             logger.info("Transcriber ready")
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to load transcriber")
             app.state.transcriber = None
 

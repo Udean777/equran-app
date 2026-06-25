@@ -1,6 +1,5 @@
 import re
 
-
 ARABIC_DIACRITICS = re.compile(
     r'[\u064B-\u065F\u0610-\u061A\u06D6-\u06ED]'
 )
