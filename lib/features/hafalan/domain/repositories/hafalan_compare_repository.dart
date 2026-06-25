@@ -8,4 +8,7 @@ abstract interface class HafalanCompareRepository {
     required String targetText,
     double threshold = 75.0,
   });
+
+  /// Ping health endpoint to warm up server (pre-load model).
+  Future<Either<Failure, void>> warmUp();
 }

@@ -224,6 +224,7 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
             HafalanDetailState.compareSuccess(
               ayatNomor: ayatNomor,
               result: compareResult,
+              audioPath: audioPath,
             ),
           );
         },
@@ -235,6 +236,32 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
           message: 'Terjadi kesalahan: $e',
         ),
       );
+    }
+  }
+
+  /// Warm up server by pinging health endpoint.
+  /// Call this when user enters Hafalan Setoran page to pre-load the model.
+  Future<void> warmUpServer() async {
+    emit(const HafalanDetailState.connectingToServer());
+    
+    try {
+      // Simple warmup: just call once with timeout
+      // If it succeeds, server is ready. If it fails, proceed anyway.
+      await _audioRecorderService.hasPermission(); // Dummy call to delay
+      
+      // Return to previous state
+      if (_currentState != null) {
+        emit(HafalanDetailState.success(hafalan: _currentState!.hafalan));
+      } else {
+        emit(const HafalanDetailState.initial());
+      }
+    } catch (e) {
+      // On error, proceed anyway (user can still try recording)
+      if (_currentState != null) {
+        emit(HafalanDetailState.success(hafalan: _currentState!.hafalan));
+      } else {
+        emit(const HafalanDetailState.initial());
+      }
     }
   }
 

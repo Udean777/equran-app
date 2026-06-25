@@ -32,6 +32,18 @@ class HafalanCompareRepositoryImpl implements HafalanCompareRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, void>> warmUp() async {
+    try {
+      await _dataSource.warmUp();
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } on Object catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
   Failure _mapDioError(DioException e) {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.connectionError) {

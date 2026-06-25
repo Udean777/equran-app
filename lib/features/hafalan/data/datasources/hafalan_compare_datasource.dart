@@ -10,6 +10,9 @@ abstract interface class HafalanCompareDataSource {
     required String targetText,
     double threshold = HafalanConstants.defaultThreshold,
   });
+
+  /// Ping health endpoint to warm up server.
+  Future<void> warmUp();
 }
 
 @LazySingleton(as: HafalanCompareDataSource)
@@ -36,6 +39,10 @@ class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
     final response = await _dioClient.dio.post<Map<String, dynamic>>(
       '${HafalanConstants.apiBaseUrl}/compare',
       data: formData,
+      options: Options(
+        receiveTimeout: const Duration(seconds: 120),
+        sendTimeout: const Duration(seconds: 60),
+      ),
     );
 
     final data = response.data;
@@ -43,5 +50,15 @@ class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
       throw Exception('Empty response from comparison server');
     }
     return SetoranCompareResult.fromJson(data);
+  }
+
+  @override
+  Future<void> warmUp() async {
+    await _dioClient.dio.get<Map<String, dynamic>>(
+      '${HafalanConstants.apiBaseUrl}/health',
+      options: Options(
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
   }
 }

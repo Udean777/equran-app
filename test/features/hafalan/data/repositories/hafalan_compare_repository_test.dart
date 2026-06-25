@@ -64,6 +64,7 @@ void main() {
           () => mockDataSource.compare(
             audioFilePath: tAudioPath,
             targetText: tTargetText,
+            threshold: 75.0,
           ),
         ).called(1);
       },
