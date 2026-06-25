@@ -55,14 +55,17 @@ extension HafalanDetailStatePatterns on HafalanDetailState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HafalanDetailInitial value)?  initial,TResult Function( HafalanDetailLoading value)?  loading,TResult Function( HafalanDetailSuccess value)?  success,TResult Function( HafalanDetailFailure value)?  failure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HafalanDetailInitial value)?  initial,TResult Function( HafalanDetailLoading value)?  loading,TResult Function( HafalanDetailSuccess value)?  success,TResult Function( HafalanDetailFailure value)?  failure,TResult Function( HafalanDetailComparing value)?  comparing,TResult Function( HafalanDetailCompareSuccess value)?  compareSuccess,TResult Function( HafalanDetailCompareFailure value)?  compareFailure,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial(_that);case HafalanDetailLoading() when loading != null:
 return loading(_that);case HafalanDetailSuccess() when success != null:
 return success(_that);case HafalanDetailFailure() when failure != null:
-return failure(_that);case _:
+return failure(_that);case HafalanDetailComparing() when comparing != null:
+return comparing(_that);case HafalanDetailCompareSuccess() when compareSuccess != null:
+return compareSuccess(_that);case HafalanDetailCompareFailure() when compareFailure != null:
+return compareFailure(_that);case _:
   return orElse();
 
 }
@@ -80,14 +83,17 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HafalanDetailInitial value)  initial,required TResult Function( HafalanDetailLoading value)  loading,required TResult Function( HafalanDetailSuccess value)  success,required TResult Function( HafalanDetailFailure value)  failure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HafalanDetailInitial value)  initial,required TResult Function( HafalanDetailLoading value)  loading,required TResult Function( HafalanDetailSuccess value)  success,required TResult Function( HafalanDetailFailure value)  failure,required TResult Function( HafalanDetailComparing value)  comparing,required TResult Function( HafalanDetailCompareSuccess value)  compareSuccess,required TResult Function( HafalanDetailCompareFailure value)  compareFailure,}){
 final _that = this;
 switch (_that) {
 case HafalanDetailInitial():
 return initial(_that);case HafalanDetailLoading():
 return loading(_that);case HafalanDetailSuccess():
 return success(_that);case HafalanDetailFailure():
-return failure(_that);}
+return failure(_that);case HafalanDetailComparing():
+return comparing(_that);case HafalanDetailCompareSuccess():
+return compareSuccess(_that);case HafalanDetailCompareFailure():
+return compareFailure(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -101,14 +107,17 @@ return failure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HafalanDetailInitial value)?  initial,TResult? Function( HafalanDetailLoading value)?  loading,TResult? Function( HafalanDetailSuccess value)?  success,TResult? Function( HafalanDetailFailure value)?  failure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HafalanDetailInitial value)?  initial,TResult? Function( HafalanDetailLoading value)?  loading,TResult? Function( HafalanDetailSuccess value)?  success,TResult? Function( HafalanDetailFailure value)?  failure,TResult? Function( HafalanDetailComparing value)?  comparing,TResult? Function( HafalanDetailCompareSuccess value)?  compareSuccess,TResult? Function( HafalanDetailCompareFailure value)?  compareFailure,}){
 final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial(_that);case HafalanDetailLoading() when loading != null:
 return loading(_that);case HafalanDetailSuccess() when success != null:
 return success(_that);case HafalanDetailFailure() when failure != null:
-return failure(_that);case _:
+return failure(_that);case HafalanDetailComparing() when comparing != null:
+return comparing(_that);case HafalanDetailCompareSuccess() when compareSuccess != null:
+return compareSuccess(_that);case HafalanDetailCompareFailure() when compareFailure != null:
+return compareFailure(_that);case _:
   return null;
 
 }
@@ -125,13 +134,16 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( HafalanSurat? hafalan)?  success,TResult Function( String message)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( HafalanSurat? hafalan)?  success,TResult Function( String message)?  failure,TResult Function( int ayatNomor)?  comparing,TResult Function( int ayatNomor,  SetoranCompareResult result)?  compareSuccess,TResult Function( int ayatNomor,  String message)?  compareFailure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial();case HafalanDetailLoading() when loading != null:
 return loading();case HafalanDetailSuccess() when success != null:
 return success(_that.hafalan);case HafalanDetailFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.message);case HafalanDetailComparing() when comparing != null:
+return comparing(_that.ayatNomor);case HafalanDetailCompareSuccess() when compareSuccess != null:
+return compareSuccess(_that.ayatNomor,_that.result);case HafalanDetailCompareFailure() when compareFailure != null:
+return compareFailure(_that.ayatNomor,_that.message);case _:
   return orElse();
 
 }
@@ -149,13 +161,16 @@ return failure(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( HafalanSurat? hafalan)  success,required TResult Function( String message)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( HafalanSurat? hafalan)  success,required TResult Function( String message)  failure,required TResult Function( int ayatNomor)  comparing,required TResult Function( int ayatNomor,  SetoranCompareResult result)  compareSuccess,required TResult Function( int ayatNomor,  String message)  compareFailure,}) {final _that = this;
 switch (_that) {
 case HafalanDetailInitial():
 return initial();case HafalanDetailLoading():
 return loading();case HafalanDetailSuccess():
 return success(_that.hafalan);case HafalanDetailFailure():
-return failure(_that.message);}
+return failure(_that.message);case HafalanDetailComparing():
+return comparing(_that.ayatNomor);case HafalanDetailCompareSuccess():
+return compareSuccess(_that.ayatNomor,_that.result);case HafalanDetailCompareFailure():
+return compareFailure(_that.ayatNomor,_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +184,16 @@ return failure(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( HafalanSurat? hafalan)?  success,TResult? Function( String message)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( HafalanSurat? hafalan)?  success,TResult? Function( String message)?  failure,TResult? Function( int ayatNomor)?  comparing,TResult? Function( int ayatNomor,  SetoranCompareResult result)?  compareSuccess,TResult? Function( int ayatNomor,  String message)?  compareFailure,}) {final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial();case HafalanDetailLoading() when loading != null:
 return loading();case HafalanDetailSuccess() when success != null:
 return success(_that.hafalan);case HafalanDetailFailure() when failure != null:
-return failure(_that.message);case _:
+return failure(_that.message);case HafalanDetailComparing() when comparing != null:
+return comparing(_that.ayatNomor);case HafalanDetailCompareSuccess() when compareSuccess != null:
+return compareSuccess(_that.ayatNomor,_that.result);case HafalanDetailCompareFailure() when compareFailure != null:
+return compareFailure(_that.ayatNomor,_that.message);case _:
   return null;
 
 }
@@ -384,6 +402,217 @@ class _$HafalanDetailFailureCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
   return _then(HafalanDetailFailure(
 null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class HafalanDetailComparing implements HafalanDetailState {
+  const HafalanDetailComparing(this.ayatNomor);
+  
+
+ final  int ayatNomor;
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$HafalanDetailComparingCopyWith<HafalanDetailComparing> get copyWith => _$HafalanDetailComparingCopyWithImpl<HafalanDetailComparing>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanDetailComparing&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,ayatNomor);
+
+@override
+String toString() {
+  return 'HafalanDetailState.comparing(ayatNomor: $ayatNomor)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $HafalanDetailComparingCopyWith<$Res> implements $HafalanDetailStateCopyWith<$Res> {
+  factory $HafalanDetailComparingCopyWith(HafalanDetailComparing value, $Res Function(HafalanDetailComparing) _then) = _$HafalanDetailComparingCopyWithImpl;
+@useResult
+$Res call({
+ int ayatNomor
+});
+
+
+
+
+}
+/// @nodoc
+class _$HafalanDetailComparingCopyWithImpl<$Res>
+    implements $HafalanDetailComparingCopyWith<$Res> {
+  _$HafalanDetailComparingCopyWithImpl(this._self, this._then);
+
+  final HafalanDetailComparing _self;
+  final $Res Function(HafalanDetailComparing) _then;
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? ayatNomor = null,}) {
+  return _then(HafalanDetailComparing(
+null == ayatNomor ? _self.ayatNomor : ayatNomor // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class HafalanDetailCompareSuccess implements HafalanDetailState {
+  const HafalanDetailCompareSuccess({required this.ayatNomor, required this.result});
+  
+
+ final  int ayatNomor;
+ final  SetoranCompareResult result;
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$HafalanDetailCompareSuccessCopyWith<HafalanDetailCompareSuccess> get copyWith => _$HafalanDetailCompareSuccessCopyWithImpl<HafalanDetailCompareSuccess>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanDetailCompareSuccess&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.result, result) || other.result == result));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,ayatNomor,result);
+
+@override
+String toString() {
+  return 'HafalanDetailState.compareSuccess(ayatNomor: $ayatNomor, result: $result)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $HafalanDetailCompareSuccessCopyWith<$Res> implements $HafalanDetailStateCopyWith<$Res> {
+  factory $HafalanDetailCompareSuccessCopyWith(HafalanDetailCompareSuccess value, $Res Function(HafalanDetailCompareSuccess) _then) = _$HafalanDetailCompareSuccessCopyWithImpl;
+@useResult
+$Res call({
+ int ayatNomor, SetoranCompareResult result
+});
+
+
+$SetoranCompareResultCopyWith<$Res> get result;
+
+}
+/// @nodoc
+class _$HafalanDetailCompareSuccessCopyWithImpl<$Res>
+    implements $HafalanDetailCompareSuccessCopyWith<$Res> {
+  _$HafalanDetailCompareSuccessCopyWithImpl(this._self, this._then);
+
+  final HafalanDetailCompareSuccess _self;
+  final $Res Function(HafalanDetailCompareSuccess) _then;
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? ayatNomor = null,Object? result = null,}) {
+  return _then(HafalanDetailCompareSuccess(
+ayatNomor: null == ayatNomor ? _self.ayatNomor : ayatNomor // ignore: cast_nullable_to_non_nullable
+as int,result: null == result ? _self.result : result // ignore: cast_nullable_to_non_nullable
+as SetoranCompareResult,
+  ));
+}
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SetoranCompareResultCopyWith<$Res> get result {
+  
+  return $SetoranCompareResultCopyWith<$Res>(_self.result, (value) {
+    return _then(_self.copyWith(result: value));
+  });
+}
+}
+
+/// @nodoc
+
+
+class HafalanDetailCompareFailure implements HafalanDetailState {
+  const HafalanDetailCompareFailure({required this.ayatNomor, required this.message});
+  
+
+ final  int ayatNomor;
+ final  String message;
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$HafalanDetailCompareFailureCopyWith<HafalanDetailCompareFailure> get copyWith => _$HafalanDetailCompareFailureCopyWithImpl<HafalanDetailCompareFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanDetailCompareFailure&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,ayatNomor,message);
+
+@override
+String toString() {
+  return 'HafalanDetailState.compareFailure(ayatNomor: $ayatNomor, message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $HafalanDetailCompareFailureCopyWith<$Res> implements $HafalanDetailStateCopyWith<$Res> {
+  factory $HafalanDetailCompareFailureCopyWith(HafalanDetailCompareFailure value, $Res Function(HafalanDetailCompareFailure) _then) = _$HafalanDetailCompareFailureCopyWithImpl;
+@useResult
+$Res call({
+ int ayatNomor, String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$HafalanDetailCompareFailureCopyWithImpl<$Res>
+    implements $HafalanDetailCompareFailureCopyWith<$Res> {
+  _$HafalanDetailCompareFailureCopyWithImpl(this._self, this._then);
+
+  final HafalanDetailCompareFailure _self;
+  final $Res Function(HafalanDetailCompareFailure) _then;
+
+/// Create a copy of HafalanDetailState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? ayatNomor = null,Object? message = null,}) {
+  return _then(HafalanDetailCompareFailure(
+ayatNomor: null == ayatNomor ? _self.ayatNomor : ayatNomor // ignore: cast_nullable_to_non_nullable
+as int,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

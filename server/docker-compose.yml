@@ -1,0 +1,12 @@
+services:
+  quran-hafalan-server:
+    build: .
+    container_name: quran-hafalan-server
+    ports:
+      - "8000:8000"
+    volumes:
+      - whisper-models:/root/.cache/whisper
+    restart: unless-stopped
+
+volumes:
+  whisper-models:

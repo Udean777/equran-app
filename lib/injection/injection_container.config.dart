@@ -18,6 +18,7 @@ import 'package:equran_app/core/notifications/notification_module.dart'
 import 'package:equran_app/core/notifications/notification_service.dart'
     as _i175;
 import 'package:equran_app/core/router/app_router.dart' as _i222;
+import 'package:equran_app/core/services/audio_recorder_service.dart' as _i950;
 import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart' as _i205;
 import 'package:equran_app/core/theme/cubit/theme_cubit.dart' as _i729;
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart'
@@ -138,12 +139,20 @@ import 'package:equran_app/features/doa/presentation/cubit/doa_detail_cubit.dart
     as _i290;
 import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart'
     as _i345;
+import 'package:equran_app/features/hafalan/data/datasources/hafalan_compare_datasource.dart'
+    as _i520;
 import 'package:equran_app/features/hafalan/data/datasources/hafalan_local_datasource.dart'
     as _i445;
+import 'package:equran_app/features/hafalan/data/repositories/hafalan_compare_repository_impl.dart'
+    as _i729;
 import 'package:equran_app/features/hafalan/data/repositories/hafalan_repository_impl.dart'
     as _i804;
+import 'package:equran_app/features/hafalan/domain/repositories/hafalan_compare_repository.dart'
+    as _i473;
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart'
     as _i663;
+import 'package:equran_app/features/hafalan/domain/usecases/compare_recitation.dart'
+    as _i567;
 import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart'
     as _i29;
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart'
@@ -424,6 +433,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.AudioDownloadDataSource>(
       () => _i503.AudioDownloadDataSourceImpl(gh<_i870.DioClient>()),
     );
+    gh.singleton<_i950.AudioRecorderService>(
+      () => _i950.RecordAudioRecorderService(),
+      dispose: (i) => i.dispose(),
+    );
     await gh.factoryAsync<_i919.LazyBox<String>>(
       () => hiveModule.tafsirBox(),
       instanceName: 'tafsirBox',
@@ -591,6 +604,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'imsakiyahBox'),
       ),
     );
+    gh.lazySingleton<_i520.HafalanCompareDataSource>(
+      () => _i520.HafalanCompareDataSourceImpl(gh<_i870.DioClient>()),
+    );
     gh.singleton<_i945.AudioPlayerDataSource>(
       () => _i945.AudioPlayerDataSourceImpl(gh<_i813.AudioCompositeHandler>()),
     );
@@ -737,6 +753,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'bookmarkBox'),
       ),
     );
+    gh.lazySingleton<_i473.HafalanCompareRepository>(
+      () => _i729.HafalanCompareRepositoryImpl(
+        gh<_i520.HafalanCompareDataSource>(),
+      ),
+    );
     gh.factory<_i603.ClearTasbihSessions>(
       () => _i603.ClearTasbihSessions(gh<_i419.TasbihRepository>()),
     );
@@ -810,6 +831,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i445.HafalanLocalDatasourceImpl(
         gh<_i738.Box<String>>(instanceName: 'hafalanBox'),
       ),
+    );
+    gh.factory<_i567.CompareRecitation>(
+      () => _i567.CompareRecitation(gh<_i473.HafalanCompareRepository>()),
     );
     gh.lazySingleton<_i36.ImsakiyahRepository>(
       () => _i648.ImsakiyahRepositoryImpl(
@@ -1183,6 +1207,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i29.DeleteHafalanSurat>(),
         gh<_i702.HafalanReminderScheduler>(),
         gh<_i939.HafalanListCubit>(),
+        gh<_i567.CompareRecitation>(),
+        gh<_i950.AudioRecorderService>(),
       ),
     );
     return this;
