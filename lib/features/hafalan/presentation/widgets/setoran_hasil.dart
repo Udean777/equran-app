@@ -233,7 +233,11 @@ class SetoranHasil extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome_rounded, size: 18, color: AppColors.primary),
+              const Icon(
+                Icons.auto_awesome_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
               const SizedBox(width: AppDimens.spaceSM),
               Text(
                 'Skor AI',
@@ -260,8 +264,8 @@ class SetoranHasil extends StatelessWidget {
               final color = score >= 75
                   ? AppColors.success
                   : score >= 50
-                      ? AppColors.warning
-                      : AppColors.error;
+                  ? AppColors.warning
+                  : AppColors.error;
               return Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppDimens.spaceSM,

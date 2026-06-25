@@ -185,19 +185,23 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
     try {
       final hasPermission = await _audioRecorderService.hasPermission();
       if (!hasPermission) {
-        emit(HafalanDetailState.compareFailure(
-          ayatNomor: ayatNomor,
-          message: 'Izin mikrofon tidak diberikan',
-        ));
+        emit(
+          HafalanDetailState.compareFailure(
+            ayatNomor: ayatNomor,
+            message: 'Izin mikrofon tidak diberikan',
+          ),
+        );
         return;
       }
 
       final audioPath = await _audioRecorderService.stopRecording();
       if (audioPath == null) {
-        emit(HafalanDetailState.compareFailure(
-          ayatNomor: ayatNomor,
-          message: 'Rekaman gagal, silakan coba lagi',
-        ));
+        emit(
+          HafalanDetailState.compareFailure(
+            ayatNomor: ayatNomor,
+            message: 'Rekaman gagal, silakan coba lagi',
+          ),
+        );
         return;
       }
 
@@ -209,22 +213,28 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
       );
 
       result.fold(
-        (failure) => emit(HafalanDetailState.compareFailure(
-          ayatNomor: ayatNomor,
-          message: 'Gagal membandingkan bacaan: ${failure.toUserMessage()}',
-        )),
-        (compareResult) {
-          emit(HafalanDetailState.compareSuccess(
+        (failure) => emit(
+          HafalanDetailState.compareFailure(
             ayatNomor: ayatNomor,
-            result: compareResult,
-          ));
+            message: 'Gagal membandingkan bacaan: ${failure.toUserMessage()}',
+          ),
+        ),
+        (compareResult) {
+          emit(
+            HafalanDetailState.compareSuccess(
+              ayatNomor: ayatNomor,
+              result: compareResult,
+            ),
+          );
         },
       );
     } on Object catch (e) {
-      emit(HafalanDetailState.compareFailure(
-        ayatNomor: ayatNomor,
-        message: 'Terjadi kesalahan: $e',
-      ));
+      emit(
+        HafalanDetailState.compareFailure(
+          ayatNomor: ayatNomor,
+          message: 'Terjadi kesalahan: $e',
+        ),
+      );
     }
   }
 

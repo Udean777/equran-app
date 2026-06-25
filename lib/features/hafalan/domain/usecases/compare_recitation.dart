@@ -7,7 +7,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class CompareRecitation implements UseCase<SetoranCompareResult, CompareRecitationParams> {
+class CompareRecitation
+    implements UseCase<SetoranCompareResult, CompareRecitationParams> {
   const CompareRecitation(this._repository);
 
   final HafalanCompareRepository _repository;
@@ -15,10 +16,9 @@ class CompareRecitation implements UseCase<SetoranCompareResult, CompareRecitati
   @override
   Future<Either<Failure, SetoranCompareResult>> call(
     CompareRecitationParams params,
-  ) =>
-      _repository.compare(
-        audioFilePath: params.audioFilePath,
-        targetText: params.targetText,
-        threshold: params.threshold,
-      );
+  ) => _repository.compare(
+    audioFilePath: params.audioFilePath,
+    targetText: params.targetText,
+    threshold: params.threshold,
+  );
 }

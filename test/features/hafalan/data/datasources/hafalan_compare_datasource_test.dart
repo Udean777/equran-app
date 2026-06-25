@@ -23,7 +23,6 @@ void main() {
   });
 
   group('HafalanCompareDataSource', () {
-
     final tResponseData = {
       'score': 85.5,
       'passed': true,
@@ -35,8 +34,7 @@ void main() {
       'duration_ms': 1500,
     };
 
-    test('should parse response correctly when API returns valid data',
-        () async {
+    test('should parse response correctly when API returns valid data', () async {
       // arrange
       when(
         () => mockDio.post<Map<String, dynamic>>(
@@ -58,7 +56,7 @@ void main() {
 
       // This test would need a real file or a way to mock File operations.
       // For now, we verify the mock setup is correct.
-      
+
       // Verify mock was set up (would be called if file existed)
       verifyNever(
         () => mockDio.post<Map<String, dynamic>>(
@@ -74,7 +72,7 @@ void main() {
       // - user_audio: MultipartFile
       // - target_text: String
       // - threshold: String (double converted to string)
-      
+
       // Since we can't test file upload without a real file, we skip actual execution
       expect(dataSource, isA<HafalanCompareDataSourceImpl>());
     });

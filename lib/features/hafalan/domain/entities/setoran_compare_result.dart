@@ -26,7 +26,8 @@ abstract class SetoranCompareResult with _$SetoranCompareResult {
         transcribed: json['transcribed'] as String,
         target: json['target'] as String,
         cer: (json['cer'] as num).toDouble(),
-        wordErrors: (json['word_errors'] as List<dynamic>?)
+        wordErrors:
+            (json['word_errors'] as List<dynamic>?)
                 ?.map((e) => WordError.fromJson(e as Map<String, dynamic>))
                 .toList() ??
             [],
@@ -43,8 +44,8 @@ abstract class WordError with _$WordError {
   }) = _WordError;
 
   factory WordError.fromJson(Map<String, dynamic> json) => WordError(
-        expected: json['expected'] as String,
-        actual: json['actual'] as String,
-        position: json['position'] as int,
-      );
+    expected: json['expected'] as String,
+    actual: json['actual'] as String,
+    position: json['position'] as int,
+  );
 }

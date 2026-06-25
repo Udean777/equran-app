@@ -97,12 +97,15 @@ void main() {
     blocTest<HafalanDetailCubit, HafalanDetailState>(
       'emits [comparing, compareSuccess] when comparison is successful',
       build: () {
-        when(() => mockAudioRecorderService.hasPermission())
-            .thenAnswer((_) async => true);
-        when(() => mockAudioRecorderService.stopRecording())
-            .thenAnswer((_) async => '/tmp/audio.m4a');
-        when(() => mockCompareRecitation(any()))
-            .thenAnswer((_) async => const Right(tCompareResult));
+        when(
+          () => mockAudioRecorderService.hasPermission(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAudioRecorderService.stopRecording(),
+        ).thenAnswer((_) async => '/tmp/audio.m4a');
+        when(
+          () => mockCompareRecitation(any()),
+        ).thenAnswer((_) async => const Right(tCompareResult));
         return cubit;
       },
       act: (cubit) => cubit.compareRecitation(
@@ -126,8 +129,9 @@ void main() {
     blocTest<HafalanDetailCubit, HafalanDetailState>(
       'emits [comparing, compareFailure] when permission is denied',
       build: () {
-        when(() => mockAudioRecorderService.hasPermission())
-            .thenAnswer((_) async => false);
+        when(
+          () => mockAudioRecorderService.hasPermission(),
+        ).thenAnswer((_) async => false);
         return cubit;
       },
       act: (cubit) => cubit.compareRecitation(
@@ -150,10 +154,12 @@ void main() {
     blocTest<HafalanDetailCubit, HafalanDetailState>(
       'emits [comparing, compareFailure] when recording returns null',
       build: () {
-        when(() => mockAudioRecorderService.hasPermission())
-            .thenAnswer((_) async => true);
-        when(() => mockAudioRecorderService.stopRecording())
-            .thenAnswer((_) async => null);
+        when(
+          () => mockAudioRecorderService.hasPermission(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAudioRecorderService.stopRecording(),
+        ).thenAnswer((_) async => null);
         return cubit;
       },
       act: (cubit) => cubit.compareRecitation(
@@ -172,12 +178,15 @@ void main() {
     blocTest<HafalanDetailCubit, HafalanDetailState>(
       'emits [comparing, compareFailure] when comparison fails with network error',
       build: () {
-        when(() => mockAudioRecorderService.hasPermission())
-            .thenAnswer((_) async => true);
-        when(() => mockAudioRecorderService.stopRecording())
-            .thenAnswer((_) async => '/tmp/audio.m4a');
-        when(() => mockCompareRecitation(any()))
-            .thenAnswer((_) async => const Left(Failure.network()));
+        when(
+          () => mockAudioRecorderService.hasPermission(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAudioRecorderService.stopRecording(),
+        ).thenAnswer((_) async => '/tmp/audio.m4a');
+        when(
+          () => mockCompareRecitation(any()),
+        ).thenAnswer((_) async => const Left(Failure.network()));
         return cubit;
       },
       act: (cubit) => cubit.compareRecitation(
@@ -188,7 +197,8 @@ void main() {
         const HafalanDetailState.comparing(tAyatNomor),
         const HafalanDetailState.compareFailure(
           ayatNomor: tAyatNomor,
-          message: 'Gagal membandingkan bacaan: Tidak ada koneksi internet. Periksa jaringan Anda.',
+          message:
+              'Gagal membandingkan bacaan: Tidak ada koneksi internet. Periksa jaringan Anda.',
         ),
       ],
     );
@@ -196,10 +206,12 @@ void main() {
     blocTest<HafalanDetailCubit, HafalanDetailState>(
       'emits [comparing, compareFailure] when comparison fails with server error',
       build: () {
-        when(() => mockAudioRecorderService.hasPermission())
-            .thenAnswer((_) async => true);
-        when(() => mockAudioRecorderService.stopRecording())
-            .thenAnswer((_) async => '/tmp/audio.m4a');
+        when(
+          () => mockAudioRecorderService.hasPermission(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAudioRecorderService.stopRecording(),
+        ).thenAnswer((_) async => '/tmp/audio.m4a');
         when(() => mockCompareRecitation(any())).thenAnswer(
           (_) async => const Left(Failure.server(statusCode: 500)),
         );
@@ -221,12 +233,15 @@ void main() {
     blocTest<HafalanDetailCubit, HafalanDetailState>(
       'emits [comparing, compareFailure] when comparison fails with unknown error',
       build: () {
-        when(() => mockAudioRecorderService.hasPermission())
-            .thenAnswer((_) async => true);
-        when(() => mockAudioRecorderService.stopRecording())
-            .thenAnswer((_) async => '/tmp/audio.m4a');
+        when(
+          () => mockAudioRecorderService.hasPermission(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAudioRecorderService.stopRecording(),
+        ).thenAnswer((_) async => '/tmp/audio.m4a');
         when(() => mockCompareRecitation(any())).thenAnswer(
-          (_) async => const Left(Failure.unknown(message: 'Something went wrong')),
+          (_) async =>
+              const Left(Failure.unknown(message: 'Something went wrong')),
         );
         return cubit;
       },
@@ -238,7 +253,8 @@ void main() {
         const HafalanDetailState.comparing(tAyatNomor),
         const HafalanDetailState.compareFailure(
           ayatNomor: tAyatNomor,
-          message: 'Gagal membandingkan bacaan: Terjadi kesalahan yang tidak diketahui.',
+          message:
+              'Gagal membandingkan bacaan: Terjadi kesalahan yang tidak diketahui.',
         ),
       ],
     );

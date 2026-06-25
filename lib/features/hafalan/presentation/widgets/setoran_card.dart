@@ -373,7 +373,11 @@ class SetoranCard extends StatelessWidget {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.fiber_manual_record_rounded, color: Colors.red, size: 16),
+              Icon(
+                Icons.fiber_manual_record_rounded,
+                color: Colors.red,
+                size: 16,
+              ),
               SizedBox(width: 8),
               Text(
                 'Merekam...',
@@ -478,7 +482,9 @@ class SetoranCard extends StatelessWidget {
               ),
               const SizedBox(width: AppDimens.spaceSM),
               Icon(
-                result.passed ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                result.passed
+                    ? Icons.check_circle_rounded
+                    : Icons.cancel_rounded,
                 color: scoreColor,
                 size: 28,
               ),
@@ -490,20 +496,28 @@ class SetoranCard extends StatelessWidget {
               'Kata yang tidak cocok:',
               style: TextStyle(
                 fontSize: 12,
-                color: isDark ? AppColors.onSurfaceDarkVariant : AppColors.textSecondary,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: AppDimens.spaceXS),
-            ...result.wordErrors.take(3).map((e) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 1),
-              child: Text(
-                '${e.position + 1}. Diharapkan: "${e.expected}" → Terbaca: "${e.actual}"',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary,
+            ...result.wordErrors
+                .take(3)
+                .map(
+                  (e) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 1),
+                    child: Text(
+                      '${e.position + 1}. Diharapkan: "${e.expected}" → Terbaca: "${e.actual}"',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            )),
           ],
           const SizedBox(height: AppDimens.spaceMD),
           Row(
