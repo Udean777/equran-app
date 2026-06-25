@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,7 @@ class SetoranHasil extends StatelessWidget {
     required this.hasil,
     required this.onSimpan,
     required this.onUlang,
+    this.compareResults,
     super.key,
   });
 
@@ -17,6 +19,9 @@ class SetoranHasil extends StatelessWidget {
   final Map<int, bool> hasil;
   final VoidCallback onSimpan;
   final VoidCallback onUlang;
+
+  /// Nilai AI comparison per ayat nomor (jika AI setoran digunakan).
+  final Map<int, SetoranCompareResult>? compareResults;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +32,7 @@ class SetoranHasil extends StatelessWidget {
     final persen = totalAyat > 0
         ? (hafalCount / totalAyat * 100).toStringAsFixed(0)
         : '0';
+    final hasAiResults = compareResults != null && compareResults!.isNotEmpty;
 
     return Column(
       children: [
@@ -115,6 +121,11 @@ class SetoranHasil extends StatelessWidget {
                   ],
                 ),
 
+                if (hasAiResults) ...[
+                  const SizedBox(height: AppDimens.spaceMD),
+                  _buildAiScoreSummary(theme),
+                ],
+
                 const SizedBox(height: AppDimens.spaceMD),
 
                 // Detail per ayat
@@ -194,6 +205,90 @@ class SetoranHasil extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAiScoreSummary(ThemeData theme) {
+    final results = compareResults;
+    if (results == null || results.isEmpty) return const SizedBox.shrink();
+
+    final values = results.values;
+    final totalScore = values.fold<double>(
+      0,
+      (sum, r) => sum + r.score,
+    );
+    final avgScore = totalScore / values.length;
+
+    return Container(
+      padding: const EdgeInsets.all(AppDimens.spaceMD),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: AppDimens.spaceSM),
+              Text(
+                'Skor AI',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          Text(
+            'Rata-rata akurasi: ${avgScore.toStringAsFixed(1)}%',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          Wrap(
+            spacing: AppDimens.spaceXS,
+            runSpacing: AppDimens.spaceXS,
+            children: results.entries.map((e) {
+              final score = e.value.score;
+              final color = score >= 75
+                  ? AppColors.success
+                  : score >= 50
+                  ? AppColors.warning
+                  : AppColors.error;
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceSM,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+                  border: Border.all(color: color.withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  '${e.key}: ${score.toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 }

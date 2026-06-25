@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'package:equran_app/core/services/audio_recorder_service.dart';
+import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/compare_recitation.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_by_surat.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/params/compare_recitation_params.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/params/hafalan_params.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/params/save_hafalan_params.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart';
@@ -21,6 +25,8 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
     this._deleteHafalanSurat,
     this._reminderScheduler,
     this._listCubit,
+    this._compareRecitation,
+    this._audioRecorderService,
   ) : super(const HafalanDetailState.initial());
 
   final GetHafalanBySurat _getHafalanBySurat;
@@ -28,6 +34,8 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
   final DeleteHafalanSurat _deleteHafalanSurat;
   final HafalanReminderScheduler _reminderScheduler;
   final HafalanListCubit _listCubit;
+  final CompareRecitation _compareRecitation;
+  final AudioRecorderService _audioRecorderService;
 
   Future<void> loadDetail(int suratNomor) async {
     emit(const HafalanDetailState.loading());
@@ -166,6 +174,81 @@ class HafalanDetailCubit extends Cubit<HafalanDetailState> {
 
     final updated = existing.withAyatHafalList(ayatHafalBaru.toList()..sort());
     await _saveAndReload(updated);
+  }
+
+  Future<void> compareRecitation({
+    required int ayatNomor,
+    required String targetText,
+  }) async {
+    emit(HafalanDetailState.comparing(ayatNomor));
+
+    try {
+      final hasPermission = await _audioRecorderService.hasPermission();
+      if (!hasPermission) {
+        emit(
+          HafalanDetailState.compareFailure(
+            ayatNomor: ayatNomor,
+            message: 'Izin mikrofon tidak diberikan',
+          ),
+        );
+        return;
+      }
+
+      final audioPath = await _audioRecorderService.stopRecording();
+      if (audioPath == null) {
+        emit(
+          HafalanDetailState.compareFailure(
+            ayatNomor: ayatNomor,
+            message: 'Rekaman gagal, silakan coba lagi',
+          ),
+        );
+        return;
+      }
+
+      final result = await _compareRecitation(
+        CompareRecitationParams(
+          audioFilePath: audioPath,
+          targetText: targetText,
+        ),
+      );
+
+      result.fold(
+        (failure) => emit(
+          HafalanDetailState.compareFailure(
+            ayatNomor: ayatNomor,
+            message: 'Gagal membandingkan bacaan: ${failure.toUserMessage()}',
+          ),
+        ),
+        (compareResult) {
+          emit(
+            HafalanDetailState.compareSuccess(
+              ayatNomor: ayatNomor,
+              result: compareResult,
+            ),
+          );
+        },
+      );
+    } on Object catch (e) {
+      emit(
+        HafalanDetailState.compareFailure(
+          ayatNomor: ayatNomor,
+          message: 'Terjadi kesalahan: $e',
+        ),
+      );
+    }
+  }
+
+  void clearCompareResult() {
+    final current = state;
+    if (current is HafalanDetailComparing ||
+        current is HafalanDetailCompareSuccess ||
+        current is HafalanDetailCompareFailure) {
+      if (_currentState != null) {
+        emit(HafalanDetailState.success(hafalan: _currentState!.hafalan));
+      } else {
+        emit(const HafalanDetailState.initial());
+      }
+    }
   }
 
   Future<void> saveHafalanSurat(HafalanSurat hafalan) =>

@@ -2,9 +2,12 @@ import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_jawab_buttons.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
+
+enum SetoranRecordState { idle, recording, comparing }
 
 /// Kartu ayat untuk mode setoran hafalan.
 class SetoranCard extends StatelessWidget {
@@ -14,8 +17,12 @@ class SetoranCard extends StatelessWidget {
     required this.totalAyat,
     required this.showTerjemahan,
     required this.onToggleTerjemahan,
+    required this.recordState,
+    required this.onStartRecord,
+    required this.onStopRecord,
     required this.onHafal,
     required this.onBelumHafal,
+    this.compareResult,
     super.key,
   });
 
@@ -24,6 +31,15 @@ class SetoranCard extends StatelessWidget {
   final int totalAyat;
   final bool showTerjemahan;
   final VoidCallback onToggleTerjemahan;
+
+  /// State perekaman untuk ayat ini.
+  final SetoranRecordState recordState;
+
+  /// Hasil AI comparison (null sebelum selesai).
+  final SetoranCompareResult? compareResult;
+
+  final VoidCallback onStartRecord;
+  final VoidCallback onStopRecord;
   final VoidCallback onHafal;
   final VoidCallback onBelumHafal;
 
@@ -264,13 +280,287 @@ class SetoranCard extends StatelessWidget {
           ),
         ),
 
-        // Tombol jawab
-        SetoranJawabButtons(
-          onHafal: onHafal,
-          onBelumHafal: onBelumHafal,
-          isDark: isDark,
-        ),
+        // Recording / Answer area
+        _buildBottomArea(theme: theme, isDark: isDark),
       ],
+    );
+  }
+
+  Widget _buildBottomArea({
+    required ThemeData theme,
+    required bool isDark,
+  }) {
+    if (compareResult != null) {
+      return _buildResultArea(theme: theme, isDark: isDark);
+    }
+
+    switch (recordState) {
+      case SetoranRecordState.idle:
+        return _buildIdleArea(isDark: isDark);
+      case SetoranRecordState.recording:
+        return _buildRecordingArea(isDark: isDark);
+      case SetoranRecordState.comparing:
+        return _buildComparingArea(isDark: isDark);
+    }
+  }
+
+  Widget _buildIdleArea({required bool isDark}) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceLG,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onStartRecord,
+              icon: const Icon(Icons.mic_rounded, size: 20),
+              label: const Text('Rekam Bacaan'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppDimens.spaceMD,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          SetoranJawabButtons(
+            onHafal: onHafal,
+            onBelumHafal: onBelumHafal,
+            isDark: isDark,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecordingArea({required bool isDark}) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceLG,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.fiber_manual_record_rounded,
+                color: Colors.red,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Merekam...',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.spaceMD),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onStopRecord,
+              icon: const Icon(Icons.stop_rounded, size: 20),
+              label: const Text('Berhenti Rekam'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.error,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppDimens.spaceMD,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildComparingArea({required bool isDark}) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceLG,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          ),
+        ),
+      ),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+          SizedBox(height: AppDimens.spaceSM),
+          Text(
+            'Membandingkan bacaan...',
+            style: TextStyle(fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultArea({
+    required ThemeData theme,
+    required bool isDark,
+  }) {
+    final result = compareResult!;
+    final scoreColor = result.passed ? AppColors.success : AppColors.error;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppDimens.pagePadding,
+        AppDimens.spaceMD,
+        AppDimens.pagePadding,
+        AppDimens.spaceLG,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          ),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '${result.score.toStringAsFixed(0)}%',
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: scoreColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: AppDimens.spaceSM),
+              Icon(
+                result.passed
+                    ? Icons.check_circle_rounded
+                    : Icons.cancel_rounded,
+                color: scoreColor,
+                size: 28,
+              ),
+            ],
+          ),
+          if (!result.passed && result.wordErrors.isNotEmpty) ...[
+            const SizedBox(height: AppDimens.spaceSM),
+            Text(
+              'Kata yang tidak cocok:',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark
+                    ? AppColors.onSurfaceDarkVariant
+                    : AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppDimens.spaceXS),
+            ...result.wordErrors
+                .take(3)
+                .map(
+                  (e) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 1),
+                    child: Text(
+                      '${e.position + 1}. Diharapkan: "${e.expected}" → Terbaca: "${e.actual}"',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                      ),
+                    ),
+                  ),
+                ),
+          ],
+          const SizedBox(height: AppDimens.spaceMD),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: result.passed ? onHafal : onStartRecord,
+                  icon: Icon(
+                    result.passed ? Icons.check_rounded : Icons.replay_rounded,
+                    size: 18,
+                  ),
+                  label: Text(result.passed ? 'Lanjut' : 'Rekam Ulang'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.spaceSM,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppDimens.spaceSM),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: onHafal,
+                  icon: const Icon(Icons.skip_next_rounded, size: 18),
+                  label: const Text('Lewati'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.spaceSM,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

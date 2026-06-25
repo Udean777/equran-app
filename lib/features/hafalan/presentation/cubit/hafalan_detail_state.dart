@@ -1,4 +1,5 @@
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'hafalan_detail_state.freezed.dart';
@@ -12,4 +13,14 @@ sealed class HafalanDetailState with _$HafalanDetailState {
   }) = HafalanDetailSuccess;
   const factory HafalanDetailState.failure(String message) =
       HafalanDetailFailure;
+  const factory HafalanDetailState.comparing(int ayatNomor) =
+      HafalanDetailComparing;
+  const factory HafalanDetailState.compareSuccess({
+    required int ayatNomor,
+    required SetoranCompareResult result,
+  }) = HafalanDetailCompareSuccess;
+  const factory HafalanDetailState.compareFailure({
+    required int ayatNomor,
+    required String message,
+  }) = HafalanDetailCompareFailure;
 }
