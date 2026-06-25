@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class TranscriberService:
-    def __init__(self, model_size: str = "base"):
+    def __init__(self, model_size: str = "tiny"):
         logger.info("Loading faster-whisper model: %s (cpu, int8)", model_size)
         start = time.time()
         self.model = WhisperModel(

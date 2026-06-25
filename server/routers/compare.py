@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import tempfile
@@ -55,7 +56,18 @@ async def compare(
         tmp.flush()
         tmp_path = tmp.name
 
-        transcribed = transcriber.transcribe(tmp_path)
+        # Transcribe with timeout to prevent hanging
+        try:
+            transcribed = await asyncio.wait_for(
+                asyncio.to_thread(transcriber.transcribe, tmp_path),
+                timeout=120.0,
+            )
+        except asyncio.TimeoutError:
+            logger.error("Transcription timeout after 120s")
+            raise HTTPException(
+                status_code=504,
+                detail="Transcription timeout - audio too long or server overloaded",
+            )
     except HTTPException:
         raise
     except Exception as e:
