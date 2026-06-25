@@ -63,7 +63,7 @@ jobs:
       - name: Run pytest
         run: |
           cd server
-          pytest tests/ -v --tb=short
+          PYTHONPATH=. pytest tests/ -v --tb=short
 
   # ═══════════════════════════════════════════════════════════════════════════
   # JOB — Deploy to Render (only on push to main/dev)
