@@ -6,10 +6,8 @@ import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.da
 import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-@LazySingleton(as: ImsakAlarmScheduler)
 class ImsakAlarmSchedulerImpl implements ImsakAlarmScheduler {
   ImsakAlarmSchedulerImpl(this._notificationService);
 

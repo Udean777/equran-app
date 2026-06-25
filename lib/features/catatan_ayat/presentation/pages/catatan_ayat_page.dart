@@ -9,64 +9,58 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
-import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/providers.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/viewmodels/catatan_ayat_state.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/widgets/catatan_ayat_card.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/widgets/catatan_editor_sheet.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CatatanAyatPage extends StatelessWidget {
+class CatatanAyatPage extends ConsumerStatefulWidget {
   const CatatanAyatPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<CatatanAyatCubit>();
-        unawaited(cubit.load());
-        return cubit;
-      },
-      child: const _CatatanAyatView(),
-    );
-  }
+  ConsumerState<CatatanAyatPage> createState() => _CatatanAyatPageState();
 }
 
-class _CatatanAyatView extends StatelessWidget {
-  const _CatatanAyatView();
+class _CatatanAyatPageState extends ConsumerState<CatatanAyatPage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(ref.read(catatanAyatViewModelProvider.notifier).load());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(catatanAyatViewModelProvider);
+
     return Scaffold(
       appBar: const LuxuryAppBar(title: 'Catatan Saya'),
-      body: BlocBuilder<CatatanAyatCubit, CatatanAyatState>(
-        builder: (context, state) => switch (state) {
-          CatatanAyatInitial() => const LoadingWidget(),
-          CatatanAyatLoading() => const LoadingWidget(),
-          CatatanAyatFailure(:final failure) => ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: () => context.read<CatatanAyatCubit>().load(),
-          ),
-          CatatanAyatSuccess(:final catatan) =>
-            catatan.isEmpty
-                ? const EmptyStateWidget(
-                    message:
-                        'Belum ada catatan.\nTambah catatan dari halaman baca surat.',
-                  )
-                : _CatatanList(catatan: catatan),
-        },
+      body: state.when(
+        initial: () => const LoadingWidget(),
+        loading: () => const LoadingWidget(),
+        failure: (failure) => ErrorStateWidget(
+          message: failure.toUserMessage(),
+          onRetry: () => ref.read(catatanAyatViewModelProvider.notifier).load(),
+        ),
+        success: (catatan) => catatan.isEmpty
+            ? const EmptyStateWidget(
+                message:
+                    'Belum ada catatan.\nTambah catatan dari halaman baca surat.',
+              )
+            : _CatatanList(catatan: catatan),
       ),
     );
   }
 }
 
-class _CatatanList extends StatelessWidget {
+class _CatatanList extends ConsumerWidget {
   const _CatatanList({required this.catatan});
 
   final List<CatatanAyat> catatan;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(
         AppDimens.pagePadding,
@@ -81,32 +75,33 @@ class _CatatanList extends StatelessWidget {
         return CatatanAyatCard(
           key: ValueKey('${item.suratNomor}:${item.ayatNomor}'),
           catatan: item,
-          onTap: () => _showEditor(context, item),
-          onDelete: () => _confirmDelete(context, item),
+          onTap: () => _showEditor(context, ref, item),
+          onDelete: () => _confirmDelete(context, ref, item),
         );
       },
     );
   }
 
-  void _showEditor(BuildContext context, CatatanAyat item) {
+  void _showEditor(BuildContext context, WidgetRef ref, CatatanAyat item) {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<CatatanAyatCubit>(),
-          child: CatatanEditorSheet(
-            suratNomor: item.suratNomor,
-            ayatNomor: item.ayatNomor,
-            namaLatin: item.namaLatin,
-            teksArab: item.teksArab,
-            existing: item,
-          ),
+        builder: (_) => CatatanEditorSheet(
+          suratNomor: item.suratNomor,
+          ayatNomor: item.ayatNomor,
+          namaLatin: item.namaLatin,
+          teksArab: item.teksArab,
+          existing: item,
         ),
       ),
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context, CatatanAyat item) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    CatatanAyat item,
+  ) async {
     final confirmed = await showConfirmDialog(
       context,
       title: 'Hapus Catatan?',
@@ -114,10 +109,12 @@ class _CatatanList extends StatelessWidget {
           'Catatan untuk ${item.namaLatin} ayat ${item.ayatNomor} akan dihapus.',
     );
     if (confirmed && context.mounted) {
-      await context.read<CatatanAyatCubit>().delete(
-        suratNomor: item.suratNomor,
-        ayatNomor: item.ayatNomor,
-      );
+      await ref
+          .read(catatanAyatViewModelProvider.notifier)
+          .delete(
+            suratNomor: item.suratNomor,
+            ayatNomor: item.ayatNomor,
+          );
     }
   }
 }

@@ -6,9 +6,7 @@ import 'package:equran_app/features/reading_progress/domain/entities/reading_his
 import 'package:equran_app/features/reading_progress/domain/services/reading_stats_calculator.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class GetReadingStats implements UseCase<ReadingStats, String> {
   const GetReadingStats(this._dataSource, this._calculator);
 

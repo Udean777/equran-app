@@ -8,85 +8,111 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
-import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
+import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
+import 'package:equran_app/features/bookmark/presentation/providers.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/bookmark_card.dart';
 import 'package:equran_app/features/bookmark/presentation/widgets/last_read_card.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class BookmarkPage extends StatelessWidget {
+class BookmarkPage extends ConsumerStatefulWidget {
   const BookmarkPage({super.key, this.doaSectionBuilder});
 
   final Widget Function(ValueChanged<bool>)? doaSectionBuilder;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<BookmarkCubit>();
-        unawaited(cubit.load());
-        return cubit;
-      },
-      child: _BookmarkView(doaSectionBuilder: doaSectionBuilder),
-    );
-  }
+  ConsumerState<BookmarkPage> createState() => _BookmarkPageState();
 }
 
-class _BookmarkView extends StatelessWidget {
-  const _BookmarkView({this.doaSectionBuilder});
-
-  final Widget Function(ValueChanged<bool>)? doaSectionBuilder;
+class _BookmarkPageState extends ConsumerState<BookmarkPage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(bookmarkViewModelProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: LuxuryAppBar(title: l10n.bookmark),
-      body: BlocBuilder<BookmarkCubit, BookmarkState>(
-        builder: (context, state) => switch (state) {
-          BookmarkInitial() => const LoadingWidget(),
-          BookmarkLoading() => const LoadingWidget(),
-          BookmarkFailure(:final failure) => ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: context.read<BookmarkCubit>().load,
-          ),
-          BookmarkSuccess() => _BookmarkContent(
-            state: state,
-            l10n: l10n,
-            doaSectionBuilder: doaSectionBuilder,
-          ),
-        },
+      body: state.when(
+        initial: () => const LoadingWidget(),
+        loading: () => const LoadingWidget(),
+        failure: (failure) => ErrorStateWidget(
+          message: failure.toUserMessage(),
+          onRetry: () => ref.read(bookmarkViewModelProvider.notifier).load(),
+        ),
+        success: (bookmarks, lastRead, suratProgressMap) => _BookmarkContent(
+          bookmarks: bookmarks,
+          lastRead: lastRead,
+          l10n: l10n,
+          doaSectionBuilder: widget.doaSectionBuilder,
+        ),
       ),
     );
   }
 }
 
-class _BookmarkContent extends StatefulWidget {
+class _BookmarkContent extends ConsumerWidget {
   const _BookmarkContent({
-    required this.state,
+    required this.bookmarks,
+    required this.lastRead,
     required this.l10n,
     this.doaSectionBuilder,
   });
 
-  final BookmarkSuccess state;
+  final List<Bookmark> bookmarks;
+  final LastRead? lastRead;
   final AppLocalizations l10n;
   final Widget Function(ValueChanged<bool>)? doaSectionBuilder;
 
   @override
-  State<_BookmarkContent> createState() => _BookmarkContentState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isEmpty = lastRead == null && bookmarks.isEmpty;
+
+    if (isEmpty && doaSectionBuilder == null) {
+      return EmptyStateWidget(message: l10n.bookmarkEmpty);
+    }
+
+    return _BookmarkContentBody(
+      bookmarks: bookmarks,
+      lastRead: lastRead,
+      l10n: l10n,
+      doaSectionBuilder: doaSectionBuilder,
+    );
+  }
 }
 
-class _BookmarkContentState extends State<_BookmarkContent> {
+class _BookmarkContentBody extends StatefulWidget {
+  const _BookmarkContentBody({
+    required this.bookmarks,
+    required this.lastRead,
+    required this.l10n,
+    this.doaSectionBuilder,
+  });
+
+  final List<Bookmark> bookmarks;
+  final LastRead? lastRead;
+  final AppLocalizations l10n;
+  final Widget Function(ValueChanged<bool>)? doaSectionBuilder;
+
+  @override
+  State<_BookmarkContentBody> createState() => _BookmarkContentBodyState();
+}
+
+class _BookmarkContentBodyState extends State<_BookmarkContentBody> {
   var _isDoaSectionEmpty = true;
 
   @override
   Widget build(BuildContext context) {
-    final lastRead = widget.state.lastRead;
-    final bookmarks = widget.state.bookmarks;
+    final lastRead = widget.lastRead;
+    final bookmarks = widget.bookmarks;
     final isEmpty = lastRead == null && bookmarks.isEmpty && _isDoaSectionEmpty;
 
     if (isEmpty) {
@@ -118,10 +144,12 @@ class _BookmarkContentState extends State<_BookmarkContent> {
                 onTap: () => context.push(
                   AppRoutes.suratWithAyat(b.suratNomor, b.ayatNomor),
                 ),
-                onRemove: () => context.read<BookmarkCubit>().removeBookmark(
-                  suratNomor: b.suratNomor,
-                  ayatNomor: b.ayatNomor,
-                ),
+                onRemove: () => ProviderScope.containerOf(context)
+                    .read(bookmarkViewModelProvider.notifier)
+                    .removeBookmark(
+                      suratNomor: b.suratNomor,
+                      ayatNomor: b.ayatNomor,
+                    ),
               ),
             ),
           ),

@@ -3,15 +3,14 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/core/theme/providers.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
-import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
+import 'package:equran_app/features/tasbih/presentation/viewmodels/tasbih_state.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/info_chip.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/preset_selector_sheet.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Section info dzikir: nama, teks Arab, dan chip target/sisa.
 class DzikirInfoSection extends StatelessWidget {
@@ -150,10 +149,7 @@ class DzikirInfoSection extends StatelessWidget {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<TasbihCubit>(),
-          child: const PresetSelectorSheet(),
-        ),
+        builder: (_) => const PresetSelectorSheet(),
       ),
     );
   }

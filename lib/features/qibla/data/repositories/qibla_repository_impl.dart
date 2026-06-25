@@ -3,9 +3,7 @@ import 'package:equran_app/features/qibla/data/datasources/qibla_data_source.dar
 import 'package:equran_app/features/qibla/domain/entities/qibla_direction.dart';
 import 'package:equran_app/features/qibla/domain/repositories/qibla_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: QiblaRepository)
 class QiblaRepositoryImpl implements QiblaRepository {
   const QiblaRepositoryImpl(this._dataSource);
 

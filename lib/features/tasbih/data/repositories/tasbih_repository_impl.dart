@@ -4,9 +4,7 @@ import 'package:equran_app/features/tasbih/data/mappers/tasbih_session_mapper.da
 import 'package:equran_app/features/tasbih/domain/entities/tasbih_session.dart';
 import 'package:equran_app/features/tasbih/domain/repositories/tasbih_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: TasbihRepository)
 class TasbihRepositoryImpl implements TasbihRepository {
   const TasbihRepositoryImpl(this._local);
 

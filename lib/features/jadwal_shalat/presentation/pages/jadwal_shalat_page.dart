@@ -10,100 +10,117 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
-import 'package:equran_app/features/jadwal_shalat/presentation/cubit/jadwal_shalat_cubit.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/providers.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_header_card.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_location_selector_sheet.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_table.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/widgets/jadwal_shalat_today_card.dart';
 import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class JadwalShalatPage extends StatelessWidget {
+class JadwalShalatPage extends ConsumerStatefulWidget {
   const JadwalShalatPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<JadwalShalatCubit>();
-        unawaited(cubit.init());
-        return cubit;
-      },
-      child: const _JadwalShalatView(),
-    );
-  }
+  ConsumerState<JadwalShalatPage> createState() => _JadwalShalatPageState();
 }
 
-class _JadwalShalatView extends StatelessWidget {
-  const _JadwalShalatView();
+class _JadwalShalatPageState extends ConsumerState<JadwalShalatPage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(ref.read(jadwalShalatViewModelProvider.notifier).init());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(jadwalShalatViewModelProvider);
+
     return Scaffold(
       drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: LuxuryAppBar(
         title: 'Jadwal Shalat',
         actions: [
-          BlocBuilder<JadwalShalatCubit, JadwalShalatState>(
-            builder: (context, state) {
-              if (state is! JadwalShalatSuccess) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(Icons.location_on_outlined),
-                tooltip: 'Ganti lokasi',
-                onPressed: () => _showLocationSheet(context),
-              );
-            },
-          ),
+          if (state is JadwalShalatSuccess)
+            IconButton(
+              icon: const Icon(Icons.location_on_outlined),
+              tooltip: 'Ganti lokasi',
+              onPressed: _showLocationSheet,
+            ),
         ],
       ),
-      body: BlocConsumer<JadwalShalatCubit, JadwalShalatState>(
-        listener: (context, state) {
-          // Auto-show location selector jika GPS gagal detect lokasi
-          if (state is JadwalShalatProvinsiLoaded) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) _showLocationSheet(context);
-            });
-          }
-        },
-        builder: (context, state) => switch (state) {
-          JadwalShalatInitial() => const LoadingWidget(),
-          JadwalShalatLoadingProvinsi() => const LoadingWidget(),
-          JadwalShalatLoadingKabkota() => const LoadingWidget(),
-          JadwalShalatLoadingJadwal() => const LoadingWidget(),
-          JadwalShalatDetectingLocation() => const DetectingLocationWidget(),
-          JadwalShalatProvinsiLoaded() => _LocationFallbackWidget(
-            message: 'Lokasi tidak terdeteksi otomatis.',
-            actionLabel: 'Pilih Lokasi Manual',
-            onAction: () => _showLocationSheet(context),
-          ),
-          JadwalShalatKabkotaLoaded() => const LoadingWidget(),
-          JadwalShalatFailure(:final failure) => ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: () => unawaited(context.read<JadwalShalatCubit>().init()),
-          ),
-          JadwalShalatSuccess(:final jadwal, :final bulan, :final tahun) =>
-            _JadwalShalatContent(
-              jadwal: jadwal,
-              bulan: bulan,
-              tahun: tahun,
-            ),
-        },
-      ),
+      body: JadwalShalatBody(state: state),
     );
   }
 
-  void _showLocationSheet(BuildContext context) {
+  void _showLocationSheet() {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<JadwalShalatCubit>(),
-          child: const JadwalShalatLocationSelectorSheet(),
-        ),
+        builder: (_) => const JadwalShalatLocationSelectorSheet(),
       ),
     );
+  }
+}
+
+class JadwalShalatBody extends ConsumerWidget {
+  const JadwalShalatBody({required this.state, super.key});
+
+  final JadwalShalatState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<JadwalShalatState>(
+      jadwalShalatViewModelProvider,
+      (prev, next) {
+        if (next is JadwalShalatProvinsiLoaded) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              unawaited(
+                showAppBottomSheet<void>(
+                  context,
+                  builder: (_) => const JadwalShalatLocationSelectorSheet(),
+                ),
+              );
+            }
+          });
+        }
+      },
+    );
+
+    return switch (state) {
+      JadwalShalatInitial() => const LoadingWidget(),
+      JadwalShalatLoadingProvinsi() => const LoadingWidget(),
+      JadwalShalatLoadingKabkota() => const LoadingWidget(),
+      JadwalShalatLoadingJadwal() => const LoadingWidget(),
+      JadwalShalatDetectingLocation() => const DetectingLocationWidget(),
+      JadwalShalatProvinsiLoaded() => _LocationFallbackWidget(
+        message: 'Lokasi tidak terdeteksi otomatis.',
+        actionLabel: 'Pilih Lokasi Manual',
+        onAction: () {
+          unawaited(
+            showAppBottomSheet<void>(
+              context,
+              builder: (_) => const JadwalShalatLocationSelectorSheet(),
+            ),
+          );
+        },
+      ),
+      JadwalShalatKabkotaLoaded() => const LoadingWidget(),
+      JadwalShalatFailure(:final failure) => ErrorStateWidget(
+        message: failure.toUserMessage(),
+        onRetry: () => unawaited(
+          ref.read(jadwalShalatViewModelProvider.notifier).init(),
+        ),
+      ),
+      JadwalShalatSuccess(:final jadwal, :final bulan, :final tahun) =>
+        _JadwalShalatContent(
+          jadwal: jadwal,
+          bulan: bulan,
+          tahun: tahun,
+        ),
+    };
   }
 }
 
@@ -150,7 +167,7 @@ class _LocationFallbackWidget extends StatelessWidget {
   }
 }
 
-class _JadwalShalatContent extends StatelessWidget {
+class _JadwalShalatContent extends ConsumerWidget {
   const _JadwalShalatContent({
     required this.jadwal,
     required this.bulan,
@@ -162,7 +179,7 @@ class _JadwalShalatContent extends StatelessWidget {
   final int tahun;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final today = DateTime.now();
     final todayEntry = jadwal.jadwal.where(
       (e) => e.tanggal == today.day,
@@ -177,30 +194,25 @@ class _JadwalShalatContent extends StatelessWidget {
           onChangeLocation: () => unawaited(
             showAppBottomSheet<void>(
               context,
-              builder: (_) => BlocProvider.value(
-                value: context.read<JadwalShalatCubit>(),
-                child: const JadwalShalatLocationSelectorSheet(),
-              ),
+              builder: (_) => const JadwalShalatLocationSelectorSheet(),
             ),
           ),
           onPrevBulan: () {
             final prevBulan = bulan == 1 ? 12 : bulan - 1;
             final prevTahun = bulan == 1 ? tahun - 1 : tahun;
             unawaited(
-              context.read<JadwalShalatCubit>().changeBulan(
-                prevBulan,
-                prevTahun,
-              ),
+              ref
+                  .read(jadwalShalatViewModelProvider.notifier)
+                  .changeBulan(prevBulan, prevTahun),
             );
           },
           onNextBulan: () {
             final nextBulan = bulan == 12 ? 1 : bulan + 1;
             final nextTahun = bulan == 12 ? tahun + 1 : tahun;
             unawaited(
-              context.read<JadwalShalatCubit>().changeBulan(
-                nextBulan,
-                nextTahun,
-              ),
+              ref
+                  .read(jadwalShalatViewModelProvider.notifier)
+                  .changeBulan(nextBulan, nextTahun),
             );
           },
         ),

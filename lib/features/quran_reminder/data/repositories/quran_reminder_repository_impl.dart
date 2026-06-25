@@ -3,9 +3,7 @@ import 'package:equran_app/features/quran_reminder/data/datasources/quran_remind
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/domain/repositories/quran_reminder_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: QuranReminderRepository)
 class QuranReminderRepositoryImpl implements QuranReminderRepository {
   const QuranReminderRepositoryImpl(this._dataSource);
 

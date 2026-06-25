@@ -11,22 +11,21 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/services/hafalan_view_helper.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_state.dart';
+import 'package:equran_app/features/hafalan/presentation/providers.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_ayat_grid.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_catatan_field.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_murajaah_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_progress_header.dart';
-import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_section_header.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_status_selector.dart';
-import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
-import 'package:equran_app/injection/injection_container.dart';
+import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class HafalanDetailPage extends StatelessWidget {
+class HafalanDetailPage extends ConsumerWidget {
   const HafalanDetailPage({
     required this.suratNomor,
     this.juzNomor,
@@ -37,61 +36,40 @@ class HafalanDetailPage extends StatelessWidget {
   final int? juzNomor;
 
   @override
-  Widget build(BuildContext context) {
-    return HafalanProviders(
-      child: BlocProvider(
-        create: (_) {
-          final cubit = getIt<HafalanDetailCubit>();
-          unawaited(cubit.loadDetail(suratNomor));
-          return cubit;
-        },
-        child: _HafalanDetailView(suratNomor: suratNomor, juzNomor: juzNomor),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final suratState = ref.watch(suratListViewModelProvider);
+    final detailState = ref.watch(hafalanDetailViewModelProvider(suratNomor));
+    final detailNotifier = ref.read(
+      hafalanDetailViewModelProvider(suratNomor).notifier,
     );
-  }
-}
 
-class _HafalanDetailView extends StatelessWidget {
-  const _HafalanDetailView({
-    required this.suratNomor,
-    this.juzNomor,
-  });
+    if (suratState is! SuratListSuccess) {
+      return const Scaffold(body: LoadingWidget());
+    }
 
-  final int suratNomor;
-  final int? juzNomor;
+    final suratMatches = suratState.surats.where(
+      (s) => s.nomor == suratNomor,
+    );
+    if (suratMatches.isEmpty) {
+      return const Scaffold(
+        body: EmptyStateWidget(message: 'Surat tidak ditemukan.'),
+      );
+    }
+    final surat = suratMatches.first;
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SuratListCubit, SuratListState>(
-      builder: (context, suratState) {
-        if (suratState is! SuratListSuccess) {
-          return const Scaffold(body: LoadingWidget());
-        }
+    final hafalan = detailState is HafalanDetailSuccess
+        ? detailState.hafalan
+        : null;
 
-        final suratMatches = suratState.surats.where(
-          (s) => s.nomor == suratNomor,
-        );
-        if (suratMatches.isEmpty) {
-          return const Scaffold(
-            body: EmptyStateWidget(message: 'Surat tidak ditemukan.'),
-          );
-        }
-        final surat = suratMatches.first;
+    final listNotifier = ref.read(hafalanListViewModelProvider.notifier);
 
-        return BlocBuilder<HafalanDetailCubit, HafalanDetailState>(
-          builder: (context, hafalanState) {
-            final hafalan = hafalanState is HafalanDetailSuccess
-                ? hafalanState.hafalan
-                : null;
-
-            return _HafalanDetailScaffold(
-              surat: surat,
-              hafalan: hafalan,
-              juzNomor: juzNomor,
-            );
-          },
-        );
-      },
+    return _HafalanDetailScaffold(
+      surat: surat,
+      hafalan: hafalan,
+      juzNomor: juzNomor,
+      detailNotifier: detailNotifier,
+      listNotifier: listNotifier,
+      suratNomor: suratNomor,
     );
   }
 }
@@ -100,12 +78,18 @@ class _HafalanDetailScaffold extends StatefulWidget {
   const _HafalanDetailScaffold({
     required this.surat,
     required this.hafalan,
+    required this.detailNotifier,
+    required this.listNotifier,
+    required this.suratNomor,
     this.juzNomor,
   });
 
   final Surat surat;
   final HafalanSurat? hafalan;
   final int? juzNomor;
+  final HafalanDetailViewModel detailNotifier;
+  final HafalanListViewModel listNotifier;
+  final int suratNomor;
 
   @override
   State<_HafalanDetailScaffold> createState() => _HafalanDetailScaffoldState();
@@ -182,6 +166,7 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
               child: HafalanStatusSelector(
                 suratNomor: widget.surat.nomor,
                 currentStatus: status,
+                detailNotifier: widget.detailNotifier,
               ),
             ),
 
@@ -195,7 +180,7 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
               startAyat: startAyat,
               onToggle: (ayatNomor) {
                 unawaited(
-                  context.read<HafalanDetailCubit>().toggleAyat(
+                  widget.detailNotifier.toggleAyat(
                     suratNomor: widget.surat.nomor,
                     ayatNomor: ayatNomor,
                     suratInfo: HafalanSurat.fromSurat(widget.surat),
@@ -247,7 +232,10 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
                 title: "Muraja'ah",
                 icon: Icons.refresh_rounded,
               ),
-              HafalanMurajaahSection(hafalan: widget.hafalan!),
+              HafalanMurajaahSection(
+                hafalan: widget.hafalan!,
+                detailNotifier: widget.detailNotifier,
+              ),
             ],
 
             const HafalanSectionHeader(
@@ -309,6 +297,8 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
               suratNomor: widget.surat.nomor,
               initialValue: widget.hafalan?.catatan,
               suratInfo: HafalanSurat.fromSurat(widget.surat),
+              listNotifier: widget.listNotifier,
+              detailNotifier: widget.detailNotifier,
             ),
 
             const SizedBox(height: AppDimens.spaceXL),
@@ -327,7 +317,7 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
           'Tindakan ini tidak bisa dibatalkan.',
     );
     if (confirmed && context.mounted) {
-      await context.read<HafalanDetailCubit>().deleteSurat(widget.surat.nomor);
+      await widget.detailNotifier.deleteSurat(widget.surat.nomor);
       if (context.mounted) context.pop();
     }
   }

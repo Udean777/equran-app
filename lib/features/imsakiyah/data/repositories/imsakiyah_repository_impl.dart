@@ -6,9 +6,7 @@ import 'package:equran_app/features/imsakiyah/data/mappers/imsakiyah_mapper.dart
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ImsakiyahRepository)
 class ImsakiyahRepositoryImpl implements ImsakiyahRepository {
   const ImsakiyahRepositoryImpl(this._remote, this._cache);
 

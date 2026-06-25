@@ -4,11 +4,11 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
-import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
+import 'package:equran_app/features/catatan_ayat/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CatatanEditorSheet extends StatefulWidget {
+class CatatanEditorSheet extends ConsumerStatefulWidget {
   const CatatanEditorSheet({
     required this.suratNomor,
     required this.ayatNomor,
@@ -27,10 +27,10 @@ class CatatanEditorSheet extends StatefulWidget {
   final CatatanAyat? existing;
 
   @override
-  State<CatatanEditorSheet> createState() => _CatatanEditorSheetState();
+  ConsumerState<CatatanEditorSheet> createState() => _CatatanEditorSheetState();
 }
 
-class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
+class _CatatanEditorSheetState extends ConsumerState<CatatanEditorSheet> {
   late final TextEditingController _controller;
   bool _isSaving = false;
 
@@ -198,7 +198,7 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
         isi: isi,
         savedAt: DateTime.now(),
       );
-      await context.read<CatatanAyatCubit>().save(catatan);
+      await ref.read(catatanAyatViewModelProvider.notifier).save(catatan);
       if (mounted) Navigator.pop(context);
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -208,10 +208,12 @@ class _CatatanEditorSheetState extends State<CatatanEditorSheet> {
   Future<void> _delete() async {
     setState(() => _isSaving = true);
     try {
-      await context.read<CatatanAyatCubit>().delete(
-        suratNomor: widget.suratNomor,
-        ayatNomor: widget.ayatNomor,
-      );
+      await ref
+          .read(catatanAyatViewModelProvider.notifier)
+          .delete(
+            suratNomor: widget.suratNomor,
+            ayatNomor: widget.ayatNomor,
+          );
       if (mounted) Navigator.pop(context);
     } finally {
       if (mounted) setState(() => _isSaving = false);

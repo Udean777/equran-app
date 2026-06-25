@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/imsakiyah/data/models/imsakiyah_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class ImsakiyahCacheDataSource {
   Future<List<String>?> getCachedProvinsi();
@@ -16,10 +15,9 @@ abstract interface class ImsakiyahCacheDataSource {
   Future<void> cacheImsakiyah(ImsakiyahDto dto);
 }
 
-@LazySingleton(as: ImsakiyahCacheDataSource)
 class ImsakiyahCacheDataSourceImpl implements ImsakiyahCacheDataSource {
   const ImsakiyahCacheDataSourceImpl(
-    @Named('imsakiyahBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;

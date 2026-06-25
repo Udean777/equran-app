@@ -4,9 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:equran_app/core/constants/network_config.dart';
 import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
 
-@singleton
 class DioClient {
   DioClient() : _dio = _createDio();
 

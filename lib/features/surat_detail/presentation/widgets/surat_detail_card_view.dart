@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
@@ -16,7 +15,7 @@ import 'package:equran_app/features/surat_detail/presentation/widgets/surat_acti
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_card_stack.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/swipe_nav_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class SuratDetailCardView extends StatefulWidget {
@@ -54,18 +53,27 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
+      final audioState = ProviderScope.containerOf(
+        context,
+      ).read(audioViewModelProvider);
+      final audioVM = ProviderScope.containerOf(
+        context,
+      ).read(audioViewModelProvider.notifier);
+
+      // Initialize auto-read controller
       _autoReadController = AutoReadController(
-        audioCubit: context.read<AudioCubit>(),
+        audioViewModel: audioVM,
         cardController: widget.controller,
+        initialQari: audioState.currentQari,
       );
       _autoReadController.addListener(_onAutoReadChanged);
       _isAutoReadControllerInitialized = true;
 
-      final audioCubit = context.read<AudioCubit>();
-      if (!audioCubit.isPlaylistMode) return;
-      if (audioCubit.playlistSuratNomor != widget.suratNomor) return;
+      // Sync auto-read from existing audio
+      if (!audioVM.isPlaylistMode) return;
+      if (audioVM.playlistSuratNomor != widget.suratNomor) return;
 
-      final currentAyat = audioCubit.state.currentAyat;
+      final currentAyat = audioState.currentAyat;
       if (currentAyat == null) return;
 
       if (widget.controller.currentIndex != currentAyat) {
@@ -145,14 +153,9 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
         controller: controller,
         context: context,
       ),
-      child: BlocBuilder<AudioCubit, AudioPlayerState>(
-        buildWhen: (prev, next) =>
-            prev.isPlaying != next.isPlaying ||
-            prev.isPaused != next.isPaused ||
-            prev.isIdle != next.isIdle ||
-            prev.currentQari != next.currentQari,
-        builder: (context, audioState) {
-          final audioCubit = context.read<AudioCubit>();
+      child: Consumer(
+        builder: (context, ref, _) {
+          final audioNotifier = ref.read(audioViewModelProvider.notifier);
           final isCompletionCard = controller.isLast;
 
           return Scaffold(
@@ -180,19 +183,19 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
                     audioMap: detail.audioFull,
                     onStop: isAutoRead ? _stopAutoRead : null,
                     onPrevCard:
-                        audioCubit.isPlaylistMode &&
-                            audioCubit.playlistIndex > 0
+                        audioNotifier.isPlaylistMode &&
+                            audioNotifier.playlistIndex > 0
                         ? () {
-                            unawaited(audioCubit.previousAyat());
+                            unawaited(audioNotifier.previousAyat());
                             controller.goPrev();
                           }
                         : null,
                     onNextCard:
-                        audioCubit.isPlaylistMode &&
-                            audioCubit.playlistIndex <
-                                audioCubit.playlist.length - 1
+                        audioNotifier.isPlaylistMode &&
+                            audioNotifier.playlistIndex <
+                                audioNotifier.playlist.length - 1
                         ? () {
-                            unawaited(audioCubit.nextAyat());
+                            unawaited(audioNotifier.nextAyat());
                             controller.goNext();
                           }
                         : null,

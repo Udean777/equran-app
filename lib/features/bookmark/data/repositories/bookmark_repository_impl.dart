@@ -4,9 +4,7 @@ import 'package:equran_app/features/bookmark/data/mappers/bookmark_mapper.dart';
 import 'package:equran_app/features/bookmark/domain/entities/bookmark.dart';
 import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: BookmarkRepository)
 class BookmarkRepositoryImpl implements BookmarkRepository {
   const BookmarkRepositoryImpl(this._local);
 

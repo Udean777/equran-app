@@ -4,9 +4,7 @@ import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.
 import 'package:equran_app/features/statistik_shalat/domain/repositories/statistik_shalat_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: StatistikShalatRepository)
 class StatistikShalatRepositoryImpl implements StatistikShalatRepository {
   const StatistikShalatRepositoryImpl(this._dataSource);
 

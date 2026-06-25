@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class JadwalShalatLocalDataSource {
   Future<List<String>?> getCachedProvinsi();
@@ -21,10 +20,9 @@ abstract interface class JadwalShalatLocalDataSource {
   Future<void> cacheJadwalShalat(JadwalShalatDto dto);
 }
 
-@LazySingleton(as: JadwalShalatLocalDataSource)
 class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
   const JadwalShalatLocalDataSourceImpl(
-    @Named('shalatBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;

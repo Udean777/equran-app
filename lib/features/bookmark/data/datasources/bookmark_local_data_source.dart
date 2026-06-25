@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:equran_app/features/bookmark/data/models/bookmark_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract interface class BookmarkLocalDataSource {
@@ -15,9 +14,8 @@ abstract interface class BookmarkLocalDataSource {
   Future<bool> isBookmarked({required int suratNomor, required int ayatNomor});
 }
 
-@LazySingleton(as: BookmarkLocalDataSource)
 class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
-  BookmarkLocalDataSourceImpl(@Named('bookmarkBox') this._box);
+  BookmarkLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
   final _lock = Lock();

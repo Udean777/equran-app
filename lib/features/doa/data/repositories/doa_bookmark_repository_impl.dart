@@ -2,9 +2,7 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/doa/data/datasources/doa_bookmark_data_source.dart';
 import 'package:equran_app/features/doa/domain/repositories/doa_bookmark_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: DoaBookmarkRepository)
 class DoaBookmarkRepositoryImpl implements DoaBookmarkRepository {
   const DoaBookmarkRepositoryImpl(this._dataSource);
 

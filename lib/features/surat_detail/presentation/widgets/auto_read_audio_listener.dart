@@ -1,11 +1,10 @@
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
-import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
+import 'package:equran_app/features/reading_progress/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AutoReadAudioListener extends StatelessWidget {
+class AutoReadAudioListener extends ConsumerWidget {
   const AutoReadAudioListener({
     required this.child,
     required this.isAutoRead,
@@ -22,26 +21,26 @@ class AutoReadAudioListener extends StatelessWidget {
   final void Function(int targetIndex) onAnimateToIndex;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<AudioCubit, AudioPlayerState>(
-      listenWhen: (prev, curr) =>
-          isAutoRead && prev.currentAyat != curr.currentAyat,
-      listener: (context, audioState) {
-        if (!isAutoRead) return;
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AudioPlayerState>(audioViewModelProvider, (prev, curr) {
+      if (!isAutoRead) return;
+      if (prev?.currentAyat == curr.currentAyat) return;
 
-        final currentAyat = audioState.currentAyat;
-        if (currentAyat == null) return;
+      final currentAyat = curr.currentAyat;
+      if (currentAyat == null) return;
 
-        if (controller.currentIndex != currentAyat) {
-          onAnimateToIndex(currentAyat);
-        }
+      if (controller.currentIndex != currentAyat) {
+        onAnimateToIndex(currentAyat);
+      }
 
-        context.read<ReadingProgressCubit>().bufferAyat(
-          suratNomor,
-          currentAyat,
-        );
-      },
-      child: child,
-    );
+      ref
+          .read(readingProgressViewModelProvider.notifier)
+          .bufferAyat(
+            suratNomor,
+            currentAyat,
+          );
+    });
+
+    return child;
   }
 }

@@ -6,9 +6,7 @@ import 'package:equran_app/features/statistik_shalat/domain/services/shalat_stat
 import 'package:equran_app/features/statistik_shalat/domain/usecases/params/get_shalat_stats_params.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class GetShalatStats implements UseCase<ShalatStats, GetShalatStatsParams> {
   const GetShalatStats(this._dataSource, this._calculator);
   final ShalatLogLocalDataSource _dataSource;

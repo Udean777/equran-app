@@ -1,7 +1,6 @@
 import 'package:equran_app/core/constants/network_config.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:injectable/injectable.dart';
 
 /// Hasil dari deteksi lokasi GPS
 class DetectedLocation {
@@ -27,7 +26,6 @@ abstract interface class LocationService {
   Future<DetectedLocation?> detectCurrentLocation();
 }
 
-@LazySingleton(as: LocationService)
 class LocationServiceImpl implements LocationService {
   @override
   Future<DetectedLocation?> detectCurrentLocation() async {

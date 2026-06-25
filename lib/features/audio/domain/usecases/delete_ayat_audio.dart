@@ -4,7 +4,6 @@ import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class DeleteAyatAudioParams extends Equatable {
   const DeleteAyatAudioParams({
@@ -21,7 +20,6 @@ class DeleteAyatAudioParams extends Equatable {
   List<Object?> get props => [suratNomor, ayatNomor, qari];
 }
 
-@lazySingleton
 class DeleteAyatAudio implements UseCase<Unit, DeleteAyatAudioParams> {
   const DeleteAyatAudio(this._repository);
 

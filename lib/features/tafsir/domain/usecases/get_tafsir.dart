@@ -4,7 +4,6 @@ import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/tafsir/domain/entities/tafsir_surat.dart';
 import 'package:equran_app/features/tafsir/domain/repositories/tafsir_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class TafsirParams extends Equatable {
   const TafsirParams({required this.nomor});
@@ -15,7 +14,6 @@ class TafsirParams extends Equatable {
   List<Object> get props => [nomor];
 }
 
-@injectable
 class GetTafsir implements UseCase<TafsirSurat, TafsirParams> {
   const GetTafsir(this._repository);
 

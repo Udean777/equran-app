@@ -6,7 +6,6 @@ import 'package:equran_app/features/hafalan/data/models/hafalan_surat_dto.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class HafalanLocalDatasource {
   Future<List<HafalanSurat>> getAll();
@@ -15,11 +14,10 @@ abstract interface class HafalanLocalDatasource {
   Future<void> delete(int suratNomor);
 }
 
-@LazySingleton(as: HafalanLocalDatasource)
 class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
-  const HafalanLocalDatasourceImpl(@Named('hafalanBox') this._box);
+  const HafalanLocalDatasourceImpl(this._box);
 
-  final Box<String> _box;
+  final LazyBox<String> _box;
 
   /// Key format: "surat_$suratNomor"
   String _key(int suratNomor) => 'surat_$suratNomor';
@@ -30,7 +28,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
       // Iterasi key surat_1 s/d surat_114 — lebih efisien dari box.values
       final results = <HafalanSurat>[];
       for (var i = 1; i <= QuranConstants.totalSurat; i++) {
-        final raw = _box.get(_key(i));
+        final raw = await _box.get(_key(i));
         if (raw == null) continue;
         try {
           final decoded = jsonDecode(raw);
@@ -56,7 +54,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
   @override
   Future<HafalanSurat?> getBySurat(int suratNomor) async {
     try {
-      final raw = _box.get(_key(suratNomor));
+      final raw = await _box.get(_key(suratNomor));
       if (raw == null) return null;
       final decoded = jsonDecode(raw);
       if (decoded is! Map<String, dynamic>) {

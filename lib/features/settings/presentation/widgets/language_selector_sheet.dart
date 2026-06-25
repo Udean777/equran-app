@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:equran_app/core/locale/cubit/language_cubit.dart';
+import 'package:equran_app/core/locale/providers.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
@@ -9,14 +9,14 @@ import 'package:equran_app/features/settings/presentation/constants/settings_str
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Bottom sheet untuk memilih bahasa aplikasi (Indonesia, English, Arabic).
 ///
-/// Menggunakan [LanguageCubit] untuk manage state bahasa.
+/// Menggunakan languageViewModelProvider untuk manage state bahasa.
 /// Setelah user memilih bahasa, akan menampilkan toast konfirmasi
 /// dan sheet otomatis tertutup.
-class LanguageSelectorSheet extends StatelessWidget {
+class LanguageSelectorSheet extends ConsumerWidget {
   const LanguageSelectorSheet({
     required this.current,
     required this.l10n,
@@ -27,7 +27,7 @@ class LanguageSelectorSheet extends StatelessWidget {
   final AppLocalizations l10n;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final languages = [
       (
         const LanguageState.id(),
@@ -76,7 +76,9 @@ class LanguageSelectorSheet extends StatelessWidget {
               return InkWell(
                 onTap: () {
                   unawaited(
-                    context.read<LanguageCubit>().changeLanguage(lang),
+                    ref
+                        .read(languageViewModelProvider.notifier)
+                        .changeLanguage(lang),
                   );
                   showSettingsToast(context, toastMessage);
                   Navigator.pop(context);

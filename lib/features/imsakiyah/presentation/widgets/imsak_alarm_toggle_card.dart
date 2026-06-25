@@ -1,15 +1,13 @@
-import 'dart:async';
-
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
-import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart';
+import 'package:equran_app/features/imsakiyah/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImsakAlarmToggleCard extends StatelessWidget {
+class ImsakAlarmToggleCard extends ConsumerWidget {
   const ImsakAlarmToggleCard({
     required this.todayEntry,
     super.key,
@@ -18,15 +16,21 @@ class ImsakAlarmToggleCard extends StatelessWidget {
   final ImsakiyahEntry todayEntry;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ImsakAlarmCubit, ImsakAlarmState>(
-      builder: (context, state) {
-        final prefs = switch (state) {
-          ImsakAlarmLoaded(:final prefs) => prefs,
-          _ => const ImsakAlarmPrefs(),
-        };
-        return _AlarmCard(prefs: prefs, todayEntry: todayEntry);
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefState = ref.watch(imsakAlarmViewModelProvider);
+    final prefs = switch (prefState) {
+      ImsakAlarmLoaded(:final prefs) => prefs,
+      _ => const ImsakAlarmPrefs(),
+    };
+    final notifier = ref.read(imsakAlarmViewModelProvider.notifier);
+
+    return _AlarmCard(
+      prefs: prefs,
+      todayEntry: todayEntry,
+      onToggleImsak: () => notifier.toggleImsak(entry: todayEntry),
+      onToggleSahur: () => notifier.toggleSahur(entry: todayEntry),
+      onSetMenitSebelum: (val) =>
+          notifier.setMenitSebelum(val, entry: todayEntry),
     );
   }
 }
@@ -35,10 +39,16 @@ class _AlarmCard extends StatelessWidget {
   const _AlarmCard({
     required this.prefs,
     required this.todayEntry,
+    required this.onToggleImsak,
+    required this.onToggleSahur,
+    required this.onSetMenitSebelum,
   });
 
   final ImsakAlarmPrefs prefs;
   final ImsakiyahEntry todayEntry;
+  final VoidCallback onToggleImsak;
+  final VoidCallback onToggleSahur;
+  final void Function(int menit) onSetMenitSebelum;
 
   static const _menitOptions = [30, 45, 60, 90];
 
@@ -68,7 +78,6 @@ class _AlarmCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               children: [
                 Container(
@@ -103,7 +112,6 @@ class _AlarmCard extends StatelessWidget {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Gold divider
             Container(
               height: 1,
               decoration: BoxDecoration(
@@ -119,21 +127,17 @@ class _AlarmCard extends StatelessWidget {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Toggle imsak
             _AlarmToggleRow(
               icon: Icons.nightlight_round,
               label: 'Alarm Imsak',
               subtitle: 'Berbunyi tepat pukul ${todayEntry.imsak}',
               value: prefs.imsakEnabled,
               isDark: isDark,
-              onChanged: (_) => context.read<ImsakAlarmCubit>().toggleImsak(
-                entry: todayEntry,
-              ),
+              onChanged: (_) => onToggleImsak(),
             ),
 
             const SizedBox(height: AppDimens.spaceSM),
 
-            // Toggle sahur
             _AlarmToggleRow(
               icon: Icons.restaurant_rounded,
               label: 'Alarm Sahur',
@@ -141,12 +145,9 @@ class _AlarmCard extends StatelessWidget {
                   '${prefs.menitSebelumImsak} menit sebelum imsak (${_sahurTime(todayEntry.imsak, prefs.menitSebelumImsak)})',
               value: prefs.sahurEnabled,
               isDark: isDark,
-              onChanged: (_) => context.read<ImsakAlarmCubit>().toggleSahur(
-                entry: todayEntry,
-              ),
+              onChanged: (_) => onToggleSahur(),
             ),
 
-            // Dropdown menit
             if (prefs.sahurEnabled) ...[
               const SizedBox(height: AppDimens.spaceMD),
               Row(
@@ -197,12 +198,7 @@ class _AlarmCard extends StatelessWidget {
                           .toList(),
                       onChanged: (val) {
                         if (val == null) return;
-                        unawaited(
-                          context.read<ImsakAlarmCubit>().setMenitSebelum(
-                            val,
-                            entry: todayEntry,
-                          ),
-                        );
+                        onSetMenitSebelum(val);
                       },
                     ),
                   ),

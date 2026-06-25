@@ -28,7 +28,7 @@ class AudioCompositeHandler extends BaseAudioHandler {
 
   final _stateController = StreamController<AudioPlayerState>.broadcast();
 
-  /// Stream state audio untuk dikonsumsi AudioCubit.
+  /// Stream state audio untuk dikonsumsi AudioViewModel.
   Stream<AudioPlayerState> get audioStateStream => _stateController.stream;
 
   Future<void> _init() async {

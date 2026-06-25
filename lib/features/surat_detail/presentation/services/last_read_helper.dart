@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
-import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/bookmark/presentation/viewmodels/bookmark_viewmodel.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 
 abstract final class LastReadHelper {
   static void saveLastRead({
-    required BookmarkCubit cubit,
+    required BookmarkViewModel viewModel,
     required CardStackController controller,
     required SuratDetail detail,
   }) {
@@ -19,7 +19,7 @@ abstract final class LastReadHelper {
     final maxScrollPercent = controller.maxProgress.clamp(0.0, 1.0);
 
     unawaited(
-      cubit.saveLastRead(
+      viewModel.saveLastRead(
         LastRead(
           suratNomor: detail.nomor,
           ayatNomor: ayatNomor,

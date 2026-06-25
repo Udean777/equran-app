@@ -4,7 +4,6 @@ import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
 import 'package:equran_app/features/catatan_ayat/domain/repositories/catatan_ayat_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class GetCatatanByAyatParams extends Equatable {
   const GetCatatanByAyatParams({
@@ -19,7 +18,6 @@ class GetCatatanByAyatParams extends Equatable {
   List<Object?> get props => [suratNomor, ayatNomor];
 }
 
-@injectable
 class GetCatatanByAyat
     implements UseCase<CatatanAyat?, GetCatatanByAyatParams> {
   const GetCatatanByAyat(this._repository);

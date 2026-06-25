@@ -6,7 +6,6 @@ import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 
 abstract interface class AudioDownloadDataSource {
@@ -42,7 +41,6 @@ abstract interface class AudioDownloadDataSource {
   Future<List<DownloadedAyatInfo>> getDownloadedAyats();
 }
 
-@LazySingleton(as: AudioDownloadDataSource)
 class AudioDownloadDataSourceImpl implements AudioDownloadDataSource {
   AudioDownloadDataSourceImpl(DioClient dioClient) : _dio = dioClient.dio;
 

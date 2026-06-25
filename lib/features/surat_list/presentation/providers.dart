@@ -1,0 +1,42 @@
+import 'dart:async';
+
+import 'package:equran_app/core/network/dio_client.dart';
+import 'package:equran_app/core/providers.dart';
+import 'package:equran_app/features/surat_list/data/datasources/surat_local_data_source.dart';
+import 'package:equran_app/features/surat_list/data/datasources/surat_remote_data_source.dart';
+import 'package:equran_app/features/surat_list/data/repositories/surat_repository_impl.dart';
+import 'package:equran_app/features/surat_list/domain/usecases/get_surat_list.dart';
+import 'package:equran_app/features/surat_list/presentation/viewmodels/surat_list_state.dart';
+import 'package:equran_app/features/surat_list/presentation/viewmodels/surat_list_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+export 'viewmodels/surat_list_state.dart';
+
+final suratLocalDataSourceProvider = Provider<SuratLocalDataSource>((ref) {
+  final box = ref.watch(suratBoxProvider).requireValue;
+  return SuratLocalDataSourceImpl(box);
+});
+
+final suratRemoteDataSourceProvider = Provider<SuratRemoteDataSource>((ref) {
+  return SuratRemoteDataSourceImpl(DioClient());
+});
+
+final suratRepositoryProvider = Provider<SuratRepositoryImpl>((ref) {
+  return SuratRepositoryImpl(
+    ref.read(suratRemoteDataSourceProvider),
+    ref.read(suratLocalDataSourceProvider),
+  );
+});
+
+final getSuratListProvider = Provider<GetSuratList>((ref) {
+  return GetSuratList(ref.read(suratRepositoryProvider));
+});
+
+final suratListViewModelProvider =
+    AutoDisposeStateNotifierProvider<SuratListViewModel, SuratListState>(
+      (ref) {
+        final vm = SuratListViewModel(ref.read(getSuratListProvider));
+        unawaited(vm.load());
+        return vm;
+      },
+    );

@@ -2,10 +2,8 @@ import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/features/reading_progress/domain/constants/reading_progress_constants.dart';
 import 'package:equran_app/features/reading_progress/domain/constants/surat_names.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
-import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 
-@lazySingleton
 class ReadingStatsCalculator {
   static final _dateFormat = DateFormat('yyyy-MM-dd');
 

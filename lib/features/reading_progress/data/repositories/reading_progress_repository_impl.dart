@@ -4,9 +4,7 @@ import 'package:equran_app/features/reading_progress/domain/entities/reading_his
 import 'package:equran_app/features/reading_progress/domain/repositories/reading_progress_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ReadingProgressRepository)
 class ReadingProgressRepositoryImpl implements ReadingProgressRepository {
   const ReadingProgressRepositoryImpl(this._dataSource);
 

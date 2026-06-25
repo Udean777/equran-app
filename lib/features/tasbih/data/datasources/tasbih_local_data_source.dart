@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:equran_app/features/tasbih/data/models/tasbih_session_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract interface class TasbihLocalDataSource {
@@ -12,9 +11,8 @@ abstract interface class TasbihLocalDataSource {
   Future<void> clearSessions();
 }
 
-@LazySingleton(as: TasbihLocalDataSource)
 class TasbihLocalDataSourceImpl implements TasbihLocalDataSource {
-  TasbihLocalDataSourceImpl(@Named('tasbihBox') this._box);
+  TasbihLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
   final _lock = Lock();

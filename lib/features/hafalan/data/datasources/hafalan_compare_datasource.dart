@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/hafalan/constants/hafalan_constants.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class HafalanCompareDataSource {
   Future<SetoranCompareResult> compare({
@@ -15,7 +14,6 @@ abstract interface class HafalanCompareDataSource {
   Future<void> warmUp();
 }
 
-@LazySingleton(as: HafalanCompareDataSource)
 class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
   const HafalanCompareDataSourceImpl(this._dioClient);
 

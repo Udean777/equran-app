@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:flutter/foundation.dart';
@@ -13,13 +12,16 @@ import 'package:flutter/foundation.dart';
 /// orchestration logic tidak bercampur dengan widget lifecycle.
 class AutoReadController extends ChangeNotifier {
   AutoReadController({
-    required AudioCubit audioCubit,
+    required AudioViewModel audioViewModel,
     required CardStackController cardController,
-  }) : _audioCubit = audioCubit,
-       _cardController = cardController;
+    required Qari initialQari,
+  }) : _audioViewModel = audioViewModel,
+       _cardController = cardController,
+       _currentQari = initialQari;
 
-  final AudioCubit _audioCubit;
+  final AudioViewModel _audioViewModel;
   final CardStackController _cardController;
+  final Qari _currentQari;
 
   bool _isActive = false;
 
@@ -35,14 +37,14 @@ class AutoReadController extends ChangeNotifier {
     _cardController.goNext();
 
     // Callback saat semua ayat selesai
-    _audioCubit.onPlaylistCompleted = _onPlaylistCompleted;
+    _audioViewModel.onPlaylistCompleted = _onPlaylistCompleted;
 
     // Play full surat dari awal
     unawaited(
-      _audioCubit.playFullSurat(
+      _audioViewModel.playFullSurat(
         ayatList: detail.ayatList,
         startIndex: 0,
-        qari: _audioCubit.state.currentQari,
+        qari: _currentQari,
         suratNomor: detail.nomor,
         suratName: detail.namaLatin,
         audioMap: detail.audioFull,
@@ -54,8 +56,8 @@ class AutoReadController extends ChangeNotifier {
   void stop() {
     if (!_isActive) return;
     _isActive = false;
-    _audioCubit.onPlaylistCompleted = null;
-    unawaited(_audioCubit.stop());
+    _audioViewModel.onPlaylistCompleted = null;
+    unawaited(_audioViewModel.stop());
     notifyListeners();
   }
 
@@ -64,7 +66,7 @@ class AutoReadController extends ChangeNotifier {
   void activateWithoutPlay({required VoidCallback onCompleted}) {
     if (_isActive) return;
     _isActive = true;
-    _audioCubit.onPlaylistCompleted = () {
+    _audioViewModel.onPlaylistCompleted = () {
       _onPlaylistCompleted();
       onCompleted();
     };
@@ -73,15 +75,15 @@ class AutoReadController extends ChangeNotifier {
 
   void _onPlaylistCompleted() {
     _isActive = false;
-    _audioCubit.onPlaylistCompleted = null;
+    _audioViewModel.onPlaylistCompleted = null;
     notifyListeners();
   }
 
   @override
   void dispose() {
     // Bersihkan callback agar tidak trigger setelah controller di-dispose
-    if (_audioCubit.onPlaylistCompleted == _onPlaylistCompleted) {
-      _audioCubit.onPlaylistCompleted = null;
+    if (_audioViewModel.onPlaylistCompleted == _onPlaylistCompleted) {
+      _audioViewModel.onPlaylistCompleted = null;
     }
     super.dispose();
   }

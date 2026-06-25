@@ -4,7 +4,6 @@ import 'package:equran_app/features/catatan_ayat/data/mappers/catatan_ayat_mappe
 import 'package:equran_app/features/catatan_ayat/data/models/catatan_ayat_dto.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class CatatanAyatLocalDataSource {
   Future<List<CatatanAyat>> getAll();
@@ -16,9 +15,8 @@ abstract interface class CatatanAyatLocalDataSource {
   Future<void> delete({required int suratNomor, required int ayatNomor});
 }
 
-@LazySingleton(as: CatatanAyatLocalDataSource)
 class CatatanAyatLocalDataSourceImpl implements CatatanAyatLocalDataSource {
-  const CatatanAyatLocalDataSourceImpl(@Named('catatanBox') this._box);
+  const CatatanAyatLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
 

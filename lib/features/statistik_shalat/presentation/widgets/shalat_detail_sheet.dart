@@ -7,13 +7,13 @@ import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
-import 'package:equran_app/features/statistik_shalat/presentation/cubit/statistik_shalat_cubit.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 /// Bottom sheet untuk lihat detail + edit shalat tanggal tertentu.
-class ShalatDetailSheet extends StatelessWidget {
+class ShalatDetailSheet extends ConsumerWidget {
   const ShalatDetailSheet({
     required this.date,
     required this.dayStats,
@@ -32,15 +32,12 @@ class ShalatDetailSheet extends StatelessWidget {
   }) {
     return showAppBottomSheet<void>(
       context,
-      builder: (sheetCtx) => BlocProvider.value(
-        value: context.read<StatistikShalatCubit>(),
-        child: ShalatDetailSheet(date: date, dayStats: dayStats),
-      ),
+      builder: (_) => ShalatDetailSheet(date: date, dayStats: dayStats),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final dateStr = _dateFormat.format(date);
     final hari = DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(date);
@@ -104,8 +101,8 @@ class ShalatDetailSheet extends StatelessWidget {
                     );
 
                     if (confirmed && context.mounted) {
-                      await context
-                          .read<StatistikShalatCubit>()
+                      await ref
+                          .read(statistikShalatViewModelProvider.notifier)
                           .deleteShalatForDate(dateStr);
                       if (context.mounted) {
                         Navigator.of(context).pop();
@@ -136,7 +133,7 @@ class ShalatDetailSheet extends StatelessWidget {
   }
 }
 
-class _DetailRow extends StatelessWidget {
+class _DetailRow extends ConsumerWidget {
   const _DetailRow({
     required this.date,
     required this.waktu,
@@ -148,7 +145,7 @@ class _DetailRow extends StatelessWidget {
   final ShalatLog log;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Padding(
@@ -193,11 +190,13 @@ class _DetailRow extends StatelessWidget {
             icon: const Icon(Icons.more_vert_rounded, size: AppDimens.iconSM),
             onSelected: (status) {
               unawaited(
-                context.read<StatistikShalatCubit>().updateShalatForDate(
-                  date: date,
-                  waktu: waktu,
-                  status: status,
-                ),
+                ref
+                    .read(statistikShalatViewModelProvider.notifier)
+                    .updateShalatForDate(
+                      date: date,
+                      waktu: waktu,
+                      status: status,
+                    ),
               );
               Navigator.pop(context);
             },

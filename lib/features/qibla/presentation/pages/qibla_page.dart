@@ -4,7 +4,8 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
-import 'package:equran_app/features/qibla/presentation/cubit/qibla_cubit.dart';
+import 'package:equran_app/features/qibla/presentation/providers.dart';
+import 'package:equran_app/features/qibla/presentation/viewmodels/qibla_state.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_compass_widget.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_error_widget.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_how_to_card.dart';
@@ -12,78 +13,69 @@ import 'package:equran_app/features/qibla/presentation/widgets/qibla_info_panel.
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_loading_view.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_tip_card.dart';
 import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QiblaPage extends StatelessWidget {
+class QiblaPage extends ConsumerStatefulWidget {
   const QiblaPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<QiblaCubit>();
-        unawaited(cubit.start());
-        return cubit;
-      },
-      child: const _QiblaView(),
-    );
-  }
+  ConsumerState<QiblaPage> createState() => _QiblaPageState();
 }
 
-class _QiblaView extends StatelessWidget {
-  const _QiblaView();
+class _QiblaPageState extends ConsumerState<QiblaPage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(ref.read(qiblaViewModelProvider.notifier).start());
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
+    final state = ref.watch(qiblaViewModelProvider);
 
     return Scaffold(
       drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
       appBar: LuxuryAppBar(
         title: 'Qibla Finder',
         actions: [
-          BlocBuilder<QiblaCubit, QiblaState>(
-            buildWhen: (prev, next) => prev.runtimeType != next.runtimeType,
-            builder: (context, state) {
-              if (state is! QiblaLoaded) return const SizedBox.shrink();
-              return IconButton(
-                icon: Icon(
-                  Icons.refresh_rounded,
-                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
-                ),
-                tooltip: 'Refresh',
-                onPressed: () => unawaited(context.read<QiblaCubit>().start()),
-              );
-            },
-          ),
+          if (state is QiblaLoaded)
+            IconButton(
+              icon: Icon(
+                Icons.refresh_rounded,
+                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+              ),
+              tooltip: 'Refresh',
+              onPressed: () =>
+                  unawaited(ref.read(qiblaViewModelProvider.notifier).start()),
+            ),
         ],
       ),
-      body: BlocBuilder<QiblaCubit, QiblaState>(
-        builder: (context, state) => switch (state) {
-          QiblaInitial() => const QiblaLoadingView(
-            message: 'Mempersiapkan kompas...',
-          ),
-          QiblaLoading() => const QiblaLoadingView(
-            message: 'Mendapatkan lokasi Anda...',
-          ),
-          QiblaLoaded(:final direction) => _QiblaContent(
-            bearing: direction.bearing,
-            qiblaAngle: direction.qiblaAngle,
-            accuracy: direction.accuracy,
-          ),
-          QiblaNoSensor() => QiblaErrorWidget(
-            message: 'Perangkat tidak memiliki sensor kompas.',
-            onRetry: () => unawaited(context.read<QiblaCubit>().start()),
-            isNoSensor: true,
-          ),
-          QiblaError(:final message) => QiblaErrorWidget(
-            message: message,
-            onRetry: () => unawaited(context.read<QiblaCubit>().start()),
-          ),
-        },
-      ),
+      body: switch (state) {
+        QiblaInitial() => const QiblaLoadingView(
+          message: 'Mempersiapkan kompas...',
+        ),
+        QiblaLoading() => const QiblaLoadingView(
+          message: 'Mendapatkan lokasi Anda...',
+        ),
+        QiblaLoaded(:final direction) => _QiblaContent(
+          bearing: direction.bearing,
+          qiblaAngle: direction.qiblaAngle,
+          accuracy: direction.accuracy,
+        ),
+        QiblaNoSensor() => QiblaErrorWidget(
+          message: 'Perangkat tidak memiliki sensor kompas.',
+          onRetry: () =>
+              unawaited(ref.read(qiblaViewModelProvider.notifier).start()),
+          isNoSensor: true,
+        ),
+        QiblaError(:final message) => QiblaErrorWidget(
+          message: message,
+          onRetry: () =>
+              unawaited(ref.read(qiblaViewModelProvider.notifier).start()),
+        ),
+      },
     );
   }
 }

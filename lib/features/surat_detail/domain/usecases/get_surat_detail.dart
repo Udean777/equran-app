@@ -4,7 +4,6 @@ import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/domain/repositories/surat_detail_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class SuratDetailParams extends Equatable {
   const SuratDetailParams({required this.nomor});
@@ -15,7 +14,6 @@ class SuratDetailParams extends Equatable {
   List<Object> get props => [nomor];
 }
 
-@injectable
 class GetSuratDetail implements UseCase<SuratDetail, SuratDetailParams> {
   const GetSuratDetail(this._repository);
 

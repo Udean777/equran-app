@@ -5,77 +5,65 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_surat_group.dart';
 import 'package:equran_app/features/audio/utils/format_utils.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AudioStoragePage extends StatelessWidget {
+class AudioStoragePage extends ConsumerStatefulWidget {
   const AudioStoragePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<AudioStorageCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
-        // AudioCubit adalah singleton di root — pakai value
-        BlocProvider.value(value: context.read<AudioCubit>()),
-      ],
-      child: const _AudioStorageView(),
-    );
-  }
+  ConsumerState<AudioStoragePage> createState() => _AudioStoragePageState();
 }
 
-class _AudioStorageView extends StatelessWidget {
-  const _AudioStorageView();
+class _AudioStoragePageState extends ConsumerState<AudioStoragePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(audioStorageViewModelProvider.notifier).load());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(audioStorageViewModelProvider);
+
     return Scaffold(
       appBar: LuxuryAppBar(
         title: 'Manajemen Audio',
         actions: [
-          BlocBuilder<AudioStorageCubit, AudioStorageState>(
-            builder: (context, state) {
-              final hasFiles = state.maybeMap(
-                success: (s) => s.files.isNotEmpty,
-                orElse: () => false,
-              );
-              if (!hasFiles) return const SizedBox.shrink();
+          state.maybeMap(
+            success: (s) {
+              if (s.files.isEmpty) return const SizedBox.shrink();
               return IconButton(
                 icon: const Icon(Icons.delete_sweep_rounded),
                 tooltip: 'Hapus semua audio',
                 onPressed: () => _confirmDeleteAll(context),
               );
             },
+            orElse: () => const SizedBox.shrink(),
           ),
         ],
       ),
-      body: BlocBuilder<AudioStorageCubit, AudioStorageState>(
-        builder: (context, state) => switch (state) {
-          AudioStorageInitial() => const LoadingWidget(),
-          AudioStorageLoading() => const LoadingWidget(),
-          AudioStorageSuccess(:final files, :final totalBytes) =>
-            files.isEmpty
-                ? const Center(
-                    child: Text('Belum ada audio yang diunduh.'),
-                  )
-                : _AudioStorageContent(files: files, totalBytes: totalBytes),
-          AudioStorageError(:final message) => ErrorStateWidget(
-            message: message,
-            onRetry: context.read<AudioStorageCubit>().load,
+      body: switch (state) {
+        AudioStorageInitial() => const LoadingWidget(),
+        AudioStorageLoading() => const LoadingWidget(),
+        AudioStorageSuccess(:final files, :final totalBytes) =>
+          files.isEmpty
+              ? const Center(
+                  child: Text('Belum ada audio yang diunduh.'),
+                )
+              : _AudioStorageContent(files: files, totalBytes: totalBytes),
+        AudioStorageError(:final message) => ErrorStateWidget(
+          message: message,
+          onRetry: () => unawaited(
+            ref.read(audioStorageViewModelProvider.notifier).load(),
           ),
-        },
-      ),
+        ),
+      },
     );
   }
 
@@ -86,7 +74,7 @@ class _AudioStorageView extends StatelessWidget {
       content: 'Semua file audio yang telah diunduh akan dihapus.',
     );
     if (confirmed && context.mounted) {
-      await context.read<AudioStorageCubit>().deleteAll();
+      await ref.read(audioStorageViewModelProvider.notifier).deleteAll();
     }
   }
 }
@@ -168,10 +156,12 @@ class _AudioStorageContent extends StatelessWidget {
     int suratNomor,
     List<DownloadedAyatInfo> files,
   ) async {
-    final audioCubit = context.read<AudioCubit>();
+    final audioVm = ProviderScope.containerOf(
+      context,
+    ).read(audioViewModelProvider.notifier);
 
-    if (audioCubit.isPlaylistMode) {
-      final currentName = audioCubit.playlistSuratName ?? 'surat lain';
+    if (audioVm.isPlaylistMode) {
+      final currentName = audioVm.playlistSuratName ?? 'surat lain';
       final confirmed = await showConfirmDialog(
         context,
         title: 'Ganti Audio?',
@@ -181,13 +171,15 @@ class _AudioStorageContent extends StatelessWidget {
         isDestructive: false,
       );
       if (!confirmed) return;
-      await audioCubit.stop();
+      await audioVm.stop();
     }
 
     if (!context.mounted) return;
 
-    final storageCubit = context.read<AudioStorageCubit>();
-    final ayatList = await storageCubit.buildAyatList(
+    final storageVm = ProviderScope.containerOf(
+      context,
+    ).read(audioStorageViewModelProvider.notifier);
+    final ayatList = await storageVm.buildAyatList(
       suratNomor: suratNomor,
       files: files,
     );
@@ -199,7 +191,7 @@ class _AudioStorageContent extends StatelessWidget {
     if (qariValue == null) return;
 
     unawaited(
-      audioCubit.playFullSurat(
+      audioVm.playFullSurat(
         ayatList: ayatList,
         startIndex: 0,
         qari: qariValue,

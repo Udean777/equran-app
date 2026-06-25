@@ -2,9 +2,7 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/quran_reminder/data/datasources/quran_streak_local_data_source.dart';
 import 'package:equran_app/features/quran_reminder/domain/repositories/quran_streak_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: QuranStreakRepository)
 class QuranStreakRepositoryImpl implements QuranStreakRepository {
   const QuranStreakRepositoryImpl(this._dataSource);
 

@@ -5,13 +5,11 @@ import 'package:equran_app/features/qibla/domain/entities/qibla_direction.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:injectable/injectable.dart';
 
 /// Koordinat Kabah (hardcoded)
 const double _kaabaLat = 21.4225;
 const double _kaabaLng = 39.8262;
 
-@lazySingleton
 class QiblaDataSource {
   Position? _userPosition;
 

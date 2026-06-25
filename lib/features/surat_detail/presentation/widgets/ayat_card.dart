@@ -1,14 +1,14 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/core/theme/providers.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_action_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AyatCard extends StatelessWidget {
+class AyatCard extends ConsumerWidget {
   const AyatCard({
     required this.ayat,
     this.isBookmarked = false,
@@ -41,146 +41,138 @@ class AyatCard extends StatelessWidget {
   final VoidCallback? onDownloadTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = context.isDark;
+    final fontState = ref.watch(quranFontViewModelProvider);
+    final surfaceColor = context.surfaceColor;
+    final borderColor = isPlaying
+        ? context.primaryActionColor
+        : context.borderSubtleColor;
+    final borderWidth = isPlaying ? 1.5 : 1.0;
 
-    return BlocBuilder<QuranFontCubit, QuranFontState>(
-      buildWhen: (prev, curr) =>
-          prev.arabicFontSize != curr.arabicFontSize ||
-          prev.translationFontSize != curr.translationFontSize ||
-          prev.arabicFontFamily != curr.arabicFontFamily,
-      builder: (context, fontState) {
-        final surfaceColor = context.surfaceColor;
-        final borderColor = isPlaying
-            ? context.primaryActionColor
-            : context.borderSubtleColor;
-        final borderWidth = isPlaying ? 1.5 : 1.0;
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimens.pagePadding,
-            vertical: AppDimens.spaceXS,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: surfaceColor,
-              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-              border: Border.all(color: borderColor, width: borderWidth),
-              boxShadow: isPlaying
-                  ? [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.pagePadding,
+        vertical: AppDimens.spaceXS,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+          border: Border.all(color: borderColor, width: borderWidth),
+          boxShadow: isPlaying
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header — nomor + actions
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.cardPaddingLG,
+                AppDimens.spaceMD,
+                AppDimens.spaceSM,
+                AppDimens.spaceXS,
+              ),
+              child: Row(
+                children: [
+                  AyatNumberBadge(
+                    nomor: ayat.nomorAyat,
+                    hasCatatan: hasCatatan,
+                    isDark: isDark,
+                    isPlaying: isPlaying,
+                  ),
+                  const Spacer(),
+                  AyatActionButtons(
+                    isPlaying: isPlaying,
+                    isAudioLoading: isAudioLoading,
+                    isBookmarked: isBookmarked,
+                    hasCatatan: hasCatatan,
+                    isDownloaded: isDownloaded,
+                    isDownloading: isDownloading,
+                    downloadProgress: downloadProgress,
+                    onPlayTap: onPlayTap,
+                    onBookmarkToggle: onBookmarkToggle,
+                    onShareTap: onShareTap,
+                    onCatatanTap: onCatatanTap,
+                    onDownloadTap: onDownloadTap,
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header — nomor + actions
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppDimens.cardPaddingLG,
-                    AppDimens.spaceMD,
-                    AppDimens.spaceSM,
-                    AppDimens.spaceXS,
-                  ),
-                  child: Row(
-                    children: [
-                      AyatNumberBadge(
-                        nomor: ayat.nomorAyat,
-                        hasCatatan: hasCatatan,
-                        isDark: isDark,
-                        isPlaying: isPlaying,
-                      ),
-                      const Spacer(),
-                      AyatActionButtons(
-                        isPlaying: isPlaying,
-                        isAudioLoading: isAudioLoading,
-                        isBookmarked: isBookmarked,
-                        hasCatatan: hasCatatan,
-                        isDownloaded: isDownloaded,
-                        isDownloading: isDownloading,
-                        downloadProgress: downloadProgress,
-                        onPlayTap: onPlayTap,
-                        onBookmarkToggle: onBookmarkToggle,
-                        onShareTap: onShareTap,
-                        onCatatanTap: onCatatanTap,
-                        onDownloadTap: onDownloadTap,
-                      ),
-                    ],
-                  ),
-                ),
 
-                // Teks Arab
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppDimens.cardPaddingLG,
-                    AppDimens.spaceMD,
-                    AppDimens.cardPaddingLG,
-                    AppDimens.spaceMD,
-                  ),
-                  child: Text(
-                    ayat.teksArab,
-                    textAlign: TextAlign.right,
-                    style: AppTypography.arabicDynamic(fontState).copyWith(
-                      color: context.primaryActionColor,
-                    ),
-                  ),
+            // Teks Arab
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.cardPaddingLG,
+                AppDimens.spaceMD,
+                AppDimens.cardPaddingLG,
+                AppDimens.spaceMD,
+              ),
+              child: Text(
+                ayat.teksArab,
+                textAlign: TextAlign.right,
+                style: AppTypography.arabicDynamic(fontState).copyWith(
+                  color: context.primaryActionColor,
                 ),
-
-                // Divider gold tipis
-                const Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppDimens.cardPaddingLG,
-                  ),
-                  child: GoldDivider(verticalMargin: 0),
-                ),
-
-                // Teks Latin + Indonesia
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppDimens.cardPaddingLG,
-                    AppDimens.spaceMD,
-                    AppDimens.cardPaddingLG,
-                    AppDimens.cardPaddingLG,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Latin
-                      Text(
-                        ayat.teksLatin,
-                        style:
-                            AppTypography.translationDynamic(
-                              fontState,
-                            ).copyWith(
-                              fontStyle: FontStyle.italic,
-                              color: context.textTertiaryColor,
-                            ),
-                      ),
-                      const SizedBox(height: AppDimens.spaceSM),
-                      // Indonesia
-                      Text(
-                        ayat.teksIndonesia,
-                        style:
-                            AppTypography.translationDynamic(
-                              fontState,
-                            ).copyWith(
-                              color: context.textSecondaryColor,
-                              height: 1.6,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+
+            // Divider gold tipis
+            const Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppDimens.cardPaddingLG,
+              ),
+              child: GoldDivider(verticalMargin: 0),
+            ),
+
+            // Teks Latin + Indonesia
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.cardPaddingLG,
+                AppDimens.spaceMD,
+                AppDimens.cardPaddingLG,
+                AppDimens.cardPaddingLG,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Latin
+                  Text(
+                    ayat.teksLatin,
+                    style:
+                        AppTypography.translationDynamic(
+                          fontState,
+                        ).copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: context.textTertiaryColor,
+                        ),
+                  ),
+                  const SizedBox(height: AppDimens.spaceSM),
+                  // Indonesia
+                  Text(
+                    ayat.teksIndonesia,
+                    style:
+                        AppTypography.translationDynamic(
+                          fontState,
+                        ).copyWith(
+                          color: context.textSecondaryColor,
+                          height: 1.6,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

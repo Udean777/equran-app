@@ -3,51 +3,40 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_control_buttons.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_progress_bar.dart';
 import 'package:equran_app/features/audio/presentation/widgets/qari_selector_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Full player page ala Spotify — dibuka via slide-up transition dari AudioPlayerBar.
-class AudioPlayerPage extends StatelessWidget {
+class AudioPlayerPage extends ConsumerWidget {
   const AudioPlayerPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<AudioCubit, AudioPlayerState>(
-      listenWhen: (prev, curr) => !prev.isIdle && curr.isIdle,
-      listener: (context, state) {
-        // Hanya pop jika audio benar-benar dihentikan (bukan transisi antar ayat).
-        // Saat ganti ayat di playlist, state sebentar isIdle sebelum loading —
-        // cek isPlaylistMode untuk memastikan ini bukan transisi antar ayat.
-        final cubit = context.read<AudioCubit>();
-        if (!cubit.isPlaylistMode && Navigator.of(context).canPop()) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AudioPlayerState>(audioViewModelProvider, (prev, curr) {
+      if (prev != null && !prev.isIdle && curr.isIdle) {
+        final vm = ref.read(audioViewModelProvider.notifier);
+        if (!vm.isPlaylistMode && Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         }
-      },
-      buildWhen: (prev, curr) =>
-          prev.currentAyat != curr.currentAyat ||
-          prev.isPlaying != curr.isPlaying ||
-          prev.isPaused != curr.isPaused ||
-          prev.isLoading != curr.isLoading ||
-          prev.currentQari != curr.currentQari,
-      builder: (context, state) {
-        if (state.isIdle) return const SizedBox.shrink();
+      }
+    });
 
-        final cubit = context.read<AudioCubit>();
-        final isDark = context.isDark;
-        final effectiveAudioMap = cubit.lastAudioMap;
+    final state = ref.watch(audioViewModelProvider);
+    if (state.isIdle) return const SizedBox.shrink();
 
-        return _AudioPlayerPageContent(
-          state: state,
-          cubit: cubit,
-          isDark: isDark,
-          effectiveAudioMap: effectiveAudioMap,
-        );
-      },
+    final vm = ref.read(audioViewModelProvider.notifier);
+    final isDark = context.isDark;
+    final effectiveAudioMap = vm.lastAudioMap;
+
+    return _AudioPlayerPageContent(
+      state: state,
+      vm: vm,
+      isDark: isDark,
+      effectiveAudioMap: effectiveAudioMap,
     );
   }
 }
@@ -55,13 +44,13 @@ class AudioPlayerPage extends StatelessWidget {
 class _AudioPlayerPageContent extends StatelessWidget {
   const _AudioPlayerPageContent({
     required this.state,
-    required this.cubit,
+    required this.vm,
     required this.isDark,
     required this.effectiveAudioMap,
   });
 
   final AudioPlayerState state;
-  final AudioCubit cubit;
+  final AudioViewModel vm;
   final bool isDark;
   final Map<String, String> effectiveAudioMap;
 
@@ -143,10 +132,9 @@ class _AudioPlayerPageContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (cubit.isPlaylistMode &&
-                            cubit.playlistSuratName != null)
+                        if (vm.isPlaylistMode && vm.playlistSuratName != null)
                           Text(
-                            cubit.playlistSuratName!,
+                            vm.playlistSuratName!,
                             style: theme.textTheme.titleLarge?.copyWith(
                               color: isDark
                                   ? AppColors.onSurfaceDark
@@ -237,18 +225,18 @@ class _AudioPlayerPageContent extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (cubit.isPlaylistMode)
+                  if (vm.isPlaylistMode)
                     AudioIconBtn(
                       icon: Icons.skip_previous_rounded,
                       iconSize: 28,
                       buttonSize: 48,
-                      color: cubit.playlistIndex > 0
+                      color: vm.playlistIndex > 0
                           ? primaryColor
                           : (isDark
                                 ? AppColors.outlineDark
                                 : AppColors.textDisabled),
-                      onPressed: cubit.playlistIndex > 0
-                          ? () => unawaited(cubit.previousAyat())
+                      onPressed: vm.playlistIndex > 0
+                          ? () => unawaited(vm.previousAyat())
                           : null,
                     ),
 
@@ -259,7 +247,7 @@ class _AudioPlayerPageContent extends StatelessWidget {
                     color: isDark
                         ? AppColors.onSurfaceDarkVariant
                         : AppColors.textSecondary,
-                    onPressed: () => unawaited(cubit.stop()),
+                    onPressed: () => unawaited(vm.stop()),
                   ),
 
                   AudioPlayPauseButton(
@@ -270,18 +258,18 @@ class _AudioPlayerPageContent extends StatelessWidget {
                     showLoadingIndicator: true,
                   ),
 
-                  if (cubit.isPlaylistMode)
+                  if (vm.isPlaylistMode)
                     AudioIconBtn(
                       icon: Icons.skip_next_rounded,
                       iconSize: 28,
                       buttonSize: 48,
-                      color: cubit.playlistIndex < cubit.playlist.length - 1
+                      color: vm.playlistIndex < vm.playlist.length - 1
                           ? primaryColor
                           : (isDark
                                 ? AppColors.outlineDark
                                 : AppColors.textDisabled),
-                      onPressed: cubit.playlistIndex < cubit.playlist.length - 1
-                          ? () => unawaited(cubit.nextAyat())
+                      onPressed: vm.playlistIndex < vm.playlist.length - 1
+                          ? () => unawaited(vm.nextAyat())
                           : null,
                     ),
                 ],
@@ -304,10 +292,12 @@ class _AudioPlayerPageContent extends StatelessWidget {
           audioMap: effectiveAudioMap,
           onQariSelected: (qari) {
             unawaited(
-              context.read<AudioCubit>().changeQari(
-                qari: qari,
-                audioMap: effectiveAudioMap,
-              ),
+              ProviderScope.containerOf(context)
+                  .read(audioViewModelProvider.notifier)
+                  .changeQari(
+                    qari: qari,
+                    audioMap: effectiveAudioMap,
+                  ),
             );
             Navigator.pop(context);
           },

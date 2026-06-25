@@ -1,0 +1,301 @@
+import 'dart:async';
+
+import 'package:equran_app/core/services/audio_recorder_service.dart';
+import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/compare_recitation.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_by_surat.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/params/compare_recitation_params.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/params/hafalan_params.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/params/save_hafalan_params.dart';
+import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/notifications/hafalan_reminder_scheduler.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_state.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class HafalanDetailViewModel extends StateNotifier<HafalanDetailState> {
+  HafalanDetailViewModel(
+    this._getHafalanBySurat,
+    this._saveHafalanSurat,
+    this._deleteHafalanSurat,
+    this._reminderScheduler,
+    this._compareRecitation,
+    this._audioRecorderService,
+    this._listNotifier,
+  ) : super(const HafalanDetailState.initial());
+
+  final GetHafalanBySurat _getHafalanBySurat;
+  final SaveHafalanSurat _saveHafalanSurat;
+  final DeleteHafalanSurat _deleteHafalanSurat;
+  final HafalanReminderScheduler _reminderScheduler;
+  final CompareRecitation _compareRecitation;
+  final AudioRecorderService _audioRecorderService;
+  final HafalanListViewModel _listNotifier;
+
+  Future<void> loadDetail(int suratNomor) async {
+    state = const HafalanDetailState.loading();
+
+    final result = await _getHafalanBySurat(HafalanSuratParams(suratNomor));
+    result.fold(
+      (failure) =>
+          state = const HafalanDetailState.failure('Gagal memuat detail'),
+      (hafalan) => state = HafalanDetailState.success(hafalan: hafalan),
+    );
+  }
+
+  Future<void> toggleAyat({
+    required int suratNomor,
+    required int ayatNomor,
+    required HafalanSurat suratInfo,
+  }) async {
+    final current = _currentState;
+    if (current == null) return;
+
+    final existing =
+        current.hafalan ??
+        HafalanSurat(
+          suratNomor: suratInfo.suratNomor,
+          namaLatin: suratInfo.namaLatin,
+          nama: suratInfo.nama,
+          jumlahAyat: suratInfo.jumlahAyat,
+          status: HafalanStatus.sedangDihafal,
+          tanggalMulai: DateTime.now(),
+        );
+
+    final updated = existing.withToggledAyat(ayatNomor);
+    await _saveAndReload(updated);
+  }
+
+  Future<void> saveAyatHafalList({
+    required int suratNomor,
+    required List<int> newAyatHafal,
+    required HafalanSurat suratInfo,
+  }) async {
+    final current = _currentState;
+    if (current == null) return;
+
+    final existing =
+        current.hafalan ??
+        HafalanSurat(
+          suratNomor: suratInfo.suratNomor,
+          namaLatin: suratInfo.namaLatin,
+          nama: suratInfo.nama,
+          jumlahAyat: suratInfo.jumlahAyat,
+          status: HafalanStatus.sedangDihafal,
+          tanggalMulai: DateTime.now(),
+        );
+
+    final updated = existing.withAyatHafalList(newAyatHafal);
+    await _saveAndReload(updated);
+  }
+
+  Future<void> setStatus({
+    required int suratNomor,
+    required HafalanStatus status,
+  }) async {
+    final current = _currentState;
+    if (current?.hafalan == null) return;
+
+    final existing = current!.hafalan!;
+    final updated = status == HafalanStatus.sudahHafal
+        ? existing.copyWith(
+            status: HafalanStatus.sudahHafal,
+            ayatHafal: List.generate(existing.jumlahAyat, (i) => i + 1),
+            tanggalSelesai: existing.tanggalSelesai ?? DateTime.now(),
+            murajaahLevel: existing.murajaahLevel,
+            tanggalMurajaahBerikutnya:
+                existing.tanggalMurajaahBerikutnya ??
+                existing.nextMurajaahDate(existing.murajaahLevel),
+          )
+        : existing.copyWith(status: status);
+
+    await _saveAndReload(updated);
+  }
+
+  Future<void> tandaiSudahMurajaah(int suratNomor) async {
+    final current = _currentState;
+    if (current?.hafalan == null) return;
+
+    final existing = current!.hafalan!;
+    final newLevel = (existing.murajaahLevel + 1).clamp(0, kMurajaahMaxLevel);
+    final nextDate = newLevel >= kMurajaahMaxLevel
+        ? null
+        : existing.nextMurajaahDate(newLevel);
+
+    final updated = existing.copyWith(
+      status: HafalanStatus.sudahHafal,
+      murajaahLevel: newLevel,
+      tanggalMurajaahBerikutnya: nextDate,
+    );
+
+    await _saveAndReload(updated);
+  }
+
+  Future<void> setMurajaahDate({
+    required int suratNomor,
+    required DateTime tanggal,
+  }) async {
+    final current = _currentState;
+    if (current?.hafalan == null) return;
+
+    final updated = current!.hafalan!.copyWith(
+      tanggalMurajaahBerikutnya: tanggal,
+    );
+
+    await _saveAndReload(updated);
+  }
+
+  Future<void> saveSetoranHasil({
+    required int suratNomor,
+    required Map<int, bool> hasil,
+    required HafalanSurat suratInfo,
+  }) async {
+    final current = _currentState;
+    final existing =
+        current?.hafalan ??
+        suratInfo.copyWith(
+          status: HafalanStatus.sedangDihafal,
+          tanggalMulai: DateTime.now(),
+        );
+
+    final ayatHafalBaru = <int>{...existing.ayatHafal};
+    for (final entry in hasil.entries) {
+      if (entry.value) {
+        ayatHafalBaru.add(entry.key);
+      } else {
+        ayatHafalBaru.remove(entry.key);
+      }
+    }
+
+    final updated = existing.withAyatHafalList(ayatHafalBaru.toList()..sort());
+    await _saveAndReload(updated);
+  }
+
+  Future<void> compareRecitation({
+    required int ayatNomor,
+    required String targetText,
+  }) async {
+    state = HafalanDetailState.comparing(ayatNomor);
+
+    try {
+      final hasPermission = await _audioRecorderService.hasPermission();
+      if (!hasPermission) {
+        state = HafalanDetailState.compareFailure(
+          ayatNomor: ayatNomor,
+          message: 'Izin mikrofon tidak diberikan',
+        );
+        return;
+      }
+
+      final audioPath = await _audioRecorderService.stopRecording();
+      if (audioPath == null) {
+        state = HafalanDetailState.compareFailure(
+          ayatNomor: ayatNomor,
+          message: 'Rekaman gagal, silakan coba lagi',
+        );
+        return;
+      }
+
+      final result = await _compareRecitation(
+        CompareRecitationParams(
+          audioFilePath: audioPath,
+          targetText: targetText,
+        ),
+      );
+
+      result.fold(
+        (failure) => state = HafalanDetailState.compareFailure(
+          ayatNomor: ayatNomor,
+          message: 'Gagal membandingkan bacaan: ${failure.toUserMessage()}',
+        ),
+        (compareResult) {
+          state = HafalanDetailState.compareSuccess(
+            ayatNomor: ayatNomor,
+            result: compareResult,
+            audioPath: audioPath,
+          );
+        },
+      );
+    } on Object catch (e) {
+      state = HafalanDetailState.compareFailure(
+        ayatNomor: ayatNomor,
+        message: 'Terjadi kesalahan: $e',
+      );
+    }
+  }
+
+  Future<void> warmUpServer() async {
+    state = const HafalanDetailState.connectingToServer();
+
+    try {
+      await _audioRecorderService.hasPermission();
+
+      if (_currentState != null) {
+        state = HafalanDetailState.success(hafalan: _currentState!.hafalan);
+      } else {
+        state = const HafalanDetailState.initial();
+      }
+    } on Object catch (_) {
+      if (_currentState != null) {
+        state = HafalanDetailState.success(hafalan: _currentState!.hafalan);
+      } else {
+        state = const HafalanDetailState.initial();
+      }
+    }
+  }
+
+  void clearCompareResult() {
+    final current = state;
+    if (current is HafalanDetailComparing ||
+        current is HafalanDetailCompareSuccess ||
+        current is HafalanDetailCompareFailure) {
+      if (_currentState != null) {
+        state = HafalanDetailState.success(hafalan: _currentState!.hafalan);
+      } else {
+        state = const HafalanDetailState.initial();
+      }
+    }
+  }
+
+  Future<void> saveHafalanSurat(HafalanSurat hafalan) =>
+      _saveAndReload(hafalan);
+
+  Future<void> deleteSurat(int suratNomor) async {
+    await _reminderScheduler.cancelReminder(suratNomor);
+    final result = await _deleteHafalanSurat(HafalanSuratParams(suratNomor));
+    result.fold(
+      (failure) =>
+          state = const HafalanDetailState.failure('Gagal menghapus data'),
+      (_) async {
+        state = const HafalanDetailState.initial();
+        if (mounted) await _listNotifier.load();
+      },
+    );
+  }
+
+  HafalanDetailSuccess? get _currentState =>
+      state is HafalanDetailSuccess ? state as HafalanDetailSuccess : null;
+
+  Future<void> _saveAndReload(HafalanSurat hafalan) async {
+    final result = await _saveHafalanSurat(SaveHafalanParams(hafalan));
+    result.fold(
+      (failure) =>
+          state = const HafalanDetailState.failure('Gagal menyimpan data'),
+      (_) async {
+        if (hafalan.tanggalMurajaahBerikutnya != null &&
+            !hafalan.isMurajaahSelesai) {
+          await _reminderScheduler.scheduleReminder(hafalan);
+        } else {
+          await _reminderScheduler.cancelReminder(hafalan.suratNomor);
+        }
+        if (mounted) {
+          await loadDetail(hafalan.suratNomor);
+          await _listNotifier.load();
+        }
+      },
+    );
+  }
+}

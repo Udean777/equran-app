@@ -1,7 +1,6 @@
 import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/imsakiyah/data/models/imsakiyah_dto.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class ImsakiyahRemoteDataSource {
   Future<ProvinsiResponseDto> fetchProvinsi();
@@ -12,7 +11,6 @@ abstract interface class ImsakiyahRemoteDataSource {
   });
 }
 
-@LazySingleton(as: ImsakiyahRemoteDataSource)
 class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
   const ImsakiyahRemoteDataSourceImpl(this._dioClient);
 

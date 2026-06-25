@@ -3,7 +3,6 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/notification_test/domain/repositories/notification_test_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class ScheduleHafalanReminderParams extends Equatable {
@@ -23,7 +22,6 @@ class ScheduleHafalanReminderParams extends Equatable {
   List<Object?> get props => [id, title, body, scheduledTime];
 }
 
-@injectable
 class ScheduleHafalanReminder
     implements UseCase<Unit, ScheduleHafalanReminderParams> {
   const ScheduleHafalanReminder(this._repository);

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
@@ -12,7 +11,6 @@ abstract class AudioRecorderService {
   Future<void> dispose();
 }
 
-@Singleton(as: AudioRecorderService)
 class RecordAudioRecorderService implements AudioRecorderService {
   final AudioRecorder _recorder = AudioRecorder();
   String? _currentPath;
@@ -55,7 +53,6 @@ class RecordAudioRecorderService implements AudioRecorderService {
     return _currentPath;
   }
 
-  @disposeMethod
   @override
   Future<void> dispose() async {
     await _recorder.dispose();

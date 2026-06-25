@@ -1,10 +1,10 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_storage_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/utils/format_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// List tile premium untuk satu file audio yang sudah didownload.
 class AudioFileItem extends StatelessWidget {
@@ -71,11 +71,13 @@ class AudioFileItem extends StatelessWidget {
             icon: const Icon(Icons.delete_outline_rounded, size: 20),
             color: AppColors.error,
             tooltip: 'Hapus',
-            onPressed: () => context.read<AudioStorageCubit>().deleteFile(
-              suratNomor: file.suratNomor,
-              ayatNomor: file.ayatNomor,
-              qari: file.qari,
-            ),
+            onPressed: () => ProviderScope.containerOf(context)
+                .read(audioStorageViewModelProvider.notifier)
+                .deleteFile(
+                  suratNomor: file.suratNomor,
+                  ayatNomor: file.ayatNomor,
+                  qari: file.qari,
+                ),
           ),
         ],
       ),

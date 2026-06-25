@@ -4,10 +4,8 @@ import 'package:equran_app/features/audio/data/datasources/audio_background_hand
 import 'package:equran_app/features/notification_test/domain/repositories/notification_test_repository.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-@Singleton(as: NotificationTestRepository)
 class NotificationTestRepositoryImpl implements NotificationTestRepository {
   NotificationTestRepositoryImpl(
     this._notificationService,

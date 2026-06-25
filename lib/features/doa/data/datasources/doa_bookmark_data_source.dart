@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract interface class DoaBookmarkDataSource {
@@ -11,9 +10,8 @@ abstract interface class DoaBookmarkDataSource {
   Future<bool> isBookmarked(int id);
 }
 
-@LazySingleton(as: DoaBookmarkDataSource)
 class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
-  DoaBookmarkDataSourceImpl(@Named('doaBookmarkBox') this._box);
+  DoaBookmarkDataSourceImpl(this._box);
 
   final Box<String> _box;
   final _lock = Lock();

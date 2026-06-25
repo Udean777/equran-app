@@ -1,10 +1,8 @@
 import 'package:equran_app/features/statistik_shalat/data/datasources/shalat_log_local_data_source.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
-import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 
-@lazySingleton
 class ShalatStatsCalculator {
   const ShalatStatsCalculator(this._dataSource);
   final ShalatLogLocalDataSource _dataSource;

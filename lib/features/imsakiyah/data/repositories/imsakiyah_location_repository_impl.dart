@@ -2,12 +2,10 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_location_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ImsakiyahLocationRepository)
 class ImsakiyahLocationRepositoryImpl implements ImsakiyahLocationRepository {
   const ImsakiyahLocationRepositoryImpl(
-    @Named('imsakiyahBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;

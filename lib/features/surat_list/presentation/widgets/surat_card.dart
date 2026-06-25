@@ -1,7 +1,7 @@
 import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/core/theme/viewmodels/quran_font_state.dart';
 import 'package:equran_app/features/surat_list/constants/surat_list_constants.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';

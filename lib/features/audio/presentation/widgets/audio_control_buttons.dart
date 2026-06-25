@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Tombol play/pause dengan loading state untuk AudioPlayerBar.
 class AudioPlayPauseButton extends StatelessWidget {
@@ -65,11 +64,13 @@ class AudioPlayPauseButton extends StatelessWidget {
           size: iconSize,
         ),
         onPressed: () {
-          final cubit = context.read<AudioCubit>();
+          final vm = ProviderScope.containerOf(
+            context,
+          ).read(audioViewModelProvider.notifier);
           if (state.isPlaying) {
-            unawaited(cubit.pause());
+            unawaited(vm.pause());
           } else if (state.isPaused) {
-            unawaited(cubit.resume());
+            unawaited(vm.resume());
           }
         },
       ),

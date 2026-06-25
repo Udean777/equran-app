@@ -4,9 +4,7 @@ import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/params/hafalan_params.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@injectable
 class GetHafalanBySurat implements UseCase<HafalanSurat?, HafalanSuratParams> {
   const GetHafalanBySurat(this._repository);
 

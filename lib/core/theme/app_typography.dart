@@ -1,5 +1,5 @@
 import 'package:equran_app/core/theme/app_colors.dart';
-import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
+import 'package:equran_app/core/theme/viewmodels/quran_font_state.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -166,7 +166,7 @@ abstract final class AppTypography {
   );
 
   // ---------------------------------------------------------------------------
-  // Dynamic styles — menggunakan preferensi dari QuranFontCubit
+  // Dynamic styles — menggunakan preferensi dari QuranFontState
   // ---------------------------------------------------------------------------
 
   /// Style teks Arab dinamis berdasarkan [QuranFontState].

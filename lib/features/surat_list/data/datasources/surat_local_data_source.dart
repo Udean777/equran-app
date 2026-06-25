@@ -4,7 +4,6 @@ import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/surat_list/data/models/surat_dto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class SuratLocalDataSource {
   Future<List<SuratDto>?> getCachedSuratList();
@@ -17,9 +16,8 @@ abstract interface class SuratLocalDataSource {
 /// raw JSON string dan di-decode di DataSource masing-masing.
 typedef SuratDetailLocalDto = Map<String, dynamic>;
 
-@LazySingleton(as: SuratLocalDataSource)
 class SuratLocalDataSourceImpl implements SuratLocalDataSource {
-  const SuratLocalDataSourceImpl(@Named('suratBox') this._box);
+  const SuratLocalDataSourceImpl(this._box);
 
   final LazyBox<String> _box;
 

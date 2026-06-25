@@ -1,14 +1,12 @@
 import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/doa/data/models/doa_dto.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class DoaRemoteDataSource {
   Future<DoaListResponseDto> fetchDoaList();
   Future<DoaDetailResponseDto> fetchDoaDetail(int id);
 }
 
-@LazySingleton(as: DoaRemoteDataSource)
 class DoaRemoteDataSourceImpl implements DoaRemoteDataSource {
   const DoaRemoteDataSourceImpl(this._dioClient);
 

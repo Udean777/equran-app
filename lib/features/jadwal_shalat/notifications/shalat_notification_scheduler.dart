@@ -4,10 +4,8 @@ import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
-import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-@LazySingleton(as: IShalatNotificationScheduler)
 class ShalatNotificationSchedulerImpl implements IShalatNotificationScheduler {
   ShalatNotificationSchedulerImpl(this._notificationService);
 

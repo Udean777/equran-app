@@ -5,9 +5,7 @@ import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart';
 import 'package:equran_app/features/hafalan/domain/services/hafalan_stats_calculator.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: HafalanRepository)
 class HafalanRepositoryImpl implements HafalanRepository {
   const HafalanRepositoryImpl(this._datasource);
 

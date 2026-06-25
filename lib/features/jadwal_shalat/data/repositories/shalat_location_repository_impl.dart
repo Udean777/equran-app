@@ -2,12 +2,10 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/shalat_location_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ShalatLocationRepository)
 class ShalatLocationRepositoryImpl implements ShalatLocationRepository {
   const ShalatLocationRepositoryImpl(
-    @Named('shalatBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;

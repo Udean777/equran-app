@@ -6,9 +6,7 @@ import 'package:equran_app/features/surat_detail/data/mappers/surat_detail_mappe
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/domain/repositories/surat_detail_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: SuratDetailRepository)
 class SuratDetailRepositoryImpl implements SuratDetailRepository {
   const SuratDetailRepositoryImpl(this._remote, this._local);
 

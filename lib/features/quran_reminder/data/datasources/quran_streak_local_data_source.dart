@@ -1,5 +1,4 @@
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class QuranStreakLocalDataSource {
   /// Ambil streak count saat ini. Returns 0 jika belum ada data.
@@ -12,10 +11,9 @@ abstract interface class QuranStreakLocalDataSource {
   Future<void> saveStreak({required String date, required int count});
 }
 
-@LazySingleton(as: QuranStreakLocalDataSource)
 class QuranStreakLocalDataSourceImpl implements QuranStreakLocalDataSource {
   const QuranStreakLocalDataSourceImpl(
-    @Named('settingsBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;

@@ -4,9 +4,7 @@ import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.
 import 'package:equran_app/features/statistik_shalat/domain/repositories/statistik_shalat_repository.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/params/get_shalat_by_date_range_params.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class GetShalatByDateRange
     implements UseCase<List<ShalatDayStats>, GetShalatByDateRangeParams> {
   const GetShalatByDateRange(this._repository);

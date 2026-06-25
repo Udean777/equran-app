@@ -1,0 +1,56 @@
+import 'dart:async';
+
+import 'package:equran_app/core/network/dio_client.dart';
+import 'package:equran_app/core/providers.dart';
+import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart';
+import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart';
+import 'package:equran_app/features/surat_detail/data/repositories/surat_detail_repository_impl.dart';
+import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/surat_detail_state.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/surat_detail_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+export 'viewmodels/surat_detail_state.dart';
+
+final suratDetailLocalDataSourceProvider = Provider<SuratDetailLocalDataSource>(
+  (ref) {
+    final box = ref.watch(suratBoxProvider).requireValue;
+    return SuratDetailLocalDataSourceImpl(box);
+  },
+);
+
+final suratDetailRemoteDataSourceProvider =
+    Provider<SuratDetailRemoteDataSource>((ref) {
+      return SuratDetailRemoteDataSourceImpl(DioClient());
+    });
+
+final suratDetailRepositoryProvider = Provider<SuratDetailRepositoryImpl>((
+  ref,
+) {
+  return SuratDetailRepositoryImpl(
+    ref.read(suratDetailRemoteDataSourceProvider),
+    ref.read(suratDetailLocalDataSourceProvider),
+  );
+});
+
+final getSuratDetailProvider = Provider<GetSuratDetail>((ref) {
+  return GetSuratDetail(ref.read(suratDetailRepositoryProvider));
+});
+
+final AutoDisposeStateNotifierProviderFamily<
+  SuratDetailViewModel,
+  SuratDetailState,
+  int
+>
+suratDetailViewModelProvider =
+    AutoDisposeStateNotifierProvider.family<
+      SuratDetailViewModel,
+      SuratDetailState,
+      int
+    >(
+      (ref, nomor) {
+        final vm = SuratDetailViewModel(ref.read(getSuratDetailProvider));
+        unawaited(vm.load(nomor));
+        return vm;
+      },
+    );

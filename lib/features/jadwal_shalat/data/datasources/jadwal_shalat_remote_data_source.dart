@@ -1,7 +1,6 @@
 import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class JadwalShalatRemoteDataSource {
   Future<ProvinsiShalatResponseDto> fetchProvinsi();
@@ -14,7 +13,6 @@ abstract interface class JadwalShalatRemoteDataSource {
   });
 }
 
-@LazySingleton(as: JadwalShalatRemoteDataSource)
 class JadwalShalatRemoteDataSourceImpl implements JadwalShalatRemoteDataSource {
   const JadwalShalatRemoteDataSourceImpl(this._dioClient);
 

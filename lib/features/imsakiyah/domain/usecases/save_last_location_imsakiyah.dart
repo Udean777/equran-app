@@ -3,9 +3,7 @@ import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_location_repository.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/params/imsakiyah_params.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class SaveLastLocationImsakiyah
     implements UseCase<Unit, SaveLastLocationParams> {
   const SaveLastLocationImsakiyah(this._repository);
