@@ -5,7 +5,7 @@ abstract final class HafalanConstants {
   /// **Development**: gunakan IP lokal laptop (e.g., http://192.168.1.100:8000)
   /// **Production**: gunakan Render URL (e.g., https://equran-hafalan-api.onrender.com)
   ///
-  /// TODO: ganti dengan URL production setelah deploy ke Render
+  // TODO(developer): ganti dengan URL production setelah deploy ke Render
   static const String apiBaseUrl = 'http://192.168.1.100:8000';
 
   /// Production API URL (Render)
