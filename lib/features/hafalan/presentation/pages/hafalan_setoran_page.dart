@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/core/services/audio_recorder_service.dart';
@@ -20,6 +21,8 @@ import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class HafalanSetoranPage extends StatelessWidget {
   const HafalanSetoranPage({
@@ -119,6 +122,7 @@ class _SetoranSessionState extends State<_SetoranSession> {
 
   // Recording state
   SetoranRecordState _recordState = SetoranRecordState.idle;
+  bool _forceExit = false;
 
   @override
   void initState() {
@@ -150,58 +154,80 @@ class _SetoranSessionState extends State<_SetoranSession> {
         ? 'Hasil Setoran'
         : 'Setoran: ${widget.detail.namaLatin}';
 
-    return Scaffold(
-      appBar: LuxuryAppBar(
-        title: title,
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
-          tooltip: 'Keluar',
-          onPressed: _confirmExit,
-        ),
-      ),
-      body: _isSelesai
-          ? SetoranHasil(
-              detail: widget.detail,
-              hasil: _hasil,
-              compareResults: _compareResults.isNotEmpty
-                  ? _compareResults
-                  : null,
-              onSimpan: _simpanHasil,
-              onUlang: _ulangSetoran,
-            )
-          : BlocConsumer<HafalanDetailCubit, HafalanDetailState>(
-              listener: (context, state) {
-                if (state is HafalanDetailCompareSuccess &&
-                    state.ayatNomor == _currentAyat.nomorAyat) {
-                  _handleCompareSuccess(state.result, state.audioPath);
-                } else if (state is HafalanDetailCompareFailure &&
-                    state.ayatNomor == _currentAyat.nomorAyat) {
-                  _handleCompareFailure(state.message);
-                }
-              },
-              builder: (context, state) {
-                final isComparing =
-                    state is HafalanDetailComparing &&
-                    state.ayatNomor == _currentAyat.nomorAyat;
+    final canPopNow = _forceExit || _hasil.isEmpty || _isSelesai;
 
-                return SetoranCard(
-                  ayat: _currentAyat,
-                  currentIndex: _currentIndex,
-                  totalAyat: _totalAyat,
-                  showTerjemahan: _showTerjemahan,
-                  onToggleTerjemahan: () =>
-                      setState(() => _showTerjemahan = !_showTerjemahan),
-                  recordState: isComparing
-                      ? SetoranRecordState.comparing
-                      : _recordState,
-                  compareResult: _compareResults[_currentAyat.nomorAyat],
-                  userAudioPath: _userAudioPaths[_currentAyat.nomorAyat],
-                  onStartRecord: _startRecording,
-                  onStopRecord: _stopRecording,
-                  onNextAyat: _advanceToNext,
-                );
-              },
-            ),
+    return PopScope(
+      canPop: canPopNow,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final confirmed = await showConfirmDialog(
+          context,
+          title: 'Keluar Setoran?',
+          content: 'Progress setoran akan hilang jika keluar sekarang.',
+          confirmLabel: 'Keluar',
+          cancelLabel: 'Lanjutkan',
+        );
+        if (confirmed && mounted) {
+          setState(() => _forceExit = true);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) context.pop();
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: LuxuryAppBar(
+          title: title,
+          leading: IconButton(
+            icon: const Icon(Icons.close_rounded),
+            tooltip: 'Keluar',
+            onPressed: _confirmExit,
+          ),
+        ),
+        body: _isSelesai
+            ? SetoranHasil(
+                detail: widget.detail,
+                hasil: _hasil,
+                compareResults: _compareResults.isNotEmpty
+                    ? _compareResults
+                    : null,
+                onSimpan: _simpanHasil,
+                onUlang: _ulangSetoran,
+              )
+            : BlocConsumer<HafalanDetailCubit, HafalanDetailState>(
+                listener: (context, state) {
+                  if (state is HafalanDetailCompareSuccess &&
+                      state.ayatNomor == _currentAyat.nomorAyat) {
+                    _handleCompareSuccess(state.result, state.audioPath);
+                  } else if (state is HafalanDetailCompareFailure &&
+                      state.ayatNomor == _currentAyat.nomorAyat) {
+                    _handleCompareFailure(state.message);
+                  }
+                },
+                builder: (context, state) {
+                  final isComparing =
+                      state is HafalanDetailComparing &&
+                      state.ayatNomor == _currentAyat.nomorAyat;
+
+                  return SetoranCard(
+                    ayat: _currentAyat,
+                    currentIndex: _currentIndex,
+                    totalAyat: _totalAyat,
+                    showTerjemahan: _showTerjemahan,
+                    onToggleTerjemahan: () =>
+                        setState(() => _showTerjemahan = !_showTerjemahan),
+                    recordState: isComparing
+                        ? SetoranRecordState.comparing
+                        : _recordState,
+                    compareResult: _compareResults[_currentAyat.nomorAyat],
+                    userAudioPath: _userAudioPaths[_currentAyat.nomorAyat],
+                    onStartRecord: _startRecording,
+                    onStopRecord: _stopRecording,
+                    onNextAyat: _advanceToNext,
+                  );
+                },
+              ),
+      ),
     );
   }
 
@@ -222,7 +248,12 @@ class _SetoranSessionState extends State<_SetoranSession> {
       }
 
       await recorder.startRecording();
-      setState(() => _recordState = SetoranRecordState.recording);
+      setState(() {
+        _recordState = SetoranRecordState.recording;
+        _compareResults.remove(_currentAyat.nomorAyat);
+        _userAudioPaths.remove(_currentAyat.nomorAyat);
+        _hasil.remove(_currentAyat.nomorAyat);
+      });
     } on Object catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -288,6 +319,23 @@ class _SetoranSessionState extends State<_SetoranSession> {
   }
 
   Future<void> _simpanHasil() async {
+    final docDir = await getApplicationDocumentsDirectory();
+    for (final entry in _userAudioPaths.entries) {
+      final ayatNomor = entry.key;
+      final cachePath = entry.value;
+
+      final sourceFile = File(cachePath);
+      if (sourceFile.existsSync()) {
+        final targetPath = p.join(
+          docDir.path,
+          'hafalan_audio_${widget.suratNomor}_$ayatNomor.m4a',
+        );
+        await sourceFile.copy(targetPath);
+      }
+    }
+
+    if (!mounted) return;
+
     await context.read<HafalanDetailCubit>().saveSetoranHasil(
       suratNomor: widget.suratNomor,
       hasil: _hasil,
@@ -312,7 +360,8 @@ class _SetoranSessionState extends State<_SetoranSession> {
   }
 
   Future<void> _confirmExit() async {
-    if (_hasil.isEmpty) {
+    if (_hasil.isEmpty || _isSelesai) {
+      setState(() => _forceExit = true);
       context.pop();
       return;
     }
@@ -323,6 +372,9 @@ class _SetoranSessionState extends State<_SetoranSession> {
       confirmLabel: 'Keluar',
       cancelLabel: 'Lanjutkan',
     );
-    if (confirmed && mounted) context.pop();
+    if (confirmed && mounted) {
+      setState(() => _forceExit = true);
+      context.pop();
+    }
   }
 }

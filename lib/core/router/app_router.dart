@@ -9,6 +9,7 @@ import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_bookmark_section.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_detail_page.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_page.dart';
+import 'package:equran_app/features/hafalan/presentation/pages/hafalan_riwayat_page.dart';
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_setoran_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
 import 'package:equran_app/features/notification_test/presentation/pages/notification_test_page.dart';
@@ -127,6 +128,19 @@ class AppRouter {
           final nomor = int.parse(state.pathParameters['suratNomor']!);
           final juzNomor = int.tryParse(state.uri.queryParameters['juz'] ?? '');
           return HafalanSetoranPage(suratNomor: nomor, juzNomor: juzNomor);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.hafalanRiwayat,
+        redirect: (context, state) {
+          final raw = state.pathParameters['suratNomor'] ?? '';
+          if (int.tryParse(raw) == null) return AppRoutes.hafalan;
+          return null;
+        },
+        builder: (context, state) {
+          final nomor = int.parse(state.pathParameters['suratNomor']!);
+          final juzNomor = int.tryParse(state.uri.queryParameters['juz'] ?? '');
+          return HafalanRiwayatPage(suratNomor: nomor, juzNomor: juzNomor);
         },
       ),
 

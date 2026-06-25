@@ -1,5 +1,4 @@
-/// Semua string constants untuk settings feature.
-// TODO(developer): Migrate ke l10n (app_localizations.arb) untuk multi-language support.
+// Semua string constants untuk settings feature.
 abstract final class SettingsStrings {
   // Page title
   static const pageTitle = 'Pengaturan';
