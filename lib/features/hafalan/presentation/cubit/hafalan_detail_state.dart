@@ -8,7 +8,8 @@ part 'hafalan_detail_state.freezed.dart';
 sealed class HafalanDetailState with _$HafalanDetailState {
   const factory HafalanDetailState.initial() = HafalanDetailInitial;
   const factory HafalanDetailState.loading() = HafalanDetailLoading;
-  const factory HafalanDetailState.connectingToServer() = HafalanDetailConnectingToServer;
+  const factory HafalanDetailState.connectingToServer() =
+      HafalanDetailConnectingToServer;
   const factory HafalanDetailState.success({
     HafalanSurat? hafalan,
   }) = HafalanDetailSuccess;

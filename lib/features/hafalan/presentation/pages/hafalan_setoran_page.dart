@@ -113,6 +113,7 @@ class _SetoranSessionState extends State<_SetoranSession> {
   int _currentIndex = 0;
   final Map<int, bool> _hasil = {};
   final Map<int, SetoranCompareResult> _compareResults = {};
+  final Map<int, String> _userAudioPaths = {};
   bool _showTerjemahan = false;
   bool _isSelesai = false;
 
@@ -172,7 +173,7 @@ class _SetoranSessionState extends State<_SetoranSession> {
               listener: (context, state) {
                 if (state is HafalanDetailCompareSuccess &&
                     state.ayatNomor == _currentAyat.nomorAyat) {
-                  _handleCompareSuccess(state.result);
+                  _handleCompareSuccess(state.result, state.audioPath);
                 } else if (state is HafalanDetailCompareFailure &&
                     state.ayatNomor == _currentAyat.nomorAyat) {
                   _handleCompareFailure(state.message);
@@ -194,10 +195,10 @@ class _SetoranSessionState extends State<_SetoranSession> {
                       ? SetoranRecordState.comparing
                       : _recordState,
                   compareResult: _compareResults[_currentAyat.nomorAyat],
+                  userAudioPath: _userAudioPaths[_currentAyat.nomorAyat],
                   onStartRecord: _startRecording,
                   onStopRecord: _stopRecording,
-                  onHafal: () => _jawab(hafal: true),
-                  onBelumHafal: () => _jawab(hafal: false),
+                  onNextAyat: _advanceToNext,
                 );
               },
             ),
@@ -242,15 +243,12 @@ class _SetoranSessionState extends State<_SetoranSession> {
     );
   }
 
-  void _handleCompareSuccess(SetoranCompareResult result) {
+  void _handleCompareSuccess(SetoranCompareResult result, String audioPath) {
     setState(() {
       _recordState = SetoranRecordState.idle;
       _compareResults[_currentAyat.nomorAyat] = result;
-
-      if (result.passed) {
-        _hasil[_currentAyat.nomorAyat] = true;
-        _advanceToNext();
-      }
+      _userAudioPaths[_currentAyat.nomorAyat] = audioPath;
+      _hasil[_currentAyat.nomorAyat] = result.passed;
     });
   }
 
@@ -264,14 +262,6 @@ class _SetoranSessionState extends State<_SetoranSession> {
   }
 
   // ─── Navigation ──────────────────────────────────────────────────────
-
-  void _jawab({required bool hafal}) {
-    _hasil[_currentAyat.nomorAyat] = hafal;
-    if (!hafal) {
-      _compareResults.remove(_currentAyat.nomorAyat);
-    }
-    _advanceToNext();
-  }
 
   void _advanceToNext() {
     if (_currentIndex < _totalAyat - 1) {
@@ -290,6 +280,7 @@ class _SetoranSessionState extends State<_SetoranSession> {
       _currentIndex = 0;
       _hasil.clear();
       _compareResults.clear();
+      _userAudioPaths.clear();
       _showTerjemahan = false;
       _isSelesai = false;
       _recordState = SetoranRecordState.idle;

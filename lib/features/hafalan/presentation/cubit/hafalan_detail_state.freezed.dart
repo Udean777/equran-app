@@ -55,12 +55,13 @@ extension HafalanDetailStatePatterns on HafalanDetailState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HafalanDetailInitial value)?  initial,TResult Function( HafalanDetailLoading value)?  loading,TResult Function( HafalanDetailSuccess value)?  success,TResult Function( HafalanDetailFailure value)?  failure,TResult Function( HafalanDetailComparing value)?  comparing,TResult Function( HafalanDetailCompareSuccess value)?  compareSuccess,TResult Function( HafalanDetailCompareFailure value)?  compareFailure,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HafalanDetailInitial value)?  initial,TResult Function( HafalanDetailLoading value)?  loading,TResult Function( HafalanDetailConnectingToServer value)?  connectingToServer,TResult Function( HafalanDetailSuccess value)?  success,TResult Function( HafalanDetailFailure value)?  failure,TResult Function( HafalanDetailComparing value)?  comparing,TResult Function( HafalanDetailCompareSuccess value)?  compareSuccess,TResult Function( HafalanDetailCompareFailure value)?  compareFailure,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial(_that);case HafalanDetailLoading() when loading != null:
-return loading(_that);case HafalanDetailSuccess() when success != null:
+return loading(_that);case HafalanDetailConnectingToServer() when connectingToServer != null:
+return connectingToServer(_that);case HafalanDetailSuccess() when success != null:
 return success(_that);case HafalanDetailFailure() when failure != null:
 return failure(_that);case HafalanDetailComparing() when comparing != null:
 return comparing(_that);case HafalanDetailCompareSuccess() when compareSuccess != null:
@@ -83,12 +84,13 @@ return compareFailure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HafalanDetailInitial value)  initial,required TResult Function( HafalanDetailLoading value)  loading,required TResult Function( HafalanDetailSuccess value)  success,required TResult Function( HafalanDetailFailure value)  failure,required TResult Function( HafalanDetailComparing value)  comparing,required TResult Function( HafalanDetailCompareSuccess value)  compareSuccess,required TResult Function( HafalanDetailCompareFailure value)  compareFailure,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HafalanDetailInitial value)  initial,required TResult Function( HafalanDetailLoading value)  loading,required TResult Function( HafalanDetailConnectingToServer value)  connectingToServer,required TResult Function( HafalanDetailSuccess value)  success,required TResult Function( HafalanDetailFailure value)  failure,required TResult Function( HafalanDetailComparing value)  comparing,required TResult Function( HafalanDetailCompareSuccess value)  compareSuccess,required TResult Function( HafalanDetailCompareFailure value)  compareFailure,}){
 final _that = this;
 switch (_that) {
 case HafalanDetailInitial():
 return initial(_that);case HafalanDetailLoading():
-return loading(_that);case HafalanDetailSuccess():
+return loading(_that);case HafalanDetailConnectingToServer():
+return connectingToServer(_that);case HafalanDetailSuccess():
 return success(_that);case HafalanDetailFailure():
 return failure(_that);case HafalanDetailComparing():
 return comparing(_that);case HafalanDetailCompareSuccess():
@@ -107,12 +109,13 @@ return compareFailure(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HafalanDetailInitial value)?  initial,TResult? Function( HafalanDetailLoading value)?  loading,TResult? Function( HafalanDetailSuccess value)?  success,TResult? Function( HafalanDetailFailure value)?  failure,TResult? Function( HafalanDetailComparing value)?  comparing,TResult? Function( HafalanDetailCompareSuccess value)?  compareSuccess,TResult? Function( HafalanDetailCompareFailure value)?  compareFailure,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HafalanDetailInitial value)?  initial,TResult? Function( HafalanDetailLoading value)?  loading,TResult? Function( HafalanDetailConnectingToServer value)?  connectingToServer,TResult? Function( HafalanDetailSuccess value)?  success,TResult? Function( HafalanDetailFailure value)?  failure,TResult? Function( HafalanDetailComparing value)?  comparing,TResult? Function( HafalanDetailCompareSuccess value)?  compareSuccess,TResult? Function( HafalanDetailCompareFailure value)?  compareFailure,}){
 final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial(_that);case HafalanDetailLoading() when loading != null:
-return loading(_that);case HafalanDetailSuccess() when success != null:
+return loading(_that);case HafalanDetailConnectingToServer() when connectingToServer != null:
+return connectingToServer(_that);case HafalanDetailSuccess() when success != null:
 return success(_that);case HafalanDetailFailure() when failure != null:
 return failure(_that);case HafalanDetailComparing() when comparing != null:
 return comparing(_that);case HafalanDetailCompareSuccess() when compareSuccess != null:
@@ -134,15 +137,16 @@ return compareFailure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( HafalanSurat? hafalan)?  success,TResult Function( String message)?  failure,TResult Function( int ayatNomor)?  comparing,TResult Function( int ayatNomor,  SetoranCompareResult result)?  compareSuccess,TResult Function( int ayatNomor,  String message)?  compareFailure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  connectingToServer,TResult Function( HafalanSurat? hafalan)?  success,TResult Function( String message)?  failure,TResult Function( int ayatNomor)?  comparing,TResult Function( int ayatNomor,  SetoranCompareResult result,  String audioPath)?  compareSuccess,TResult Function( int ayatNomor,  String message)?  compareFailure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial();case HafalanDetailLoading() when loading != null:
-return loading();case HafalanDetailSuccess() when success != null:
+return loading();case HafalanDetailConnectingToServer() when connectingToServer != null:
+return connectingToServer();case HafalanDetailSuccess() when success != null:
 return success(_that.hafalan);case HafalanDetailFailure() when failure != null:
 return failure(_that.message);case HafalanDetailComparing() when comparing != null:
 return comparing(_that.ayatNomor);case HafalanDetailCompareSuccess() when compareSuccess != null:
-return compareSuccess(_that.ayatNomor,_that.result);case HafalanDetailCompareFailure() when compareFailure != null:
+return compareSuccess(_that.ayatNomor,_that.result,_that.audioPath);case HafalanDetailCompareFailure() when compareFailure != null:
 return compareFailure(_that.ayatNomor,_that.message);case _:
   return orElse();
 
@@ -161,15 +165,16 @@ return compareFailure(_that.ayatNomor,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( HafalanSurat? hafalan)  success,required TResult Function( String message)  failure,required TResult Function( int ayatNomor)  comparing,required TResult Function( int ayatNomor,  SetoranCompareResult result)  compareSuccess,required TResult Function( int ayatNomor,  String message)  compareFailure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  connectingToServer,required TResult Function( HafalanSurat? hafalan)  success,required TResult Function( String message)  failure,required TResult Function( int ayatNomor)  comparing,required TResult Function( int ayatNomor,  SetoranCompareResult result,  String audioPath)  compareSuccess,required TResult Function( int ayatNomor,  String message)  compareFailure,}) {final _that = this;
 switch (_that) {
 case HafalanDetailInitial():
 return initial();case HafalanDetailLoading():
-return loading();case HafalanDetailSuccess():
+return loading();case HafalanDetailConnectingToServer():
+return connectingToServer();case HafalanDetailSuccess():
 return success(_that.hafalan);case HafalanDetailFailure():
 return failure(_that.message);case HafalanDetailComparing():
 return comparing(_that.ayatNomor);case HafalanDetailCompareSuccess():
-return compareSuccess(_that.ayatNomor,_that.result);case HafalanDetailCompareFailure():
+return compareSuccess(_that.ayatNomor,_that.result,_that.audioPath);case HafalanDetailCompareFailure():
 return compareFailure(_that.ayatNomor,_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -184,15 +189,16 @@ return compareFailure(_that.ayatNomor,_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( HafalanSurat? hafalan)?  success,TResult? Function( String message)?  failure,TResult? Function( int ayatNomor)?  comparing,TResult? Function( int ayatNomor,  SetoranCompareResult result)?  compareSuccess,TResult? Function( int ayatNomor,  String message)?  compareFailure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  connectingToServer,TResult? Function( HafalanSurat? hafalan)?  success,TResult? Function( String message)?  failure,TResult? Function( int ayatNomor)?  comparing,TResult? Function( int ayatNomor,  SetoranCompareResult result,  String audioPath)?  compareSuccess,TResult? Function( int ayatNomor,  String message)?  compareFailure,}) {final _that = this;
 switch (_that) {
 case HafalanDetailInitial() when initial != null:
 return initial();case HafalanDetailLoading() when loading != null:
-return loading();case HafalanDetailSuccess() when success != null:
+return loading();case HafalanDetailConnectingToServer() when connectingToServer != null:
+return connectingToServer();case HafalanDetailSuccess() when success != null:
 return success(_that.hafalan);case HafalanDetailFailure() when failure != null:
 return failure(_that.message);case HafalanDetailComparing() when comparing != null:
 return comparing(_that.ayatNomor);case HafalanDetailCompareSuccess() when compareSuccess != null:
-return compareSuccess(_that.ayatNomor,_that.result);case HafalanDetailCompareFailure() when compareFailure != null:
+return compareSuccess(_that.ayatNomor,_that.result,_that.audioPath);case HafalanDetailCompareFailure() when compareFailure != null:
 return compareFailure(_that.ayatNomor,_that.message);case _:
   return null;
 
@@ -257,6 +263,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'HafalanDetailState.loading()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class HafalanDetailConnectingToServer implements HafalanDetailState {
+  const HafalanDetailConnectingToServer();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanDetailConnectingToServer);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'HafalanDetailState.connectingToServer()';
 }
 
 
@@ -479,11 +517,12 @@ as int,
 
 
 class HafalanDetailCompareSuccess implements HafalanDetailState {
-  const HafalanDetailCompareSuccess({required this.ayatNomor, required this.result});
+  const HafalanDetailCompareSuccess({required this.ayatNomor, required this.result, required this.audioPath});
   
 
  final  int ayatNomor;
  final  SetoranCompareResult result;
+ final  String audioPath;
 
 /// Create a copy of HafalanDetailState
 /// with the given fields replaced by the non-null parameter values.
@@ -495,16 +534,16 @@ $HafalanDetailCompareSuccessCopyWith<HafalanDetailCompareSuccess> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanDetailCompareSuccess&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.result, result) || other.result == result));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HafalanDetailCompareSuccess&&(identical(other.ayatNomor, ayatNomor) || other.ayatNomor == ayatNomor)&&(identical(other.result, result) || other.result == result)&&(identical(other.audioPath, audioPath) || other.audioPath == audioPath));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,ayatNomor,result);
+int get hashCode => Object.hash(runtimeType,ayatNomor,result,audioPath);
 
 @override
 String toString() {
-  return 'HafalanDetailState.compareSuccess(ayatNomor: $ayatNomor, result: $result)';
+  return 'HafalanDetailState.compareSuccess(ayatNomor: $ayatNomor, result: $result, audioPath: $audioPath)';
 }
 
 
@@ -515,7 +554,7 @@ abstract mixin class $HafalanDetailCompareSuccessCopyWith<$Res> implements $Hafa
   factory $HafalanDetailCompareSuccessCopyWith(HafalanDetailCompareSuccess value, $Res Function(HafalanDetailCompareSuccess) _then) = _$HafalanDetailCompareSuccessCopyWithImpl;
 @useResult
 $Res call({
- int ayatNomor, SetoranCompareResult result
+ int ayatNomor, SetoranCompareResult result, String audioPath
 });
 
 
@@ -532,11 +571,12 @@ class _$HafalanDetailCompareSuccessCopyWithImpl<$Res>
 
 /// Create a copy of HafalanDetailState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? ayatNomor = null,Object? result = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? ayatNomor = null,Object? result = null,Object? audioPath = null,}) {
   return _then(HafalanDetailCompareSuccess(
 ayatNomor: null == ayatNomor ? _self.ayatNomor : ayatNomor // ignore: cast_nullable_to_non_nullable
 as int,result: null == result ? _self.result : result // ignore: cast_nullable_to_non_nullable
-as SetoranCompareResult,
+as SetoranCompareResult,audioPath: null == audioPath ? _self.audioPath : audioPath // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

@@ -6,12 +6,12 @@ abstract final class HafalanConstants {
   /// **Production**: gunakan Render URL (e.g., https://equran-hafalan-api.onrender.com)
   ///
   // TODO(developer): ganti dengan URL production setelah deploy ke Render
-  static const String apiBaseUrl = 'http://192.168.1.100:8000';
+  static const String apiBaseUrl = 'https://equran-hafalan-api.onrender.com';
 
   /// Production API URL (Render)
   /// Uncomment line di bawah dan comment line di atas untuk production build
   // static const String apiBaseUrl = 'https://equran-hafalan-api.onrender.com';
 
   /// Default similarity threshold (0-100).
-  static const double defaultThreshold = 75;
+  static const double defaultThreshold = 85;
 }

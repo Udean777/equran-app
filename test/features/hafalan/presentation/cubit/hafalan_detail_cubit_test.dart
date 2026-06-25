@@ -117,6 +117,7 @@ void main() {
         const HafalanDetailState.compareSuccess(
           ayatNomor: tAyatNomor,
           result: tCompareResult,
+          audioPath: '/tmp/audio.m4a',
         ),
       ],
       verify: (_) {

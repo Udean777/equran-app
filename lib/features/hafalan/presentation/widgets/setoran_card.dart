@@ -1,11 +1,12 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
-import 'package:equran_app/features/hafalan/presentation/widgets/setoran_jawab_buttons.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
 enum SetoranRecordState { idle, recording, comparing }
 
@@ -20,9 +21,9 @@ class SetoranCard extends StatelessWidget {
     required this.recordState,
     required this.onStartRecord,
     required this.onStopRecord,
-    required this.onHafal,
-    required this.onBelumHafal,
+    required this.onNextAyat,
     this.compareResult,
+    this.userAudioPath,
     super.key,
   });
 
@@ -40,8 +41,8 @@ class SetoranCard extends StatelessWidget {
 
   final VoidCallback onStartRecord;
   final VoidCallback onStopRecord;
-  final VoidCallback onHafal;
-  final VoidCallback onBelumHafal;
+  final VoidCallback onNextAyat;
+  final String? userAudioPath;
 
   @override
   Widget build(BuildContext context) {
@@ -229,17 +230,6 @@ class SetoranCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            ayat.teksLatin,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: isDark
-                                  ? AppColors.onSurfaceDarkVariant
-                                  : AppColors.textTertiary,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                          const SizedBox(height: AppDimens.spaceSM),
-                          Text(
                             ayat.teksIndonesia,
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -339,12 +329,6 @@ class SetoranCard extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: AppDimens.spaceSM),
-          SetoranJawabButtons(
-            onHafal: onHafal,
-            onBelumHafal: onBelumHafal,
-            isDark: isDark,
           ),
         ],
       ),
@@ -520,16 +504,28 @@ class SetoranCard extends StatelessWidget {
                 ),
           ],
           const SizedBox(height: AppDimens.spaceMD),
+          const SizedBox(height: AppDimens.spaceMD),
+          if (userAudioPath != null && ayat.audio.isNotEmpty) ...[
+            _MiniAudioPlayer(
+              title: 'Audio Anda',
+              audioSource: userAudioPath!,
+              isLocal: true,
+            ),
+            const SizedBox(height: AppDimens.spaceSM),
+            _MiniAudioPlayer(
+              title: 'Audio Ayat',
+              audioSource: ayat.audio.values.first,
+              isLocal: false,
+            ),
+            const SizedBox(height: AppDimens.spaceMD),
+          ],
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: result.passed ? onHafal : onStartRecord,
-                  icon: Icon(
-                    result.passed ? Icons.check_rounded : Icons.replay_rounded,
-                    size: 18,
-                  ),
-                  label: Text(result.passed ? 'Lanjut' : 'Rekam Ulang'),
+                  onPressed: onStartRecord,
+                  icon: const Icon(Icons.replay_rounded, size: 18),
+                  label: const Text('Rekam Ulang'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       vertical: AppDimens.spaceSM,
@@ -543,9 +539,13 @@ class SetoranCard extends StatelessWidget {
               const SizedBox(width: AppDimens.spaceSM),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: onHafal,
+                  onPressed: onNextAyat,
                   icon: const Icon(Icons.skip_next_rounded, size: 18),
-                  label: const Text('Lewati'),
+                  label: Text(
+                    currentIndex < totalAyat - 1
+                        ? 'Ayat Berikutnya'
+                        : 'Selesai',
+                  ),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(
@@ -558,6 +558,117 @@ class SetoranCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniAudioPlayer extends StatefulWidget {
+  const _MiniAudioPlayer({
+    required this.title,
+    required this.audioSource,
+    required this.isLocal,
+  });
+
+  final String title;
+  final String audioSource;
+  final bool isLocal;
+
+  @override
+  State<_MiniAudioPlayer> createState() => _MiniAudioPlayerState();
+}
+
+class _MiniAudioPlayerState extends State<_MiniAudioPlayer> {
+  final _player = AudioPlayer();
+  bool _isPlaying = false;
+  bool _isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_initPlayer());
+  }
+
+  Future<void> _initPlayer() async {
+    try {
+      if (widget.isLocal) {
+        await _player.setFilePath(widget.audioSource);
+      } else {
+        await _player.setUrl(widget.audioSource);
+      }
+
+      _player.playerStateStream.listen((state) {
+        if (mounted) {
+          setState(() {
+            _isPlaying = state.playing;
+            if (state.processingState == ProcessingState.completed) {
+              _isPlaying = false;
+              unawaited(_player.seek(Duration.zero));
+              unawaited(_player.pause());
+            }
+          });
+        }
+      });
+    } on Object catch (_) {
+      if (mounted) {
+        setState(() => _isError = true);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    unawaited(_player.dispose());
+    super.dispose();
+  }
+
+  void _togglePlay() {
+    if (_isError) return;
+    if (_isPlaying) {
+      unawaited(_player.pause());
+    } else {
+      unawaited(_player.play());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.spaceMD,
+        vertical: AppDimens.spaceSM,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: _togglePlay,
+            icon: Icon(
+              _isError
+                  ? Icons.error_outline_rounded
+                  : _isPlaying
+                  ? Icons.pause_rounded
+                  : Icons.play_arrow_rounded,
+            ),
+            color: _isError ? AppColors.error : AppColors.primary,
+          ),
+          const SizedBox(width: AppDimens.spaceSM),
+          Expanded(
+            child: Text(
+              widget.title,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              ),
+            ),
           ),
         ],
       ),
