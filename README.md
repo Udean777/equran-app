@@ -178,8 +178,19 @@ Qurva dilengkapi dengan backend Python berbasis **FastAPI** dan **faster-whisper
 - **Framework**: FastAPI 0.138.0
 - **Speech-to-Text**: faster-whisper (tiny model, ~39MB)
 - **Scoring**: Levenshtein Distance → Character Error Rate (CER)
-- **Deployment**: Render (cloud) atau local development
+- **Deployment**: **Hugging Face Spaces** (production) atau local development
 - **Testing**: pytest (19 unit tests)
+
+### Deployment Production
+
+Backend di-host di **Hugging Face Spaces** dengan spesifikasi:
+- ✅ **2 vCPU dedicated** + **16GB RAM** (free tier)
+- ✅ Model load: **1.3 seconds**
+- ✅ Transcription: **~3-5 seconds** (vs Render ~85 seconds)
+- ✅ Cold start: setelah **48 jam** idle (vs Render 15 menit)
+- ✅ URL: `https://ssajudn-equran-hafalan-api.hf.space`
+
+**Repository**: https://huggingface.co/spaces/ssajudn/equran-hafalan-api
 
 ### Cara Menjalankan Backend (Local)
 
@@ -214,16 +225,31 @@ curl http://localhost:8000/health
 static const String apiBaseUrl = 'http://YOUR_IP:8000'; // ganti YOUR_IP dengan IP laptop
 ```
 
-### Deployment ke Render
+### Deployment ke Cloud
+
+#### Hugging Face Spaces (Recommended) ⭐
+
+Production backend menggunakan **HF Spaces** dengan Docker SDK:
+
+- ✅ **2 vCPU dedicated + 16GB RAM** (free tier)
+- ✅ Model load: **1.3s** (instant from cache)
+- ✅ Transcription: **~3-5 seconds** (17-28x faster than Render)
+- ✅ Cold start: **48 hours** idle (vs Render 15 minutes)
+- ✅ No cold start issues untuk production use
+
+**HF Space**: https://huggingface.co/spaces/ssajudn/equran-hafalan-api
+
+**Setup**: Clone HF Space repo → copy `server/` files → update Dockerfile untuk port 7860 → push
+
+#### Alternative: Render
 
 Lihat panduan lengkap di: **[DEPLOY_RENDER.md](DEPLOY_RENDER.md)**
 
-- ✅ Auto-deploy dari GitHub (branch `dev` atau `main`)
-- ✅ Free tier: 750 compute hours/month, 512MB RAM
-- ✅ Blueprint config: `render.yaml`
-- ✅ CI/CD: `.github/workflows/server.yml`
+- Free tier: 750 compute hours/month, **512MB RAM** (limited)
+- Transcription: ~85 seconds (slower CPU)
+- Cold start: setelah 15 menit idle
 
-**Endpoint Production**: `https://equran-hafalan-api.onrender.com`
+**Endpoint**: `https://equran-hafalan-api.onrender.com`
 
 ### API Endpoints
 
