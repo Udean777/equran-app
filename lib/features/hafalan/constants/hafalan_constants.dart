@@ -7,9 +7,6 @@ abstract final class HafalanConstants {
   ///
   static const String apiBaseUrl = 'https://ssajudn-equran-hafalan-api.hf.space';
 
-  /// Alternative: Render URL (slower, 512MB RAM)
-  // static const String apiBaseUrl = 'https://equran-hafalan-api.onrender.com';
-
   /// Local development
   // static const String apiBaseUrl = 'http://192.168.1.100:8000';
 

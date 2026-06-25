@@ -58,7 +58,7 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 - **Statistik Baca (Reading Progress)** — Lacak progress tilawah secara otomatis melalui deteksi scroll aktif (_viewport detection_). Menampilkan visualisasi premium berupa heatmap aktivitas 90 hari (GitHub-style), progress bar juz (30 juz), surat yang paling sering dibaca, dan grafik membaca harian.
 - **Statistik Shalat Harian** — Pencatatan mandiri (_self-logging_) shalat fardhu dengan status shalat (Tepat Waktu, Qadha, Tidak Shalat). Dilengkapi kalender interaktif bulanan, streak shalat berturut-turut, grafik batang (bar chart) mingguan, checklist reminder otomatis, serta fitur export log data shalat ke format CSV.
 - **Hafalan Tracker & Spaced Repetition** — Lacak progres hafalan per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test mode dengan menyembunyikan teks Arab), pengingat muraja'ah otomatis berbasis metode _spaced repetition_ (interval 1 → 3 → 7 → 30 → 90 hari), dan notifikasi muraja'ah harian.
-- **🤖 AI Setoran Hafalan (Whisper STT)** — Fitur revolusioner untuk mengevaluasi hafalan secara otomatis menggunakan teknologi **Whisper Speech-to-Text** dari OpenAI. Rekam bacaan hafalan, sistem AI akan mentranskrip dan membandingkan dengan teks asli, lalu memberikan skor akurasi real-time (Character Error Rate). Threshold passing default 85%, dengan feedback detail per kata yang salah. Backend Python (FastAPI + faster-whisper) berjalan di server cloud (Render) atau local development.
+- **🤖 AI Setoran Hafalan (Whisper STT)** — Fitur revolusioner untuk mengevaluasi hafalan secara otomatis menggunakan teknologi **Whisper Speech-to-Text** dari OpenAI. Rekam bacaan hafalan, sistem AI akan mentranskrip dan membandingkan dengan teks asli, lalu memberikan skor akurasi real-time (Character Error Rate). Threshold passing default 85%, dengan feedback detail per kata yang salah. Backend Python (FastAPI + faster-whisper) berjalan di **Hugging Face Spaces** dengan 2 vCPU dan 16GB RAM untuk performa optimal.
 - **Quran Daily Streak & Bookmark** — Hitung konsistensi membaca Al-Quran harian dengan streak counter serta sistem penanda halaman/bookmark multi-kategori yang aman.
 
 ### ⚙️ Kustomisasi Premium & UX Modern
@@ -240,16 +240,6 @@ Production backend menggunakan **HF Spaces** dengan Docker SDK:
 **HF Space**: https://huggingface.co/spaces/ssajudn/equran-hafalan-api
 
 **Setup**: Clone HF Space repo → copy `server/` files → update Dockerfile untuk port 7860 → push
-
-#### Alternative: Render
-
-Lihat panduan lengkap di: **[DEPLOY_RENDER.md](DEPLOY_RENDER.md)**
-
-- Free tier: 750 compute hours/month, **512MB RAM** (limited)
-- Transcription: ~85 seconds (slower CPU)
-- Cold start: setelah 15 menit idle
-
-**Endpoint**: `https://equran-hafalan-api.onrender.com`
 
 ### API Endpoints
 
