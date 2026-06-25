@@ -23,6 +23,7 @@ abstract final class AppRoutes {
   static const String hafalan = '/hafalan';
   static const String hafalanDetail = '/hafalan/:suratNomor';
   static const String hafalanSetoran = '/hafalan/:suratNomor/setoran';
+  static const String hafalanRiwayat = '/hafalan/:suratNomor/riwayat';
   static const String statistikShalat = '/statistik-shalat';
   static const String readingStats = '/reading-stats';
   static const String notificationTest = '/notification-test';
@@ -54,4 +55,10 @@ abstract final class AppRoutes {
       juzNomor != null
       ? '/hafalan/$nomor/setoran?juz=$juzNomor'
       : '/hafalan/$nomor/setoran';
+
+  /// Navigasi ke halaman riwayat rekaman hafalan surat.
+  static String hafalanRiwayatSurat(int nomor, {int? juzNomor}) =>
+      juzNomor != null
+      ? '/hafalan/$nomor/riwayat?juz=$juzNomor'
+      : '/hafalan/$nomor/riwayat';
 }

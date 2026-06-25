@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/features/hafalan/constants/hafalan_constants.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
@@ -434,7 +435,27 @@ class SetoranCard extends StatelessWidget {
     required bool isDark,
   }) {
     final result = compareResult!;
-    final scoreColor = result.passed ? AppColors.success : AppColors.error;
+    final isSuccess = result.score >= HafalanConstants.defaultThreshold;
+    final isWarning =
+        result.score >= HafalanConstants.warningThreshold &&
+        result.score < HafalanConstants.defaultThreshold;
+    final isFailed = result.score < HafalanConstants.warningThreshold;
+
+    final scoreColor = isSuccess
+        ? AppColors.success
+        : (isWarning ? AppColors.warning : AppColors.error);
+    final icon = isSuccess
+        ? Icons.check_circle_rounded
+        : (isWarning ? Icons.warning_rounded : Icons.cancel_rounded);
+
+    var feedbackText = '';
+    if (isSuccess) {
+      feedbackText = 'Lulus / Hafal';
+    } else if (isWarning) {
+      feedbackText = 'Kurang tepat, coba rekam lagi';
+    } else {
+      feedbackText = 'Gagal';
+    }
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
@@ -466,13 +487,20 @@ class SetoranCard extends StatelessWidget {
               ),
               const SizedBox(width: AppDimens.spaceSM),
               Icon(
-                result.passed
-                    ? Icons.check_circle_rounded
-                    : Icons.cancel_rounded,
+                icon,
                 color: scoreColor,
                 size: 28,
               ),
             ],
+          ),
+          const SizedBox(height: AppDimens.spaceSM),
+          Text(
+            feedbackText,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: scoreColor,
+            ),
           ),
           if (!result.passed && result.wordErrors.isNotEmpty) ...[
             const SizedBox(height: AppDimens.spaceSM),
@@ -521,42 +549,45 @@ class SetoranCard extends StatelessWidget {
           ],
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onStartRecord,
-                  icon: const Icon(Icons.replay_rounded, size: 18),
-                  label: const Text('Rekam Ulang'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppDimens.spaceSM,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppDimens.spaceSM),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: onNextAyat,
-                  icon: const Icon(Icons.skip_next_rounded, size: 18),
-                  label: Text(
-                    currentIndex < totalAyat - 1
-                        ? 'Ayat Berikutnya'
-                        : 'Selesai',
-                  ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppDimens.spaceSM,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+              if (isWarning) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onStartRecord,
+                    icon: const Icon(Icons.replay_rounded, size: 18),
+                    label: const Text('Rekam Ulang'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppDimens.spaceSM,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
+              if (isSuccess || isFailed) ...[
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: onNextAyat,
+                    icon: const Icon(Icons.skip_next_rounded, size: 18),
+                    label: Text(
+                      currentIndex < totalAyat - 1
+                          ? 'Ayat Berikutnya'
+                          : 'Selesai',
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppDimens.spaceSM,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ],

@@ -261,15 +261,43 @@ class _HafalanDetailScaffoldState extends State<_HafalanDetailScaffold> {
                 AppDimens.pagePadding,
                 AppDimens.spaceMD,
               ),
-              child: GradientButton(
-                label: 'Mulai Setoran',
-                icon: Icons.play_arrow_rounded,
-                onTap: () => context.push(
-                  AppRoutes.hafalanSetoranSurat(
-                    widget.surat.nomor,
-                    juzNomor: widget.juzNomor,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  GradientButton(
+                    label: 'Mulai Setoran',
+                    icon: Icons.play_arrow_rounded,
+                    onTap: () => context.push(
+                      AppRoutes.hafalanSetoranSurat(
+                        widget.surat.nomor,
+                        juzNomor: widget.juzNomor,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: AppDimens.spaceMD),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      unawaited(
+                        context.push(
+                          AppRoutes.hafalanRiwayatSurat(
+                            widget.surat.nomor,
+                            juzNomor: widget.juzNomor,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.history_rounded, size: 20),
+                    label: const Text('Riwayat Rekaman Setoran'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppDimens.spaceMD,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
