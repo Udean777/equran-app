@@ -4,20 +4,17 @@ import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.da
 import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_imsak_alarm_prefs.dart';
-import 'package:equran_app/features/imsakiyah/presentation/viewmodels/imsak_alarm_state.dart';
+import 'package:equran_app/features/imsakiyah/presentation/providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImsakAlarmViewModel extends StateNotifier<ImsakAlarmState> {
-  ImsakAlarmViewModel(
-    this._getPrefs,
-    this._savePrefs,
-    this._scheduler,
-  ) : super(const ImsakAlarmState.initial());
+class ImsakAlarmViewModel extends Notifier<ImsakAlarmState> {
+  @override
+  ImsakAlarmState build() => const ImsakAlarmState.initial();
 
-  final GetImsakAlarmPrefs _getPrefs;
-  final SaveImsakAlarmPrefs _savePrefs;
-  final ImsakAlarmScheduler _scheduler;
+  GetImsakAlarmPrefs get _getPrefs => ref.read(getImsakAlarmPrefsProvider);
+  SaveImsakAlarmPrefs get _savePrefs => ref.read(saveImsakAlarmPrefsProvider);
+  ImsakAlarmScheduler get _scheduler => ref.read(imsakAlarmSchedulerProvider);
 
   Future<void> load() async {
     final result = await _getPrefs();

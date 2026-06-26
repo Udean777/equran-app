@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:equran_app/features/surat_list/domain/usecases/get_surat_list.dart';
-import 'package:equran_app/features/surat_list/presentation/viewmodels/surat_list_state.dart';
+import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SuratListViewModel extends StateNotifier<SuratListState> {
-  SuratListViewModel(this._getSuratList)
-    : super(const SuratListState.initial());
+class SuratListViewModel extends AutoDisposeNotifier<SuratListState> {
+  @override
+  SuratListState build() {
+    ref.onDispose(() => _debounce?.cancel());
+    unawaited(load());
+    return const SuratListState.initial();
+  }
 
-  final GetSuratList _getSuratList;
+  GetSuratList get _getSuratList => ref.read(getSuratListProvider);
   Timer? _debounce;
 
   Future<void> load() async {

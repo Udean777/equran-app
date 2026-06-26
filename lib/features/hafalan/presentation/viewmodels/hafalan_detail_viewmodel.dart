@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:equran_app/core/services/audio_recorder_service.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
-import 'package:equran_app/features/hafalan/constants/murajaah_intervals.dart';
+import 'package:equran_app/features/hafalan/domain/constants/murajaah_intervals.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
+import 'package:equran_app/features/hafalan/domain/services/hafalan_reminder_scheduler.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/compare_recitation.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_by_surat.dart';
@@ -11,29 +12,24 @@ import 'package:equran_app/features/hafalan/domain/usecases/params/compare_recit
 import 'package:equran_app/features/hafalan/domain/usecases/params/hafalan_params.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/params/save_hafalan_params.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/notifications/hafalan_reminder_scheduler.dart';
-import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_state.dart';
+import 'package:equran_app/features/hafalan/presentation/providers.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HafalanDetailViewModel extends StateNotifier<HafalanDetailState> {
-  HafalanDetailViewModel(
-    this._getHafalanBySurat,
-    this._saveHafalanSurat,
-    this._deleteHafalanSurat,
-    this._reminderScheduler,
-    this._compareRecitation,
-    this._audioRecorderService,
-    this._listNotifier,
-  ) : super(const HafalanDetailState.initial());
+class HafalanDetailViewModel extends AutoDisposeFamilyNotifier<HafalanDetailState, int> {
+  @override
+  HafalanDetailState build(int suratNomor) {
+    unawaited(loadDetail(suratNomor));
+    return const HafalanDetailState.initial();
+  }
 
-  final GetHafalanBySurat _getHafalanBySurat;
-  final SaveHafalanSurat _saveHafalanSurat;
-  final DeleteHafalanSurat _deleteHafalanSurat;
-  final HafalanReminderScheduler _reminderScheduler;
-  final CompareRecitation _compareRecitation;
-  final AudioRecorderService _audioRecorderService;
-  final HafalanListViewModel _listNotifier;
+  GetHafalanBySurat get _getHafalanBySurat => ref.read(getHafalanBySuratProvider);
+  SaveHafalanSurat get _saveHafalanSurat => ref.read(saveHafalanSuratProvider);
+  DeleteHafalanSurat get _deleteHafalanSurat => ref.read(deleteHafalanSuratProvider);
+  HafalanReminderScheduler get _reminderScheduler => ref.read(hafalanReminderSchedulerProvider);
+  CompareRecitation get _compareRecitation => ref.read(compareRecitationProvider);
+  AudioRecorderService get _audioRecorderService => ref.read(audioRecorderServiceProvider);
+  HafalanListViewModel get _listNotifier => ref.read(hafalanListViewModelProvider.notifier);
 
   Future<void> loadDetail(int suratNomor) async {
     state = const HafalanDetailState.loading();
@@ -271,7 +267,7 @@ class HafalanDetailViewModel extends StateNotifier<HafalanDetailState> {
           state = const HafalanDetailState.failure('Gagal menghapus data'),
       (_) async {
         state = const HafalanDetailState.initial();
-        if (mounted) await _listNotifier.load();
+        await _listNotifier.load();
       },
     );
   }
@@ -291,10 +287,8 @@ class HafalanDetailViewModel extends StateNotifier<HafalanDetailState> {
         } else {
           await _reminderScheduler.cancelReminder(hafalan.suratNomor);
         }
-        if (mounted) {
-          await loadDetail(hafalan.suratNomor);
-          await _listNotifier.load();
-        }
+        await loadDetail(hafalan.suratNomor);
+        await _listNotifier.load();
       },
     );
   }

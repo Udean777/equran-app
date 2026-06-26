@@ -89,14 +89,12 @@ final cancelAllNotificationTestsProvider = Provider<CancelAllNotificationTests>(
 
 // ─── ViewModel Provider ────────────────────────────────────────────────────
 
-final AutoDisposeStateNotifierProvider<
+final AutoDisposeNotifierProvider<
   NotificationTestViewModel,
   NotificationTestState
 >
 notificationTestViewModelProvider =
-    StateNotifierProvider.autoDispose<
+    NotifierProvider.autoDispose<
       NotificationTestViewModel,
       NotificationTestState
-    >((ref) {
-      return NotificationTestViewModel(ref);
-    });
+    >(NotificationTestViewModel.new);

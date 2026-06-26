@@ -1,16 +1,14 @@
 import 'package:equran_app/features/quran_reminder/domain/usecases/get_streak_count.dart';
 import 'package:equran_app/features/quran_reminder/domain/usecases/record_quran_read.dart';
-import 'package:equran_app/features/quran_reminder/presentation/viewmodels/quran_streak_state.dart';
+import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QuranStreakViewModel extends StateNotifier<QuranStreakState> {
-  QuranStreakViewModel(
-    this._getStreakCount,
-    this._recordQuranRead,
-  ) : super(const QuranStreakState.initial());
+class QuranStreakViewModel extends Notifier<QuranStreakState> {
+  @override
+  QuranStreakState build() => const QuranStreakState.initial();
 
-  final GetStreakCount _getStreakCount;
-  final RecordQuranRead _recordQuranRead;
+  GetStreakCount get _getStreakCount => ref.read(getStreakCountProvider);
+  RecordQuranRead get _recordQuranRead => ref.read(recordQuranReadProvider);
 
   Future<void> load() async {
     final result = await _getStreakCount();

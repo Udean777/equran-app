@@ -6,8 +6,8 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/presentation/providers.dart';
+import 'package:equran_app/features/audio/presentation/utils/format_utils.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_surat_group.dart';
-import 'package:equran_app/features/audio/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

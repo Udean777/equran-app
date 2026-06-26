@@ -23,7 +23,6 @@ import 'package:equran_app/features/audio/presentation/viewmodels/audio_download
 import 'package:equran_app/features/audio/presentation/viewmodels/audio_storage_state.dart';
 import 'package:equran_app/features/audio/presentation/viewmodels/audio_storage_viewmodel.dart';
 import 'package:equran_app/features/audio/presentation/viewmodels/audio_viewmodel.dart';
-import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
@@ -115,38 +114,16 @@ final getDownloadedAyatsProvider = Provider<GetDownloadedAyats>((ref) {
 // ─── ViewModels ────────────────────────────────────────────────────────────
 
 final audioViewModelProvider =
-    StateNotifierProvider<AudioViewModel, AudioPlayerState>(
-      (ref) {
-        final vm = AudioViewModel(
-          ref.read(playAudioProvider),
-          ref.read(pauseAudioProvider),
-          ref.read(resumeAudioProvider),
-          ref.read(stopAudioProvider),
-          ref.read(seekAudioProvider),
-          ref.read(getAudioStateStreamProvider),
-        );
-        ref.onDispose(vm.dispose);
-        return vm;
-      },
+    NotifierProvider<AudioViewModel, AudioPlayerState>(
+      AudioViewModel.new,
     );
 
-final audioDownloadViewModelProvider =
-    AutoDisposeStateNotifierProvider<
-      AudioDownloadViewModel,
-      AudioDownloadState
-    >(
-      (ref) => AudioDownloadViewModel(
-        ref.read(downloadAyatAudioProvider),
-        ref.read(getDownloadedAyatsProvider),
-      ),
+final AutoDisposeNotifierProvider<AudioDownloadViewModel, AudioDownloadState> audioDownloadViewModelProvider =
+    NotifierProvider.autoDispose<AudioDownloadViewModel, AudioDownloadState>(
+      AudioDownloadViewModel.new,
     );
 
-final audioStorageViewModelProvider =
-    AutoDisposeStateNotifierProvider<AudioStorageViewModel, AudioStorageState>(
-      (ref) => AudioStorageViewModel(
-        ref.read(getDownloadedAyatsProvider),
-        ref.read(deleteAyatAudioProvider),
-        ref.read(deleteAllAudioProvider),
-        ref.read(getSuratDetailProvider),
-      ),
+final AutoDisposeNotifierProvider<AudioStorageViewModel, AudioStorageState> audioStorageViewModelProvider =
+    NotifierProvider.autoDispose<AudioStorageViewModel, AudioStorageState>(
+      AudioStorageViewModel.new,
     );

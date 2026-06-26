@@ -21,29 +21,27 @@ part 'notification_test_viewmodel.freezed.dart';
 
 const _testDelay = Duration(seconds: 5);
 
-class NotificationTestViewModel extends StateNotifier<NotificationTestState> {
-  NotificationTestViewModel(this._ref)
-    : super(const NotificationTestState.initial());
-
-  final Ref _ref;
+class NotificationTestViewModel extends AutoDisposeNotifier<NotificationTestState> {
+  @override
+  NotificationTestState build() => const NotificationTestState.initial();
 
   // Getters untuk use cases
   ScheduleAdzanNotification get _scheduleAdzan =>
-      _ref.read(scheduleAdzanNotificationProvider);
+      ref.read(scheduleAdzanNotificationProvider);
   ScheduleImsakNotification get _scheduleImsak =>
-      _ref.read(scheduleImsakNotificationProvider);
+      ref.read(scheduleImsakNotificationProvider);
   ScheduleSahurNotification get _scheduleSahur =>
-      _ref.read(scheduleSahurNotificationProvider);
+      ref.read(scheduleSahurNotificationProvider);
   ScheduleQuranReminder get _scheduleQuran =>
-      _ref.read(scheduleQuranReminderProvider);
+      ref.read(scheduleQuranReminderProvider);
   ScheduleChecklistReminder get _scheduleChecklist =>
-      _ref.read(scheduleChecklistReminderProvider);
+      ref.read(scheduleChecklistReminderProvider);
   ScheduleHafalanReminder get _scheduleHafalan =>
-      _ref.read(scheduleHafalanReminderProvider);
-  PlayAdzanDirect get _playAdzanDirect => _ref.read(playAdzanDirectProvider);
-  StopAdzanDirect get _stopAdzanDirect => _ref.read(stopAdzanDirectProvider);
+      ref.read(scheduleHafalanReminderProvider);
+  PlayAdzanDirect get _playAdzanDirect => ref.read(playAdzanDirectProvider);
+  StopAdzanDirect get _stopAdzanDirect => ref.read(stopAdzanDirectProvider);
   CancelAllNotificationTests get _cancelAll =>
-      _ref.read(cancelAllNotificationTestsProvider);
+      ref.read(cancelAllNotificationTestsProvider);
 
   static tz.TZDateTime _soon() => tz.TZDateTime.now(tz.local).add(_testDelay);
 

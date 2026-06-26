@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/features/onboarding/constants/onboarding_constants.dart';
+import 'package:equran_app/features/onboarding/presentation/constants/onboarding_colors.dart';
 import 'package:flutter/material.dart';
 
 // ---------------------------------------------------------------------------

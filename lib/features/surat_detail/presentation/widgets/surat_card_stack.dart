@@ -1,8 +1,8 @@
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/bookmark/presentation/providers.dart';
-import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/presentation/services/bookmark_toggle_helper.dart';
 import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';

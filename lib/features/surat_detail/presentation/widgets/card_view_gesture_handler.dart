@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
+import 'package:equran_app/features/surat_detail/presentation/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

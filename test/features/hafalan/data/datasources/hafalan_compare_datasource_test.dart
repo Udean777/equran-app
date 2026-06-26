@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/dio_client.dart';
-import 'package:equran_app/features/hafalan/constants/hafalan_constants.dart';
+import 'package:equran_app/features/hafalan/data/constants/hafalan_api_config.dart';
 import 'package:equran_app/features/hafalan/data/datasources/hafalan_compare_datasource.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -38,7 +38,7 @@ void main() {
       // arrange
       when(
         () => mockDio.post<Map<String, dynamic>>(
-          '${HafalanConstants.apiBaseUrl}/compare',
+          '${HafalanApiConfig.apiBaseUrl}/compare',
           data: any(named: 'data'),
         ),
       ).thenAnswer(

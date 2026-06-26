@@ -75,14 +75,7 @@ final deleteShalatByDateProvider = Provider<DeleteShalatByDate>((ref) {
 // VIEWMODEL PROVIDER
 // =============================================================================
 
-final AutoDisposeStateNotifierProvider<
-  StatistikShalatViewModel,
-  StatistikShalatState
->
-statistikShalatViewModelProvider =
-    StateNotifierProvider.autoDispose<
-      StatistikShalatViewModel,
-      StatistikShalatState
-    >((ref) {
-      return StatistikShalatViewModel(ref);
-    });
+final AutoDisposeNotifierProvider<StatistikShalatViewModel, StatistikShalatState> statistikShalatViewModelProvider =
+    NotifierProvider.autoDispose<StatistikShalatViewModel, StatistikShalatState>(
+      StatistikShalatViewModel.new,
+    );

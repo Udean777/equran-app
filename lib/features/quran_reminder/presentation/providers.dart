@@ -74,18 +74,11 @@ final quranReminderSchedulerProvider = Provider<QuranReminderScheduler>((ref) {
 // --- ViewModels ---
 
 final quranReminderViewModelProvider =
-    StateNotifierProvider<QuranReminderViewModel, QuranReminderState>(
-      (ref) => QuranReminderViewModel(
-        ref.read(getQuranReminderPrefsProvider),
-        ref.read(saveQuranReminderPrefsProvider),
-        ref.read(quranReminderSchedulerProvider),
-      ),
+    NotifierProvider<QuranReminderViewModel, QuranReminderState>(
+      QuranReminderViewModel.new,
     );
 
 final quranStreakViewModelProvider =
-    StateNotifierProvider<QuranStreakViewModel, QuranStreakState>(
-      (ref) => QuranStreakViewModel(
-        ref.read(getStreakCountProvider),
-        ref.read(recordQuranReadProvider),
-      ),
+    NotifierProvider<QuranStreakViewModel, QuranStreakState>(
+      QuranStreakViewModel.new,
     );

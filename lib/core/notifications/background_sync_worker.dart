@@ -8,11 +8,11 @@ import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat
 import 'package:equran_app/features/jadwal_shalat/data/repositories/jadwal_shalat_repository_impl.dart';
 import 'package:equran_app/features/jadwal_shalat/data/repositories/shalat_location_repository_impl.dart';
 import 'package:equran_app/features/jadwal_shalat/data/repositories/shalat_notif_prefs_repository_impl.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notif_scheduler_service.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler_impl.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_notification_scheduler.dart';
-import 'package:equran_app/features/jadwal_shalat/services/shalat_notif_scheduler_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';

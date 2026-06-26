@@ -1,21 +1,18 @@
 import 'dart:async';
 
 import 'package:equran_app/features/audio/domain/entities/download_state.dart';
-import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
-import 'package:equran_app/features/audio/presentation/viewmodels/audio_download_state.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AudioDownloadViewModel extends StateNotifier<AudioDownloadState> {
-  AudioDownloadViewModel(
-    this._downloadAyatAudio,
-    this._getDownloadedAyats,
-  ) : super(const AudioDownloadState());
+class AudioDownloadViewModel extends AutoDisposeNotifier<AudioDownloadState> {
+  @override
+  AudioDownloadState build() => const AudioDownloadState();
 
-  final DownloadAyatAudio _downloadAyatAudio;
-  final GetDownloadedAyats _getDownloadedAyats;
+  DownloadAyatAudio get _downloadAyatAudio => ref.read(downloadAyatAudioProvider);
+  GetDownloadedAyats get _getDownloadedAyats => ref.read(getDownloadedAyatsProvider);
 
   bool _cancelSuratDownload = false;
   int? _currentSuratNomor;

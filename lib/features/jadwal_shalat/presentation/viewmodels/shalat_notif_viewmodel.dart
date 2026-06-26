@@ -1,42 +1,35 @@
 import 'dart:async';
 
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_schedule_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notif_scheduler_service.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
-import 'package:equran_app/features/jadwal_shalat/services/shalat_notif_scheduler_service.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// ViewModel untuk manage state notifikasi shalat (UI).
-/// Delegate scheduling logic ke ShalatNotifSchedulerService.
-class ShalatNotifViewModel extends StateNotifier<ShalatNotifPrefs> {
-  ShalatNotifViewModel(
-    this._getPrefs,
-    this._savePrefs,
-    this._schedulerService,
-  ) : super(const ShalatNotifPrefs());
+class ShalatNotifViewModel extends Notifier<ShalatNotifPrefs> {
+  @override
+  ShalatNotifPrefs build() => const ShalatNotifPrefs();
 
-  final GetShalatNotifPrefs _getPrefs;
-  final SaveShalatNotifPrefs _savePrefs;
-  final ShalatNotifSchedulerService _schedulerService;
+  GetShalatNotifPrefs get _getPrefs => ref.read(getShalatNotifPrefsProvider);
+  SaveShalatNotifPrefs get _savePrefs => ref.read(saveShalatNotifPrefsProvider);
+  ShalatNotifSchedulerService get _schedulerService =>
+      ref.read(shalatNotifSchedulerServiceProvider);
 
   List<ShalatScheduleEntry> _entries = [];
 
   void load() {
     unawaited(
       _getPrefs().then((result) {
-        if (mounted) {
-          result.fold(
-            (_) => state = const ShalatNotifPrefs(),
-            (p) => state = p,
-          );
-        }
+        result.fold(
+          (_) => state = const ShalatNotifPrefs(),
+          (p) => state = p,
+        );
       }),
     );
   }
 
-  /// Set jadwal dari JadwalShalatViewModel.
-  /// Langsung reschedule notifikasi.
   void setEntries(List<ShalatScheduleEntry> entries) {
     _entries = entries;
     unawaited(_schedulerService.scheduleForEntries(entries));

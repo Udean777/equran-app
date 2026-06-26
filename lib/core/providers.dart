@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:equran_app/core/constants/network_config.dart';
+import 'package:equran_app/core/location/location_matching_service.dart';
 import 'package:equran_app/core/location/location_service.dart';
 import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
@@ -85,10 +86,14 @@ final tasbihBoxProvider = Provider<Box<String>>((ref) {
   return Hive.box<String>('tasbih_box');
 });
 
-// ─── Location Service Provider ────────────────────────────────────────────
+// ─── Location Service Providers ────────────────────────────────────────────
 
 final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationServiceImpl();
+});
+
+final locationMatchingServiceProvider = Provider<LocationMatchingService>((ref) {
+  return LocationMatchingService();
 });
 
 // ─── Notification Service Provider ────────────────────────────────────────

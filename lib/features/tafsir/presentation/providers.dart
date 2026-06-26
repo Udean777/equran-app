@@ -26,8 +26,8 @@ final getTafsirProvider = Provider<GetTafsir>((ref) {
   return GetTafsir(ref.read(tafsirRepositoryProvider));
 });
 
-final AutoDisposeStateNotifierProvider<TafsirViewModel, TafsirState>
+final AutoDisposeNotifierProvider<TafsirViewModel, TafsirState>
 tafsirViewModelProvider =
-    StateNotifierProvider.autoDispose<TafsirViewModel, TafsirState>((ref) {
-      return TafsirViewModel(ref);
-    });
+    NotifierProvider.autoDispose<TafsirViewModel, TafsirState>(
+      TafsirViewModel.new,
+    );

@@ -1,36 +1,33 @@
 import 'dart:async';
 
+import 'package:equran_app/core/location/location_matching_service.dart';
 import 'package:equran_app/core/location/location_service.dart';
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_last_location_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/params/imsakiyah_params.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_last_location_imsakiyah.dart';
-import 'package:equran_app/features/imsakiyah/presentation/viewmodels/imsakiyah_state.dart';
+import 'package:equran_app/features/imsakiyah/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImsakiyahViewModel extends StateNotifier<ImsakiyahState> {
-  ImsakiyahViewModel(
-    this._getProvinsi,
-    this._getKabkota,
-    this._getImsakiyah,
-    this._getLastLocation,
-    this._saveLastLocation,
-    this._locationService,
-  ) : super(const ImsakiyahState.initial());
+class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
+  @override
+  ImsakiyahState build() => const ImsakiyahState.initial();
 
-  final GetProvinsi _getProvinsi;
-  final GetKabkota _getKabkota;
-  final GetImsakiyah _getImsakiyah;
-  final GetLastLocationImsakiyah _getLastLocation;
-  final SaveLastLocationImsakiyah _saveLastLocation;
-  final LocationService _locationService;
+  GetProvinsi get _getProvinsi => ref.read(getProvinsiProvider);
+  GetKabkota get _getKabkota => ref.read(getKabkotaProvider);
+  GetImsakiyah get _getImsakiyah => ref.read(getImsakiyahProvider);
+  GetLastLocationImsakiyah get _getLastLocation => ref.read(getLastLocationImsakiyahProvider);
+  SaveLastLocationImsakiyah get _saveLastLocation =>
+      ref.read(saveLastLocationImsakiyahProvider);
+  LocationService get _locationService => ref.read(locationServiceProvider);
+  LocationMatchingService get _matchingService =>
+      ref.read(locationMatchingServiceProvider);
 
   static const _defaultProvinsi = 'DKI Jakarta';
   static const _defaultKabkota = 'Kota Jakarta Pusat';
-
-  // ─── Public API ──────────────────────────────────────────────────────────────
 
   Future<void> init() async {
     state = const ImsakiyahState.loadingProvinsi();
@@ -126,52 +123,41 @@ class ImsakiyahViewModel extends StateNotifier<ImsakiyahState> {
     }
   }
 
-  // ─── GPS Detection (inlined from LocationSelectionMixin) ────────────────────
-
   Future<void> _autoDetectLocation(List<String> provinsiList) async {
     state = const ImsakiyahState.detectingLocation();
 
-    final detected = await _locationService.detectCurrentLocation();
+    final matched = await _matchingService.autoDetectLocation(
+      locationService: _locationService,
+      provinsiList: provinsiList,
+      getKabkotaList: (provinsi) async {
+        final result = await _getKabkota(GetKabkotaParams(provinsi));
+        return result.fold((_) => null, (list) => list);
+      },
+    );
 
-    if (detected != null) {
-      final matchedProvinsi = _fuzzyMatch(detected.provinsi, provinsiList);
-
-      if (matchedProvinsi != null) {
-        final kabkota = await _getKabkotaList(matchedProvinsi);
-        if (kabkota != null) {
-          final matchedKabkota = _fuzzyMatch(detected.kabkota, kabkota);
-
-          if (matchedKabkota != null) {
-            unawaited(
-              _saveLastLocation(
-                SaveLastLocationParams(
-                  provinsi: matchedProvinsi,
-                  kabkota: matchedKabkota,
-                ),
-              ),
-            );
-            await _autoLoadJadwal(
-              provinsiList: provinsiList,
-              selectedProvinsi: matchedProvinsi,
-              selectedKabkota: matchedKabkota,
-              kabkotaList: kabkota,
-            );
-            return;
-          }
-        }
-      }
+    if (matched != null) {
+      unawaited(
+        _saveLastLocation(
+          SaveLastLocationParams(
+            provinsi: matched.provinsi,
+            kabkota: matched.kabkota,
+          ),
+        ),
+      );
+      await _autoLoadJadwal(
+        provinsiList: provinsiList,
+        selectedProvinsi: matched.provinsi,
+        selectedKabkota: matched.kabkota,
+      );
+      return;
     }
 
     await _loadDefaultJakarta(provinsiList);
   }
 
-  Future<List<String>?> _getKabkotaList(String provinsi) async {
-    final result = await _getKabkota(GetKabkotaParams(provinsi));
-    return result.fold((_) => null, (list) => list);
-  }
-
   Future<void> _loadDefaultJakarta(List<String> provinsiList) async {
-    final kabkota = await _getKabkotaList(_defaultProvinsi);
+    final kabkotaResult = await _getKabkota(const GetKabkotaParams(_defaultProvinsi));
+    final kabkota = kabkotaResult.fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = ImsakiyahState.provinsiLoaded(provinsi: provinsiList);
       return;
@@ -195,44 +181,15 @@ class ImsakiyahViewModel extends StateNotifier<ImsakiyahState> {
     );
   }
 
-  String? _fuzzyMatch(String query, List<String> candidates) {
-    final q = query.toUpperCase().trim();
-
-    final exact = candidates.where((c) => c.toUpperCase() == q);
-    if (exact.isNotEmpty) return exact.first;
-
-    final containsQ = candidates.where((c) => c.toUpperCase().contains(q));
-    if (containsQ.isNotEmpty) return containsQ.first;
-
-    final stripped = candidates.where((c) {
-      final upper = c.toUpperCase();
-      final clean = upper
-          .replaceFirst(RegExp(r'^KAB\.\s*'), '')
-          .replaceFirst(RegExp(r'^KABUPATEN\s+'), '')
-          .replaceFirst(RegExp(r'^KOTA\s+'), '')
-          .trim();
-      return clean == q || clean.contains(q) || q.contains(clean);
-    });
-    if (stripped.isNotEmpty) return stripped.first;
-
-    final qTokens = q.split(RegExp(r'\s+'));
-    bool allTokensIn(String c) {
-      final upper = c.toUpperCase();
-      return qTokens.every(upper.contains);
-    }
-
-    return candidates.where(allTokensIn).firstOrNull;
-  }
-
-  // ─── Private helpers ─────────────────────────────────────────────────────────
-
   Future<void> _autoLoadJadwal({
     required List<String> provinsiList,
     required String selectedProvinsi,
     required String selectedKabkota,
     List<String>? kabkotaList,
   }) async {
-    final kabkota = kabkotaList ?? await _getKabkotaList(selectedProvinsi);
+    final kabkota = kabkotaList ??
+        (await _getKabkota(GetKabkotaParams(selectedProvinsi)))
+            .fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = ImsakiyahState.provinsiLoaded(provinsi: provinsiList);
       return;

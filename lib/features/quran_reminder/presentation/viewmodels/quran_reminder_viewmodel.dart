@@ -4,24 +4,20 @@ import 'package:equran_app/features/quran_reminder/data/services/quran_reminder_
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/domain/usecases/get_quran_reminder_prefs.dart';
 import 'package:equran_app/features/quran_reminder/domain/usecases/save_quran_reminder_prefs.dart';
-import 'package:equran_app/features/quran_reminder/presentation/viewmodels/quran_reminder_state.dart';
+import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QuranReminderViewModel extends StateNotifier<QuranReminderState> {
-  QuranReminderViewModel(
-    this._getPrefs,
-    this._savePrefs,
-    this._scheduler,
-  ) : super(const QuranReminderState.initial());
+class QuranReminderViewModel extends Notifier<QuranReminderState> {
+  @override
+  QuranReminderState build() => const QuranReminderState.initial();
 
-  final GetQuranReminderPrefs _getPrefs;
-  final SaveQuranReminderPrefs _savePrefs;
-  final QuranReminderScheduler _scheduler;
+  GetQuranReminderPrefs get _getPrefs => ref.read(getQuranReminderPrefsProvider);
+  SaveQuranReminderPrefs get _savePrefs => ref.read(saveQuranReminderPrefsProvider);
+  QuranReminderScheduler get _scheduler => ref.read(quranReminderSchedulerProvider);
 
   void load() {
     unawaited(
       _getPrefs().then((result) {
-        if (!mounted) return;
         result.fold(
           (failure) => state = QuranReminderState.error(failure),
           (prefs) {

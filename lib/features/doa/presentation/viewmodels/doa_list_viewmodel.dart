@@ -1,12 +1,13 @@
 import 'package:equran_app/features/doa/domain/entities/doa.dart';
 import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart';
-import 'package:equran_app/features/doa/presentation/viewmodels/doa_list_state.dart';
+import 'package:equran_app/features/doa/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DoaListViewModel extends StateNotifier<DoaListState> {
-  DoaListViewModel(this._getDoaList) : super(const DoaListState.initial());
+class DoaListViewModel extends AutoDisposeNotifier<DoaListState> {
+  @override
+  DoaListState build() => const DoaListState.initial();
 
-  final GetDoaList _getDoaList;
+  GetDoaList get _getDoaList => ref.read(getDoaListProvider);
 
   Future<void> load() async {
     state = const DoaListState.loading();

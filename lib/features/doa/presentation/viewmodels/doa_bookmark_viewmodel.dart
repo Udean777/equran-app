@@ -1,19 +1,16 @@
 import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart';
 import 'package:equran_app/features/doa/domain/usecases/get_doa_list.dart';
 import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart';
-import 'package:equran_app/features/doa/presentation/viewmodels/doa_bookmark_state.dart';
+import 'package:equran_app/features/doa/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DoaBookmarkViewModel extends StateNotifier<DoaBookmarkState> {
-  DoaBookmarkViewModel(
-    this._getDoaBookmarks,
-    this._toggleDoaBookmark,
-    this._getDoaList,
-  ) : super(const DoaBookmarkState.initial());
+class DoaBookmarkViewModel extends Notifier<DoaBookmarkState> {
+  @override
+  DoaBookmarkState build() => const DoaBookmarkState.initial();
 
-  final GetDoaBookmarks _getDoaBookmarks;
-  final ToggleDoaBookmark _toggleDoaBookmark;
-  final GetDoaList _getDoaList;
+  GetDoaBookmarks get _getDoaBookmarks => ref.read(getDoaBookmarksProvider);
+  ToggleDoaBookmark get _toggleDoaBookmark => ref.read(toggleDoaBookmarkProvider);
+  GetDoaList get _getDoaList => ref.read(getDoaListProvider);
 
   Future<void> load() async {
     state = const DoaBookmarkState.loading();

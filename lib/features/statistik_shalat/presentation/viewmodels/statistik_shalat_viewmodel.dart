@@ -17,17 +17,15 @@ import 'package:intl/intl.dart';
 part 'statistik_shalat_state.dart';
 part 'statistik_shalat_viewmodel.freezed.dart';
 
-class StatistikShalatViewModel extends StateNotifier<StatistikShalatState> {
-  StatistikShalatViewModel(this._ref)
-    : super(const StatistikShalatState.initial());
+class StatistikShalatViewModel extends AutoDisposeNotifier<StatistikShalatState> {
+  @override
+  StatistikShalatState build() => const StatistikShalatState.initial();
 
-  final Ref _ref;
-
-  GetShalatByDate get _getShalatByDate => _ref.read(getShalatByDateProvider);
-  GetShalatStats get _getShalatStats => _ref.read(getShalatStatsProvider);
-  SaveShalatLog get _saveShalatLog => _ref.read(saveShalatLogProvider);
+  GetShalatByDate get _getShalatByDate => ref.read(getShalatByDateProvider);
+  GetShalatStats get _getShalatStats => ref.read(getShalatStatsProvider);
+  SaveShalatLog get _saveShalatLog => ref.read(saveShalatLogProvider);
   DeleteShalatByDate get _deleteShalatByDate =>
-      _ref.read(deleteShalatByDateProvider);
+      ref.read(deleteShalatByDateProvider);
 
   static final _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -36,7 +34,6 @@ class StatistikShalatViewModel extends StateNotifier<StatistikShalatState> {
 
     final today = _dateFormat.format(DateTime.now());
 
-    // Sync any check-ins made via home screen widget
     await _syncWidgetCheckins(today);
 
     final last30 = _generateDateRange(
@@ -60,7 +57,6 @@ class StatistikShalatViewModel extends StateNotifier<StatistikShalatState> {
             today: todayStats ?? ShalatDayStats(date: today),
             stats: stats,
           );
-          // Update home screen widget with latest data
           unawaited(
             updateShalatWidget(
               todayStats ?? ShalatDayStats(date: today),
@@ -72,7 +68,6 @@ class StatistikShalatViewModel extends StateNotifier<StatistikShalatState> {
     );
   }
 
-  /// Sync check-ins made via home screen widget to Hive storage.
   Future<void> _syncWidgetCheckins(String today) async {
     final widgetStatuses = await readWidgetCheckinStatuses();
     if (widgetStatuses == null) return;

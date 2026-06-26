@@ -1,14 +1,17 @@
 import 'dart:async';
 
 import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/viewmodels/surat_detail_state.dart';
+import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SuratDetailViewModel extends StateNotifier<SuratDetailState> {
-  SuratDetailViewModel(this._getSuratDetail)
-    : super(const SuratDetailState.initial());
+class SuratDetailViewModel extends AutoDisposeFamilyNotifier<SuratDetailState, int> {
+  @override
+  SuratDetailState build(int nomor) {
+    unawaited(load(nomor));
+    return const SuratDetailState.initial();
+  }
 
-  final GetSuratDetail _getSuratDetail;
+  GetSuratDetail get _getSuratDetail => ref.read(getSuratDetailProvider);
 
   Future<void> load(int nomor) async {
     state = const SuratDetailState.loading();

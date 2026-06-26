@@ -9,6 +9,7 @@ import 'package:equran_app/features/imsakiyah/domain/repositories/imsak_alarm_re
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_location_repository.dart';
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart';
 import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
+import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler_impl.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_kabkota.dart';
@@ -16,7 +17,6 @@ import 'package:equran_app/features/imsakiyah/domain/usecases/get_last_location_
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_provinsi.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/save_last_location_imsakiyah.dart';
-import 'package:equran_app/features/imsakiyah/notifications/imsak_alarm_scheduler.dart';
 import 'package:equran_app/features/imsakiyah/presentation/viewmodels/imsak_alarm_state.dart';
 import 'package:equran_app/features/imsakiyah/presentation/viewmodels/imsak_alarm_viewmodel.dart';
 import 'package:equran_app/features/imsakiyah/presentation/viewmodels/imsakiyah_state.dart';
@@ -108,23 +108,12 @@ final imsakAlarmSchedulerProvider = Provider<ImsakAlarmScheduler>((ref) {
 
 // ─── ViewModels ────────────────────────────────────────────────────────────
 
-final imsakiyahViewModelProvider =
-    AutoDisposeStateNotifierProvider<ImsakiyahViewModel, ImsakiyahState>(
-      (ref) => ImsakiyahViewModel(
-        ref.read(getProvinsiProvider),
-        ref.read(getKabkotaProvider),
-        ref.read(getImsakiyahProvider),
-        ref.read(getLastLocationImsakiyahProvider),
-        ref.read(saveLastLocationImsakiyahProvider),
-        ref.watch(locationServiceProvider),
-      ),
+final AutoDisposeNotifierProvider<ImsakiyahViewModel, ImsakiyahState> imsakiyahViewModelProvider =
+    NotifierProvider.autoDispose<ImsakiyahViewModel, ImsakiyahState>(
+      ImsakiyahViewModel.new,
     );
 
 final imsakAlarmViewModelProvider =
-    StateNotifierProvider<ImsakAlarmViewModel, ImsakAlarmState>(
-      (ref) => ImsakAlarmViewModel(
-        ref.read(getImsakAlarmPrefsProvider),
-        ref.read(saveImsakAlarmPrefsProvider),
-        ref.read(imsakAlarmSchedulerProvider),
-      ),
+    NotifierProvider<ImsakAlarmViewModel, ImsakAlarmState>(
+      ImsakAlarmViewModel.new,
     );

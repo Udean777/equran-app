@@ -1,6 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/surat_list/constants/surat_list_constants.dart';
+import 'package:equran_app/features/surat_list/presentation/constants/surat_list_constants.dart';
 import 'package:flutter/material.dart';
 
 class SearchBarDelegate extends SliverPersistentHeaderDelegate {

@@ -1,4 +1,4 @@
-import 'package:equran_app/features/audio/constants/audio_constants.dart';
+import 'package:equran_app/features/audio/domain/constants/audio_constants.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/foundation.dart';

@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'package:equran_app/core/location/location_matching_service.dart';
 import 'package:equran_app/core/location/location_service.dart';
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_schedule_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notif_scheduler_service.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
@@ -11,36 +15,27 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_s
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/params/jadwal_shalat_params.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
-import 'package:equran_app/features/jadwal_shalat/presentation/viewmodels/jadwal_shalat_state.dart';
-import 'package:equran_app/features/jadwal_shalat/services/shalat_notif_scheduler_service.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class JadwalShalatViewModel extends StateNotifier<JadwalShalatState> {
-  JadwalShalatViewModel(
-    this._getProvinsi,
-    this._getKabkota,
-    this._getJadwalShalat,
-    this._getLastLocation,
-    this._saveLastLocation,
-    this._locationService,
-    this._saveNotifPrefs,
-    this._schedulerService,
-  ) : super(const JadwalShalatState.initial());
+class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
+  @override
+  JadwalShalatState build() => const JadwalShalatState.initial();
 
-  final GetProvinsiShalat _getProvinsi;
-  final GetKabkotaShalat _getKabkota;
-  final GetJadwalShalat _getJadwalShalat;
-  final GetLastLocationShalat _getLastLocation;
-  final SaveLastLocationShalat _saveLastLocation;
-  final LocationService _locationService;
-  final SaveShalatNotifPrefs _saveNotifPrefs;
-  final ShalatNotifSchedulerService _schedulerService;
+  GetProvinsiShalat get _getProvinsi => ref.read(getProvinsiShalatProvider);
+  GetKabkotaShalat get _getKabkota => ref.read(getKabkotaShalatProvider);
+  GetJadwalShalat get _getJadwalShalat => ref.read(getJadwalShalatProvider);
+  GetLastLocationShalat get _getLastLocation => ref.read(getLastLocationShalatProvider);
+  SaveLastLocationShalat get _saveLastLocation => ref.read(saveLastLocationShalatProvider);
+  LocationService get _locationService => ref.read(locationServiceProvider);
+  SaveShalatNotifPrefs get _saveNotifPrefs => ref.read(saveShalatNotifPrefsProvider);
+  ShalatNotifSchedulerService get _schedulerService =>
+      ref.read(shalatNotifSchedulerServiceProvider);
+  LocationMatchingService get _matchingService =>
+      ref.read(locationMatchingServiceProvider);
 
   static const _defaultProvinsi = 'DKI Jakarta';
   static const _defaultKabkota = 'Kota Jakarta Pusat';
-
-  // --- Public API ---
 
   Future<void> init() async {
     state = const JadwalShalatState.loadingProvinsi();
@@ -170,52 +165,43 @@ class JadwalShalatViewModel extends StateNotifier<JadwalShalatState> {
     }
   }
 
-  // --- GPS Detection (inlined from LocationSelectionMixin) ---
-
   Future<void> _autoDetectLocation(List<String> provinsiList) async {
     state = const JadwalShalatState.detectingLocation();
 
-    final detected = await _locationService.detectCurrentLocation();
+    final matched = await _matchingService.autoDetectLocation(
+      locationService: _locationService,
+      provinsiList: provinsiList,
+      getKabkotaList: (provinsi) async {
+        final result = await _getKabkota(GetKabkotaShalatParams(provinsi));
+        return result.fold((_) => null, (list) => list);
+      },
+    );
 
-    if (detected != null) {
-      final matchedProvinsi = _fuzzyMatch(detected.provinsi, provinsiList);
-
-      if (matchedProvinsi != null) {
-        final kabkota = await _getKabkotaList(matchedProvinsi);
-        if (kabkota != null) {
-          final matchedKabkota = _fuzzyMatch(detected.kabkota, kabkota);
-
-          if (matchedKabkota != null) {
-            unawaited(
-              _saveLastLocation(
-                SaveLastLocationShalatParams(
-                  provinsi: matchedProvinsi,
-                  kabkota: matchedKabkota,
-                ),
-              ),
-            );
-            await _autoLoadJadwal(
-              provinsiList: provinsiList,
-              selectedProvinsi: matchedProvinsi,
-              selectedKabkota: matchedKabkota,
-              kabkotaList: kabkota,
-            );
-            return;
-          }
-        }
-      }
+    if (matched != null) {
+      unawaited(
+        _saveLastLocation(
+          SaveLastLocationShalatParams(
+            provinsi: matched.provinsi,
+            kabkota: matched.kabkota,
+          ),
+        ),
+      );
+      await _autoLoadJadwal(
+        provinsiList: provinsiList,
+        selectedProvinsi: matched.provinsi,
+        selectedKabkota: matched.kabkota,
+      );
+      return;
     }
 
     await _loadDefaultJakarta(provinsiList);
   }
 
-  Future<List<String>?> _getKabkotaList(String provinsi) async {
-    final result = await _getKabkota(GetKabkotaShalatParams(provinsi));
-    return result.fold((_) => null, (list) => list);
-  }
-
   Future<void> _loadDefaultJakarta(List<String> provinsiList) async {
-    final kabkota = await _getKabkotaList(_defaultProvinsi);
+    final kabkotaResult = await _getKabkota(
+      const GetKabkotaShalatParams(_defaultProvinsi),
+    );
+    final kabkota = kabkotaResult.fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = JadwalShalatState.provinsiLoaded(provinsi: provinsiList);
       return;
@@ -242,37 +228,6 @@ class JadwalShalatViewModel extends StateNotifier<JadwalShalatState> {
     );
   }
 
-  String? _fuzzyMatch(String query, List<String> candidates) {
-    final q = query.toUpperCase().trim();
-
-    final exact = candidates.where((c) => c.toUpperCase() == q);
-    if (exact.isNotEmpty) return exact.first;
-
-    final containsQ = candidates.where((c) => c.toUpperCase().contains(q));
-    if (containsQ.isNotEmpty) return containsQ.first;
-
-    final stripped = candidates.where((c) {
-      final upper = c.toUpperCase();
-      final clean = upper
-          .replaceFirst(RegExp(r'^KAB\.\s*'), '')
-          .replaceFirst(RegExp(r'^KABUPATEN\s+'), '')
-          .replaceFirst(RegExp(r'^KOTA\s+'), '')
-          .trim();
-      return clean == q || clean.contains(q) || q.contains(clean);
-    });
-    if (stripped.isNotEmpty) return stripped.first;
-
-    final qTokens = q.split(RegExp(r'\s+'));
-    bool allTokensIn(String c) {
-      final upper = c.toUpperCase();
-      return qTokens.every(upper.contains);
-    }
-
-    return candidates.where(allTokensIn).firstOrNull;
-  }
-
-  // --- Private helpers ---
-
   Future<void> _autoLoadJadwal({
     required List<String> provinsiList,
     required String selectedProvinsi,
@@ -285,7 +240,9 @@ class JadwalShalatViewModel extends StateNotifier<JadwalShalatState> {
     final targetBulan = bulan ?? now.month;
     final targetTahun = tahun ?? now.year;
 
-    final kabkota = kabkotaList ?? await _getKabkotaList(selectedProvinsi);
+    final kabkota = kabkotaList ??
+        (await _getKabkota(GetKabkotaShalatParams(selectedProvinsi)))
+            .fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = JadwalShalatState.provinsiLoaded(provinsi: provinsiList);
       return;

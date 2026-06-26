@@ -8,12 +8,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'tafsir_state.dart';
 part 'tafsir_viewmodel.freezed.dart';
 
-class TafsirViewModel extends StateNotifier<TafsirState> {
-  TafsirViewModel(this._ref) : super(const TafsirState.initial());
+class TafsirViewModel extends AutoDisposeNotifier<TafsirState> {
+  @override
+  TafsirState build() => const TafsirState.initial();
 
-  final Ref _ref;
-
-  GetTafsir get _getTafsir => _ref.read(getTafsirProvider);
+  GetTafsir get _getTafsir => ref.read(getTafsirProvider);
 
   Future<void> load(int nomor) async {
     state = const TafsirState.loading();

@@ -5,11 +5,11 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/theme/share_templates_theme.dart';
+import 'package:equran_app/features/surat_detail/presentation/utils/share_ayat_service.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_share_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/save_options_sheet.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/share_ayat_action_bar.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/template_selector.dart';
-import 'package:equran_app/features/surat_detail/utils/share_ayat_service.dart';
 import 'package:flutter/material.dart';
 
 class ShareAyatPage extends StatefulWidget {

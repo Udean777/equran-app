@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/services/audio_recorder_service.dart';
@@ -9,18 +7,17 @@ import 'package:equran_app/features/hafalan/data/repositories/hafalan_compare_re
 import 'package:equran_app/features/hafalan/data/repositories/hafalan_repository_impl.dart';
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_compare_repository.dart';
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_repository.dart';
+import 'package:equran_app/features/hafalan/domain/services/hafalan_reminder_scheduler.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/compare_recitation.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/delete_hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_by_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/save_hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/notifications/hafalan_reminder_scheduler.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_state.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_state.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
-import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'viewmodels/hafalan_detail_state.dart';
@@ -99,36 +96,11 @@ final compareRecitationProvider = Provider<CompareRecitation>((ref) {
 // ─── ViewModels ────────────────────────────────────────────────────────────
 
 final hafalanListViewModelProvider =
-    StateNotifierProvider<HafalanListViewModel, HafalanListState>(
-      (ref) => HafalanListViewModel(
-        ref.read(getAllHafalanProvider),
-        ref.read(getHafalanStatsProvider),
-        ref.read(getSuratListProvider),
-      ),
+    NotifierProvider<HafalanListViewModel, HafalanListState>(
+      HafalanListViewModel.new,
     );
 
-final AutoDisposeStateNotifierProviderFamily<
-  HafalanDetailViewModel,
-  HafalanDetailState,
-  int
->
-hafalanDetailViewModelProvider =
-    AutoDisposeStateNotifierProvider.family<
-      HafalanDetailViewModel,
-      HafalanDetailState,
-      int
-    >(
-      (ref, suratNomor) {
-        final vm = HafalanDetailViewModel(
-          ref.read(getHafalanBySuratProvider),
-          ref.read(saveHafalanSuratProvider),
-          ref.read(deleteHafalanSuratProvider),
-          ref.read(hafalanReminderSchedulerProvider),
-          ref.read(compareRecitationProvider),
-          ref.read(audioRecorderServiceProvider),
-          ref.read(hafalanListViewModelProvider.notifier),
-        );
-        unawaited(vm.loadDetail(suratNomor));
-        return vm;
-      },
+final AutoDisposeNotifierProviderFamily<HafalanDetailViewModel, HafalanDetailState, int> hafalanDetailViewModelProvider =
+    NotifierProvider.autoDispose.family<HafalanDetailViewModel, HafalanDetailState, int>(
+      HafalanDetailViewModel.new,
     );

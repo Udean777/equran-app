@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_schedule_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/params/jadwal_shalat_params.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_schedule_entry.dart';
 import 'package:flutter/foundation.dart';
 
 /// Standalone service untuk scheduling notifikasi shalat.

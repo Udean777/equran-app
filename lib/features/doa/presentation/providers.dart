@@ -78,25 +78,17 @@ final toggleDoaBookmarkProvider = Provider<ToggleDoaBookmark>((ref) {
 
 // --- ViewModels ---
 
-final doaListViewModelProvider =
-    AutoDisposeStateNotifierProvider<DoaListViewModel, DoaListState>(
-      (ref) => DoaListViewModel(ref.read(getDoaListProvider)),
+final AutoDisposeNotifierProvider<DoaListViewModel, DoaListState> doaListViewModelProvider =
+    NotifierProvider.autoDispose<DoaListViewModel, DoaListState>(
+      DoaListViewModel.new,
     );
 
-final doaDetailViewModelProvider =
-    AutoDisposeStateNotifierProvider<DoaDetailViewModel, DoaDetailState>(
-      (ref) => DoaDetailViewModel(
-        ref.read(getDoaDetailProvider),
-        ref.read(getDoaBookmarksProvider),
-        ref.read(toggleDoaBookmarkProvider),
-      ),
+final AutoDisposeNotifierProvider<DoaDetailViewModel, DoaDetailState> doaDetailViewModelProvider =
+    NotifierProvider.autoDispose<DoaDetailViewModel, DoaDetailState>(
+      DoaDetailViewModel.new,
     );
 
 final doaBookmarkViewModelProvider =
-    StateNotifierProvider<DoaBookmarkViewModel, DoaBookmarkState>(
-      (ref) => DoaBookmarkViewModel(
-        ref.read(getDoaBookmarksProvider),
-        ref.read(toggleDoaBookmarkProvider),
-        ref.read(getDoaListProvider),
-      ),
+    NotifierProvider<DoaBookmarkViewModel, DoaBookmarkState>(
+      DoaBookmarkViewModel.new,
     );

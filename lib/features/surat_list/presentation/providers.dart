@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
@@ -31,11 +30,7 @@ final getSuratListProvider = Provider<GetSuratList>((ref) {
   return GetSuratList(ref.read(suratRepositoryProvider));
 });
 
-final suratListViewModelProvider =
-    AutoDisposeStateNotifierProvider<SuratListViewModel, SuratListState>(
-      (ref) {
-        final vm = SuratListViewModel(ref.read(getSuratListProvider));
-        unawaited(vm.load());
-        return vm;
-      },
+final AutoDisposeNotifierProvider<SuratListViewModel, SuratListState> suratListViewModelProvider =
+    NotifierProvider.autoDispose<SuratListViewModel, SuratListState>(
+      SuratListViewModel.new,
     );

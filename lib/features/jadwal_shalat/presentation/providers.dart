@@ -9,7 +9,9 @@ import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_p
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/jadwal_shalat_repository.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/shalat_location_repository.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/shalat_notif_prefs_repository.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notif_scheduler_service.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notification_scheduler_impl.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_kabkota_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_last_location_shalat.dart';
@@ -17,11 +19,9 @@ import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_provinsi_s
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/get_shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_last_location_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/usecases/save_shalat_notif_prefs.dart';
-import 'package:equran_app/features/jadwal_shalat/notifications/shalat_notification_scheduler.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/viewmodels/jadwal_shalat_state.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/viewmodels/jadwal_shalat_viewmodel.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/viewmodels/shalat_notif_viewmodel.dart';
-import 'package:equran_app/features/jadwal_shalat/services/shalat_notif_scheduler_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'viewmodels/jadwal_shalat_state.dart';
@@ -117,29 +117,11 @@ final shalatNotifSchedulerServiceProvider =
 // ─── ViewModels ────────────────────────────────────────────────────────────
 
 final shalatNotifViewModelProvider =
-    StateNotifierProvider<ShalatNotifViewModel, ShalatNotifPrefs>(
-      (ref) {
-        return ShalatNotifViewModel(
-          ref.read(getShalatNotifPrefsProvider),
-          ref.read(saveShalatNotifPrefsProvider),
-          ref.read(shalatNotifSchedulerServiceProvider),
-        );
-      },
+    NotifierProvider<ShalatNotifViewModel, ShalatNotifPrefs>(
+      ShalatNotifViewModel.new,
     );
 
-final jadwalShalatViewModelProvider =
-    AutoDisposeStateNotifierProvider<JadwalShalatViewModel, JadwalShalatState>(
-      (ref) {
-        final schedulerService = ref.read(shalatNotifSchedulerServiceProvider);
-        return JadwalShalatViewModel(
-          ref.read(getProvinsiShalatProvider),
-          ref.read(getKabkotaShalatProvider),
-          ref.read(getJadwalShalatProvider),
-          ref.read(getLastLocationShalatProvider),
-          ref.read(saveLastLocationShalatProvider),
-          ref.watch(locationServiceProvider),
-          ref.read(saveShalatNotifPrefsProvider),
-          schedulerService,
-        );
-      },
+final AutoDisposeNotifierProvider<JadwalShalatViewModel, JadwalShalatState> jadwalShalatViewModelProvider =
+    NotifierProvider.autoDispose<JadwalShalatViewModel, JadwalShalatState>(
+      JadwalShalatViewModel.new,
     );

@@ -1,6 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/surat_detail/constants/ayat_badge_config.dart';
+import 'package:equran_app/features/surat_detail/presentation/constants/ayat_badge_config.dart';
 import 'package:flutter/material.dart';
 
 // ---------------------------------------------------------------------------

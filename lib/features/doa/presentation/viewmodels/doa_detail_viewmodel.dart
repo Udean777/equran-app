@@ -3,19 +3,16 @@ import 'dart:async';
 import 'package:equran_app/features/doa/domain/usecases/get_doa_bookmarks.dart';
 import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart';
 import 'package:equran_app/features/doa/domain/usecases/toggle_doa_bookmark.dart';
-import 'package:equran_app/features/doa/presentation/viewmodels/doa_detail_state.dart';
+import 'package:equran_app/features/doa/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DoaDetailViewModel extends StateNotifier<DoaDetailState> {
-  DoaDetailViewModel(
-    this._getDoaDetail,
-    this._getDoaBookmarks,
-    this._toggleDoaBookmark,
-  ) : super(const DoaDetailState.initial());
+class DoaDetailViewModel extends AutoDisposeNotifier<DoaDetailState> {
+  @override
+  DoaDetailState build() => const DoaDetailState.initial();
 
-  final GetDoaDetail _getDoaDetail;
-  final GetDoaBookmarks _getDoaBookmarks;
-  final ToggleDoaBookmark _toggleDoaBookmark;
+  GetDoaDetail get _getDoaDetail => ref.read(getDoaDetailProvider);
+  GetDoaBookmarks get _getDoaBookmarks => ref.read(getDoaBookmarksProvider);
+  ToggleDoaBookmark get _toggleDoaBookmark => ref.read(toggleDoaBookmarkProvider);
 
   int? _lastId;
 

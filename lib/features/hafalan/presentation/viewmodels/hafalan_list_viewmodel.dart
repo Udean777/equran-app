@@ -8,20 +8,18 @@ import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart';
-import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_state.dart';
+import 'package:equran_app/features/hafalan/presentation/providers.dart';
 import 'package:equran_app/features/surat_list/domain/usecases/get_surat_list.dart';
+import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HafalanListViewModel extends StateNotifier<HafalanListState> {
-  HafalanListViewModel(
-    this._getAllHafalan,
-    this._getHafalanStats,
-    this._getSuratList,
-  ) : super(const HafalanListState.initial());
+class HafalanListViewModel extends Notifier<HafalanListState> {
+  @override
+  HafalanListState build() => const HafalanListState.initial();
 
-  final GetAllHafalan _getAllHafalan;
-  final GetHafalanStats _getHafalanStats;
-  final GetSuratList _getSuratList;
+  GetAllHafalan get _getAllHafalan => ref.read(getAllHafalanProvider);
+  GetHafalanStats get _getHafalanStats => ref.read(getHafalanStatsProvider);
+  GetSuratList get _getSuratList => ref.read(getSuratListProvider);
 
   List<Surat> _allSurat = [];
 

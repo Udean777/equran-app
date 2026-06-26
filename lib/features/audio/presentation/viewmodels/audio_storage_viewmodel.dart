@@ -2,28 +2,24 @@ import 'dart:async';
 
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
-import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
-import 'package:equran_app/features/audio/presentation/viewmodels/audio_storage_state.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detail.dart';
+import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AudioStorageViewModel extends StateNotifier<AudioStorageState> {
-  AudioStorageViewModel(
-    this._getDownloadedAyats,
-    this._deleteAyatAudio,
-    this._deleteAllAudio,
-    this._getSuratDetail,
-  ) : super(const AudioStorageState.initial());
+class AudioStorageViewModel extends AutoDisposeNotifier<AudioStorageState> {
+  @override
+  AudioStorageState build() => const AudioStorageState.initial();
 
-  final GetDownloadedAyats _getDownloadedAyats;
-  final DeleteAyatAudio _deleteAyatAudio;
-  final DeleteAllAudio _deleteAllAudio;
-  final GetSuratDetail _getSuratDetail;
+  GetDownloadedAyats get _getDownloadedAyats => ref.read(getDownloadedAyatsProvider);
+  DeleteAyatAudio get _deleteAyatAudio => ref.read(deleteAyatAudioProvider);
+  DeleteAllAudio get _deleteAllAudio => ref.read(deleteAllAudioProvider);
+  GetSuratDetail get _getSuratDetail => ref.read(getSuratDetailProvider);
 
   Future<void> load() async {
     state = const AudioStorageState.loading();

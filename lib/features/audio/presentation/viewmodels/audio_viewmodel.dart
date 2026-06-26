@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/domain/services/audio_playlist_manager.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_audio_state_stream.dart';
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart';
@@ -8,28 +7,25 @@ import 'package:equran_app/features/audio/domain/usecases/play_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/resume_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/seek_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/stop_audio.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AudioViewModel extends StateNotifier<AudioPlayerState> {
-  AudioViewModel(
-    this._playAudio,
-    this._pauseAudio,
-    this._resumeAudio,
-    this._stopAudio,
-    this._seekAudio,
-    this._getAudioStateStream,
-  ) : super(const AudioPlayerState.idle()) {
+class AudioViewModel extends Notifier<AudioPlayerState> {
+  @override
+  AudioPlayerState build() {
     _listenToStream();
+    ref.onDispose(() => unawaited(_subscription?.cancel()));
+    return const AudioPlayerState.idle();
   }
 
-  final PlayAudio _playAudio;
-  final PauseAudio _pauseAudio;
-  final ResumeAudio _resumeAudio;
-  final StopAudio _stopAudio;
-  final SeekAudio _seekAudio;
-  final GetAudioStateStream _getAudioStateStream;
+  PlayAudio get _playAudio => ref.read(playAudioProvider);
+  PauseAudio get _pauseAudio => ref.read(pauseAudioProvider);
+  ResumeAudio get _resumeAudio => ref.read(resumeAudioProvider);
+  StopAudio get _stopAudio => ref.read(stopAudioProvider);
+  SeekAudio get _seekAudio => ref.read(seekAudioProvider);
+  GetAudioStateStream get _getAudioStateStream => ref.read(getAudioStateStreamProvider);
 
   final AudioPlaylistManager _playlistManager = AudioPlaylistManager();
 
@@ -65,7 +61,7 @@ class AudioViewModel extends StateNotifier<AudioPlayerState> {
         unawaited(_seekAudio(pendingSeek));
       }
 
-      if (mounted) state = audioState;
+      state = audioState;
 
       if (audioState.isIdle && isPlaylistMode) {
         unawaited(_advanceInPlaylist());
@@ -228,11 +224,5 @@ class AudioViewModel extends StateNotifier<AudioPlayerState> {
         ..jumpToIndex(result.index);
       await _playAtIndex(result.index);
     }
-  }
-
-  @override
-  void dispose() {
-    unawaited(_subscription?.cancel());
-    super.dispose();
   }
 }

@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/hafalan/constants/hafalan_constants.dart';
+import 'package:equran_app/features/hafalan/domain/constants/hafalan_thresholds.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
@@ -435,11 +435,11 @@ class SetoranCard extends StatelessWidget {
     required bool isDark,
   }) {
     final result = compareResult!;
-    final isSuccess = result.score >= HafalanConstants.defaultThreshold;
+    final isSuccess = result.score >= HafalanThresholds.defaultThreshold;
     final isWarning =
-        result.score >= HafalanConstants.warningThreshold &&
-        result.score < HafalanConstants.defaultThreshold;
-    final isFailed = result.score < HafalanConstants.warningThreshold;
+        result.score >= HafalanThresholds.warningThreshold &&
+        result.score < HafalanThresholds.defaultThreshold;
+    final isFailed = result.score < HafalanThresholds.warningThreshold;
 
     final scoreColor = isSuccess
         ? AppColors.success
