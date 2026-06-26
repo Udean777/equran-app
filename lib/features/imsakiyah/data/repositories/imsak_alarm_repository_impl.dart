@@ -7,11 +7,9 @@ import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsak_alarm_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ImsakAlarmRepository)
 class ImsakAlarmRepositoryImpl implements ImsakAlarmRepository {
-  const ImsakAlarmRepositoryImpl(@Named('imsakiyahBox') this._box);
+  const ImsakAlarmRepositoryImpl(this._box);
 
   final Box<String> _box;
 
@@ -26,8 +24,8 @@ class ImsakAlarmRepositoryImpl implements ImsakAlarmRepository {
         jsonDecode(raw) as Map<String, dynamic>,
       );
       return right(dto.toEntity());
-    } on Object catch (_) {
-      return right(const ImsakAlarmPrefs());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
     }
   }
 

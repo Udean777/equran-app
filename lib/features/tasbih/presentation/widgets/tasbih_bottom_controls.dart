@@ -4,12 +4,13 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
-import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
-import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
+import 'package:equran_app/features/tasbih/presentation/constants/tasbih_constants.dart';
+import 'package:equran_app/features/tasbih/presentation/providers.dart';
+import 'package:equran_app/features/tasbih/presentation/viewmodels/tasbih_state.dart';
 import 'package:equran_app/features/tasbih/presentation/widgets/preset_selector_sheet.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Tombol bawah TasbihPage: Ganti Dzikir + Reset.
 class TasbihBottomControls extends StatelessWidget {
@@ -88,32 +89,37 @@ class TasbihBottomControls extends StatelessWidget {
               ),
               child: Material(
                 color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => context.read<TasbihCubit>().reset(),
-                  borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppDimens.spaceMD,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.refresh_rounded,
-                          color: AppColors.onPrimary,
-                          size: 18,
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    return InkWell(
+                      onTap: () =>
+                          ref.read(tasbihViewModelProvider.notifier).reset(),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppDimens.spaceMD,
                         ),
-                        const SizedBox(width: AppDimens.spaceXS),
-                        Text(
-                          l10n.tasbihReset,
-                          style: AppTypography.serifHeadingSmall.copyWith(
-                            color: AppColors.onPrimary,
-                            fontSize: TasbihConstants.buttonTextSize,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.refresh_rounded,
+                              color: AppColors.onPrimary,
+                              size: 18,
+                            ),
+                            const SizedBox(width: AppDimens.spaceXS),
+                            Text(
+                              l10n.tasbihReset,
+                              style: AppTypography.serifHeadingSmall.copyWith(
+                                color: AppColors.onPrimary,
+                                fontSize: TasbihConstants.buttonTextSize,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -127,10 +133,7 @@ class TasbihBottomControls extends StatelessWidget {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<TasbihCubit>(),
-          child: const PresetSelectorSheet(),
-        ),
+        builder: (_) => const PresetSelectorSheet(),
       ),
     );
   }

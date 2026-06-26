@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract interface class ReadingProgressLocalDataSource {
@@ -9,10 +8,9 @@ abstract interface class ReadingProgressLocalDataSource {
   Future<void> saveSuratProgress(int suratNomor, double maxProgress);
 }
 
-@LazySingleton(as: ReadingProgressLocalDataSource)
 class ReadingProgressLocalDataSourceImpl
     implements ReadingProgressLocalDataSource {
-  ReadingProgressLocalDataSourceImpl(@Named('bookmarkBox') this._box);
+  ReadingProgressLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
   final _lock = Lock();

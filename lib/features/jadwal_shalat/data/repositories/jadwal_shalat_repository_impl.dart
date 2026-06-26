@@ -6,9 +6,7 @@ import 'package:equran_app/features/jadwal_shalat/data/mappers/jadwal_shalat_map
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/jadwal_shalat_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: JadwalShalatRepository)
 class JadwalShalatRepositoryImpl implements JadwalShalatRepository {
   const JadwalShalatRepositoryImpl(
     this._remote,

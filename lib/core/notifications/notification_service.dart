@@ -3,7 +3,6 @@ import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/core/constants/timezone_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:injectable/injectable.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -14,7 +13,6 @@ const String kQuranReminderChannelId = 'quran_reminder_channel_v4';
 const String kImsakChannelId = 'imsak_channel_v4';
 const String kHafalanChannelId = 'hafalan_channel_v4';
 
-@lazySingleton
 class NotificationService {
   NotificationService(this._plugin);
 

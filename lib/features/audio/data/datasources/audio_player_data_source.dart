@@ -1,6 +1,5 @@
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart';
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class AudioPlayerDataSource {
   Future<void> play({
@@ -16,7 +15,6 @@ abstract interface class AudioPlayerDataSource {
   void dispose();
 }
 
-@Singleton(as: AudioPlayerDataSource)
 class AudioPlayerDataSourceImpl implements AudioPlayerDataSource {
   AudioPlayerDataSourceImpl(this._handler);
 

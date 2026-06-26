@@ -3,9 +3,9 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/features/doa/domain/entities/doa.dart';
-import 'package:equran_app/features/doa/domain/usecases/get_doa_detail.dart';
-import 'package:equran_app/injection/injection_container.dart';
+import 'package:equran_app/features/doa/presentation/providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// Pasangan doa per slot waktu WIB.
@@ -60,14 +60,15 @@ _DoaSlot _slotForNow() {
 }
 
 /// Widget quick actions doa harian — tampil di atas list surat.
-class DoaQuickActionsWidget extends StatefulWidget {
+class DoaQuickActionsWidget extends ConsumerStatefulWidget {
   const DoaQuickActionsWidget({super.key});
 
   @override
-  State<DoaQuickActionsWidget> createState() => _DoaQuickActionsWidgetState();
+  ConsumerState<DoaQuickActionsWidget> createState() =>
+      _DoaQuickActionsWidgetState();
 }
 
-class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
+class _DoaQuickActionsWidgetState extends ConsumerState<DoaQuickActionsWidget> {
   late final _DoaSlot _slot;
   late final Future<List<Doa?>> _future;
 
@@ -79,7 +80,7 @@ class _DoaQuickActionsWidgetState extends State<DoaQuickActionsWidget> {
   }
 
   Future<List<Doa?>> _loadDoa() async {
-    final getDetail = getIt<GetDoaDetail>();
+    final getDetail = ref.read(getDoaDetailProvider);
     final results = await Future.wait([
       getDetail(_slot.id1),
       getDetail(_slot.id2),

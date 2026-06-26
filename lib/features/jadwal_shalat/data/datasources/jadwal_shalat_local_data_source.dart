@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class JadwalShalatLocalDataSource {
   Future<List<String>?> getCachedProvinsi();
@@ -21,10 +21,9 @@ abstract interface class JadwalShalatLocalDataSource {
   Future<void> cacheJadwalShalat(JadwalShalatDto dto);
 }
 
-@LazySingleton(as: JadwalShalatLocalDataSource)
 class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
   const JadwalShalatLocalDataSourceImpl(
-    @Named('shalatBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;
@@ -42,16 +41,12 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
       'shalat_${provinsi.replaceAll(' ', '_')}_${kabkota.replaceAll(' ', '_')}_${bulan}_$tahun';
 
   @override
-  Future<List<String>?> getCachedProvinsi() async {
-    try {
-      final entry = CacheEntry.decode(_box.get(_provinsiKey));
-      if (entry == null) return null;
-      if (DateTime.now().difference(entry.cachedAt) > _longTtl) return null;
-      return (jsonDecode(entry.data) as List<dynamic>).cast<String>();
-    } on Object catch (_) {
-      return null;
-    }
-  }
+  Future<List<String>?> getCachedProvinsi() => _safeCallAsync(() {
+    final entry = CacheEntry.decode(_box.get(_provinsiKey));
+    if (entry == null) return null;
+    if (DateTime.now().difference(entry.cachedAt) > _longTtl) return null;
+    return (jsonDecode(entry.data) as List<dynamic>).cast<String>();
+  });
 
   @override
   Future<void> cacheProvinsi(List<String> provinsi) async {
@@ -63,16 +58,12 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
   }
 
   @override
-  Future<List<String>?> getCachedKabkota(String provinsi) async {
-    try {
-      final entry = CacheEntry.decode(_box.get(_kabkotaKey(provinsi)));
-      if (entry == null) return null;
-      if (DateTime.now().difference(entry.cachedAt) > _longTtl) return null;
-      return (jsonDecode(entry.data) as List<dynamic>).cast<String>();
-    } on Object catch (_) {
-      return null;
-    }
-  }
+  Future<List<String>?> getCachedKabkota(String provinsi) => _safeCallAsync(() {
+    final entry = CacheEntry.decode(_box.get(_kabkotaKey(provinsi)));
+    if (entry == null) return null;
+    if (DateTime.now().difference(entry.cachedAt) > _longTtl) return null;
+    return (jsonDecode(entry.data) as List<dynamic>).cast<String>();
+  });
 
   @override
   Future<void> cacheKabkota(String provinsi, List<String> kabkota) async {
@@ -89,20 +80,16 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
     String kabkota,
     int bulan,
     int tahun,
-  ) async {
-    try {
-      final entry = CacheEntry.decode(
-        _box.get(_jadwalKey(provinsi, kabkota, bulan, tahun)),
-      );
-      if (entry == null) return null;
-      if (DateTime.now().difference(entry.cachedAt) > _shortTtl) return null;
-      return JadwalShalatDto.fromJson(
-        jsonDecode(entry.data) as Map<String, dynamic>,
-      );
-    } on Object catch (_) {
-      return null;
-    }
-  }
+  ) => _safeCallAsync(() {
+    final entry = CacheEntry.decode(
+      _box.get(_jadwalKey(provinsi, kabkota, bulan, tahun)),
+    );
+    if (entry == null) return null;
+    if (DateTime.now().difference(entry.cachedAt) > _shortTtl) return null;
+    return JadwalShalatDto.fromJson(
+      jsonDecode(entry.data) as Map<String, dynamic>,
+    );
+  });
 
   @override
   Future<void> cacheJadwalShalat(JadwalShalatDto dto) async {
@@ -114,5 +101,13 @@ class JadwalShalatLocalDataSourceImpl implements JadwalShalatLocalDataSource {
       _jadwalKey(dto.provinsi, dto.kabkota, dto.bulan, dto.tahun),
       entry.encode(),
     );
+  }
+
+  static Future<T?> _safeCallAsync<T>(T? Function() fn) async {
+    try {
+      return fn();
+    } on Object catch (_) {
+      return null;
+    }
   }
 }

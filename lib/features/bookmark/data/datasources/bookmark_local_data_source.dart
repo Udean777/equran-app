@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:equran_app/features/bookmark/data/models/bookmark_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract interface class BookmarkLocalDataSource {
@@ -15,9 +14,8 @@ abstract interface class BookmarkLocalDataSource {
   Future<bool> isBookmarked({required int suratNomor, required int ayatNomor});
 }
 
-@LazySingleton(as: BookmarkLocalDataSource)
 class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
-  BookmarkLocalDataSourceImpl(@Named('bookmarkBox') this._box);
+  BookmarkLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
   final _lock = Lock();
@@ -41,7 +39,7 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
   @override
   Future<void> addBookmark(BookmarkDto bookmark) async {
     await _lock.synchronized(() async {
-      final current = await _getBookmarksRaw();
+      final current = await getBookmarks();
       final exists = current.any(
         (b) =>
             b.suratNomor == bookmark.suratNomor &&
@@ -62,7 +60,7 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
     required int ayatNomor,
   }) async {
     await _lock.synchronized(() async {
-      final current = await _getBookmarksRaw();
+      final current = await getBookmarks();
       current.removeWhere(
         (b) => b.suratNomor == suratNomor && b.ayatNomor == ayatNomor,
       );
@@ -71,19 +69,6 @@ class BookmarkLocalDataSourceImpl implements BookmarkLocalDataSource {
         jsonEncode(current.map((e) => e.toJson()).toList()),
       );
     });
-  }
-
-  Future<List<BookmarkDto>> _getBookmarksRaw() async {
-    try {
-      final raw = _box.get(_bookmarksKey);
-      if (raw == null) return [];
-      final list = jsonDecode(raw) as List<dynamic>;
-      return list
-          .map((e) => BookmarkDto.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } on Object catch (_) {
-      return [];
-    }
   }
 
   @override

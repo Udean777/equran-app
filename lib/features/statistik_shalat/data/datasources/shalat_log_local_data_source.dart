@@ -4,7 +4,6 @@ import 'package:equran_app/features/statistik_shalat/data/mappers/shalat_log_map
 import 'package:equran_app/features/statistik_shalat/data/models/shalat_log_dto.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class ShalatLogLocalDataSource {
   /// Ambil data shalat untuk tanggal tertentu.
@@ -25,11 +24,8 @@ abstract interface class ShalatLogLocalDataSource {
   List<String> getAllDates();
 }
 
-@LazySingleton(as: ShalatLogLocalDataSource)
 class ShalatLogLocalDataSourceImpl implements ShalatLogLocalDataSource {
-  const ShalatLogLocalDataSourceImpl(
-    @Named('statistikShalatBox') this._box,
-  );
+  const ShalatLogLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
 

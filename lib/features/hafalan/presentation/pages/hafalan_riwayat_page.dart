@@ -8,15 +8,14 @@ import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
-import 'package:equran_app/injection/injection_container.dart';
+import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-class HafalanRiwayatPage extends StatelessWidget {
+class HafalanRiwayatPage extends ConsumerWidget {
   const HafalanRiwayatPage({
     required this.suratNomor,
     this.juzNomor,
@@ -27,47 +26,27 @@ class HafalanRiwayatPage extends StatelessWidget {
   final int? juzNomor;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<SuratDetailCubit>();
-        unawaited(cubit.load(suratNomor));
-        return cubit;
-      },
-      child: _HafalanRiwayatView(suratNomor: suratNomor, juzNomor: juzNomor),
-    );
-  }
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(suratDetailViewModelProvider(suratNomor));
 
-class _HafalanRiwayatView extends StatelessWidget {
-  const _HafalanRiwayatView({
-    required this.suratNomor,
-    this.juzNomor,
-  });
-
-  final int suratNomor;
-  final int? juzNomor;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SuratDetailCubit, SuratDetailState>(
-      builder: (context, state) => switch (state) {
-        SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
-        SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
-        SuratDetailFailure(:final failure) => Scaffold(
-          appBar: const LuxuryAppBar(title: 'Riwayat Rekaman'),
-          body: ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: () => context.read<SuratDetailCubit>().retry(suratNomor),
-          ),
+    return switch (state) {
+      SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
+      SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
+      SuratDetailFailure(:final failure) => Scaffold(
+        appBar: const LuxuryAppBar(title: 'Riwayat Rekaman'),
+        body: ErrorStateWidget(
+          message: failure.toUserMessage(),
+          onRetry: () => ref
+              .read(suratDetailViewModelProvider(suratNomor).notifier)
+              .retry(suratNomor),
         ),
-        SuratDetailSuccess(:final detail) => _RiwayatList(
-          detail: detail,
-          suratNomor: suratNomor,
-          juzNomor: juzNomor,
-        ),
-      },
-    );
+      ),
+      SuratDetailSuccess(:final detail) => _RiwayatList(
+        detail: detail,
+        suratNomor: suratNomor,
+        juzNomor: juzNomor,
+      ),
+    };
   }
 }
 

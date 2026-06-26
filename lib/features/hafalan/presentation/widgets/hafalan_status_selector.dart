@@ -3,20 +3,20 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Chip selector untuk status hafalan (Belum / Sedang / Hafal).
 class HafalanStatusSelector extends StatelessWidget {
   const HafalanStatusSelector({
     required this.suratNomor,
     required this.currentStatus,
+    required this.detailNotifier,
     super.key,
   });
 
   final int suratNomor;
   final HafalanStatus currentStatus;
+  final HafalanDetailViewModel detailNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class HafalanStatusSelector extends StatelessWidget {
                       label: Text(_statusLabel(s)),
                       selected: isSelected,
                       onSelected: (_) => unawaited(
-                        context.read<HafalanDetailCubit>().setStatus(
+                        detailNotifier.setStatus(
                           suratNomor: suratNomor,
                           status: s,
                         ),

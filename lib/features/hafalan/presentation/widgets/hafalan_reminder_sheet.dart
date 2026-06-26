@@ -2,19 +2,19 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-/// Bottom sheet untuk set jadwal muraja'ah dan tandai sudah muraja'ah.
 class HafalanReminderSheet extends StatefulWidget {
   const HafalanReminderSheet({
     required this.hafalan,
+    required this.detailNotifier,
     super.key,
   });
 
   final HafalanSurat hafalan;
+  final HafalanDetailViewModel detailNotifier;
 
   @override
   State<HafalanReminderSheet> createState() => _HafalanReminderSheetState();
@@ -53,7 +53,6 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
             const BottomSheetHandle(),
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Header
             Row(
               children: [
                 const Icon(
@@ -85,7 +84,6 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
 
             const SizedBox(height: AppDimens.spaceLG),
 
-            // Tandai sudah muraja'ah — hanya tampil jika belum level max
             if (!hafalan.isMurajaahSelesai) ...[
               _ActionTile(
                 icon: Icons.check_circle_rounded,
@@ -93,7 +91,7 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
                 title: "Tandai Sudah Muraja'ah",
                 subtitle: 'Naik ke level berikutnya secara otomatis',
                 onTap: () async {
-                  await context.read<HafalanDetailCubit>().tandaiSudahMurajaah(
+                  await widget.detailNotifier.tandaiSudahMurajaah(
                     hafalan.suratNomor,
                   );
                   if (context.mounted) Navigator.pop(context);
@@ -102,7 +100,6 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
               const SizedBox(height: AppDimens.spaceSM),
             ],
 
-            // Pilih tanggal manual
             _ActionTile(
               icon: Icons.calendar_today_rounded,
               iconColor: AppColors.primary,
@@ -113,10 +110,9 @@ class _HafalanReminderSheetState extends State<HafalanReminderSheet> {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Tombol simpan tanggal
             FilledButton(
               onPressed: () async {
-                await context.read<HafalanDetailCubit>().setMurajaahDate(
+                await widget.detailNotifier.setMurajaahDate(
                   suratNomor: hafalan.suratNomor,
                   tanggal: _selectedDate,
                 );

@@ -1,0 +1,69 @@
+import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
+import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
+import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
+import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart';
+import 'package:equran_app/features/imsakiyah/domain/usecases/save_imsak_alarm_prefs.dart';
+import 'package:equran_app/features/imsakiyah/presentation/providers.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class ImsakAlarmViewModel extends Notifier<ImsakAlarmState> {
+  @override
+  ImsakAlarmState build() => const ImsakAlarmState.initial();
+
+  GetImsakAlarmPrefs get _getPrefs => ref.read(getImsakAlarmPrefsProvider);
+  SaveImsakAlarmPrefs get _savePrefs => ref.read(saveImsakAlarmPrefsProvider);
+  ImsakAlarmScheduler get _scheduler => ref.read(imsakAlarmSchedulerProvider);
+
+  Future<void> load() async {
+    final result = await _getPrefs();
+    result.fold(
+      (_) => state = const ImsakAlarmState.loaded(prefs: ImsakAlarmPrefs()),
+      (prefs) => state = ImsakAlarmState.loaded(prefs: prefs),
+    );
+  }
+
+  Future<void> toggleImsak({ImsakiyahEntry? entry}) async {
+    final current = _currentPrefs;
+    if (current == null) return;
+
+    final updated = current.copyWith(imsakEnabled: !current.imsakEnabled);
+    await _persist(updated, entry);
+  }
+
+  Future<void> toggleSahur({ImsakiyahEntry? entry}) async {
+    final current = _currentPrefs;
+    if (current == null) return;
+
+    final updated = current.copyWith(sahurEnabled: !current.sahurEnabled);
+    await _persist(updated, entry);
+  }
+
+  Future<void> setMenitSebelum(int menit, {ImsakiyahEntry? entry}) async {
+    final current = _currentPrefs;
+    if (current == null) return;
+
+    final updated = current.copyWith(menitSebelumImsak: menit);
+    await _persist(updated, entry);
+  }
+
+  ImsakAlarmPrefs? get _currentPrefs {
+    final s = state;
+    return s is ImsakAlarmLoaded ? s.prefs : null;
+  }
+
+  Future<void> _persist(ImsakAlarmPrefs prefs, ImsakiyahEntry? entry) async {
+    await _savePrefs(prefs);
+    state = ImsakAlarmState.loaded(prefs: prefs);
+
+    if (entry != null) {
+      try {
+        await _scheduler.scheduleForToday(entry, prefs);
+      } on Object catch (e) {
+        debugPrint('ImsakAlarmViewModel: schedule error: $e');
+      }
+    } else {
+      await _scheduler.cancelAll();
+    }
+  }
+}

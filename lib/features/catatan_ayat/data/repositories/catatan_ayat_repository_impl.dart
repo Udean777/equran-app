@@ -1,11 +1,10 @@
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/catatan_ayat/data/datasources/catatan_ayat_local_data_source.dart';
+import 'package:equran_app/features/catatan_ayat/data/mappers/catatan_ayat_mapper.dart';
 import 'package:equran_app/features/catatan_ayat/domain/entities/catatan_ayat.dart';
 import 'package:equran_app/features/catatan_ayat/domain/repositories/catatan_ayat_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@Injectable(as: CatatanAyatRepository)
 class CatatanAyatRepositoryImpl implements CatatanAyatRepository {
   const CatatanAyatRepositoryImpl(this._datasource);
 
@@ -14,7 +13,8 @@ class CatatanAyatRepositoryImpl implements CatatanAyatRepository {
   @override
   Future<Either<Failure, List<CatatanAyat>>> getAll() async {
     try {
-      return Right(await _datasource.getAll());
+      final dtos = await _datasource.getAll();
+      return Right(dtos.map((e) => e.toEntity()).toList());
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));
     }
@@ -26,12 +26,11 @@ class CatatanAyatRepositoryImpl implements CatatanAyatRepository {
     required int ayatNomor,
   }) async {
     try {
-      return Right(
-        await _datasource.getByAyat(
-          suratNomor: suratNomor,
-          ayatNomor: ayatNomor,
-        ),
+      final dto = await _datasource.getByAyat(
+        suratNomor: suratNomor,
+        ayatNomor: ayatNomor,
       );
+      return Right(dto?.toEntity());
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));
     }
@@ -40,7 +39,7 @@ class CatatanAyatRepositoryImpl implements CatatanAyatRepository {
   @override
   Future<Either<Failure, Unit>> save(CatatanAyat catatan) async {
     try {
-      await _datasource.save(catatan);
+      await _datasource.save(catatan.toDto());
       return const Right(unit);
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));

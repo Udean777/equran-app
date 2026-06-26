@@ -25,95 +25,92 @@ class DoaCard extends StatelessWidget {
         ? AppColors.outlineDark
         : AppColors.outlineVariant;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppDimens.spaceSM),
-      child: Material(
-        color: surfaceColor,
+    return Material(
+      color: surfaceColor,
+      borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-          splashColor: AppColors.primaryContainer.withValues(alpha: 0.4),
-          highlightColor: AppColors.primaryContainer.withValues(alpha: 0.2),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppDimens.radiusLG),
-              border: Border.all(color: borderColor),
-            ),
-            padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header row — nama + delete
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        doa.nama,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.primaryLighter
-                              : AppColors.primary,
-                          fontSize: 14,
-                        ),
+        splashColor: AppColors.primaryContainer.withValues(alpha: 0.4),
+        highlightColor: AppColors.primaryContainer.withValues(alpha: 0.2),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+            border: Border.all(color: borderColor),
+          ),
+          padding: const EdgeInsets.all(AppDimens.cardPaddingLG),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header row — nama + delete
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      doa.nama,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.primaryLighter
+                            : AppColors.primary,
+                        fontSize: 14,
                       ),
                     ),
-                    if (onRemove != null) ...[
-                      const SizedBox(width: AppDimens.spaceXS),
-                      GestureDetector(
-                        onTap: onRemove,
-                        child: Icon(
-                          Icons.delete_outline_rounded,
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
-                          size: AppDimens.iconSM + 2,
-                        ),
+                  ),
+                  if (onRemove != null) ...[
+                    const SizedBox(width: AppDimens.spaceXS),
+                    GestureDetector(
+                      onTap: onRemove,
+                      child: Icon(
+                        Icons.delete_outline_rounded,
+                        color: isDark
+                            ? AppColors.onSurfaceDarkVariant
+                            : AppColors.textTertiary,
+                        size: AppDimens.iconSM + 2,
                       ),
-                    ],
+                    ),
                   ],
+                ],
+              ),
+
+              const SizedBox(height: AppDimens.spaceXS),
+
+              // Grup
+              Text(
+                doa.grup,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: isDark
+                      ? AppColors.onSurfaceDarkVariant
+                      : AppColors.textTertiary,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 11,
                 ),
+              ),
 
-                const SizedBox(height: AppDimens.spaceXS),
-
-                // Grup
+              // Preview terjemahan
+              if (doa.idn.isNotEmpty) ...[
+                const SizedBox(height: AppDimens.spaceSM),
                 Text(
-                  doa.grup,
+                  doa.idn,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: isDark
                         ? AppColors.onSurfaceDarkVariant
-                        : AppColors.textTertiary,
-                    fontStyle: FontStyle.italic,
-                    fontSize: 11,
+                        : AppColors.textSecondary,
+                    height: 1.5,
+                    fontSize: 12,
                   ),
                 ),
-
-                // Preview terjemahan
-                if (doa.idn.isNotEmpty) ...[
-                  const SizedBox(height: AppDimens.spaceSM),
-                  Text(
-                    doa.idn,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textSecondary,
-                      height: 1.5,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-
-                // Tag chips
-                if (doa.tag.isNotEmpty) ...[
-                  const SizedBox(height: AppDimens.spaceSM),
-                  _TagChips(tags: doa.tag, isDark: isDark),
-                ],
               ],
-            ),
+
+              // Tag chips
+              if (doa.tag.isNotEmpty) ...[
+                const SizedBox(height: AppDimens.spaceSM),
+                _TagChips(tags: doa.tag, isDark: isDark),
+              ],
+            ],
           ),
         ),
       ),

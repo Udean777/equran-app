@@ -6,9 +6,7 @@ import 'package:equran_app/features/surat_list/data/datasources/surat_remote_dat
 import 'package:equran_app/features/surat_list/data/mappers/surat_mapper.dart';
 import 'package:equran_app/features/surat_list/domain/repositories/surat_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: SuratRepository)
 class SuratRepositoryImpl implements SuratRepository {
   const SuratRepositoryImpl(this._remote, this._local);
 

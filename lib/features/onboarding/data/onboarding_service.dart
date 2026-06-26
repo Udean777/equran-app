@@ -1,11 +1,9 @@
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 /// Service untuk menyimpan dan mengecek status onboarding.
 /// Menggunakan settingsBox (Hive) yang sudah ada.
-@lazySingleton
 class OnboardingService {
-  OnboardingService(@Named('settingsBox') this._box);
+  OnboardingService(this._box);
 
   final Box<String> _box;
 

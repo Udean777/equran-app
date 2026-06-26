@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract interface class DoaBookmarkDataSource {
@@ -11,9 +10,8 @@ abstract interface class DoaBookmarkDataSource {
   Future<bool> isBookmarked(int id);
 }
 
-@LazySingleton(as: DoaBookmarkDataSource)
 class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
-  DoaBookmarkDataSourceImpl(@Named('doaBookmarkBox') this._box);
+  DoaBookmarkDataSourceImpl(this._box);
 
   final Box<String> _box;
   final _lock = Lock();
@@ -35,7 +33,7 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   @override
   Future<void> addBookmark(int id) async {
     await _lock.synchronized(() async {
-      final ids = await _getIdsRaw();
+      final ids = await getBookmarkedIds();
       if (ids.contains(id)) return;
       ids.add(id);
       await _box.put(_key, jsonEncode(ids.toList()));
@@ -45,7 +43,7 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   @override
   Future<void> removeBookmark(int id) async {
     await _lock.synchronized(() async {
-      final ids = await _getIdsRaw();
+      final ids = await getBookmarkedIds();
       ids.remove(id);
       await _box.put(_key, jsonEncode(ids.toList()));
     });
@@ -55,17 +53,5 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   Future<bool> isBookmarked(int id) async {
     final ids = await getBookmarkedIds();
     return ids.contains(id);
-  }
-
-  // Private helper — dipanggil hanya dari dalam lock
-  Future<Set<int>> _getIdsRaw() async {
-    try {
-      final raw = _box.get(_key);
-      if (raw == null) return {};
-      final list = jsonDecode(raw) as List<dynamic>;
-      return list.map((e) => e as int).toSet();
-    } on Object catch (_) {
-      return {};
-    }
   }
 }

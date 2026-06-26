@@ -1,22 +1,18 @@
-import 'package:equran_app/features/statistik_shalat/data/datasources/shalat_log_local_data_source.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
-import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 
-@lazySingleton
 class ShalatStatsCalculator {
-  const ShalatStatsCalculator(this._dataSource);
-  final ShalatLogLocalDataSource _dataSource;
+  const ShalatStatsCalculator();
 
   static final _dateFormat = DateFormat('yyyy-MM-dd');
 
   /// Hitung statistik dari range tanggal.
-  Future<ShalatStats> calculateStats({
+  ShalatStats calculateStats({
     required List<String> dates,
     required String today,
     required List<ShalatDayStats> allDayStats,
-  }) async {
+  }) {
     final statsMap = {for (final s in allDayStats) s.date: s};
 
     var totalTepatWaktu = 0;
@@ -38,10 +34,8 @@ class ShalatStatsCalculator {
     final totalDicatat = totalTepatWaktu + totalQadha + totalTidakShalat;
     final persentase = totalDicatat == 0 ? 0.0 : totalTepatWaktu / totalDicatat;
 
-    // Hitung streak: hari berturut-turut dengan minimal 1 shalat dicatat
-    final streak = await computeStreak(today);
+    final streak = _computeStreak(today, dates, statsMap);
 
-    // 7 hari terakhir untuk chart
     final last7 = getLast7Days(
       today,
     ).map((d) => statsMap[d] ?? ShalatDayStats(date: d)).toList();
@@ -57,18 +51,22 @@ class ShalatStatsCalculator {
     );
   }
 
-  /// Hitung streak: berapa hari berturut-turut dengan minimal 1 shalat dicatat.
-  Future<int> computeStreak(String today) async {
+  /// Hitung streak dari data yang sudah ada di memory.
+  int _computeStreak(
+    String today,
+    List<String> dates,
+    Map<String, ShalatDayStats> statsMap,
+  ) {
+    final dateSet = dates.toSet();
     var streak = 0;
-    var current = DateTime.parse(today);
+    var current = today;
 
-    while (true) {
-      final dateStr = _dateFormat.format(current);
-      final day = await _dataSource.getByDate(dateStr);
-
+    while (dateSet.contains(current)) {
+      final day = statsMap[current];
       if (day == null || !day.hasData) break;
       streak++;
-      current = current.subtract(const Duration(days: 1));
+      final date = DateTime.parse(current);
+      current = _dateFormat.format(date.subtract(const Duration(days: 1)));
     }
 
     return streak;

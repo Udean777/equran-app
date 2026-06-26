@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Footer audio untuk AyatSwipeCard.
-class AyatAudioFooter extends StatelessWidget {
+class AyatAudioFooter extends ConsumerWidget {
   const AyatAudioFooter({
     required this.ayat,
     required this.suratDetail,
@@ -20,78 +19,68 @@ class AyatAudioFooter extends StatelessWidget {
   final SuratDetail suratDetail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final borderColor = context.borderSubtleColor;
     final primaryColor = context.primaryActionColor;
+    final audioState = ref.watch(audioViewModelProvider);
+    final audioNotifier = ref.read(audioViewModelProvider.notifier);
+    final qari = audioState.currentQari;
+    final audioUrl = ayat.audio[qari.id] ?? ayat.audio.values.firstOrNull;
+    final isCurrentAyat = audioState.currentAyat == ayat.nomorAyat;
+    final isPlaying = isCurrentAyat && audioState.isPlaying;
+    final isLoading = isCurrentAyat && audioState.isLoading;
 
-    return BlocBuilder<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, next) =>
-          prev.currentAyat != next.currentAyat ||
-          prev.isPlaying != next.isPlaying ||
-          prev.isLoading != next.isLoading ||
-          prev.isPaused != next.isPaused ||
-          prev.currentQari != next.currentQari,
-      builder: (context, audioState) {
-        final cubit = context.read<AudioCubit>();
-        final qari = audioState.currentQari;
-        final audioUrl = ayat.audio[qari.id] ?? ayat.audio.values.firstOrNull;
-        final isCurrentAyat = audioState.currentAyat == ayat.nomorAyat;
-        final isPlaying = isCurrentAyat && audioState.isPlaying;
-        final isLoading = isCurrentAyat && audioState.isLoading;
-
-        return Container(
-          decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: borderColor)),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(AppDimens.radiusXL),
-              bottomRight: Radius.circular(AppDimens.radiusXL),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: borderColor)),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(AppDimens.radiusXL),
+          bottomRight: Radius.circular(AppDimens.radiusXL),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.spaceLG,
+        vertical: AppDimens.spaceSM,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (audioUrl == null)
+            Text(
+              'Audio tidak tersedia',
+              style: TextStyle(
+                color: context.textTertiaryColor,
+                fontSize: 12,
+              ),
+            )
+          else
+            AyatAudioButton(
+              isPlaying: isPlaying,
+              isLoading: isLoading,
+              primaryColor: primaryColor,
+              onTap: () {
+                if (isCurrentAyat) {
+                  if (isPlaying) {
+                    unawaited(audioNotifier.pause());
+                  } else {
+                    unawaited(audioNotifier.resume());
+                  }
+                } else {
+                  // Single ayat mode — tidak playlist
+                  unawaited(
+                    audioNotifier.playOrToggle(
+                      url: audioUrl,
+                      ayatNomor: ayat.nomorAyat,
+                      qari: qari,
+                      suratNomor: suratDetail.nomor,
+                      audioMap: suratDetail.audioFull,
+                    ),
+                  );
+                }
+              },
             ),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimens.spaceLG,
-            vertical: AppDimens.spaceSM,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (audioUrl == null)
-                Text(
-                  'Audio tidak tersedia',
-                  style: TextStyle(
-                    color: context.textTertiaryColor,
-                    fontSize: 12,
-                  ),
-                )
-              else
-                AyatAudioButton(
-                  isPlaying: isPlaying,
-                  isLoading: isLoading,
-                  primaryColor: primaryColor,
-                  onTap: () {
-                    if (isCurrentAyat) {
-                      if (isPlaying) {
-                        unawaited(cubit.pause());
-                      } else {
-                        unawaited(cubit.resume());
-                      }
-                    } else {
-                      // Single ayat mode — tidak playlist
-                      unawaited(
-                        cubit.playOrToggle(
-                          url: audioUrl,
-                          ayatNomor: ayat.nomorAyat,
-                          qari: qari,
-                          suratNomor: suratDetail.nomor,
-                          audioMap: suratDetail.audioFull,
-                        ),
-                      );
-                    }
-                  },
-                ),
-            ],
-          ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

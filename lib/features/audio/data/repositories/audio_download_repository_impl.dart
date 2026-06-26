@@ -4,9 +4,7 @@ import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.d
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_download_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: AudioDownloadRepository)
 class AudioDownloadRepositoryImpl implements AudioDownloadRepository {
   const AudioDownloadRepositoryImpl(this._dataSource);
 

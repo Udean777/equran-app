@@ -3,23 +3,22 @@ import 'dart:async';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
-import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
-import 'package:equran_app/features/catatan_ayat/presentation/cubit/catatan_ayat_cubit.dart';
-import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
-import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
+import 'package:equran_app/features/bookmark/presentation/providers.dart';
+import 'package:equran_app/features/bookmark/presentation/viewmodels/bookmark_viewmodel.dart';
+import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
+import 'package:equran_app/features/reading_progress/presentation/providers.dart';
+import 'package:equran_app/features/reading_progress/presentation/viewmodels/reading_progress_viewmodel.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
-import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
+import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/presentation/services/last_read_helper.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/card_stack_state.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_card_view.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SuratDetailPage extends StatelessWidget {
+class SuratDetailPage extends ConsumerWidget {
   const SuratDetailPage({
     required this.nomor,
     this.initialAyat,
@@ -32,189 +31,173 @@ class SuratDetailPage extends StatelessWidget {
   final bool autoPlay;
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<SuratDetailCubit>();
-            unawaited(cubit.load(nomor));
-            return cubit;
-          },
-        ),
-        // BookmarkCubit dari root — pakai BlocProvider.value agar update realtime di home
-        BlocProvider.value(value: context.read<BookmarkCubit>()),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<CatatanAyatCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
-        // AudioCubit adalah singleton di root — pakai BlocProvider.value
-        BlocProvider.value(value: context.read<AudioCubit>()),
-        // AudioDownloadCubit — per halaman surat
-        BlocProvider(create: (_) => getIt<AudioDownloadCubit>()),
-        // ReadingProgressCubit — factory, per halaman surat
-        BlocProvider(create: (_) => getIt<ReadingProgressCubit>()),
-      ],
-      child: _SuratDetailView(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(suratDetailViewModelProvider(nomor));
+
+    return switch (state) {
+      SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
+      SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
+      SuratDetailSuccess(:final detail) => _SuratDetailView(
+        detail: detail,
         nomor: nomor,
         initialAyat: initialAyat,
         autoPlay: autoPlay,
       ),
-    );
+      SuratDetailFailure(:final failure) => Scaffold(
+        appBar: AppBar(),
+        body: ErrorStateWidget(
+          message: failure.toUserMessage(),
+          onRetry: () => ref
+              .read(suratDetailViewModelProvider(nomor).notifier)
+              .retry(nomor),
+        ),
+      ),
+    };
   }
 }
 
-class _SuratDetailView extends StatefulWidget {
+class _SuratDetailView extends ConsumerStatefulWidget {
   const _SuratDetailView({
+    required this.detail,
     required this.nomor,
     required this.autoPlay,
     this.initialAyat,
   });
 
+  final SuratDetail detail;
   final int nomor;
   final int? initialAyat;
   final bool autoPlay;
 
   @override
-  State<_SuratDetailView> createState() => _SuratDetailViewState();
+  ConsumerState<_SuratDetailView> createState() => _SuratDetailViewState();
 }
 
-class _SuratDetailViewState extends State<_SuratDetailView> {
-  CardStackController? _cardController;
+class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
   bool _autoScrollEnabled = true;
-  SuratDetail? _currentDetail;
-  BookmarkCubit? _bookmarkCubit;
-  ReadingProgressCubit? _readingProgressCubit;
-  AudioCubit? _audioCubit;
+  BookmarkViewModel? _bookmarkViewModel;
+  ReadingProgressViewModel? _readingProgressViewModel;
+  AudioViewModel? _audioViewModel;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    unawaited(context.read<QuranStreakCubit>().recordRead());
-    _bookmarkCubit = context.read<BookmarkCubit>();
-    _readingProgressCubit = context.read<ReadingProgressCubit>();
-    // Simpan referensi AudioCubit di initState agar aman dipakai di dispose()
-    // tanpa perlu context.read (context tidak valid saat dispose).
-    _audioCubit = context.read<AudioCubit>();
-  }
-
-  @override
-  void dispose() {
-    _cardController?.removeListener(_onCardProgress);
-
-    // Sync posisi card ke audio aktif sebelum save last read.
-    // Mencegah "stuck ayat" saat user keluar di tengah auto-read —
-    // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
-    // Pakai _audioCubit (disimpan di initState) — context tidak valid di dispose().
-    final currentAyat = _audioCubit?.state.currentAyat;
-    if (currentAyat != null &&
-        (_audioCubit?.isPlaylistMode ?? false) &&
-        _cardController != null) {
-      _cardController!.jumpTo(currentAyat);
-    }
-
-    _saveLastRead();
-
-    // Dispose controller — reset akan dipanggil di controller.dispose()
-    _cardController?.dispose();
-    super.dispose();
-  }
-
-  void _onCardProgress() {
-    final controller = _cardController;
-    final detail = _currentDetail;
-    if (controller == null || detail == null) return;
-
-    // Buffer ayat yang sedang dibaca ke ReadingProgressCubit
-    final ayatNomor = controller.currentAyatNomor;
-    if (ayatNomor > 0) {
-      _readingProgressCubit?.bufferAyat(detail.nomor, ayatNomor);
-    }
-  }
-
-  void _saveLastRead() {
-    final controller = _cardController;
-    final detail = _currentDetail;
-    final cubit = _bookmarkCubit;
-    if (controller == null || detail == null || cubit == null) return;
-
-    LastReadHelper.saveLastRead(
-      cubit: cubit,
-      controller: controller,
-      detail: detail,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(ref.read(quranStreakViewModelProvider.notifier).recordRead());
+    });
+    _bookmarkViewModel = ref.read(bookmarkViewModelProvider.notifier);
+    _readingProgressViewModel = ref.read(
+      readingProgressViewModelProvider.notifier,
     );
+    // Simpan referensi AudioViewModel di initState agar aman dipakai di dispose()
+    // tanpa perlu context.read (context tidak valid saat dispose).
+    _audioViewModel = ref.read(audioViewModelProvider.notifier);
   }
 
-  void _initCardController(SuratDetail detail) {
-    if (_cardController != null) return;
+  void _initializeCardStack(SuratDetail detail) {
+    if (_isInitialized) return;
+
+    final totalAyat = detail.ayatList.length;
 
     // Prioritas initial index:
     // 1. initialAyat dari route param (misal dari bookmark tap)
-    // 2. lastRead.ayatNomor dari BookmarkCubit (resume saat reload)
+    // 2. lastRead.ayatNomor dari BookmarkViewModel (resume saat reload)
     // 3. 0 (info card)
     var initialIndex = 0;
 
     if (widget.initialAyat != null) {
-      initialIndex = widget.initialAyat!.clamp(1, detail.ayatList.length);
+      initialIndex = widget.initialAyat!.clamp(1, totalAyat);
     } else {
-      final lastRead = context.read<BookmarkCubit>().state.mapOrNull(
+      final bookmarkState = ref.read(bookmarkViewModelProvider);
+      final lastRead = bookmarkState.mapOrNull(
         success: (s) => s.lastRead,
       );
       if (lastRead != null && lastRead.suratNomor == detail.nomor) {
-        initialIndex = lastRead.ayatNomor.clamp(1, detail.ayatList.length);
+        initialIndex = lastRead.ayatNomor.clamp(1, totalAyat);
       }
     }
 
-    _cardController = CardStackController(
-      totalAyat: detail.ayatList.length,
-      initialIndex: initialIndex,
-      onProgressUpdate: (_) {},
+    // Setup initial state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(cardStackProvider(totalAyat).notifier)
+          .jumpToInitial(initialIndex);
+    });
+
+    _isInitialized = true;
+  }
+
+  @override
+  void dispose() {
+    // Sync posisi card ke audio aktif sebelum save last read.
+    // Mencegah "stuck ayat" saat user keluar di tengah auto-read —
+    // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
+    // Pakai _audioViewModel (disimpan di initState) — context tidak valid di dispose().
+    final currentAyat = _audioViewModel?.currentAyat;
+    if (currentAyat != null && (_audioViewModel?.isPlaylistMode ?? false)) {
+      final totalAyat = widget.detail.ayatList.length;
+      ref.read(cardStackProvider(totalAyat).notifier).jumpTo(currentAyat);
+    }
+
+    _saveLastRead();
+    super.dispose();
+  }
+
+  void _saveLastRead() {
+    final detail = widget.detail;
+    final viewModel = _bookmarkViewModel;
+    if (viewModel == null) return;
+
+    final totalAyat = detail.ayatList.length;
+    final cardState = ref.read(cardStackProvider(totalAyat));
+
+    LastReadHelper.saveLastRead(
+      viewModel: viewModel,
+      cardState: cardState,
+      detail: detail,
     );
-    _cardController!.addListener(_onCardProgress);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SuratDetailCubit, SuratDetailState>(
-      builder: (context, state) => switch (state) {
-        SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
-        SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
-        SuratDetailSuccess(:final detail) => _buildSuccess(context, detail),
-        SuratDetailFailure(:final failure) => Scaffold(
-          appBar: AppBar(),
-          body: ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: () => context.read<SuratDetailCubit>().retry(widget.nomor),
-          ),
-        ),
-      },
-    );
-  }
+    final detail = widget.detail;
+    final isFirstLoad = !_isInitialized;
+    _initializeCardStack(detail);
 
-  Widget _buildSuccess(BuildContext context, SuratDetail detail) {
-    _currentDetail = detail;
-    final isFirstLoad = _cardController == null;
-    _initCardController(detail);
+    final totalAyat = detail.ayatList.length;
+
+    ref.listen<CardStackState>(cardStackProvider(totalAyat), (prev, next) {
+      if (prev != null && prev.maxReachedIndex != next.maxReachedIndex) {
+        if (next.currentAyatNomor > 0) {
+          _readingProgressViewModel?.bufferAyat(
+            detail.nomor,
+            next.currentAyatNomor,
+          );
+        }
+      }
+    });
 
     // Load audio download status + autoPlay — hanya sekali saat first load
     if (isFirstLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        final audioCubit = context.read<AudioCubit>();
-        final qari = audioCubit.state.currentQari;
+        final audioNotifier = ref.read(audioViewModelProvider.notifier);
+        final qari = audioNotifier.currentQari;
         unawaited(
-          context.read<AudioDownloadCubit>().loadDownloadedStatus(
-            suratNomor: detail.nomor,
-            ayatList: detail.ayatList,
-            qari: qari,
-          ),
+          ref
+              .read(audioDownloadViewModelProvider.notifier)
+              .loadDownloadedStatus(
+                suratNomor: detail.nomor,
+                ayatList: detail.ayatList,
+                qari: qari,
+              ),
         );
         if (widget.autoPlay) {
           unawaited(
-            audioCubit.playFullSurat(
+            audioNotifier.playFullSurat(
               ayatList: detail.ayatList,
               startIndex: 0,
               qari: qari,
@@ -229,7 +212,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
 
     return SuratDetailCardView(
       detail: detail,
-      controller: _cardController!,
+      totalAyat: detail.ayatList.length,
       autoScrollEnabled: _autoScrollEnabled,
       onToggleAutoScroll: () =>
           setState(() => _autoScrollEnabled = !_autoScrollEnabled),

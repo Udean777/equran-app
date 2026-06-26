@@ -4,7 +4,6 @@ import 'package:equran_app/features/reading_progress/data/mappers/reading_histor
 import 'package:equran_app/features/reading_progress/data/models/reading_history_dto.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 
 abstract interface class ReadingHistoryLocalDataSource {
@@ -31,11 +30,10 @@ abstract interface class ReadingHistoryLocalDataSource {
   Future<List<String>> getAllDates();
 }
 
-@LazySingleton(as: ReadingHistoryLocalDataSource)
 class ReadingHistoryLocalDataSourceImpl
     implements ReadingHistoryLocalDataSource {
   const ReadingHistoryLocalDataSourceImpl(
-    @Named('readingHistoryBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;
@@ -47,16 +45,12 @@ class ReadingHistoryLocalDataSourceImpl
 
   @override
   Future<ReadingHistory?> getByDate(String date) async {
-    try {
-      final raw = _box.get(_key(date));
-      if (raw == null) return null;
-      final dto = ReadingHistoryDto.fromJson(
-        jsonDecode(raw) as Map<String, dynamic>,
-      );
-      return dto.toEntity();
-    } on Object catch (_) {
-      return null;
-    }
+    final raw = _box.get(_key(date));
+    if (raw == null) return null;
+    final dto = ReadingHistoryDto.fromJson(
+      jsonDecode(raw) as Map<String, dynamic>,
+    );
+    return dto.toEntity();
   }
 
   @override

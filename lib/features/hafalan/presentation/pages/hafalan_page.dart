@@ -1,93 +1,48 @@
-import 'dart:async';
-
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/widgets.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_filter.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_cubit.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_list_state.dart';
+import 'package:equran_app/features/hafalan/presentation/providers.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_juz_section.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_stats_card.dart';
-import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HafalanPage extends StatelessWidget {
+class HafalanPage extends ConsumerWidget {
   const HafalanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        // HafalanListCubit adalah @lazySingleton — pakai .value agar tidak di-close
-        BlocProvider.value(value: getIt<HafalanListCubit>()),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<SuratListCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
-      ],
-      child: const _HafalanView(),
-    );
-  }
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final listNotifier = ref.read(hafalanListViewModelProvider.notifier);
+    final listState = ref.watch(hafalanListViewModelProvider);
 
-class _HafalanView extends StatelessWidget {
-  const _HafalanView();
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: const LuxuryAppBar(title: 'Hafalan Al-Quran'),
-      body: BlocListener<SuratListCubit, SuratListState>(
-        listenWhen: (prev, next) =>
-            prev is! SuratListSuccess && next is SuratListSuccess,
-        listener: (context, state) {
-          if (state is SuratListSuccess) {
-            context.read<HafalanListCubit>().setAllSurat(state.surats);
-          }
-        },
-        child: BlocBuilder<HafalanListCubit, HafalanListState>(
-          builder: (context, hafalanState) =>
-              BlocBuilder<SuratListCubit, SuratListState>(
-                builder: (context, suratState) {
-                  if (hafalanState is HafalanListLoading ||
-                      suratState is SuratListLoading) {
-                    return const LoadingWidget();
-                  }
-                  if (hafalanState is HafalanListFailure) {
-                    return ErrorStateWidget(
-                      message: hafalanState.message,
-                      onRetry: context.read<HafalanListCubit>().load,
-                    );
-                  }
-                  if (suratState is SuratListFailure) {
-                    return ErrorStateWidget(
-                      message: suratState.failure.toString(),
-                      onRetry: context.read<SuratListCubit>().retry,
-                    );
-                  }
-                  if (hafalanState is! HafalanListSuccess ||
-                      suratState is! SuratListSuccess) {
-                    return const LoadingWidget();
-                  }
-
-                  return _HafalanContent(hafalanState: hafalanState);
-                },
-              ),
+      body: switch (listState) {
+        HafalanListLoading() => const LoadingWidget(),
+        HafalanListFailure(:final message) => ErrorStateWidget(
+          message: message,
+          onRetry: listNotifier.load,
         ),
-      ),
+        HafalanListSuccess() => _HafalanContent(
+          hafalanState: listState,
+          listNotifier: listNotifier,
+        ),
+        _ => const LoadingWidget(),
+      },
     );
   }
 }
 
 class _HafalanContent extends StatelessWidget {
-  const _HafalanContent({required this.hafalanState});
+  const _HafalanContent({
+    required this.hafalanState,
+    required this.listNotifier,
+  });
 
   final HafalanListSuccess hafalanState;
+  final HafalanListViewModel listNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +52,6 @@ class _HafalanContent extends StatelessWidget {
 
     return CustomScrollView(
       slivers: [
-        // Stats card
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.only(bottom: AppDimens.spaceSM),
@@ -105,23 +59,18 @@ class _HafalanContent extends StatelessWidget {
           ),
         ),
 
-        // Sticky filter panel
         SliverPersistentHeader(
           pinned: true,
           delegate: _HafalanFilterDelegate(
             searchQuery: hafalanState.searchQuery,
             selectedJuz: hafalanState.selectedJuz,
             currentStatusFilter: currentStatusFilter,
-            onSearchChanged: (val) =>
-                context.read<HafalanListCubit>().setSearchQuery(val),
-            onJuzSelected: (juz) =>
-                context.read<HafalanListCubit>().setSelectedJuz(juz),
-            onStatusFilterChanged: (filter) =>
-                context.read<HafalanListCubit>().setFilter(filter),
+            onSearchChanged: listNotifier.setSearchQuery,
+            onJuzSelected: listNotifier.setSelectedJuz,
+            onStatusFilterChanged: listNotifier.setFilter,
           ),
         ),
 
-        // Content
         if (sortedJuz.isEmpty)
           const SliverFillRemaining(
             hasScrollBody: false,
@@ -157,10 +106,6 @@ class _HafalanContent extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Sticky filter panel delegate
-// ---------------------------------------------------------------------------
-
 class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
   const _HafalanFilterDelegate({
     required this.searchQuery,
@@ -178,7 +123,6 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
   final ValueChanged<int?> onJuzSelected;
   final ValueChanged<HafalanFilter> onStatusFilterChanged;
 
-  // Search bar + select dropdowns Row + padding
   static const double _height = 136;
 
   @override
@@ -198,7 +142,6 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
 
-    // Options list for status hafalan filter
     final statusOptions = HafalanFilter.values.map((filter) {
       final label = switch (filter) {
         HafalanFilter.semua => 'Semua Status',
@@ -219,7 +162,6 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
       );
     }).toList();
 
-    // Options list for juz filter
     final juzOptions = <AppSelectOption<int?>>[
       const AppSelectOption<int?>(
         value: null,
@@ -253,20 +195,17 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Search bar — pakai AppSearchBar
           AppSearchBar(
             hint: 'Cari nama surat...',
             onChanged: onSearchChanged,
           ),
 
-          // Custom Select dropdowns in a Row
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimens.pagePadding,
             ),
             child: Row(
               children: [
-                // Filter status select
                 Expanded(
                   child: AppSelect<HafalanFilter>(
                     title: 'Status Hafalan',
@@ -277,7 +216,6 @@ class _HafalanFilterDelegate extends SliverPersistentHeaderDelegate {
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
-                // Filter juz select
                 Expanded(
                   child: AppSelect<int?>(
                     title: 'Pilih Juz',

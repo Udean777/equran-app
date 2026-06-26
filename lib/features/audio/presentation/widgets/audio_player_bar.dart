@@ -3,16 +3,15 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_control_buttons.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_page.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_progress_bar.dart';
 import 'package:equran_app/features/audio/presentation/widgets/qari_selector_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AudioPlayerBar extends StatelessWidget {
+class AudioPlayerBar extends ConsumerWidget {
   const AudioPlayerBar({
     this.audioMap = const {},
     this.onPrevCard,
@@ -21,53 +20,35 @@ class AudioPlayerBar extends StatelessWidget {
     super.key,
   });
 
-  /// Map qari id → audio URL dari response API.
-  /// Jika kosong, fallback ke [AudioCubit.lastAudioMap].
   final Map<String, String> audioMap;
 
-  /// Callback saat tombol prev di-tap — swipe card ke sebelumnya.
   final VoidCallback? onPrevCard;
 
-  /// Callback saat tombol next di-tap — swipe card ke berikutnya.
   final VoidCallback? onNextCard;
 
-  /// Callback saat tombol stop di-tap — override default stop behavior.
-  /// Jika null, pakai [AudioCubit.stop()] langsung.
   final VoidCallback? onStop;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AudioCubit, AudioPlayerState>(
-      buildWhen: (prev, curr) =>
-          prev.isIdle != curr.isIdle ||
-          prev.currentAyat != curr.currentAyat ||
-          prev.currentQari != curr.currentQari ||
-          prev.isPlaying != curr.isPlaying ||
-          prev.isPaused != curr.isPaused ||
-          prev.isLoading != curr.isLoading,
-      builder: (context, state) {
-        if (state.isIdle) return const SizedBox.shrink();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(audioViewModelProvider);
+    if (state.isIdle) return const SizedBox.shrink();
 
-        final cubit = context.read<AudioCubit>();
-        final effectiveAudioMap = audioMap.isNotEmpty
-            ? audioMap
-            : cubit.lastAudioMap;
-        final isPlaylist = cubit.isPlaylistMode;
-        final suratName = cubit.playlistSuratName;
-        final isDark = context.isDark;
+    final vm = ref.read(audioViewModelProvider.notifier);
+    final effectiveAudioMap = audioMap.isNotEmpty ? audioMap : vm.lastAudioMap;
+    final isPlaylist = vm.isPlaylistMode;
+    final suratName = vm.playlistSuratName;
+    final isDark = context.isDark;
 
-        return _AudioPlayerBarContent(
-          state: state,
-          cubit: cubit,
-          effectiveAudioMap: effectiveAudioMap,
-          isPlaylist: isPlaylist,
-          suratName: suratName,
-          isDark: isDark,
-          onPrevCard: onPrevCard,
-          onNextCard: onNextCard,
-          onStop: onStop,
-        );
-      },
+    return _AudioPlayerBarContent(
+      state: state,
+      vm: vm,
+      effectiveAudioMap: effectiveAudioMap,
+      isPlaylist: isPlaylist,
+      suratName: suratName,
+      isDark: isDark,
+      onPrevCard: onPrevCard,
+      onNextCard: onNextCard,
+      onStop: onStop,
     );
   }
 }
@@ -75,7 +56,7 @@ class AudioPlayerBar extends StatelessWidget {
 class _AudioPlayerBarContent extends StatelessWidget {
   const _AudioPlayerBarContent({
     required this.state,
-    required this.cubit,
+    required this.vm,
     required this.effectiveAudioMap,
     required this.isPlaylist,
     required this.suratName,
@@ -86,7 +67,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
   });
 
   final AudioPlayerState state;
-  final AudioCubit cubit;
+  final AudioViewModel vm;
   final Map<String, String> effectiveAudioMap;
   final bool isPlaylist;
   final String? suratName;
@@ -219,15 +200,15 @@ class _AudioPlayerBarContent extends StatelessWidget {
                 if (isPlaylist)
                   AudioIconBtn(
                     icon: Icons.skip_previous_rounded,
-                    color: (onPrevCard != null || cubit.playlistIndex > 0)
+                    color: (onPrevCard != null || vm.playlistIndex > 0)
                         ? primaryColor
                         : (isDark
                               ? AppColors.outlineDark
                               : AppColors.textDisabled),
                     onPressed:
                         onPrevCard ??
-                        (cubit.playlistIndex > 0
-                            ? () => unawaited(cubit.previousAyat())
+                        (vm.playlistIndex > 0
+                            ? () => unawaited(vm.previousAyat())
                             : null),
                   ),
 
@@ -236,7 +217,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
                   color: isDark
                       ? AppColors.onSurfaceDarkVariant
                       : AppColors.textSecondary,
-                  onPressed: onStop ?? () => unawaited(cubit.stop()),
+                  onPressed: onStop ?? () => unawaited(vm.stop()),
                 ),
 
                 AudioPlayPauseButton(
@@ -249,15 +230,15 @@ class _AudioPlayerBarContent extends StatelessWidget {
                     icon: Icons.skip_next_rounded,
                     color:
                         (onNextCard != null ||
-                            cubit.playlistIndex < cubit.playlist.length - 1)
+                            vm.playlistIndex < vm.playlist.length - 1)
                         ? primaryColor
                         : (isDark
                               ? AppColors.outlineDark
                               : AppColors.textDisabled),
                     onPressed:
                         onNextCard ??
-                        (cubit.playlistIndex < cubit.playlist.length - 1
-                            ? () => unawaited(cubit.nextAyat())
+                        (vm.playlistIndex < vm.playlist.length - 1
+                            ? () => unawaited(vm.nextAyat())
                             : null),
                   ),
 
@@ -290,10 +271,7 @@ class _AudioPlayerBarContent extends StatelessWidget {
     unawaited(
       Navigator.of(context).push(
         PageRouteBuilder<void>(
-          pageBuilder: (_, animation, _) => BlocProvider.value(
-            value: context.read<AudioCubit>(),
-            child: const AudioPlayerPage(),
-          ),
+          pageBuilder: (_, animation, _) => const AudioPlayerPage(),
           transitionsBuilder: (_, animation, _, child) {
             return SlideTransition(
               position:
@@ -328,10 +306,12 @@ class _AudioPlayerBarContent extends StatelessWidget {
           audioMap: audioMap,
           onQariSelected: (qari) {
             unawaited(
-              context.read<AudioCubit>().changeQari(
-                qari: qari,
-                audioMap: audioMap,
-              ),
+              ProviderScope.containerOf(context)
+                  .read(audioViewModelProvider.notifier)
+                  .changeQari(
+                    qari: qari,
+                    audioMap: audioMap,
+                  ),
             );
             Navigator.pop(context);
           },

@@ -6,9 +6,7 @@ import 'package:equran_app/features/doa/data/mappers/doa_mapper.dart';
 import 'package:equran_app/features/doa/domain/entities/doa.dart';
 import 'package:equran_app/features/doa/domain/repositories/doa_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: DoaRepository)
 class DoaRepositoryImpl implements DoaRepository {
   const DoaRepositoryImpl(this._remote, this._local);
 

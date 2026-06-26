@@ -2,128 +2,122 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/core/theme/providers.dart';
 import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
 import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Section pengaturan tema tampilan — pilihan light / dark mode.
-///
-/// Menampilkan dua [_ThemeChip] (Terang & Gelap) yang terhubung dengan
-/// [ThemeCubit]. Menangani error state dari [ThemeCubit] dengan menampilkan
-/// toast notifikasi.
-class SettingsThemeSection extends StatelessWidget {
+class SettingsThemeSection extends ConsumerWidget {
   const SettingsThemeSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = context.isDark;
+    final themeState = ref.watch(themeViewModelProvider);
 
-    return BlocBuilder<ThemeCubit, ThemeState>(
-      builder: (context, themeState) {
-        if (themeState is ThemeError) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            showSettingsToast(context, themeState.message, isSuccess: false);
-          });
-        }
+    if (themeState is ThemeError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showSettingsToast(context, themeState.message, isSuccess: false);
+      });
+    }
 
-        final selected = themeState.isDark ? 'dark' : 'light';
+    final selected = themeState.isDark ? 'dark' : 'light';
 
-        return Padding(
-          padding: const EdgeInsets.all(AppDimens.cardPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.all(AppDimens.cardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: SettingsConstants.iconContainerSize,
-                    height: SettingsConstants.iconContainerSize,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.primaryDark
-                          : AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-                    ),
-                    child: Icon(
-                      Icons.palette_outlined,
-                      size: AppDimens.iconSM,
-                      color: isDark
-                          ? AppColors.primaryLighter
-                          : AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: AppDimens.spaceMD),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        SettingsStrings.themeLabel,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: SettingsConstants.fontSizeMedium,
-                          color: isDark
-                              ? AppColors.onSurfaceDark
-                              : AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        _themeLabel(selected),
-                        style: TextStyle(
-                          fontSize: SettingsConstants.fontSizeSecondary,
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              Container(
+                width: SettingsConstants.iconContainerSize,
+                height: SettingsConstants.iconContainerSize,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.primaryDark
+                      : AppColors.primaryContainer,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+                ),
+                child: Icon(
+                  Icons.palette_outlined,
+                  size: AppDimens.iconSM,
+                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                ),
               ),
-              const SizedBox(height: AppDimens.spaceMD),
-              Row(
+              const SizedBox(width: AppDimens.spaceMD),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ThemeChip(
-                    value: 'light',
-                    label: SettingsStrings.themeLight,
-                    icon: Icons.light_mode_rounded,
-                    isSelected: selected == 'light',
-                    isDark: isDark,
-                    onTap: () {
-                      if (selected != 'light') {
-                        unawaited(context.read<ThemeCubit>().cycle());
-                        showSettingsToast(
-                          context,
-                          SettingsStrings.themeLightActive,
-                        );
-                      }
-                    },
+                  Text(
+                    SettingsStrings.themeLabel,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: SettingsConstants.fontSizeMedium,
+                      color: isDark
+                          ? AppColors.onSurfaceDark
+                          : AppColors.textPrimary,
+                    ),
                   ),
-                  const SizedBox(width: AppDimens.spaceSM),
-                  _ThemeChip(
-                    value: 'dark',
-                    label: SettingsStrings.themeDark,
-                    icon: Icons.dark_mode_rounded,
-                    isSelected: selected == 'dark',
-                    isDark: isDark,
-                    onTap: () {
-                      if (selected != 'dark') {
-                        unawaited(context.read<ThemeCubit>().cycle());
-                        showSettingsToast(
-                          context,
-                          SettingsStrings.themeDarkActive,
-                        );
-                      }
-                    },
+                  Text(
+                    _themeLabel(selected),
+                    style: TextStyle(
+                      fontSize: SettingsConstants.fontSizeSecondary,
+                      color: isDark
+                          ? AppColors.onSurfaceDarkVariant
+                          : AppColors.textTertiary,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-        );
-      },
+          const SizedBox(height: AppDimens.spaceMD),
+          Row(
+            children: [
+              _ThemeChip(
+                value: 'light',
+                label: SettingsStrings.themeLight,
+                icon: Icons.light_mode_rounded,
+                isSelected: selected == 'light',
+                isDark: isDark,
+                onTap: () {
+                  if (selected != 'light') {
+                    unawaited(
+                      ref.read(themeViewModelProvider.notifier).cycle(),
+                    );
+                    showSettingsToast(
+                      context,
+                      SettingsStrings.themeLightActive,
+                    );
+                  }
+                },
+              ),
+              const SizedBox(width: AppDimens.spaceSM),
+              _ThemeChip(
+                value: 'dark',
+                label: SettingsStrings.themeDark,
+                icon: Icons.dark_mode_rounded,
+                isSelected: selected == 'dark',
+                isDark: isDark,
+                onTap: () {
+                  if (selected != 'dark') {
+                    unawaited(
+                      ref.read(themeViewModelProvider.notifier).cycle(),
+                    );
+                    showSettingsToast(
+                      context,
+                      SettingsStrings.themeDarkActive,
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

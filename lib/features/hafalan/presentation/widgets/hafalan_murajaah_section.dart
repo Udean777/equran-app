@@ -4,17 +4,20 @@ import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
+import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_reminder_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-/// Section muraja'ah — level, tanggal berikutnya, tombol atur jadwal.
 class HafalanMurajaahSection extends StatelessWidget {
-  const HafalanMurajaahSection({required this.hafalan, super.key});
+  const HafalanMurajaahSection({
+    required this.hafalan,
+    required this.detailNotifier,
+    super.key,
+  });
 
   final HafalanSurat hafalan;
+  final HafalanDetailViewModel detailNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +85,9 @@ class HafalanMurajaahSection extends StatelessWidget {
             onPressed: () => unawaited(
               showAppBottomSheet<void>(
                 context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<HafalanDetailCubit>(),
-                  child: HafalanReminderSheet(hafalan: hafalan),
+                builder: (_) => HafalanReminderSheet(
+                  hafalan: hafalan,
+                  detailNotifier: detailNotifier,
                 ),
               ),
             ),

@@ -5,7 +5,6 @@ import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dar
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class PlayAudioParams extends Equatable {
   const PlayAudioParams({
@@ -27,7 +26,6 @@ class PlayAudioParams extends Equatable {
   List<Object?> get props => [url, ayatNomor, qari, suratNomor];
 }
 
-@injectable
 class PlayAudio implements UseCase<Unit, PlayAudioParams> {
   const PlayAudio(this._repository);
 

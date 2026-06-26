@@ -34,8 +34,6 @@ abstract final class SettingsStrings {
   static String fontArabicSizeValue(int size) => 'Ukuran teks Arab: ${size}px';
   static String fontTranslationSizeValue(int size) =>
       'Ukuran terjemahan: ${size}px';
-  static String fontSizeDisplay(int size) => '${size}px';
-
   // Language settings
   static const languageChangedId = 'Bahasa diubah ke Indonesia';
   static const languageChangedEn = 'Language changed to English';

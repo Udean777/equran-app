@@ -2,15 +2,14 @@ import 'package:equran_app/core/domain/entities/surat.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/widgets.dart';
-import 'package:equran_app/features/surat_list/presentation/cubit/surat_list_cubit.dart';
+import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/surat_card.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// Sliver content untuk daftar surat — filter chips + list surat.
-class SuratListContent extends StatelessWidget {
+class SuratListContent extends ConsumerWidget {
   const SuratListContent({
     required this.surats,
     required this.suratProgressMap,
@@ -21,11 +20,12 @@ class SuratListContent extends StatelessWidget {
   final Map<int, double> suratProgressMap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final cubit = context.read<SuratListCubit>();
-    final activeFilter = cubit.state is SuratListSuccess
-        ? (cubit.state as SuratListSuccess).activeFilter
+    final state = ref.watch(suratListViewModelProvider);
+    final notifier = ref.read(suratListViewModelProvider.notifier);
+    final activeFilter = state is SuratListSuccess
+        ? state.activeFilter
         : SuratCompletionFilter.all;
 
     final allCount = surats.length;
@@ -67,7 +67,7 @@ class SuratListContent extends StatelessWidget {
                 completedCount: completedCount,
                 incompleteCount: incompleteCount,
                 activeFilter: activeFilter,
-                onFilterChanged: cubit.setFilter,
+                onFilterChanged: notifier.setFilter,
               ),
             );
           }
@@ -92,7 +92,6 @@ class SuratListContent extends StatelessWidget {
             key: ValueKey(surat.nomor),
             surat: surat,
             onTap: () => context.push(AppRoutes.surat(surat.nomor)),
-            // Tombol play hanya muncul jika semua ayat sudah dibaca
             onPlayTap: isCompleted
                 ? () => context.push(AppRoutes.suratAutoPlay(surat.nomor))
                 : null,
@@ -103,10 +102,6 @@ class SuratListContent extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Filter row — custom select selector
-// ---------------------------------------------------------------------------
 
 class _SuratFilterRow extends StatelessWidget {
   const _SuratFilterRow({

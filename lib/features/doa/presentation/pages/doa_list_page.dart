@@ -10,44 +10,35 @@ import 'package:equran_app/core/widgets/app_search_bar.dart';
 import 'package:equran_app/core/widgets/empty_state_widget.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
-import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart';
+import 'package:equran_app/features/doa/presentation/providers.dart';
 import 'package:equran_app/features/doa/presentation/widgets/active_filter_chip.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_card.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_filter_sheet.dart';
 import 'package:equran_app/features/doa/presentation/widgets/doa_list_app_bar.dart';
 import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class DoaListPage extends StatelessWidget {
+class DoaListPage extends ConsumerStatefulWidget {
   const DoaListPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<DoaListCubit>();
-        unawaited(cubit.load());
-        return cubit;
-      },
-      child: const _DoaListView(),
-    );
-  }
+  ConsumerState<DoaListPage> createState() => _DoaListPageState();
 }
 
-class _DoaListView extends StatefulWidget {
-  const _DoaListView();
-
-  @override
-  State<_DoaListView> createState() => _DoaListViewState();
-}
-
-class _DoaListViewState extends State<_DoaListView> {
+class _DoaListPageState extends ConsumerState<DoaListPage> {
   bool _searchVisible = false;
   final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(doaListViewModelProvider.notifier).load());
+    });
+  }
 
   @override
   void dispose() {
@@ -60,7 +51,7 @@ class _DoaListViewState extends State<_DoaListView> {
       _searchVisible = !_searchVisible;
       if (!_searchVisible) {
         _searchController.clear();
-        context.read<DoaListCubit>().search('');
+        ref.read(doaListViewModelProvider.notifier).search('');
       }
     });
   }
@@ -69,10 +60,7 @@ class _DoaListViewState extends State<_DoaListView> {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<DoaListCubit>(),
-          child: const DoaFilterSheet(),
-        ),
+        builder: (_) => const DoaFilterSheet(),
       ),
     );
   }
@@ -82,80 +70,69 @@ class _DoaListViewState extends State<_DoaListView> {
     final l10n = AppLocalizations.of(context)!;
     final canPop = Navigator.canPop(context);
 
-    return BlocBuilder<DoaListCubit, DoaListState>(
-      buildWhen: (prev, curr) =>
-          prev.mapOrNull(success: (s) => s.hasActiveFilter) !=
-          curr.mapOrNull(success: (s) => s.hasActiveFilter),
-      builder: (context, state) {
-        final hasActiveFilter =
-            state.mapOrNull(success: (s) => s.hasActiveFilter) ?? false;
-        final activeFilterLabel =
-            state.mapOrNull(success: (s) => s.activeFilterLabel) ?? '';
+    final state = ref.watch(doaListViewModelProvider);
+    final hasActiveFilter =
+        state.mapOrNull(success: (s) => s.hasActiveFilter) ?? false;
+    final activeFilterLabel =
+        state.mapOrNull(success: (s) => s.activeFilterLabel) ?? '';
 
-        return Scaffold(
-          drawer: canPop
-              ? null
-              : const AppDrawer(streakBadge: StreakBadgeSlot()),
-          appBar: DoaListAppBar(
-            l10n: l10n,
-            canPop: canPop,
-            searchVisible: _searchVisible,
-            hasActiveFilter: hasActiveFilter,
-            onToggleSearch: _toggleSearch,
-            onFilter: _showFilterSheet,
+    return Scaffold(
+      drawer: canPop ? null : const AppDrawer(streakBadge: StreakBadgeSlot()),
+      appBar: DoaListAppBar(
+        l10n: l10n,
+        canPop: canPop,
+        searchVisible: _searchVisible,
+        hasActiveFilter: hasActiveFilter,
+        onToggleSearch: _toggleSearch,
+        onFilter: _showFilterSheet,
+      ),
+      body: Column(
+        children: [
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeInOut,
+            child: _searchVisible
+                ? AppSearchBar(
+                    controller: _searchController,
+                    hint: l10n.searchDoa,
+                    autofocus: true,
+                    onChanged: ref
+                        .read(doaListViewModelProvider.notifier)
+                        .search,
+                  )
+                : const SizedBox.shrink(),
           ),
-          body: Column(
-            children: [
-              // Search bar collapsible
-              AnimatedSize(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeInOut,
-                child: _searchVisible
-                    ? AppSearchBar(
-                        controller: _searchController,
-                        hint: l10n.searchDoa,
-                        autofocus: true,
-                        onChanged: context.read<DoaListCubit>().search,
-                      )
-                    : const SizedBox.shrink(),
-              ),
 
-              // Active filter chip
-              if (hasActiveFilter)
-                ActiveFilterChip(
-                  label: activeFilterLabel,
-                  onClear: context.read<DoaListCubit>().clearFilter,
-                ),
+          if (hasActiveFilter)
+            ActiveFilterChip(
+              label: activeFilterLabel,
+              onClear: ref.read(doaListViewModelProvider.notifier).clearFilter,
+            ),
 
-              // Content
-              Expanded(
-                child: BlocBuilder<DoaListCubit, DoaListState>(
-                  builder: (context, state) => switch (state) {
-                    DoaListInitial() => const SizedBox.shrink(),
-                    DoaListLoading() => const LoadingWidget(),
-                    DoaListSuccess() => _DoaListContent(state: state),
-                    DoaListFailure(:final failure) => ErrorStateWidget(
-                      message: failure.toUserMessage(),
-                      onRetry: context.read<DoaListCubit>().retry,
-                    ),
-                  },
-                ),
+          Expanded(
+            child: switch (state) {
+              DoaListInitial() => const SizedBox.shrink(),
+              DoaListLoading() => const LoadingWidget(),
+              DoaListSuccess() => _DoaListContent(state: state),
+              DoaListFailure(:final failure) => ErrorStateWidget(
+                message: failure.toUserMessage(),
+                onRetry: ref.read(doaListViewModelProvider.notifier).retry,
               ),
-            ],
+            },
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
 
-class _DoaListContent extends StatelessWidget {
+class _DoaListContent extends ConsumerWidget {
   const _DoaListContent({required this.state});
 
   final DoaListSuccess state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final doaList = state.filtered;
 
@@ -165,8 +142,8 @@ class _DoaListContent extends StatelessWidget {
 
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: context.read<DoaListCubit>().refresh,
-      child: ListView.builder(
+      onRefresh: ref.read(doaListViewModelProvider.notifier).refresh,
+      child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(
           AppDimens.pagePadding,
           AppDimens.spaceSM,
@@ -174,6 +151,7 @@ class _DoaListContent extends StatelessWidget {
           AppDimens.spaceLG,
         ),
         itemCount: doaList.length,
+        separatorBuilder: (_, _) => const SizedBox(height: AppDimens.spaceSM),
         itemBuilder: (_, i) => DoaCard(
           key: ValueKey(doaList[i].id),
           doa: doaList[i],

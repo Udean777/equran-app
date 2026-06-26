@@ -10,7 +10,6 @@ class QiblaTipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
-    final theme = Theme.of(context);
 
     return LuxuryCard(
       child: Row(
@@ -35,10 +34,8 @@ class QiblaTipCard extends StatelessWidget {
             child: Text(
               'Jauhkan dari benda logam, magnet, dan elektronik '
               'untuk hasil yang lebih akurat.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textSecondary,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: context.textSecondaryColor,
                 height: 1.5,
               ),
             ),

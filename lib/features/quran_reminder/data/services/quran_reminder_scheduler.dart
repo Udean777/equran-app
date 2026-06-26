@@ -2,9 +2,7 @@ import 'package:equran_app/core/constants/notification_ids.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class QuranReminderScheduler {
   QuranReminderScheduler(this._notificationService);
 
@@ -36,8 +34,4 @@ class QuranReminderScheduler {
       '${prefs.minute.toString().padLeft(2, '0')}',
     );
   }
-
-  /// Cancel notifikasi reminder.
-  Future<void> cancel() =>
-      _notificationService.cancelById(NotificationIds.quranReminder);
 }

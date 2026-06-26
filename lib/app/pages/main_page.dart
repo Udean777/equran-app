@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/pages/jadwal_shalat_page.dart';
@@ -14,7 +13,7 @@ import 'package:equran_app/features/surat_list/presentation/pages/surat_list_pag
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key, this.initialIndex = 0});
@@ -108,10 +107,10 @@ class _LuxuryBottomNav extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Audio player bar
-        BlocBuilder<AudioCubit, AudioPlayerState>(
-          buildWhen: (prev, next) => prev.isIdle != next.isIdle,
-          builder: (context, state) {
-            if (state.isIdle) return const SizedBox.shrink();
+        Consumer(
+          builder: (context, ref, _) {
+            final audioState = ref.watch(audioViewModelProvider);
+            if (audioState.isIdle) return const SizedBox.shrink();
             return const AudioPlayerBar();
           },
         ),

@@ -2,28 +2,29 @@ import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/core/theme/providers.dart';
 import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// AppBar untuk SuratListPage — serif title, theme toggle, settings.
-class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
+class SuratListAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const SuratListAppBar({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeightLG);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = context.isDark;
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final contentColor = isDark
         ? AppColors.onSurfaceDark
         : AppColors.textPrimary;
+    final themeState = ref.watch(themeViewModelProvider);
 
     return AppBar(
       backgroundColor: surfaceColor,
@@ -71,18 +72,14 @@ class SuratListAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       actions: [
-        BlocBuilder<ThemeCubit, ThemeState>(
-          builder: (context, themeState) {
-            return IconButton(
-              icon: Icon(
-                themeState.isDark
-                    ? Icons.light_mode_outlined
-                    : Icons.dark_mode_outlined,
-                color: contentColor,
-              ),
-              onPressed: () => context.read<ThemeCubit>().cycle(),
-            );
-          },
+        IconButton(
+          icon: Icon(
+            themeState.isDark
+                ? Icons.light_mode_outlined
+                : Icons.dark_mode_outlined,
+            color: contentColor,
+          ),
+          onPressed: () => ref.read(themeViewModelProvider.notifier).cycle(),
         ),
         IconButton(
           tooltip: l10n.settings,

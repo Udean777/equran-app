@@ -13,27 +13,22 @@ import 'package:equran_app/features/hafalan/presentation/pages/hafalan_riwayat_p
 import 'package:equran_app/features/hafalan/presentation/pages/hafalan_setoran_page.dart';
 import 'package:equran_app/features/imsakiyah/presentation/pages/imsakiyah_page.dart';
 import 'package:equran_app/features/notification_test/presentation/pages/notification_test_page.dart';
-import 'package:equran_app/features/onboarding/data/onboarding_service.dart';
 import 'package:equran_app/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/reading_progress/presentation/pages/reading_stats_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/pages/statistik_shalat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
-import 'package:equran_app/features/tasbih/presentation/cubit/tasbih_cubit.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class AppRouter {
-  AppRouter(this._onboardingService);
+  AppRouter({required bool Function() isOnboardingDone})
+    : _isOnboardingDone = isOnboardingDone;
 
-  final OnboardingService _onboardingService;
+  final bool Function() _isOnboardingDone;
 
   late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.home,
@@ -42,13 +37,10 @@ class AppRouter {
       final location = state.matchedLocation;
       final isOnboarding = location == AppRoutes.onboarding;
 
-      // Jangan redirect jika sudah di onboarding
       if (isOnboarding) return null;
 
-      // Jangan redirect jika onboarding sudah selesai
-      if (_onboardingService.isDone) return null;
+      if (_isOnboardingDone()) return null;
 
-      // Redirect ke onboarding hanya untuk route yang valid (bukan error/not found)
       return AppRoutes.onboarding;
     },
     routes: [
@@ -151,10 +143,7 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.tasbihHistory,
-        builder: (context, state) => BlocProvider.value(
-          value: getIt<TasbihCubit>(),
-          child: const TasbihHistoryPage(),
-        ),
+        builder: (context, state) => const TasbihHistoryPage(),
       ),
 
       // --- Utilitas ---

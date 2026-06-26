@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:equran_app/core/locale/cubit/language_cubit.dart';
+import 'package:equran_app/core/locale/providers.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/theme/cubit/quran_font_cubit.dart';
-import 'package:equran_app/core/theme/cubit/theme_cubit.dart';
+import 'package:equran_app/core/theme/providers.dart';
 import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
@@ -25,15 +24,25 @@ import 'package:equran_app/features/settings/presentation/widgets/settings_toast
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<LanguageState>(languageViewModelProvider, (prev, next) {
+      next.mapOrNull(
+        error: (e) {
+          if (context.mounted) {
+            showSettingsToast(context, e.message, isSuccess: false);
+          }
+        },
+      );
+    });
+
+    final langState = ref.watch(languageViewModelProvider);
 
     return Scaffold(
       appBar: const LuxuryAppBar(title: SettingsStrings.pageTitle),
@@ -66,47 +75,9 @@ class SettingsPage extends StatelessWidget {
               ),
               const LuxuryDivider(),
               // Bahasa
-              BlocBuilder<LanguageCubit, LanguageState>(
-                builder: (context, langState) {
-                  if (langState is LanguageError) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      showSettingsToast(
-                        context,
-                        langState.message,
-                        isSuccess: false,
-                      );
-                    });
-                  }
-
-                  final isDark = context.isDark;
-                  return LuxuryListTile(
-                    icon: Icons.language_rounded,
-                    title: l10n.language,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          langState.label,
-                          style: TextStyle(
-                            color: isDark
-                                ? AppColors.onSurfaceDarkVariant
-                                : AppColors.textTertiary,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(width: AppDimens.spaceXS),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 14,
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
-                        ),
-                      ],
-                    ),
-                    onTap: () => _showLanguageSheet(context, langState),
-                  );
-                },
+              _LanguageTile(
+                langState: langState,
+                onTap: () => _showLanguageSheet(context, ref, langState),
               ),
             ],
           ),
@@ -173,7 +144,7 @@ class SettingsPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppDimens.spaceLG),
             child: ElevatedButton.icon(
-              onPressed: () => _handleResetAll(context),
+              onPressed: () => _handleResetAll(context, ref),
               icon: const Icon(Icons.restore_rounded),
               label: const Text(SettingsStrings.resetAllButton),
               style: ElevatedButton.styleFrom(
@@ -194,11 +165,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  /// Menampilkan dialog konfirmasi sebelum mereset semua pengaturan ke default.
-  ///
-  /// Jika user mengkonfirmasi, akan memanggil `reset()` pada [ThemeCubit],
-  /// [QuranFontCubit], dan [LanguageCubit], lalu menampilkan toast sukses.
-  Future<void> _handleResetAll(BuildContext context) async {
+  Future<void> _handleResetAll(BuildContext context, WidgetRef ref) async {
     final confirmed = await showSettingsConfirmationDialog(
       context: context,
       title: SettingsStrings.resetAllDialogTitle,
@@ -208,15 +175,11 @@ class SettingsPage extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      final themeCubit = context.read<ThemeCubit>();
-      final fontCubit = context.read<QuranFontCubit>();
-      final langCubit = context.read<LanguageCubit>();
-
-      // Execute resets
-      await themeCubit.reset();
-      await fontCubit.reset();
-      await langCubit.reset();
-      // Add more cubits if necessary, but these are the core 3
+      await Future.wait([
+        ref.read(themeViewModelProvider.notifier).reset(),
+        ref.read(quranFontViewModelProvider.notifier).reset(),
+        ref.read(languageViewModelProvider.notifier).reset(),
+      ]);
 
       if (context.mounted) {
         showSettingsToast(context, SettingsStrings.resetAllSuccess);
@@ -224,36 +187,65 @@ class SettingsPage extends StatelessWidget {
     }
   }
 
-  /// Membuka bottom sheet pengaturan font Al-Quran.
-  ///
-  /// Menyediakan [QuranFontCubit] ke dalam bottom sheet
-  /// menggunakan [BlocProvider.value].
   void _showFontSettingsSheet(BuildContext context) {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<QuranFontCubit>(),
-          child: const FontSettingsSheet(),
-        ),
+        builder: (_) => const FontSettingsSheet(),
       ),
     );
   }
 
-  /// Membuka bottom sheet pemilih bahasa aplikasi.
-  ///
-  /// Menyediakan [LanguageCubit] ke dalam bottom sheet
-  /// dan meneruskan state bahasa saat ini sebagai [current].
-  void _showLanguageSheet(BuildContext context, LanguageState current) {
+  void _showLanguageSheet(
+    BuildContext context,
+    WidgetRef ref,
+    LanguageState current,
+  ) {
     final l10n = AppLocalizations.of(context)!;
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (sheetContext) => BlocProvider.value(
-          value: context.read<LanguageCubit>(),
-          child: LanguageSelectorSheet(current: current, l10n: l10n),
-        ),
+        builder: (_) => LanguageSelectorSheet(current: current, l10n: l10n),
       ),
+    );
+  }
+}
+
+class _LanguageTile extends StatelessWidget {
+  const _LanguageTile({required this.langState, required this.onTap});
+
+  final LanguageState langState;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.isDark;
+    return LuxuryListTile(
+      icon: Icons.language_rounded,
+      title: AppLocalizations.of(context)!.language,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            langState.label,
+            style: TextStyle(
+              color: isDark
+                  ? AppColors.onSurfaceDarkVariant
+                  : AppColors.textTertiary,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(width: AppDimens.spaceXS),
+          Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 14,
+            color: isDark
+                ? AppColors.onSurfaceDarkVariant
+                : AppColors.textTertiary,
+          ),
+        ],
+      ),
+      onTap: onTap,
     );
   }
 }

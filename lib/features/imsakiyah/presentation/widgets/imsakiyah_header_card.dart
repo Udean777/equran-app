@@ -1,6 +1,6 @@
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/theme/context_ext.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:flutter/material.dart';
 
@@ -16,12 +16,8 @@ class ImsakiyahHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -43,15 +39,13 @@ class ImsakiyahHeaderCard extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.primaryDark
-                    : AppColors.primaryContainer,
+                color: context.primaryContainerColor,
                 borderRadius: BorderRadius.circular(AppDimens.radiusSM),
               ),
               child: Icon(
                 Icons.location_on_rounded,
                 size: 18,
-                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                color: context.primaryActionColor,
               ),
             ),
             const SizedBox(width: AppDimens.spaceMD),
@@ -62,9 +56,7 @@ class ImsakiyahHeaderCard extends StatelessWidget {
                   Text(
                     jadwal.kabkota,
                     style: AppTypography.serifHeadingSmall.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDark
-                          : AppColors.textPrimary,
+                      color: context.textPrimaryColor,
                       fontSize: 15,
                     ),
                     maxLines: 1,
@@ -72,10 +64,8 @@ class ImsakiyahHeaderCard extends StatelessWidget {
                   ),
                   Text(
                     jadwal.provinsi,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
+                    style: context.theme.textTheme.bodySmall?.copyWith(
+                      color: context.textTertiaryColor,
                     ),
                   ),
                 ],
@@ -89,14 +79,10 @@ class ImsakiyahHeaderCard extends StatelessWidget {
                   vertical: AppDimens.spaceXS,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.primaryDark
-                      : AppColors.primaryContainer,
+                  color: context.primaryContainerColor,
                   borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                   border: Border.all(
-                    color: isDark
-                        ? AppColors.primaryLight.withValues(alpha: 0.3)
-                        : AppColors.primary.withValues(alpha: 0.2),
+                    color: context.primaryActionColor.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -105,9 +91,7 @@ class ImsakiyahHeaderCard extends StatelessWidget {
                     Icon(
                       Icons.edit_location_alt_outlined,
                       size: 12,
-                      color: isDark
-                          ? AppColors.primaryLighter
-                          : AppColors.primary,
+                      color: context.primaryActionColor,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -115,9 +99,7 @@ class ImsakiyahHeaderCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? AppColors.primaryLighter
-                            : AppColors.primary,
+                        color: context.primaryActionColor,
                       ),
                     ),
                   ],

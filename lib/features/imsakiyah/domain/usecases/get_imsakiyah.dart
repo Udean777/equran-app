@@ -4,9 +4,7 @@ import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/repositories/imsakiyah_repository.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/params/imsakiyah_params.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class GetImsakiyah implements UseCase<Imsakiyah, GetImsakiyahParams> {
   const GetImsakiyah(this._repository);
 

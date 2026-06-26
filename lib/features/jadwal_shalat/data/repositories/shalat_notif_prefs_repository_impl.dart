@@ -7,12 +7,10 @@ import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_p
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/shalat_notif_prefs_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: ShalatNotifPrefsRepository)
 class ShalatNotifPrefsRepositoryImpl implements ShalatNotifPrefsRepository {
   const ShalatNotifPrefsRepositoryImpl(
-    @Named('settingsBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;
@@ -27,8 +25,8 @@ class ShalatNotifPrefsRepositoryImpl implements ShalatNotifPrefsRepository {
         jsonDecode(raw) as Map<String, dynamic>,
       );
       return right(dto.toEntity());
-    } on Object catch (_) {
-      return right(const ShalatNotifPrefs());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
     }
   }
 

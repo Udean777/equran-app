@@ -2,17 +2,15 @@ import 'dart:convert';
 
 import 'package:equran_app/features/quran_reminder/domain/entities/quran_reminder_prefs.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class QuranReminderPrefsDataSource {
   Future<QuranReminderPrefs> getPrefs();
   Future<void> savePrefs(QuranReminderPrefs prefs);
 }
 
-@LazySingleton(as: QuranReminderPrefsDataSource)
 class QuranReminderPrefsDataSourceImpl implements QuranReminderPrefsDataSource {
   const QuranReminderPrefsDataSourceImpl(
-    @Named('settingsBox') this._box,
+    this._box,
   );
 
   final Box<String> _box;
@@ -21,18 +19,14 @@ class QuranReminderPrefsDataSourceImpl implements QuranReminderPrefsDataSource {
 
   @override
   Future<QuranReminderPrefs> getPrefs() async {
-    try {
-      final raw = _box.get(_key);
-      if (raw == null) return const QuranReminderPrefs();
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      return QuranReminderPrefs(
-        enabled: map['enabled'] as bool? ?? false,
-        hour: map['hour'] as int? ?? 20,
-        minute: map['minute'] as int? ?? 0,
-      );
-    } on Object catch (_) {
-      return const QuranReminderPrefs();
-    }
+    final raw = _box.get(_key);
+    if (raw == null) return const QuranReminderPrefs();
+    final map = jsonDecode(raw) as Map<String, dynamic>;
+    return QuranReminderPrefs(
+      enabled: map['enabled'] as bool? ?? false,
+      hour: map['hour'] as int? ?? 20,
+      minute: map['minute'] as int? ?? 0,
+    );
   }
 
   @override

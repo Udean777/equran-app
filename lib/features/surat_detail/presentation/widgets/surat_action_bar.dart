@@ -3,20 +3,18 @@ import 'dart:async';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_cubit.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
-import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
+import 'package:equran_app/features/bookmark/presentation/providers.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// Bar aksi dengan tombol pill berlabel agar user tahu fungsinya.
 /// Ditempatkan di atas SwipeNavBar di dalam bottomNavigationBar.
-class SuratActionBar extends StatelessWidget {
+class SuratActionBar extends ConsumerWidget {
   const SuratActionBar({
     required this.detail,
     required this.autoScrollEnabled,
@@ -29,118 +27,99 @@ class SuratActionBar extends StatelessWidget {
   final VoidCallback onToggleAutoScroll;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final surfaceColor = context.surfaceColor;
     final borderColor = context.borderSubtleColor;
 
-    return BlocSelector<BookmarkCubit, BookmarkState, bool>(
-      selector: (state) =>
-          state.mapOrNull(
-            success: (s) => s.suratProgressMap[detail.nomor] == 1.0,
-          ) ??
-          false,
-      builder: (context, isCompleted) {
-        return BlocBuilder<AudioDownloadCubit, AudioDownloadState>(
-          builder: (context, downloadState) {
-            final downloadCubit = context.read<AudioDownloadCubit>();
+    final bookmarkState = ref.watch(bookmarkViewModelProvider);
+    final isCompleted =
+        bookmarkState.mapOrNull(
+          success: (s) => s.suratProgressMap[detail.nomor] == 1.0,
+        ) ??
+        false;
 
-            return BlocBuilder<AudioCubit, AudioPlayerState>(
-              buildWhen: (prev, next) => prev.currentQari != next.currentQari,
-              builder: (context, audioState) {
-                final audioCubit = context.read<AudioCubit>();
-                final qari = audioState.currentQari;
+    final downloadState = ref.watch(audioDownloadViewModelProvider);
+    final audioState = ref.watch(audioViewModelProvider);
+    final downloadNotifier = ref.read(audioDownloadViewModelProvider.notifier);
+    final audioNotifier = ref.read(audioViewModelProvider.notifier);
+    final qari = audioState.currentQari;
 
-                final isAllDownloaded = downloadState.isAllDownloaded(
-                  detail.nomor,
-                  detail.ayatList,
-                  qari.id,
-                );
+    final isAllDownloaded = downloadState.isAllDownloaded(
+      detail.nomor,
+      detail.ayatList,
+      qari.id,
+    );
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: surfaceColor,
-                    border: Border(top: BorderSide(color: borderColor)),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimens.spaceMD,
-                    vertical: AppDimens.spaceXS + 2,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Hafalan — hanya muncul di debug mode
-                      if (kDebugMode) ...[
-                        _ActionPill(
-                          icon: Icons.auto_stories_outlined,
-                          label: 'Hafalan',
-                          onTap: () => unawaited(
-                            context.push(
-                              AppRoutes.hafalanSurat(detail.nomor),
+    return Container(
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        border: Border(top: BorderSide(color: borderColor)),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.spaceMD,
+        vertical: AppDimens.spaceXS + 2,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          if (kDebugMode) ...[
+            _ActionPill(
+              icon: Icons.auto_stories_outlined,
+              label: 'Hafalan',
+              onTap: () => unawaited(
+                context.push(
+                  AppRoutes.hafalanSurat(detail.nomor),
+                ),
+              ),
+            ),
+            const _ActionDivider(),
+          ],
+
+          if (downloadState.isDownloadingSurat)
+            _DownloadingPill(
+              downloadState: downloadState,
+              onCancel: downloadNotifier.cancelSuratDownload,
+            )
+          else
+            _ActionPill(
+              icon: isAllDownloaded
+                  ? Icons.download_done_rounded
+                  : (isCompleted
+                        ? Icons.download_for_offline_outlined
+                        : Icons.lock_outline_rounded),
+              label: isAllDownloaded ? 'Terunduh' : 'Unduh Audio',
+              iconColor: isAllDownloaded
+                  ? AppColors.success
+                  : (isCompleted ? null : context.textTertiaryColor),
+              onTap: isAllDownloaded
+                  ? null
+                  : (isCompleted
+                        ? () => unawaited(
+                            downloadNotifier.downloadSurat(
+                              suratNomor: detail.nomor,
+                              ayatList: detail.ayatList,
+                              qari: qari,
                             ),
-                          ),
-                        ),
-                        const _ActionDivider(),
-                      ],
+                          )
+                        : () => showLockedToast(
+                            context,
+                            'Selesaikan membaca semua ayat terlebih dahulu untuk mengunduh surat',
+                          )),
+            ),
 
-                      // Download — terkunci jika belum selesai baca semua ayat
-                      if (downloadState.isDownloadingSurat)
-                        _DownloadingPill(
-                          downloadState: downloadState,
-                          onCancel: downloadCubit.cancelSuratDownload,
-                        )
-                      else
-                        _ActionPill(
-                          icon: isAllDownloaded
-                              ? Icons.download_done_rounded
-                              : (isCompleted
-                                    ? Icons.download_for_offline_outlined
-                                    : Icons.lock_outline_rounded),
-                          label: isAllDownloaded ? 'Terunduh' : 'Unduh Audio',
-                          iconColor: isAllDownloaded
-                              ? AppColors.success
-                              : (isCompleted
-                                    ? null
-                                    : context.textTertiaryColor),
-                          onTap: isAllDownloaded
-                              ? null
-                              : (isCompleted
-                                    ? () => unawaited(
-                                        context
-                                            .read<AudioDownloadCubit>()
-                                            .downloadSurat(
-                                              suratNomor: detail.nomor,
-                                              ayatList: detail.ayatList,
-                                              qari: qari,
-                                            ),
-                                      )
-                                    : () => showLockedToast(
-                                        context,
-                                        'Selesaikan membaca semua ayat terlebih dahulu untuk mengunduh surat',
-                                      )),
-                        ),
-
-                      // Auto-scroll toggle — hanya muncul saat playlist aktif
-                      if (audioCubit.isPlaylistMode) ...[
-                        const _ActionDivider(),
-                        _ActionPill(
-                          icon: autoScrollEnabled
-                              ? Icons.gps_fixed_rounded
-                              : Icons.gps_not_fixed_rounded,
-                          label: autoScrollEnabled ? 'Sinkron' : 'Manual',
-                          iconColor: autoScrollEnabled
-                              ? context.primaryActionColor
-                              : null,
-                          onTap: onToggleAutoScroll,
-                        ),
-                      ],
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
+          if (audioNotifier.isPlaylistMode) ...[
+            const _ActionDivider(),
+            _ActionPill(
+              icon: autoScrollEnabled
+                  ? Icons.gps_fixed_rounded
+                  : Icons.gps_not_fixed_rounded,
+              label: autoScrollEnabled ? 'Sinkron' : 'Manual',
+              iconColor: autoScrollEnabled ? context.primaryActionColor : null,
+              onTap: onToggleAutoScroll,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

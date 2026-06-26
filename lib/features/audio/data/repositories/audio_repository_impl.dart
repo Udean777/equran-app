@@ -4,9 +4,7 @@ import 'package:equran_app/features/audio/data/datasources/audio_player_data_sou
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
 import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@Singleton(as: AudioRepository)
 class AudioRepositoryImpl implements AudioRepository {
   const AudioRepositoryImpl(this._dataSource, this._downloadDataSource);
 

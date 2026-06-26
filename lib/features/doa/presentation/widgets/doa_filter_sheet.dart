@@ -3,26 +3,26 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/core/widgets/gradient_button.dart';
 import 'package:equran_app/core/widgets/luxury_divider.dart';
-import 'package:equran_app/features/doa/presentation/cubit/doa_list_cubit.dart';
+import 'package:equran_app/features/doa/presentation/providers.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DoaFilterSheet extends StatefulWidget {
+class DoaFilterSheet extends ConsumerStatefulWidget {
   const DoaFilterSheet({super.key});
 
   @override
-  State<DoaFilterSheet> createState() => _DoaFilterSheetState();
+  ConsumerState<DoaFilterSheet> createState() => _DoaFilterSheetState();
 }
 
-class _DoaFilterSheetState extends State<DoaFilterSheet> {
+class _DoaFilterSheetState extends ConsumerState<DoaFilterSheet> {
   String? _selectedGrup;
   String? _selectedTag;
 
   @override
   void initState() {
     super.initState();
-    final state = context.read<DoaListCubit>().state;
+    final state = ref.read(doaListViewModelProvider);
     if (state is DoaListSuccess) {
       _selectedGrup = state.activeGrup;
       _selectedTag = state.activeTag;
@@ -32,25 +32,25 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
   void _selectGrup(String grup) {
     setState(() {
       _selectedGrup = _selectedGrup == grup ? null : grup;
-      _selectedTag = null; // XOR: clear tag
+      _selectedTag = null;
     });
   }
 
   void _selectTag(String tag) {
     setState(() {
       _selectedTag = _selectedTag == tag ? null : tag;
-      _selectedGrup = null; // XOR: clear grup
+      _selectedGrup = null;
     });
   }
 
   void _apply() {
-    final cubit = context.read<DoaListCubit>();
+    final vm = ref.read(doaListViewModelProvider.notifier);
     if (_selectedGrup != null) {
-      cubit.filterByGrup(_selectedGrup);
+      vm.filterByGrup(_selectedGrup);
     } else if (_selectedTag != null) {
-      cubit.filterByTag(_selectedTag);
+      vm.filterByTag(_selectedTag);
     } else {
-      cubit.clearFilter();
+      vm.clearFilter();
     }
     Navigator.of(context).pop();
   }
@@ -65,7 +65,7 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final state = context.read<DoaListCubit>().state;
+    final state = ref.read(doaListViewModelProvider);
     if (state is! DoaListSuccess) return const SizedBox.shrink();
 
     return DraggableScrollableSheet(
@@ -75,12 +75,10 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
       expand: false,
       builder: (context, scrollController) => Column(
         children: [
-          // Handle
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppDimens.spaceSM),
             child: BottomSheetHandle(),
           ),
-          // Header
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimens.spaceMD,
@@ -103,13 +101,11 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
             ),
           ),
           const LuxuryDivider(),
-          // Scrollable content
           Expanded(
             child: ListView(
               controller: scrollController,
               padding: const EdgeInsets.all(AppDimens.spaceMD),
               children: [
-                // Filter by Grup
                 Text(
                   l10n.filterByGrup,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -132,7 +128,6 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
                       .toList(),
                 ),
                 const SizedBox(height: AppDimens.spaceLG),
-                // Filter by Tag
                 Text(
                   l10n.filterByTag,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -158,7 +153,6 @@ class _DoaFilterSheetState extends State<DoaFilterSheet> {
               ],
             ),
           ),
-          // Apply button
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(AppDimens.spaceMD),

@@ -3,16 +3,14 @@ import 'dart:convert';
 import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/tafsir/data/models/tafsir_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class TafsirLocalDataSource {
   Future<TafsirDataDto?> getCachedTafsir(int nomor);
   Future<void> cacheTafsir(int nomor, TafsirDataDto tafsir);
 }
 
-@LazySingleton(as: TafsirLocalDataSource)
 class TafsirLocalDataSourceImpl implements TafsirLocalDataSource {
-  const TafsirLocalDataSourceImpl(@Named('tafsirBox') this._box);
+  const TafsirLocalDataSourceImpl(this._box);
 
   final LazyBox<String> _box;
 

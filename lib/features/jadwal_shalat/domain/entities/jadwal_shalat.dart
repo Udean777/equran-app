@@ -13,4 +13,12 @@ abstract class JadwalShalat with _$JadwalShalat {
     required String bulanNama,
     required List<JadwalShalatEntry> jadwal,
   }) = _JadwalShalat;
+  const JadwalShalat._();
+
+  JadwalShalatEntry? entryByTanggal(int tanggal) {
+    for (final e in jadwal) {
+      if (e.tanggal == tanggal) return e;
+    }
+    return null;
+  }
 }

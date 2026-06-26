@@ -4,9 +4,7 @@ import 'package:equran_app/features/hafalan/data/datasources/hafalan_compare_dat
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:equran_app/features/hafalan/domain/repositories/hafalan_compare_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: HafalanCompareRepository)
 class HafalanCompareRepositoryImpl implements HafalanCompareRepository {
   const HafalanCompareRepositoryImpl(this._dataSource);
 

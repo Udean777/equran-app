@@ -49,7 +49,7 @@ class QiblaErrorWidget extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
+                color: context.textSecondaryColor,
               ),
             ),
             if (!isNoSensor) ...[

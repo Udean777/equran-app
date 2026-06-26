@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:equran_app/core/cache/cache_entry.dart';
 import 'package:equran_app/features/doa/data/models/doa_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class DoaLocalDataSource {
   Future<List<DoaDto>?> getCachedDoaList();
@@ -12,9 +11,8 @@ abstract interface class DoaLocalDataSource {
   Future<void> cacheDoaDetail(int id, DoaDto doa);
 }
 
-@LazySingleton(as: DoaLocalDataSource)
 class DoaLocalDataSourceImpl implements DoaLocalDataSource {
-  const DoaLocalDataSourceImpl(@Named('doaBox') this._box);
+  const DoaLocalDataSourceImpl(this._box);
 
   final LazyBox<String> _box;
 

@@ -1,55 +1,56 @@
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/features/bookmark/presentation/cubit/bookmark_cubit.dart';
-import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
+import 'package:equran_app/features/bookmark/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/presentation/services/bookmark_toggle_helper.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_completion_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// Side-by-Side Horizontal Card View
-class SuratCardStack extends StatelessWidget {
+class SuratCardStack extends ConsumerWidget {
   const SuratCardStack({
     required this.detail,
-    required this.controller,
+    required this.totalAyat,
     required this.dragOffset,
     this.onStartAutoRead,
     super.key,
   });
 
   final SuratDetail detail;
-  final CardStackController controller;
+  final int totalAyat;
   final double dragOffset;
   final VoidCallback? onStartAutoRead;
 
   @override
-  Widget build(BuildContext context) {
-    final currentIndex = controller.currentIndex;
-    final totalCards = controller.totalCards;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cardState = ref.watch(cardStackProvider(totalAyat));
+    final currentIndex = cardState.currentIndex;
+    final totalCards = cardState.totalCards;
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         // Previous card (left)
         if (currentIndex > 0)
-          _buildSideCard(context, currentIndex - 1, isLeft: true),
+          _buildSideCard(context, ref, index: currentIndex - 1, isLeft: true),
 
         // Next card (right)
         if (currentIndex < totalCards - 1)
-          _buildSideCard(context, currentIndex + 1, isLeft: false),
+          _buildSideCard(context, ref, index: currentIndex + 1, isLeft: false),
 
         // Current card (center)
-        _buildActiveCard(context, currentIndex),
+        _buildActiveCard(context, ref, currentIndex),
       ],
     );
   }
 
-  Widget _buildActiveCard(BuildContext context, int index) {
+  Widget _buildActiveCard(BuildContext context, WidgetRef ref, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
     final dragRatio = (dragOffset / screenWidth).clamp(-1.0, 1.0);
 
@@ -75,7 +76,7 @@ class SuratCardStack extends StatelessWidget {
         scale: scale,
         child: Opacity(
           opacity: opacity,
-          child: _buildCard(context, index),
+          child: _buildCard(context, ref, index),
         ),
       ),
     );
@@ -83,7 +84,8 @@ class SuratCardStack extends StatelessWidget {
 
   Widget _buildSideCard(
     BuildContext context,
-    int index, {
+    WidgetRef ref, {
+    required int index,
     required bool isLeft,
   }) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -126,17 +128,19 @@ class SuratCardStack extends StatelessWidget {
         scale: scale,
         child: Opacity(
           opacity: opacity,
-          child: _buildCard(context, index),
+          child: _buildCard(context, ref, index),
         ),
       ),
     );
   }
 
-  Widget _buildCard(BuildContext context, int index) {
+  Widget _buildCard(BuildContext context, WidgetRef ref, int index) {
+    final cardState = ref.watch(cardStackProvider(totalAyat));
     Widget card;
     if (index == 0) {
+      final bookmarkState = ref.watch(bookmarkViewModelProvider);
       final isCompleted =
-          context.watch<BookmarkCubit>().state.mapOrNull(
+          bookmarkState.mapOrNull(
             success: (s) => s.suratProgressMap[detail.nomor] == 1.0,
           ) ??
           false;
@@ -145,14 +149,14 @@ class SuratCardStack extends StatelessWidget {
         isCompleted: isCompleted,
         onStartAutoRead: onStartAutoRead,
       );
-    } else if (index == controller.totalCards - 1) {
+    } else if (index == cardState.totalCards - 1) {
       card = SuratCompletionCard(
         detail: detail,
         onBackToHome: () {
           context.go(AppRoutes.home);
         },
         onRestart: () {
-          controller.jumpTo(0);
+          ref.read(cardStackProvider(totalAyat).notifier).jumpTo(0);
         },
       );
     } else {
@@ -161,13 +165,14 @@ class SuratCardStack extends StatelessWidget {
 
       final ayat = detail.ayatList[ayatIndex];
 
-      card = BlocBuilder<BookmarkCubit, BookmarkState>(
-        buildWhen: (prev, next) =>
-            prev.mapOrNull(success: (s) => s.bookmarks) !=
-            next.mapOrNull(success: (s) => s.bookmarks),
-        builder: (context, bookmarkState) {
+      card = Consumer(
+        builder: (context, ref, _) {
+          final bookmarkState = ref.watch(bookmarkViewModelProvider);
           final bookmarks =
-              bookmarkState.mapOrNull(success: (s) => s.bookmarks) ?? [];
+              bookmarkState.mapOrNull(
+                success: (s) => s.bookmarks,
+              ) ??
+              [];
           final isBookmarked = bookmarks.any(
             (b) =>
                 b.suratNomor == detail.nomor && b.ayatNomor == ayat.nomorAyat,
@@ -179,7 +184,7 @@ class SuratCardStack extends StatelessWidget {
             isBookmarked: isBookmarked,
             onBookmarkToggle: () {
               BookmarkToggleHelper.toggle(
-                cubit: context.read<BookmarkCubit>(),
+                viewModel: ref.read(bookmarkViewModelProvider.notifier),
                 detail: detail,
                 ayat: ayat,
                 isBookmarked: isBookmarked,

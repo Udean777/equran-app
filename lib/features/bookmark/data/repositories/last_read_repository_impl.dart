@@ -4,9 +4,7 @@ import 'package:equran_app/features/bookmark/data/mappers/bookmark_mapper.dart';
 import 'package:equran_app/features/bookmark/domain/entities/last_read.dart';
 import 'package:equran_app/features/bookmark/domain/repositories/last_read_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: LastReadRepository)
 class LastReadRepositoryImpl implements LastReadRepository {
   const LastReadRepositoryImpl(this._local);
 

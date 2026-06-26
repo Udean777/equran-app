@@ -9,93 +9,71 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
-import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart';
-import 'package:equran_app/features/imsakiyah/presentation/cubit/imsakiyah_cubit.dart';
+import 'package:equran_app/features/imsakiyah/presentation/providers.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsak_alarm_toggle_card.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsakiyah_header_card.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsakiyah_table.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/imsakiyah_today_card.dart';
 import 'package:equran_app/features/imsakiyah/presentation/widgets/location_selector_sheet.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImsakiyahPage extends StatelessWidget {
+class ImsakiyahPage extends ConsumerStatefulWidget {
   const ImsakiyahPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<ImsakiyahCubit>();
-            unawaited(cubit.init());
-            return cubit;
-          },
-        ),
-        BlocProvider(
-          create: (_) {
-            final cubit = getIt<ImsakAlarmCubit>();
-            unawaited(cubit.load());
-            return cubit;
-          },
-        ),
-      ],
-      child: const _ImsakiyahView(),
-    );
-  }
+  ConsumerState<ImsakiyahPage> createState() => _ImsakiyahPageState();
 }
 
-class _ImsakiyahView extends StatelessWidget {
-  const _ImsakiyahView();
+class _ImsakiyahPageState extends ConsumerState<ImsakiyahPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(imsakiyahViewModelProvider.notifier).init());
+      unawaited(ref.read(imsakAlarmViewModelProvider.notifier).load());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(imsakiyahViewModelProvider);
+
     return Scaffold(
       appBar: LuxuryAppBar(
         title: 'Imsakiyah',
         actions: [
-          BlocBuilder<ImsakiyahCubit, ImsakiyahState>(
-            builder: (context, state) {
-              final hasLocation = state is ImsakiyahSuccess;
-              if (!hasLocation) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(Icons.location_on_outlined),
-                tooltip: 'Ganti lokasi',
-                onPressed: () => _showLocationSheet(context),
-              );
-            },
-          ),
+          if (state is ImsakiyahSuccess)
+            IconButton(
+              icon: const Icon(Icons.location_on_outlined),
+              tooltip: 'Ganti lokasi',
+              onPressed: _showLocationSheet,
+            ),
         ],
       ),
-      body: BlocBuilder<ImsakiyahCubit, ImsakiyahState>(
-        builder: (context, state) => switch (state) {
-          ImsakiyahInitial() => const LoadingWidget(),
-          ImsakiyahLoadingProvinsi() => const LoadingWidget(),
-          ImsakiyahLoadingKabkota() => const LoadingWidget(),
-          ImsakiyahLoadingJadwal() => const LoadingWidget(),
-          ImsakiyahDetectingLocation() => const DetectingLocationWidget(),
-          ImsakiyahProvinsiLoaded() => const LoadingWidget(),
-          ImsakiyahKabkotaLoaded() => const LoadingWidget(),
-          ImsakiyahFailure(:final failure) => ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: () => unawaited(context.read<ImsakiyahCubit>().init()),
-          ),
-          ImsakiyahSuccess(:final jadwal) => _ImsakiyahContent(jadwal: jadwal),
-        },
-      ),
+      body: switch (state) {
+        ImsakiyahInitial() => const LoadingWidget(),
+        ImsakiyahLoadingProvinsi() => const LoadingWidget(),
+        ImsakiyahLoadingKabkota() => const LoadingWidget(),
+        ImsakiyahLoadingJadwal() => const LoadingWidget(),
+        ImsakiyahDetectingLocation() => const DetectingLocationWidget(),
+        ImsakiyahProvinsiLoaded() => const LoadingWidget(),
+        ImsakiyahKabkotaLoaded() => const LoadingWidget(),
+        ImsakiyahFailure(:final failure) => ErrorStateWidget(
+          message: failure.toUserMessage(),
+          onRetry: () =>
+              unawaited(ref.read(imsakiyahViewModelProvider.notifier).retry()),
+        ),
+        ImsakiyahSuccess(:final jadwal) => _ImsakiyahContent(jadwal: jadwal),
+      },
     );
   }
 
-  void _showLocationSheet(BuildContext context) {
+  void _showLocationSheet() {
     unawaited(
       showAppBottomSheet<void>(
         context,
-        builder: (_) => BlocProvider.value(
-          value: context.read<ImsakiyahCubit>(),
-          child: const ImsakiyahLocationSelectorSheet(),
-        ),
+        builder: (_) => const ImsakiyahLocationSelectorSheet(),
       ),
     );
   }
@@ -108,12 +86,8 @@ class _ImsakiyahContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final todayTanggal = today.day;
-    final todayEntry = jadwal.imsakiyah.where(
-      (e) => e.tanggal == todayTanggal,
-    );
-    final entry = todayEntry.isNotEmpty ? todayEntry.first : null;
+    final todayTanggal = DateTime.now().day;
+    final entry = jadwal.entryByTanggal(todayTanggal);
 
     return ListView(
       padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
@@ -123,10 +97,7 @@ class _ImsakiyahContent extends StatelessWidget {
           onChangeLocation: () => unawaited(
             showAppBottomSheet<void>(
               context,
-              builder: (_) => BlocProvider.value(
-                value: context.read<ImsakiyahCubit>(),
-                child: const ImsakiyahLocationSelectorSheet(),
-              ),
+              builder: (_) => const ImsakiyahLocationSelectorSheet(),
             ),
           ),
         ),

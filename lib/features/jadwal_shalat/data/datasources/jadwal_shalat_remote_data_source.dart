@@ -1,7 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/api_endpoints.dart';
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/jadwal_shalat/data/models/jadwal_shalat_dto.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class JadwalShalatRemoteDataSource {
   Future<ProvinsiShalatResponseDto> fetchProvinsi();
@@ -14,15 +13,14 @@ abstract interface class JadwalShalatRemoteDataSource {
   });
 }
 
-@LazySingleton(as: JadwalShalatRemoteDataSource)
 class JadwalShalatRemoteDataSourceImpl implements JadwalShalatRemoteDataSource {
-  const JadwalShalatRemoteDataSourceImpl(this._dioClient);
+  const JadwalShalatRemoteDataSourceImpl(this._dio);
 
-  final DioClient _dioClient;
+  final Dio _dio;
 
   @override
   Future<ProvinsiShalatResponseDto> fetchProvinsi() async {
-    final response = await _dioClient.dio.get<Map<String, dynamic>>(
+    final response = await _dio.get<Map<String, dynamic>>(
       ApiEndpoints.shalatProvinsi,
     );
     return ProvinsiShalatResponseDto.fromJson(response.data!);
@@ -30,7 +28,7 @@ class JadwalShalatRemoteDataSourceImpl implements JadwalShalatRemoteDataSource {
 
   @override
   Future<KabkotaShalatResponseDto> fetchKabkota(String provinsi) async {
-    final response = await _dioClient.dio.post<Map<String, dynamic>>(
+    final response = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.shalatKabkota,
       data: {'provinsi': provinsi},
     );
@@ -44,7 +42,7 @@ class JadwalShalatRemoteDataSourceImpl implements JadwalShalatRemoteDataSource {
     required int bulan,
     required int tahun,
   }) async {
-    final response = await _dioClient.dio.post<Map<String, dynamic>>(
+    final response = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.shalat,
       data: {
         'provinsi': provinsi,

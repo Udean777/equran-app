@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:equran_app/core/notifications/notification_service.dart';
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/router/app_routes.dart';
-import 'package:equran_app/features/onboarding/constants/onboarding_constants.dart';
 import 'package:equran_app/features/onboarding/data/onboarding_service.dart';
+import 'package:equran_app/features/onboarding/presentation/constants/onboarding_colors.dart';
+import 'package:equran_app/features/onboarding/presentation/providers.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_bottom_nav.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_1.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_2.dart';
@@ -11,23 +13,23 @@ import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_s
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_4.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_5.dart';
 import 'package:equran_app/features/onboarding/presentation/widgets/onboarding_slide_6.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
   @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
+  ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
+class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _controller = PageController();
-  final OnboardingService _onboardingService = getIt<OnboardingService>();
-  final NotificationService _notifService = getIt<NotificationService>();
+  late final OnboardingService _onboardingService;
+  late final NotificationService _notifService;
 
   int _currentPage = 0;
   static const _totalPages = 6;
@@ -35,6 +37,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
   bool _locationGranted = false;
   bool _notifGranted = false;
   bool _permissionRequested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingService = ref.read(onboardingServiceProvider);
+    _notifService = ref.read(notificationServiceProvider);
+  }
 
   @override
   void dispose() {

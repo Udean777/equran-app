@@ -5,28 +5,25 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/notification_test/domain/entities/notification_test_item.dart';
-import 'package:equran_app/features/notification_test/presentation/cubit/notification_test_cubit.dart';
+import 'package:equran_app/features/notification_test/presentation/providers.dart';
+import 'package:equran_app/features/notification_test/presentation/viewmodels/notification_test_viewmodel.dart';
 import 'package:equran_app/features/notification_test/presentation/widgets/cancel_all_button.dart';
 import 'package:equran_app/features/notification_test/presentation/widgets/info_banner.dart';
 import 'package:equran_app/features/notification_test/presentation/widgets/notif_card.dart';
 import 'package:equran_app/features/notification_test/presentation/widgets/section_label.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NotificationTestPage extends StatelessWidget {
+class NotificationTestPage extends ConsumerWidget {
   const NotificationTestPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<NotificationTestCubit>(),
-      child: const _NotificationTestView(),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    return const _NotificationTestView();
   }
 }
 
-class _NotificationTestView extends StatelessWidget {
+class _NotificationTestView extends ConsumerWidget {
   const _NotificationTestView();
 
   static const List<NotificationTestSection> _sections = [
@@ -44,6 +41,7 @@ class _NotificationTestView extends StatelessWidget {
           title: 'Play Adzan Subuh (Direct)',
           subtitle: 'Langsung play audio adzan subuh via AudioCompositeHandler',
           type: NotificationTestType.adzanDirect,
+          isSubuh: true,
         ),
         NotificationTestItem(
           id: 'adzan_stop',
@@ -67,6 +65,7 @@ class _NotificationTestView extends StatelessWidget {
           title: 'Adzan Subuh',
           subtitle: 'Test notif adzan Subuh (sound berbeda)',
           type: NotificationTestType.adzanNotification,
+          isSubuh: true,
         ),
       ],
     ),
@@ -142,110 +141,103 @@ class _NotificationTestView extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<NotificationTestCubit, NotificationTestState>(
-      listenWhen: (previous, current) =>
-          current is NotificationTestError &&
-          previous is! NotificationTestError,
-      listener: (context, state) {
-        state.mapOrNull(
-          error: (s) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(s.failure.toUserMessage()),
-                backgroundColor: AppColors.error,
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-          },
-        );
-      },
-      child: Scaffold(
-        appBar: const LuxuryAppBar(title: 'Test Notifikasi'),
-        body: BlocBuilder<NotificationTestCubit, NotificationTestState>(
-          builder: (context, state) {
-            final isDark = context.isDark;
-            final bgColor = isDark
-                ? AppColors.backgroundDark
-                : AppColors.background;
-            final statuses = state.statuses;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(notificationTestViewModelProvider);
+    final statuses = state.statuses;
 
-            return Scaffold(
-              backgroundColor: bgColor,
-              body: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(
-                  AppDimens.pagePadding,
-                  AppDimens.spaceMD,
-                  AppDimens.pagePadding,
-                  AppDimens.spaceXXL,
+    // Listen for errors
+    ref.listen<NotificationTestState>(
+      notificationTestViewModelProvider,
+      (previous, next) {
+        if (next is NotificationTestError &&
+            (previous == null || previous is! NotificationTestError)) {
+          next.mapOrNull(
+            error: (s) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(s.failure.toUserMessage()),
+                  backgroundColor: AppColors.error,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 3),
                 ),
-                itemCount: _sections.length + 2,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InfoBanner(),
-                        SizedBox(height: AppDimens.spaceLG),
-                      ],
-                    );
-                  }
+              );
+            },
+          );
+        }
+      },
+    );
 
-                  if (index == _sections.length + 1) {
-                    return Column(
-                      children: [
-                        const SizedBox(height: AppDimens.spaceLG),
-                        CancelAllButton(
-                          onTap: () {
-                            unawaited(
-                              context
-                                  .read<NotificationTestCubit>()
-                                  .cancelAllTests(),
-                            );
-                          },
-                        ),
-                      ],
-                    );
-                  }
-
-                  final section = _sections[index - 1];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (index > 1) const SizedBox(height: AppDimens.spaceLG),
-                      SectionLabel(label: section.label),
-                      const SizedBox(height: AppDimens.spaceSM),
-                      ...section.items.map((item) {
-                        final (icon, color) = _itemConfig(item.id);
-                        return Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: AppDimens.spaceSM,
-                          ),
-                          child: NotifCard(
-                            id: item.id,
-                            icon: icon,
-                            title: item.title,
-                            subtitle: item.subtitle,
-                            color: color,
-                            status: statuses[item.id],
-                            onTest: () {
-                              unawaited(
-                                context.read<NotificationTestCubit>().runTest(
-                                  item,
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      }),
-                    ],
-                  );
-                },
-              ),
-            );
-          },
+    return Scaffold(
+      backgroundColor: context.scaffoldBackgroundColor,
+      appBar: const LuxuryAppBar(title: 'Test Notifikasi'),
+      body: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(
+          AppDimens.pagePadding,
+          AppDimens.spaceMD,
+          AppDimens.pagePadding,
+          AppDimens.spaceXXL,
         ),
+        itemCount: _sections.length + 2,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InfoBanner(),
+                SizedBox(height: AppDimens.spaceLG),
+              ],
+            );
+          }
+          if (index == _sections.length + 1) {
+            return Column(
+              children: [
+                const SizedBox(height: AppDimens.spaceLG),
+                CancelAllButton(
+                  onTap: () {
+                    unawaited(
+                      ref
+                          .read(notificationTestViewModelProvider.notifier)
+                          .cancelAllTests(),
+                    );
+                  },
+                ),
+              ],
+            );
+          }
+
+          final section = _sections[index - 1];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (index > 1) const SizedBox(height: AppDimens.spaceLG),
+              SectionLabel(label: section.label),
+              const SizedBox(height: AppDimens.spaceSM),
+              ...section.items.map((item) {
+                final (icon, color) = _itemConfig(item.id);
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: AppDimens.spaceSM,
+                  ),
+                  child: NotifCard(
+                    id: item.id,
+                    icon: icon,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    color: color,
+                    status: statuses[item.id],
+                    onTest: () {
+                      unawaited(
+                        ref
+                            .read(notificationTestViewModelProvider.notifier)
+                            .runTest(item),
+                      );
+                    },
+                  ),
+                );
+              }),
+            ],
+          );
+        },
       ),
     );
   }

@@ -5,7 +5,9 @@
   <p>
     <img src="https://img.shields.io/badge/Flutter-3.22.0-02569B?logo=flutter&style=for-the-badge" alt="Flutter Version">
     <img src="https://img.shields.io/badge/Dart-3.8.0-0175C2?logo=dart&style=for-the-badge" alt="Dart Version">
+    <img src="https://img.shields.io/badge/version-0.4.0%2B5-4CAF50?style=for-the-badge" alt="Version">
     <img src="https://img.shields.io/badge/Architecture-Clean-4CAF50?style=for-the-badge" alt="Clean Architecture">
+    <img src="https://img.shields.io/badge/State%20Management-Riverpod-764ABC?logo=riverpod&style=for-the-badge" alt="Riverpod">
     <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License">
   </p>
   
@@ -73,13 +75,13 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 
 ## 🏗️ Arsitektur & Teknologi
 
-Qurva dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang.
+Qurva dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang. Seluruh _core features_ (Surat, Hafalan, Tafsir, Tasbih) memiliki kepatuhan 100% terhadap **Dependency Inversion Principle (DIP)** dan pola _Riverpod reaktif_ murni, tanpa kebocoran logika basis data maupun callback manual (*anti-patterns*).
 
 ```mermaid
 flowchart TB
     subgraph UI ["Presentation Layer (Flutter UI)"]
         Widgets["🎨 Widgets & Pages"]
-        Blocs["⚙️ BLoC / Cubit (State Management)"]
+        VMs["⚙️ Riverpod Notifiers (State Management)"]
     end
 
     subgraph Domain ["Domain Layer (Pure Dart)"]
@@ -96,8 +98,8 @@ flowchart TB
     end
 
     %% presentation using domain
-    Widgets --> Blocs
-    Blocs --> Usecases
+    Widgets --> VMs
+    VMs --> Usecases
 
     %% domain relationships
     Usecases --> Entities
@@ -110,7 +112,7 @@ flowchart TB
     ReposImpl --> External
 
     %% external packages mapping
-    LocalDS --> HiveCE["Hive Database"]
+    LocalDS --> HiveCE["Hive CE Database"]
     RemoteDS --> Dio["Dio HTTP Client"]
     External --> System["AndroidAlarmManager / Notifications / Location"]
 
@@ -119,7 +121,7 @@ flowchart TB
     classDef data fill:#e8f5e9,stroke:#4caf50,stroke-width:2px;
     classDef external fill:#fff3e0,stroke:#ff9800,stroke-width:2px;
 
-    class Widgets,Blocs presentation;
+    class Widgets,VMs presentation;
     class Usecases,Entities,ReposInterface domain;
     class ReposImpl,LocalDS,RemoteDS,External data;
     class HiveCE,Dio,System external;
@@ -127,10 +129,10 @@ flowchart TB
 
 ### Penjelasan Arsitektur:
 
-1. **Presentation Layer**: Menangani visualisasi antarmuka dan interaksi pengguna. Menggunakan **BLoC & Cubit** (`flutter_bloc`) untuk _state management_ reaktif yang bersih dan terisolasi dengan aliran data searah (_unidirectional data flow_).
-2. **Domain Layer**: Merupakan inti (core) dari bisnis logik aplikasi yang bersifat murni (Pure Dart) dan tidak memiliki ketergantungan terhadap external packages, library, atau UI framework. Terdiri dari Entities (termasuk immutable data model dengan Freezed & Equatable) dan Usecases.
-3. **Data Layer**: Mengimplementasikan kontrak repositori dari Domain Layer. Menangani data lokal (Hive boxes) dan data remote (Dio HTTP client dengan interceptor & auto-retry), serta layanan sistem platform (AlarmManager, Notifications, Location Services).
-4. **Dependency Injection**: Menggunakan **GetIt** & **Injectable** untuk pendaftaran dependensi secara otomatis melalui _code generation_.
+1. **Presentation Layer**: Menangani visualisasi antarmuka dan interaksi pengguna. Menggunakan **Riverpod Notifier** (`flutter_riverpod`) untuk _state management_ reaktif yang bersih dan terisolasi dengan aliran data searah (_unidirectional data flow_).
+2. **Domain Layer**: Merupakan inti (core) dari bisnis logik aplikasi yang bersifat murni (Pure Dart) dan tidak memiliki ketergantungan terhadap external packages, library, atau UI framework. Terdiri dari Entities (immutable data model dengan Freezed) dan Usecases.
+3. **Data Layer**: Mengimplementasikan kontrak repositori dari Domain Layer. Menangani data lokal (Hive CE boxes) dan data remote (Dio HTTP client dengan interceptor & auto-retry), serta layanan sistem platform (AlarmManager, Notifications, Location Services).
+4. **Dependency Injection**: Menggunakan **Riverpod** sebagai dependency injection container — semua dependensi didaftarkan sebagai Riverpod Provider dan di-inject secara otomatis melalui `ref.read()`.
 5. **Declarative Routing**: Menggunakan **GoRouter** untuk navigasi berbasis rute aman, modular, dan mendukung parameter dinamis serta redirect logic (misal: onboarding state redirection).
 
 ---
@@ -139,14 +141,13 @@ flowchart TB
 
 | Nama Package                          |        Versi        | Kegunaan                                                           |
 | :------------------------------------ | :-----------------: | :----------------------------------------------------------------- |
-| **`flutter_bloc`**                    |      `^9.1.1`       | State management berbasis BLoC & Cubit                             |
+| **`flutter_riverpod`**                |      `^2.6.1`       | State management + DI container berbasis Riverpod Notifier         |
 | **`just_audio`**                      |      `^0.9.40`      | Pemutar audio murattal                                             |
 | **`audio_session`**                   |      `^0.1.21`      | Manajemen sesi audio perangkat                                     |
 | **`audio_service`**                   |      `^0.18.0`      | Pemutaran audio latar belakang                                     |
 | **`dio`**                             |      `^5.5.0`       | HTTP Client dengan Interceptor dan penanganan error                |
 | **`hive_ce`** & **`hive_ce_flutter`** | `^2.7.0` / `^2.2.0` | Database NoSQL lokal super cepat untuk caching & local preferences |
 | **`go_router`**                       |      `^17.2.3`      | Declarative routing system                                         |
-| **`get_it`** & **`injectable`**       | `^9.2.1` / `^3.0.0` | Dependency Injection & Auto service registration                   |
 | **`flutter_local_notifications`**     |      `^18.0.0`      | Notifikasi lokal (adzan, alarm, reminder baca, dll.)               |
 | **`android_alarm_manager_plus`**      |      `^4.0.7`       | Penjadwalan latar belakang (Background alarm scheduler) di Android |
 | **`timezone`**                        |      `^0.9.4`       | Konfigurasi timezone untuk notifikasi terjadwal                    |
@@ -155,9 +156,8 @@ flowchart TB
 | **`flutter_compass`**                 |      `^0.8.1`       | Sensor kompas fisik untuk Qibla Finder                             |
 | **`share_plus`**                      |      `^10.1.4`      | Berbagi konten (teks & gambar ayat) ke media sosial                |
 | **`table_calendar`**                  |      `^3.1.2`       | Kalender bulanan interaktif untuk log Statistik Shalat             |
-| **`fpdart`**                          |      `^1.1.0`       | Penerapan Functional Programming (`Either`, `Option`)              |
+| **`fpdart`**                          |      `^1.1.0`       | Penerapan Functional Programming (`Either`, `Failure`)              |
 | **`freezed_annotation`**              |      `^3.1.0`       | Code generation untuk immutable class & union types                |
-| **`equatable`**                       |      `^2.0.5`       | Perbandingan nilai objek                                           |
 | **`path_provider`**                   |      `^2.1.4`       | Akses direktori penyimpanan lokal (audio download & Hive db)       |
 | **`intl`**                            |      `^0.20.1`      | Format tanggal, waktu, dan lokalisasi bahasa                       |
 | **`url_launcher`**                    |      `^6.3.2`       | Membuka tautan URL eksternal                                       |
@@ -219,7 +219,7 @@ curl http://localhost:8000/health
 ```
 
 5. **Update Flutter app**:
-   Edit `lib/features/hafalan/constants/hafalan_constants.dart`:
+   Edit `lib/features/hafalan/data/constants/hafalan_api_config.dart`:
 
 ```dart
 static const String apiBaseUrl = 'http://YOUR_IP:8000'; // ganti YOUR_IP dengan IP laptop
@@ -358,13 +358,11 @@ make clean
 
 ## 🧪 Menjalankan Pengujian
 
-Aplikasi ini dilengkapi dengan pengujian unit dan integrasi yang menyeluruh:
+Aplikasi ini dilengkapi dengan pengujian unit:
 
 ```bash
 flutter test
 ```
-
-> **545 tests — semua passed ✅**
 
 ---
 

@@ -1,22 +1,24 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Bottom navigation bar untuk card stack — arrow prev/next + progress bar.
-class SwipeNavBar extends StatelessWidget {
+class SwipeNavBar extends ConsumerWidget {
   const SwipeNavBar({
-    required this.controller,
+    required this.totalAyat,
     this.onComplete,
     super.key,
   });
 
-  final CardStackController controller;
+  final int totalAyat;
   final VoidCallback? onComplete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cardState = ref.watch(cardStackProvider(totalAyat));
     final isDark = context.isDark;
     final primaryColor = context.primaryActionColor;
     final disabledColor = isDark
@@ -25,14 +27,16 @@ class SwipeNavBar extends StatelessWidget {
     final surfaceColor = context.surfaceColor;
     final borderColor = context.borderSubtleColor;
 
-    final isFirst = controller.isFirst;
-    final isLast = controller.isLast;
-    final isInfoCard = controller.isInfoCard;
-    final currentIndex = controller.currentIndex;
-    final totalAyat = controller.totalAyat;
+    final isFirst = cardState.isFirst;
+    final isLast = cardState.isLast;
+    final isInfoCard = cardState.isInfoCard;
+    final currentIndex = cardState.currentIndex;
+    final totalAyatCount = cardState.totalAyat;
 
     // Label tengah
-    final label = isInfoCard ? 'Info Surat' : 'Ayat $currentIndex / $totalAyat';
+    final label = isInfoCard
+        ? 'Info Surat'
+        : 'Ayat $currentIndex / $totalAyatCount';
 
     return Container(
       decoration: BoxDecoration(
@@ -54,7 +58,7 @@ class SwipeNavBar extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDimens.radiusFull),
             child: LinearProgressIndicator(
-              value: controller.currentProgress,
+              value: cardState.currentProgress,
               minHeight: 3,
               backgroundColor: context.primaryContainerColor,
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
@@ -69,7 +73,11 @@ class SwipeNavBar extends StatelessWidget {
               // Prev button
               _NavButton(
                 icon: Icons.arrow_back_ios_rounded,
-                onPressed: isFirst ? null : controller.goPrev,
+                onPressed: isFirst
+                    ? null
+                    : () => ref
+                          .read(cardStackProvider(totalAyat).notifier)
+                          .goPrev(),
                 color: isFirst ? disabledColor : primaryColor,
               ),
 
@@ -90,7 +98,7 @@ class SwipeNavBar extends StatelessWidget {
                     if (!isInfoCard) ...[
                       const SizedBox(height: 3),
                       Text(
-                        '${(controller.currentProgress * 100).round()}% selesai',
+                        '${(cardState.currentProgress * 100).round()}% selesai',
                         style: TextStyle(
                           fontSize: 10,
                           color: context.textTertiaryColor,
@@ -108,7 +116,11 @@ class SwipeNavBar extends StatelessWidget {
                 icon: isLast
                     ? Icons.check_rounded
                     : Icons.arrow_forward_ios_rounded,
-                onPressed: isLast ? onComplete : controller.goNext,
+                onPressed: isLast
+                    ? onComplete
+                    : () => ref
+                          .read(cardStackProvider(totalAyat).notifier)
+                          .goNext(),
                 color: isLast
                     ? isDark
                           ? AppColors.goldLight

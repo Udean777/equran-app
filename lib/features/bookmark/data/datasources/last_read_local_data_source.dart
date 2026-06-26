@@ -2,16 +2,14 @@ import 'dart:convert';
 
 import 'package:equran_app/features/bookmark/data/models/last_read_dto.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class LastReadLocalDataSource {
   Future<LastReadDto?> getLastRead();
   Future<void> saveLastRead(LastReadDto lastRead);
 }
 
-@LazySingleton(as: LastReadLocalDataSource)
 class LastReadLocalDataSourceImpl implements LastReadLocalDataSource {
-  LastReadLocalDataSourceImpl(@Named('bookmarkBox') this._box);
+  LastReadLocalDataSourceImpl(this._box);
 
   final Box<String> _box;
 

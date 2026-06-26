@@ -1,31 +1,29 @@
 import 'package:dio/dio.dart';
-import 'package:equran_app/core/network/dio_client.dart';
-import 'package:equran_app/features/hafalan/constants/hafalan_constants.dart';
+import 'package:equran_app/features/hafalan/data/constants/hafalan_api_config.dart';
+import 'package:equran_app/features/hafalan/domain/constants/hafalan_thresholds.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
-import 'package:injectable/injectable.dart';
 
 abstract interface class HafalanCompareDataSource {
   Future<SetoranCompareResult> compare({
     required String audioFilePath,
     required String targetText,
-    double threshold = HafalanConstants.defaultThreshold,
+    double threshold = HafalanThresholds.defaultThreshold,
   });
 
   /// Ping health endpoint to warm up server.
   Future<void> warmUp();
 }
 
-@LazySingleton(as: HafalanCompareDataSource)
 class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
-  const HafalanCompareDataSourceImpl(this._dioClient);
+  const HafalanCompareDataSourceImpl(this._dio);
 
-  final DioClient _dioClient;
+  final Dio _dio;
 
   @override
   Future<SetoranCompareResult> compare({
     required String audioFilePath,
     required String targetText,
-    double threshold = HafalanConstants.defaultThreshold,
+    double threshold = HafalanThresholds.defaultThreshold,
   }) async {
     final formData = FormData.fromMap({
       'user_audio': await MultipartFile.fromFile(
@@ -36,8 +34,8 @@ class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
       'threshold': threshold.toString(),
     });
 
-    final response = await _dioClient.dio.post<Map<String, dynamic>>(
-      '${HafalanConstants.apiBaseUrl}/compare',
+    final response = await _dio.post<Map<String, dynamic>>(
+      '${HafalanApiConfig.apiBaseUrl}/compare',
       data: formData,
       options: Options(
         receiveTimeout: const Duration(seconds: 120),
@@ -54,8 +52,8 @@ class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
 
   @override
   Future<void> warmUp() async {
-    await _dioClient.dio.get<Map<String, dynamic>>(
-      '${HafalanConstants.apiBaseUrl}/health',
+    await _dio.get<Map<String, dynamic>>(
+      '${HafalanApiConfig.apiBaseUrl}/health',
       options: Options(
         receiveTimeout: const Duration(seconds: 60),
       ),

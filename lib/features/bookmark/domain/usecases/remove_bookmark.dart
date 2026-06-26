@@ -3,7 +3,6 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/bookmark/domain/repositories/bookmark_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class RemoveBookmarkParams extends Equatable {
   const RemoveBookmarkParams({
@@ -18,7 +17,6 @@ class RemoveBookmarkParams extends Equatable {
   List<Object> get props => [suratNomor, ayatNomor];
 }
 
-@injectable
 class RemoveBookmark implements UseCase<Unit, RemoveBookmarkParams> {
   const RemoveBookmark(this._repository);
 

@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/audio/domain/entities/downloaded_ayat_info.dart';
 import 'package:equran_app/features/audio/domain/entities/qari.dart';
 import 'package:flutter/foundation.dart';
-import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 
 abstract interface class AudioDownloadDataSource {
@@ -42,9 +40,8 @@ abstract interface class AudioDownloadDataSource {
   Future<List<DownloadedAyatInfo>> getDownloadedAyats();
 }
 
-@LazySingleton(as: AudioDownloadDataSource)
 class AudioDownloadDataSourceImpl implements AudioDownloadDataSource {
-  AudioDownloadDataSourceImpl(DioClient dioClient) : _dio = dioClient.dio;
+  AudioDownloadDataSourceImpl(this._dio);
 
   final Dio _dio;
 
@@ -57,9 +54,7 @@ class AudioDownloadDataSourceImpl implements AudioDownloadDataSource {
     final dir = Directory(
       '${appDir.path}/audio/${qari.id}/$suratNomor',
     );
-    if (!dir.existsSync()) {
-      await dir.create(recursive: true);
-    }
+    await dir.create(recursive: true);
     return dir;
   }
 
@@ -161,7 +156,8 @@ class AudioDownloadDataSourceImpl implements AudioDownloadDataSource {
       ayatNomor: ayatNomor,
       qari: qari,
     );
-    return File(filePath).existsSync() ? filePath : null;
+    final file = File(filePath);
+    return file.existsSync() ? filePath : null;
   }
 
   @override

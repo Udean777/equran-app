@@ -1,6 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
-import 'package:equran_app/features/tasbih/constants/tasbih_constants.dart';
+import 'package:equran_app/features/tasbih/presentation/constants/tasbih_constants.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 

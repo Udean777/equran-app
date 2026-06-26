@@ -6,9 +6,7 @@ import 'package:equran_app/features/tafsir/data/mappers/tafsir_mapper.dart';
 import 'package:equran_app/features/tafsir/domain/entities/tafsir_surat.dart';
 import 'package:equran_app/features/tafsir/domain/repositories/tafsir_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: TafsirRepository)
 class TafsirRepositoryImpl implements TafsirRepository {
   const TafsirRepositoryImpl(this._remote, this._local);
 

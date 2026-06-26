@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:equran_app/core/constants/juz_constants.dart';
-import 'package:equran_app/core/services/audio_recorder_service.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
@@ -10,21 +9,18 @@ import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_cubit.dart';
-import 'package:equran_app/features/hafalan/presentation/cubit/hafalan_detail_state.dart';
-import 'package:equran_app/features/hafalan/presentation/widgets/hafalan_providers.dart';
+import 'package:equran_app/features/hafalan/presentation/providers.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/cubit/surat_detail_cubit.dart';
-import 'package:equran_app/injection/injection_container.dart';
+import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-class HafalanSetoranPage extends StatelessWidget {
+class HafalanSetoranPage extends ConsumerWidget {
   const HafalanSetoranPage({
     required this.suratNomor,
     this.juzNomor,
@@ -35,66 +31,31 @@ class HafalanSetoranPage extends StatelessWidget {
   final int? juzNomor;
 
   @override
-  Widget build(BuildContext context) {
-    return HafalanProviders(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) {
-              final cubit = getIt<SuratDetailCubit>();
-              unawaited(cubit.load(suratNomor));
-              return cubit;
-            },
-          ),
-          BlocProvider(
-            create: (_) {
-              final cubit = getIt<HafalanDetailCubit>();
-              unawaited(cubit.loadDetail(suratNomor));
-              return cubit;
-            },
-          ),
-        ],
-        child: _HafalanSetoranView(suratNomor: suratNomor, juzNomor: juzNomor),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(suratDetailViewModelProvider(suratNomor));
+
+    return switch (state) {
+      SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
+      SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
+      SuratDetailFailure(:final failure) => Scaffold(
+        appBar: const LuxuryAppBar(title: 'Mode Setoran'),
+        body: ErrorStateWidget(
+          message: failure.toUserMessage(),
+          onRetry: () => ref
+              .read(suratDetailViewModelProvider(suratNomor).notifier)
+              .retry(suratNomor),
+        ),
       ),
-    );
+      SuratDetailSuccess(:final detail) => _SetoranSession(
+        detail: detail,
+        suratNomor: suratNomor,
+        juzNomor: juzNomor,
+      ),
+    };
   }
 }
 
-class _HafalanSetoranView extends StatelessWidget {
-  const _HafalanSetoranView({
-    required this.suratNomor,
-    this.juzNomor,
-  });
-
-  final int suratNomor;
-  final int? juzNomor;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SuratDetailCubit, SuratDetailState>(
-      builder: (context, state) => switch (state) {
-        SuratDetailInitial() => const Scaffold(body: LoadingWidget()),
-        SuratDetailLoading() => const Scaffold(body: LoadingWidget()),
-        SuratDetailFailure(:final failure) => Scaffold(
-          appBar: const LuxuryAppBar(title: 'Mode Setoran'),
-          body: ErrorStateWidget(
-            message: failure.toUserMessage(),
-            onRetry: () => context.read<SuratDetailCubit>().retry(suratNomor),
-          ),
-        ),
-        SuratDetailSuccess(:final detail) => _SetoranSession(
-          detail: detail,
-          suratNomor: suratNomor,
-          juzNomor: juzNomor,
-        ),
-      },
-    );
-  }
-}
-
-// ─── Sesi Setoran ─────────────────────────────────────────────────────────────
-
-class _SetoranSession extends StatefulWidget {
+class _SetoranSession extends ConsumerStatefulWidget {
   const _SetoranSession({
     required this.detail,
     required this.suratNomor,
@@ -106,13 +67,12 @@ class _SetoranSession extends StatefulWidget {
   final int? juzNomor;
 
   @override
-  State<_SetoranSession> createState() => _SetoranSessionState();
+  ConsumerState<_SetoranSession> createState() => _SetoranSessionState();
 }
 
-class _SetoranSessionState extends State<_SetoranSession> {
+class _SetoranSessionState extends ConsumerState<_SetoranSession> {
   late final List<Ayat> _ayatList;
 
-  // Session state
   int _currentIndex = 0;
   final Map<int, bool> _hasil = {};
   final Map<int, SetoranCompareResult> _compareResults = {};
@@ -120,7 +80,6 @@ class _SetoranSessionState extends State<_SetoranSession> {
   bool _showTerjemahan = false;
   bool _isSelesai = false;
 
-  // Recording state
   SetoranRecordState _recordState = SetoranRecordState.idle;
   bool _forceExit = false;
 
@@ -128,7 +87,6 @@ class _SetoranSessionState extends State<_SetoranSession> {
   void initState() {
     super.initState();
 
-    // Ambil range ayat untuk surat ini di juz yang aktif
     final range = widget.juzNomor != null
         ? JuzConstants.verseRanges['${widget.juzNomor}:${widget.suratNomor}']
         : null;
@@ -155,6 +113,23 @@ class _SetoranSessionState extends State<_SetoranSession> {
         : 'Setoran: ${widget.detail.namaLatin}';
 
     final canPopNow = _forceExit || _hasil.isEmpty || _isSelesai;
+
+    final detailState = ref.watch(
+      hafalanDetailViewModelProvider(widget.suratNomor),
+    );
+
+    ref.listen<HafalanDetailState>(
+      hafalanDetailViewModelProvider(widget.suratNomor),
+      (prev, next) {
+        if (next is HafalanDetailCompareSuccess &&
+            next.ayatNomor == _currentAyat.nomorAyat) {
+          _handleCompareSuccess(next.result, next.audioPath);
+        } else if (next is HafalanDetailCompareFailure &&
+            next.ayatNomor == _currentAyat.nomorAyat) {
+          _handleCompareFailure(next.message);
+        }
+      },
+    );
 
     return PopScope(
       canPop: canPopNow,
@@ -194,47 +169,34 @@ class _SetoranSessionState extends State<_SetoranSession> {
                 onSimpan: _simpanHasil,
                 onUlang: _ulangSetoran,
               )
-            : BlocConsumer<HafalanDetailCubit, HafalanDetailState>(
-                listener: (context, state) {
-                  if (state is HafalanDetailCompareSuccess &&
-                      state.ayatNomor == _currentAyat.nomorAyat) {
-                    _handleCompareSuccess(state.result, state.audioPath);
-                  } else if (state is HafalanDetailCompareFailure &&
-                      state.ayatNomor == _currentAyat.nomorAyat) {
-                    _handleCompareFailure(state.message);
-                  }
-                },
-                builder: (context, state) {
-                  final isComparing =
-                      state is HafalanDetailComparing &&
-                      state.ayatNomor == _currentAyat.nomorAyat;
-
-                  return SetoranCard(
-                    ayat: _currentAyat,
-                    currentIndex: _currentIndex,
-                    totalAyat: _totalAyat,
-                    showTerjemahan: _showTerjemahan,
-                    onToggleTerjemahan: () =>
-                        setState(() => _showTerjemahan = !_showTerjemahan),
-                    recordState: isComparing
-                        ? SetoranRecordState.comparing
-                        : _recordState,
-                    compareResult: _compareResults[_currentAyat.nomorAyat],
-                    userAudioPath: _userAudioPaths[_currentAyat.nomorAyat],
-                    onStartRecord: _startRecording,
-                    onStopRecord: _stopRecording,
-                    onNextAyat: _advanceToNext,
-                  );
-                },
-              ),
+            : _buildSetoranCard(detailState),
       ),
     );
   }
 
-  // ─── Recording ───────────────────────────────────────────────────────
+  Widget _buildSetoranCard(HafalanDetailState detailState) {
+    final isComparing =
+        detailState is HafalanDetailComparing &&
+        detailState.ayatNomor == _currentAyat.nomorAyat;
+
+    return SetoranCard(
+      ayat: _currentAyat,
+      currentIndex: _currentIndex,
+      totalAyat: _totalAyat,
+      showTerjemahan: _showTerjemahan,
+      onToggleTerjemahan: () =>
+          setState(() => _showTerjemahan = !_showTerjemahan),
+      recordState: isComparing ? SetoranRecordState.comparing : _recordState,
+      compareResult: _compareResults[_currentAyat.nomorAyat],
+      userAudioPath: _userAudioPaths[_currentAyat.nomorAyat],
+      onStartRecord: _startRecording,
+      onStopRecord: _stopRecording,
+      onNextAyat: _advanceToNext,
+    );
+  }
 
   Future<void> _startRecording() async {
-    final recorder = getIt<AudioRecorderService>();
+    final recorder = ref.read(audioRecorderServiceProvider);
 
     try {
       final hasPermission = await recorder.hasPermission();
@@ -266,8 +228,11 @@ class _SetoranSessionState extends State<_SetoranSession> {
   Future<void> _stopRecording() async {
     setState(() => _recordState = SetoranRecordState.comparing);
 
+    final detailNotifier = ref.read(
+      hafalanDetailViewModelProvider(widget.suratNomor).notifier,
+    );
     unawaited(
-      context.read<HafalanDetailCubit>().compareRecitation(
+      detailNotifier.compareRecitation(
         ayatNomor: _currentAyat.nomorAyat,
         targetText: _currentAyat.teksArab,
       ),
@@ -291,8 +256,6 @@ class _SetoranSessionState extends State<_SetoranSession> {
       );
     }
   }
-
-  // ─── Navigation ──────────────────────────────────────────────────────
 
   void _advanceToNext() {
     if (_currentIndex < _totalAyat - 1) {
@@ -336,7 +299,10 @@ class _SetoranSessionState extends State<_SetoranSession> {
 
     if (!mounted) return;
 
-    await context.read<HafalanDetailCubit>().saveSetoranHasil(
+    final detailNotifier = ref.read(
+      hafalanDetailViewModelProvider(widget.suratNomor).notifier,
+    );
+    await detailNotifier.saveSetoranHasil(
       suratNomor: widget.suratNomor,
       hasil: _hasil,
       suratInfo: HafalanSurat(

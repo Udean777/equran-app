@@ -1,15 +1,14 @@
-import 'dart:async';
-
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/context_ext.dart';
 import 'package:equran_app/core/utils/time_parsing.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
-import 'package:equran_app/features/imsakiyah/presentation/cubit/imsak_alarm_cubit.dart';
+import 'package:equran_app/features/imsakiyah/presentation/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ImsakAlarmToggleCard extends StatelessWidget {
+class ImsakAlarmToggleCard extends ConsumerWidget {
   const ImsakAlarmToggleCard({
     required this.todayEntry,
     super.key,
@@ -18,15 +17,21 @@ class ImsakAlarmToggleCard extends StatelessWidget {
   final ImsakiyahEntry todayEntry;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ImsakAlarmCubit, ImsakAlarmState>(
-      builder: (context, state) {
-        final prefs = switch (state) {
-          ImsakAlarmLoaded(:final prefs) => prefs,
-          _ => const ImsakAlarmPrefs(),
-        };
-        return _AlarmCard(prefs: prefs, todayEntry: todayEntry);
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefState = ref.watch(imsakAlarmViewModelProvider);
+    final prefs = switch (prefState) {
+      ImsakAlarmLoaded(:final prefs) => prefs,
+      _ => const ImsakAlarmPrefs(),
+    };
+    final notifier = ref.read(imsakAlarmViewModelProvider.notifier);
+
+    return _AlarmCard(
+      prefs: prefs,
+      todayEntry: todayEntry,
+      onToggleImsak: () => notifier.toggleImsak(entry: todayEntry),
+      onToggleSahur: () => notifier.toggleSahur(entry: todayEntry),
+      onSetMenitSebelum: (val) =>
+          notifier.setMenitSebelum(val, entry: todayEntry),
     );
   }
 }
@@ -35,21 +40,23 @@ class _AlarmCard extends StatelessWidget {
   const _AlarmCard({
     required this.prefs,
     required this.todayEntry,
+    required this.onToggleImsak,
+    required this.onToggleSahur,
+    required this.onSetMenitSebelum,
   });
 
   final ImsakAlarmPrefs prefs;
   final ImsakiyahEntry todayEntry;
+  final VoidCallback onToggleImsak;
+  final VoidCallback onToggleSahur;
+  final void Function(int menit) onSetMenitSebelum;
 
   static const _menitOptions = [30, 45, 60, 90];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -68,34 +75,27 @@ class _AlarmCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               children: [
                 Container(
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.primaryDark
-                        : AppColors.primaryContainer,
+                    color: context.primaryContainerColor,
                     borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                   ),
                   child: Icon(
                     Icons.alarm_rounded,
                     size: 16,
-                    color: isDark
-                        ? AppColors.primaryLighter
-                        : AppColors.primary,
+                    color: context.primaryActionColor,
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
                 Text(
                   'Alarm Sahur & Imsak',
-                  style: theme.textTheme.titleSmall?.copyWith(
+                  style: context.theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? AppColors.onSurfaceDark
-                        : AppColors.textPrimary,
+                    color: context.textPrimaryColor,
                   ),
                 ),
               ],
@@ -103,110 +103,38 @@ class _AlarmCard extends StatelessWidget {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Gold divider
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.gold.withValues(alpha: 0),
-                    AppColors.gold.withValues(alpha: 0.4),
-                    AppColors.gold.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
+            const GoldDivider(verticalMargin: 0),
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Toggle imsak
             _AlarmToggleRow(
               icon: Icons.nightlight_round,
               label: 'Alarm Imsak',
               subtitle: 'Berbunyi tepat pukul ${todayEntry.imsak}',
               value: prefs.imsakEnabled,
-              isDark: isDark,
-              onChanged: (_) => context.read<ImsakAlarmCubit>().toggleImsak(
-                entry: todayEntry,
-              ),
+              onChanged: (_) => onToggleImsak(),
             ),
 
             const SizedBox(height: AppDimens.spaceSM),
 
-            // Toggle sahur
             _AlarmToggleRow(
               icon: Icons.restaurant_rounded,
               label: 'Alarm Sahur',
               subtitle:
                   '${prefs.menitSebelumImsak} menit sebelum imsak (${_sahurTime(todayEntry.imsak, prefs.menitSebelumImsak)})',
               value: prefs.sahurEnabled,
-              isDark: isDark,
-              onChanged: (_) => context.read<ImsakAlarmCubit>().toggleSahur(
-                entry: todayEntry,
-              ),
+              onChanged: (_) => onToggleSahur(),
             ),
 
-            // Dropdown menit
             if (prefs.sahurEnabled) ...[
               const SizedBox(height: AppDimens.spaceMD),
-              Row(
-                children: [
-                  Text(
-                    'Berapa menit sebelum imsak:',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
-                    ),
-                  ),
-                  const SizedBox(width: AppDimens.spaceSM),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDimens.spaceSM,
-                      vertical: AppDimens.spaceXS,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.primaryDark
-                          : AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(AppDimens.radiusSM),
-                    ),
-                    child: DropdownButton<int>(
-                      value: prefs.menitSebelumImsak,
-                      isDense: true,
-                      underline: const SizedBox.shrink(),
-                      dropdownColor: isDark
-                          ? AppColors.surfaceDark
-                          : AppColors.surface,
-                      borderRadius: BorderRadius.circular(AppDimens.radiusMD),
-                      items: _menitOptions
-                          .map(
-                            (m) => DropdownMenuItem(
-                              value: m,
-                              child: Text(
-                                '$m menit',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? AppColors.primaryLighter
-                                      : AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (val) {
-                        if (val == null) return;
-                        unawaited(
-                          context.read<ImsakAlarmCubit>().setMenitSebelum(
-                            val,
-                            entry: todayEntry,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+              _MinuteDropdown(
+                value: prefs.menitSebelumImsak,
+                options: _menitOptions,
+                onChanged: (val) {
+                  if (val == null) return;
+                  onSetMenitSebelum(val);
+                },
               ),
             ],
           ],
@@ -226,13 +154,71 @@ class _AlarmCard extends StatelessWidget {
   }
 }
 
+class _MinuteDropdown extends StatelessWidget {
+  const _MinuteDropdown({
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final int value;
+  final List<int> options;
+  final ValueChanged<int?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          'Berapa menit sebelum imsak:',
+          style: context.theme.textTheme.bodySmall?.copyWith(
+            color: context.textTertiaryColor,
+          ),
+        ),
+        const SizedBox(width: AppDimens.spaceSM),
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.spaceSM,
+            vertical: AppDimens.spaceXS,
+          ),
+          decoration: BoxDecoration(
+            color: context.primaryContainerColor,
+            borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+          ),
+          child: DropdownButton<int>(
+            value: value,
+            isDense: true,
+            underline: const SizedBox.shrink(),
+            dropdownColor: context.surfaceColor,
+            borderRadius: BorderRadius.circular(AppDimens.radiusMD),
+            items: options
+                .map(
+                  (m) => DropdownMenuItem(
+                    value: m,
+                    child: Text(
+                      '$m menit',
+                      style: context.theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.primaryActionColor,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _AlarmToggleRow extends StatelessWidget {
   const _AlarmToggleRow({
     required this.icon,
     required this.label,
     required this.subtitle,
     required this.value,
-    required this.isDark,
     required this.onChanged,
   });
 
@@ -240,13 +226,10 @@ class _AlarmToggleRow extends StatelessWidget {
   final String label;
   final String subtitle;
   final bool value;
-  final bool isDark;
   final ValueChanged<bool> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Row(
       children: [
         Container(
@@ -254,20 +237,16 @@ class _AlarmToggleRow extends StatelessWidget {
           height: 28,
           decoration: BoxDecoration(
             color: value
-                ? (isDark ? AppColors.primaryDark : AppColors.primaryContainer)
-                : (isDark
-                      ? AppColors.surfaceDarkVariant
-                      : AppColors.surfaceVariant),
+                ? context.primaryContainerColor
+                : context.surfaceVariantColor,
             borderRadius: BorderRadius.circular(AppDimens.radiusSM),
           ),
           child: Icon(
             icon,
             size: 14,
             color: value
-                ? (isDark ? AppColors.primaryLighter : AppColors.primary)
-                : (isDark
-                      ? AppColors.onSurfaceDarkVariant
-                      : AppColors.textTertiary),
+                ? context.primaryActionColor
+                : context.textTertiaryColor,
           ),
         ),
         const SizedBox(width: AppDimens.spaceSM),
@@ -277,19 +256,15 @@ class _AlarmToggleRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: theme.textTheme.labelMedium?.copyWith(
+                style: context.theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? AppColors.onSurfaceDark
-                      : AppColors.textPrimary,
+                  color: context.textPrimaryColor,
                 ),
               ),
               Text(
                 subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: isDark
-                      ? AppColors.onSurfaceDarkVariant
-                      : AppColors.textTertiary,
+                style: context.theme.textTheme.bodySmall?.copyWith(
+                  color: context.textTertiaryColor,
                   fontSize: 11,
                 ),
               ),
@@ -299,18 +274,10 @@ class _AlarmToggleRow extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: isDark
-              ? AppColors.primaryLighter
-              : AppColors.primary,
-          activeTrackColor: isDark
-              ? AppColors.primaryDark
-              : AppColors.primaryContainer,
-          inactiveThumbColor: isDark
-              ? AppColors.onSurfaceDarkVariant
-              : AppColors.textTertiary,
-          inactiveTrackColor: isDark
-              ? AppColors.outlineDark
-              : AppColors.outlineVariant,
+          activeThumbColor: context.primaryActionColor,
+          activeTrackColor: context.primaryContainerColor,
+          inactiveThumbColor: context.textTertiaryColor,
+          inactiveTrackColor: context.borderSubtleColor,
         ),
       ],
     );

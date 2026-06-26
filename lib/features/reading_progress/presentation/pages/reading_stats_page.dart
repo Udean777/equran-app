@@ -3,67 +3,67 @@ import 'dart:async';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
-import 'package:equran_app/features/quran_reminder/presentation/cubit/quran_streak_cubit.dart';
+import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
 import 'package:equran_app/features/reading_progress/domain/entities/reading_history.dart';
 import 'package:equran_app/features/reading_progress/presentation/constants/reading_progress_strings.dart';
-import 'package:equran_app/features/reading_progress/presentation/cubit/reading_progress_cubit.dart';
+import 'package:equran_app/features/reading_progress/presentation/providers.dart';
+import 'package:equran_app/features/reading_progress/presentation/viewmodels/reading_progress_state.dart';
 import 'package:equran_app/features/reading_progress/presentation/widgets/juz_progress_section.dart';
 import 'package:equran_app/features/reading_progress/presentation/widgets/reading_heatmap.dart';
 import 'package:equran_app/features/reading_progress/presentation/widgets/reading_stats_header_card.dart';
 import 'package:equran_app/features/reading_progress/presentation/widgets/top_surat_section.dart';
-import 'package:equran_app/injection/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ReadingStatsPage extends StatelessWidget {
+class ReadingStatsPage extends ConsumerStatefulWidget {
   const ReadingStatsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        final cubit = getIt<ReadingProgressCubit>();
-        unawaited(cubit.load());
-        return cubit;
-      },
-      child: const _ReadingStatsView(),
-    );
-  }
+  ConsumerState<ReadingStatsPage> createState() => _ReadingStatsPageState();
 }
 
-class _ReadingStatsView extends StatelessWidget {
-  const _ReadingStatsView();
+class _ReadingStatsPageState extends ConsumerState<ReadingStatsPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(readingProgressViewModelProvider.notifier).load());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(readingProgressViewModelProvider);
+
     return Scaffold(
       appBar: const LuxuryAppBar(title: ReadingProgressStrings.title),
-      body: BlocBuilder<ReadingProgressCubit, ReadingProgressState>(
-        builder: (context, state) => state.when(
-          initial: () => const LoadingWidget(),
-          loading: () => const LoadingWidget(),
-          failure: (message) => ErrorStateWidget(
-            message: message,
-            onRetry: context.read<ReadingProgressCubit>().load,
-          ),
-          success: (stats) => _ReadingStatsContent(stats: stats),
+      body: state.when(
+        initial: LoadingWidget.new,
+        loading: LoadingWidget.new,
+        failure: (message) => ErrorStateWidget(
+          message: message,
+          onRetry: () =>
+              ref.read(readingProgressViewModelProvider.notifier).load(),
         ),
+        success: (stats) => _ReadingStatsContent(stats: stats),
       ),
     );
   }
 }
 
-class _ReadingStatsContent extends StatelessWidget {
+class _ReadingStatsContent extends ConsumerWidget {
   const _ReadingStatsContent({required this.stats});
 
   final ReadingStats stats;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final streak =
-        context.watch<QuranStreakCubit>().state.mapOrNull(
-          loaded: (s) => s.streak,
-        ) ??
+        ref
+            .watch(quranStreakViewModelProvider)
+            .mapOrNull(
+              loaded: (s) => s.streak,
+            ) ??
         0;
 
     return ListView(

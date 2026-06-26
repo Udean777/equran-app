@@ -3,7 +3,6 @@ import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/catatan_ayat/domain/repositories/catatan_ayat_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
 
 class DeleteCatatanParams extends Equatable {
   const DeleteCatatanParams({
@@ -18,7 +17,6 @@ class DeleteCatatanParams extends Equatable {
   List<Object?> get props => [suratNomor, ayatNomor];
 }
 
-@injectable
 class DeleteCatatan implements UseCase<Unit, DeleteCatatanParams> {
   const DeleteCatatan(this._repository);
 

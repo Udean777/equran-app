@@ -5,30 +5,31 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/bottom_sheet_handle.dart';
 import 'package:equran_app/core/widgets/gradient_button.dart';
 import 'package:equran_app/features/audio/domain/entities/download_state.dart';
-import 'package:equran_app/features/audio/domain/entities/qari.dart';
-import 'package:equran_app/features/audio/presentation/cubit/audio_download_cubit.dart';
+import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Bottom sheet konfirmasi download seluruh surat.
-class DownloadSuratSheet extends StatelessWidget {
+class DownloadSuratSheet extends ConsumerWidget {
   const DownloadSuratSheet({
     required this.detail,
     required this.qari,
-    required this.downloadCubit,
     super.key,
   });
 
   final SuratDetail detail;
   final Qari qari;
-  final AudioDownloadCubit downloadCubit;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final downloadState = ref.watch(audioDownloadViewModelProvider);
+    final downloadNotifier = ref.read(audioDownloadViewModelProvider.notifier);
+
     final pending = detail.ayatList
         .where(
           (a) =>
-              downloadCubit.state.stateFor(
+              downloadState.stateFor(
                 detail.nomor,
                 a.nomorAyat,
                 qari.id,
@@ -97,7 +98,7 @@ class DownloadSuratSheet extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     unawaited(
-                      downloadCubit.downloadSurat(
+                      downloadNotifier.downloadSurat(
                         suratNomor: detail.nomor,
                         ayatList: detail.ayatList,
                         qari: qari,
