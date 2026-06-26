@@ -12,26 +12,36 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
         android:paddingBottom="6dp">
+
+        <!-- Gold accent bar -->
+        <TextView
+            android:layout_width="3dp"
+            android:layout_height="16dp"
+            android:background="#C9A84C" />
 
         <TextView
             android:id="@+id/widget_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
             android:text="Check-in Hari Ini"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
+            android:textColor="#0D1F16"
+            android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Divider -->
     <TextView
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp"
-        android:background="#E8E8E8" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="#EEF4F0" />
 
     <!-- Subuh -->
     <LinearLayout
@@ -41,8 +51,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="8dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/label_subuh"
@@ -50,40 +60,44 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Subuh"
-            android:textColor="#1A1A1A"
-            android:textSize="13sp" />
+            android:textColor="#0D1F16"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tepat_subuh"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:gravity="center"
             android:text="✓"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#1A5C38"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tepat_unselected" />
 
         <TextView
             android:id="@+id/qadha_subuh"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="Q"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#F57F17"
+            android:textStyle="bold"
+            android:background="@drawable/chip_qadha_unselected" />
 
         <TextView
             android:id="@+id/tidak_subuh"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="✗"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#B00020"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tidak_unselected" />
     </LinearLayout>
 
     <!-- Dzuhur -->
@@ -94,8 +108,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="8dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/label_dzuhur"
@@ -103,40 +117,44 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Dzuhur"
-            android:textColor="#1A1A1A"
-            android:textSize="13sp" />
+            android:textColor="#0D1F16"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tepat_dzuhur"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:gravity="center"
             android:text="✓"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#1A5C38"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tepat_unselected" />
 
         <TextView
             android:id="@+id/qadha_dzuhur"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="Q"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#F57F17"
+            android:textStyle="bold"
+            android:background="@drawable/chip_qadha_unselected" />
 
         <TextView
             android:id="@+id/tidak_dzuhur"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="✗"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#B00020"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tidak_unselected" />
     </LinearLayout>
 
     <!-- Ashar -->
@@ -147,8 +165,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="8dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/label_ashar"
@@ -156,40 +174,44 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Ashar"
-            android:textColor="#1A1A1A"
-            android:textSize="13sp" />
+            android:textColor="#0D1F16"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tepat_ashar"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:gravity="center"
             android:text="✓"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#1A5C38"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tepat_unselected" />
 
         <TextView
             android:id="@+id/qadha_ashar"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="Q"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#F57F17"
+            android:textStyle="bold"
+            android:background="@drawable/chip_qadha_unselected" />
 
         <TextView
             android:id="@+id/tidak_ashar"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="✗"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#B00020"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tidak_unselected" />
     </LinearLayout>
 
     <!-- Maghrib -->
@@ -200,8 +222,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="8dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/label_maghrib"
@@ -209,40 +231,44 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Maghrib"
-            android:textColor="#1A1A1A"
-            android:textSize="13sp" />
+            android:textColor="#0D1F16"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tepat_maghrib"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:gravity="center"
             android:text="✓"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#1A5C38"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tepat_unselected" />
 
         <TextView
             android:id="@+id/qadha_maghrib"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="Q"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#F57F17"
+            android:textStyle="bold"
+            android:background="@drawable/chip_qadha_unselected" />
 
         <TextView
             android:id="@+id/tidak_maghrib"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="✗"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#B00020"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tidak_unselected" />
     </LinearLayout>
 
     <!-- Isya -->
@@ -253,8 +279,8 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="8dp">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/label_isya"
@@ -262,40 +288,44 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Isya"
-            android:textColor="#1A1A1A"
-            android:textSize="13sp" />
+            android:textColor="#0D1F16"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tepat_isya"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:gravity="center"
             android:text="✓"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#1A5C38"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tepat_unselected" />
 
         <TextView
             android:id="@+id/qadha_isya"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="Q"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#F57F17"
+            android:textStyle="bold"
+            android:background="@drawable/chip_qadha_unselected" />
 
         <TextView
             android:id="@+id/tidak_isya"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:gravity="center"
             android:text="✗"
-            android:textSize="12sp"
-            android:textColor="#999999"
-            android:background="#E8E8E8" />
+            android:textSize="13sp"
+            android:textColor="#B00020"
+            android:textStyle="bold"
+            android:background="@drawable/chip_tidak_unselected" />
     </LinearLayout>
 
 </LinearLayout>

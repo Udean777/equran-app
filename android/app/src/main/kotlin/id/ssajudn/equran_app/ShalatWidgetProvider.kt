@@ -6,12 +6,10 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 import org.json.JSONObject
 
 class ShalatWidgetProvider : AppWidgetProvider() {
@@ -29,23 +27,24 @@ class ShalatWidgetProvider : AppWidgetProvider() {
             "tidak" to "tidakShalat",
         )
 
-        private fun statusColor(status: String): Int = when (status) {
-            "tepatWaktu" -> 0xFF4CAF50.toInt()
-            "qadha" -> 0xFFFF9800.toInt()
-            "tidakShalat" -> 0xFFF44336.toInt()
-            else -> 0xFF9E9E9E.toInt()
+        private fun drawableFor(chipName: String, isSelected: Boolean): Int = when {
+            chipName == "tepat" && isSelected -> R.drawable.chip_tepat_selected
+            chipName == "tepat" && !isSelected -> R.drawable.chip_tepat_unselected
+            chipName == "qadha" && isSelected -> R.drawable.chip_qadha_selected
+            chipName == "qadha" && !isSelected -> R.drawable.chip_qadha_unselected
+            chipName == "tidak" && isSelected -> R.drawable.chip_tidak_selected
+            else -> R.drawable.chip_tidak_unselected
         }
 
-        private fun chipColor(status: String): Int = when (status) {
-            "tepat" -> 0xFF4CAF50.toInt()
-            "qadha" -> 0xFFFF9800.toInt()
-            "tidak" -> 0xFFF44336.toInt()
-            else -> 0xFF9E9E9E.toInt()
+        private fun textColorFor(chipName: String, isSelected: Boolean): Int = when {
+            isSelected -> 0xFFFFFFFF.toInt()
+            chipName == "tepat" -> 0xFF1A5C38.toInt()
+            chipName == "qadha" -> 0xFFF57F17.toInt()
+            else -> 0xFFB00020.toInt()
         }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("ShalatWidget", "onReceive action=${intent.action}")
         if (ACTION_SET_STATUS == intent.action) {
             val waktu = intent.getStringExtra("waktu") ?: return
             val targetStatus = intent.getStringExtra("targetStatus") ?: return
@@ -56,7 +55,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        Log.d("ShalatWidget", "onEnabled")
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         if (!prefs.contains(DATA_KEY)) {
             val defaultJson = JSONObject().apply {
@@ -66,7 +64,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                 for (w in WAKTU_LIST) statuses.put(w, "belumDicatat")
                 put("statuses", statuses)
             }
-            Log.d("ShalatWidget", "onEnabled writing default: $defaultJson")
             prefs.edit().putString(DATA_KEY, defaultJson.toString()).apply()
         }
     }
@@ -76,7 +73,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        Log.d("ShalatWidget", "onUpdate ids=${appWidgetIds.joinToString()}")
         for (appWidgetId in appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId)
         }
@@ -93,7 +89,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
             val statuses = json.optJSONObject("statuses") ?: JSONObject()
             val current = statuses.optString(waktu, "belumDicatat")
 
-            // If already set, ignore (matches app behavior)
             if (current != "belumDicatat") return
 
             statuses.put(waktu, fullStatus)
@@ -115,8 +110,8 @@ class ShalatWidgetProvider : AppWidgetProvider() {
             for (id in ids) {
                 updateWidget(context, appWidgetManager, id)
             }
-        } catch (_: Exception) {
-            // ignore
+        } catch (e: Exception) {
+            Log.e("ShalatWidget", "setShalatStatus error", e)
         }
     }
 
@@ -132,9 +127,25 @@ class ShalatWidgetProvider : AppWidgetProvider() {
 
             val isDark = (context.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-            val textPrimary = if (isDark) 0xFFE0E0E0.toInt() else 0xFF1A1A1A.toInt()
-            val chipBg = if (isDark) 0xFF333333.toInt() else 0xFFE8E8E8.toInt()
-            val chipText = if (isDark) 0xFF888888.toInt() else 0xFF999999.toInt()
+
+            val textPrimary = if (isDark) 0xFFE2EDE6.toInt() else 0xFF0D1F16.toInt()
+            val dividerColor = if (isDark) 0xFF2A3D2F.toInt() else 0xFFEEF4F0.toInt()
+
+            // Header text
+            views.setTextColor(R.id.widget_title, textPrimary)
+
+            // Label colors
+            for (waktu in WAKTU_LIST) {
+                val labelId = context.resources.getIdentifier(
+                    "label_$waktu", "id", context.packageName
+                )
+                if (labelId != 0) {
+                    views.setTextColor(labelId, textPrimary)
+                }
+            }
+
+            // Divider
+            views.setInt(R.id.divider, "setBackgroundColor", dividerColor)
 
             if (jsonStr != null) {
                 try {
@@ -146,21 +157,12 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                         R.id.widget_title,
                         "Check-in Hari Ini  ·  $totalCount/$totalWaktu"
                     )
-                    views.setTextColor(R.id.widget_title, textPrimary)
 
                     val statuses = json.optJSONObject("statuses")
                     if (statuses != null) {
                         for (waktu in WAKTU_LIST) {
                             val currentStatus = statuses.optString(waktu, "belumDicatat")
 
-                            val labelId = context.resources.getIdentifier(
-                                "label_$waktu", "id", context.packageName
-                            )
-                            if (labelId != 0) {
-                                views.setTextColor(labelId, textPrimary)
-                            }
-
-                            // Render each of the 3 status chips
                             for (chipName in STATUS_NAMES) {
                                 val chipFullStatus = STATUS_MAP[chipName]!!
                                 val isSelected = currentStatus == chipFullStatus
@@ -168,16 +170,16 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                                     "${chipName}_$waktu", "id", context.packageName
                                 )
                                 if (chipId != 0) {
-                                    if (isSelected) {
-                                        val color = chipColor(chipName)
-                                        views.setInt(chipId, "setBackgroundColor", color)
-                                        views.setTextColor(chipId, 0xFFFFFFFF.toInt())
-                                    } else {
-                                        views.setInt(chipId, "setBackgroundColor", chipBg)
-                                        views.setTextColor(chipId, chipText)
-                                    }
+                                    views.setInt(
+                                        chipId,
+                                        "setBackgroundResource",
+                                        drawableFor(chipName, isSelected)
+                                    )
+                                    views.setTextColor(
+                                        chipId,
+                                        textColorFor(chipName, isSelected)
+                                    )
 
-                                    // Set PendingIntent — only fire if belumDicatat
                                     val intent = Intent(
                                         context, ShalatWidgetProvider::class.java
                                     ).apply {
@@ -202,8 +204,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
             } else {
                 views.setTextViewText(R.id.widget_title, "Check-in Hari Ini")
             }
-
-            views.setTextColor(R.id.widget_title, textPrimary)
 
             // Open app on card tap
             val intent = Intent(context, MainActivity::class.java).apply {
