@@ -58,3 +58,7 @@ jobs:
       # ── Analyze (very_good_analysis) ────────────────────────────────────────
       - name: Dart analyze
         run: flutter analyze --fatal-infos --fatal-warnings
+
+      # ── Testing ─────────────────────────────────────────────────────────────
+      - name: Run tests
+        run: flutter test

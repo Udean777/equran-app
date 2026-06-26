@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Mengelola navigasi antar card (info → ayat 1..N → completion),
 /// drag offset untuk animasi, dan progress tracking untuk last-read.
 class CardStackNotifier extends AutoDisposeFamilyNotifier<CardStackState, int> {
-
   @override
   CardStackState build(int totalAyat) {
     // arg = totalAyat (jumlah ayat dalam surat)

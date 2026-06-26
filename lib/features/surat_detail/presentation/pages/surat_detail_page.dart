@@ -122,7 +122,9 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     // Setup initial state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(cardStackProvider(totalAyat).notifier).jumpToInitial(initialIndex);
+      ref
+          .read(cardStackProvider(totalAyat).notifier)
+          .jumpToInitial(initialIndex);
     });
 
     _isInitialized = true;
@@ -164,13 +166,16 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     final detail = widget.detail;
     final isFirstLoad = !_isInitialized;
     _initializeCardStack(detail);
-    
+
     final totalAyat = detail.ayatList.length;
 
     ref.listen<CardStackState>(cardStackProvider(totalAyat), (prev, next) {
       if (prev != null && prev.maxReachedIndex != next.maxReachedIndex) {
         if (next.currentAyatNomor > 0) {
-          _readingProgressViewModel?.bufferAyat(detail.nomor, next.currentAyatNomor);
+          _readingProgressViewModel?.bufferAyat(
+            detail.nomor,
+            next.currentAyatNomor,
+          );
         }
       }
     });
