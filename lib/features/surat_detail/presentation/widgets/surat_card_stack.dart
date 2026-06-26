@@ -3,8 +3,8 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/bookmark/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/services/bookmark_toggle_helper.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/ayat_swipe_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_completion_card.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_info_card.dart';
@@ -16,21 +16,22 @@ import 'package:go_router/go_router.dart';
 class SuratCardStack extends ConsumerWidget {
   const SuratCardStack({
     required this.detail,
-    required this.controller,
+    required this.totalAyat,
     required this.dragOffset,
     this.onStartAutoRead,
     super.key,
   });
 
   final SuratDetail detail;
-  final CardStackController controller;
+  final int totalAyat;
   final double dragOffset;
   final VoidCallback? onStartAutoRead;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentIndex = controller.currentIndex;
-    final totalCards = controller.totalCards;
+    final cardState = ref.watch(cardStackProvider(totalAyat));
+    final currentIndex = cardState.currentIndex;
+    final totalCards = cardState.totalCards;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -134,6 +135,7 @@ class SuratCardStack extends ConsumerWidget {
   }
 
   Widget _buildCard(BuildContext context, WidgetRef ref, int index) {
+    final cardState = ref.watch(cardStackProvider(totalAyat));
     Widget card;
     if (index == 0) {
       final bookmarkState = ref.watch(bookmarkViewModelProvider);
@@ -147,14 +149,14 @@ class SuratCardStack extends ConsumerWidget {
         isCompleted: isCompleted,
         onStartAutoRead: onStartAutoRead,
       );
-    } else if (index == controller.totalCards - 1) {
+    } else if (index == cardState.totalCards - 1) {
       card = SuratCompletionCard(
         detail: detail,
         onBackToHome: () {
           context.go(AppRoutes.home);
         },
         onRestart: () {
-          controller.jumpTo(0);
+          ref.read(cardStackProvider(totalAyat).notifier).jumpTo(0);
         },
       );
     } else {

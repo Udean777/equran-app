@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/surat_detail/constants/card_swipe_config.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CardViewGestureHandler {
-  CardViewGestureHandler(TickerProvider vsync) {
+  CardViewGestureHandler(this._state) {
     animController = AnimationController(
-      vsync: vsync,
+      vsync: _state as TickerProvider,
       duration: const Duration(milliseconds: 300),
     );
     snapAnimation = Tween<double>(begin: 0, end: 0).animate(
@@ -16,9 +17,12 @@ class CardViewGestureHandler {
     );
   }
 
+  final ConsumerState _state;
   late final AnimationController animController;
   late Animation<double> snapAnimation;
   bool isAnimating = false;
+
+  WidgetRef get _ref => _state.ref;
 
   void dispose() {
     animController.dispose();
@@ -26,73 +30,82 @@ class CardViewGestureHandler {
 
   void onHorizontalDragUpdate(
     DragUpdateDetails details,
-    CardStackController controller,
+    int totalAyat,
   ) {
     if (isAnimating) return;
-    var newOffset = controller.dragOffset + details.delta.dx;
+    if (!_state.mounted) return;
+    
+    final cardState = _ref.read(cardStackProvider(totalAyat));
+    var newOffset = cardState.dragOffset + details.delta.dx;
 
-    if (controller.isFirst && newOffset > 0) {
+    if (cardState.isFirst && newOffset > 0) {
       newOffset = 0;
     }
 
-    if (controller.isLast && newOffset < 0) {
-      newOffset = (controller.dragOffset + details.delta.dx * 0.2).clamp(
+    if (cardState.isLast && newOffset < 0) {
+      newOffset = (cardState.dragOffset + details.delta.dx * 0.2).clamp(
         -60.0,
         0.0,
       );
     }
 
-    controller.updateDrag(newOffset);
+    _ref.read(cardStackProvider(totalAyat).notifier).updateDrag(newOffset);
   }
 
   void onHorizontalDragEnd(
-    DragEndDetails details,
-    CardStackController controller, {
+    DragEndDetails details, {
+    required int totalAyat,
     required BuildContext context,
     VoidCallback? onStopAutoRead,
   }) {
     if (isAnimating) return;
+    if (!_state.mounted) return;
+    
+    final cardState = _ref.read(cardStackProvider(totalAyat));
     final screenWidth = MediaQuery.of(context).size.width;
     final velocity = details.primaryVelocity ?? 0;
-    final offset = controller.dragOffset;
+    final offset = cardState.dragOffset;
     final ratio = offset / screenWidth;
 
     if (ratio < -CardSwipeConfig.swipeThreshold ||
         velocity < -CardSwipeConfig.velocityThreshold) {
-      if (!controller.isLast) {
+      if (!cardState.isLast) {
         onStopAutoRead?.call();
         _animateOut(
           toLeft: true,
-          controller: controller,
+          totalAyat: totalAyat,
           screenWidth: screenWidth,
         );
       } else {
-        _snapBack(controller);
+        _snapBack(totalAyat);
       }
     } else if (ratio > CardSwipeConfig.swipeThreshold ||
         velocity > CardSwipeConfig.velocityThreshold) {
-      if (!controller.isFirst) {
+      if (!cardState.isFirst) {
         onStopAutoRead?.call();
         _animateOut(
           toLeft: false,
-          controller: controller,
+          totalAyat: totalAyat,
           screenWidth: screenWidth,
         );
       } else {
-        _snapBack(controller);
+        _snapBack(totalAyat);
       }
     } else {
-      _snapBack(controller);
+      _snapBack(totalAyat);
     }
   }
 
   void animateToIndex({
     required int targetIndex,
-    required CardStackController controller,
+    required int totalAyat,
     required BuildContext context,
   }) {
     if (isAnimating) return;
-    if (targetIndex <= controller.currentIndex) return;
+    if (!_state.mounted) return;
+    
+    final cardState = _ref.read(cardStackProvider(totalAyat));
+    if (targetIndex <= cardState.currentIndex) return;
 
     final screenWidth = MediaQuery.sizeOf(context).width;
     final step = screenWidth - AppDimens.pagePadding;
@@ -110,23 +123,26 @@ class CardViewGestureHandler {
     unawaited(
       animController.forward().then((_) {
         isAnimating = false;
-        controller.jumpTo(targetIndex);
+        if (_state.mounted) {
+          _ref.read(cardStackProvider(totalAyat).notifier).jumpTo(targetIndex);
+        }
       }),
     );
   }
 
   void _animateOut({
     required bool toLeft,
-    required CardStackController controller,
+    required int totalAyat,
     required double screenWidth,
   }) {
+    final cardState = _ref.read(cardStackProvider(totalAyat));
     final step = screenWidth - AppDimens.pagePadding;
     final target = toLeft ? -step : step;
 
     isAnimating = true;
     snapAnimation =
         Tween<double>(
-          begin: controller.dragOffset,
+          begin: cardState.dragOffset,
           end: target,
         ).animate(
           CurvedAnimation(parent: animController, curve: Curves.easeOutCubic),
@@ -136,20 +152,23 @@ class CardViewGestureHandler {
     unawaited(
       animController.forward().then((_) {
         isAnimating = false;
-        if (toLeft) {
-          controller.goNext();
-        } else {
-          controller.goPrev();
+        if (_state.mounted) {
+          if (toLeft) {
+            _ref.read(cardStackProvider(totalAyat).notifier).goNext();
+          } else {
+            _ref.read(cardStackProvider(totalAyat).notifier).goPrev();
+          }
         }
       }),
     );
   }
 
-  void _snapBack(CardStackController controller) {
+  void _snapBack(int totalAyat) {
+    final cardState = _ref.read(cardStackProvider(totalAyat));
     isAnimating = true;
     snapAnimation =
         Tween<double>(
-          begin: controller.dragOffset,
+          begin: cardState.dragOffset,
           end: 0,
         ).animate(
           CurvedAnimation(parent: animController, curve: Curves.elasticOut),
@@ -159,7 +178,9 @@ class CardViewGestureHandler {
     unawaited(
       animController.forward().then((_) {
         isAnimating = false;
-        controller.updateDrag(0);
+        if (_state.mounted) {
+          _ref.read(cardStackProvider(totalAyat).notifier).updateDrag(0);
+        }
       }),
     );
   }

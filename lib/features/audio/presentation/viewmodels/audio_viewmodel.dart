@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:equran_app/features/audio/domain/entities/audio_state_entity.dart';
-import 'package:equran_app/features/audio/domain/repositories/audio_repository.dart';
 import 'package:equran_app/features/audio/domain/services/audio_playlist_manager.dart';
+import 'package:equran_app/features/audio/domain/usecases/get_audio_state_stream.dart';
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/play_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/resume_audio.dart';
@@ -19,7 +19,7 @@ class AudioViewModel extends StateNotifier<AudioPlayerState> {
     this._resumeAudio,
     this._stopAudio,
     this._seekAudio,
-    this._repository,
+    this._getAudioStateStream,
   ) : super(const AudioPlayerState.idle()) {
     _listenToStream();
   }
@@ -29,7 +29,7 @@ class AudioViewModel extends StateNotifier<AudioPlayerState> {
   final ResumeAudio _resumeAudio;
   final StopAudio _stopAudio;
   final SeekAudio _seekAudio;
-  final AudioRepository _repository;
+  final GetAudioStateStream _getAudioStateStream;
 
   final AudioPlaylistManager _playlistManager = AudioPlaylistManager();
 
@@ -51,7 +51,7 @@ class AudioViewModel extends StateNotifier<AudioPlayerState> {
   Map<String, String> get lastAudioMap => _playlistManager.lastAudioMap;
 
   void _listenToStream() {
-    _subscription = _repository.stateStream.listen((audioState) {
+    _subscription = _getAudioStateStream().listen((audioState) {
       if ((audioState.isPlaying || audioState.isPaused) &&
           audioState.currentAyat != null) {
         _playlistManager.discoverDuration(

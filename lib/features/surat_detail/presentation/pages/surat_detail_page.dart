@@ -10,9 +10,9 @@ import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
 import 'package:equran_app/features/reading_progress/presentation/providers.dart';
 import 'package:equran_app/features/reading_progress/presentation/viewmodels/reading_progress_viewmodel.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
 import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/presentation/services/last_read_helper.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_card_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,11 +73,11 @@ class _SuratDetailView extends ConsumerStatefulWidget {
 }
 
 class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
-  CardStackController? _cardController;
   bool _autoScrollEnabled = true;
   BookmarkViewModel? _bookmarkViewModel;
   ReadingProgressViewModel? _readingProgressViewModel;
   AudioViewModel? _audioViewModel;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -94,56 +94,11 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     _audioViewModel = ref.read(audioViewModelProvider.notifier);
   }
 
-  @override
-  void dispose() {
-    _cardController?.removeListener(_onCardProgress);
+  void _initializeCardStack(SuratDetail detail) {
+    if (_isInitialized) return;
 
-    // Sync posisi card ke audio aktif sebelum save last read.
-    // Mencegah "stuck ayat" saat user keluar di tengah auto-read —
-    // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
-    // Pakai _audioViewModel (disimpan di initState) — context tidak valid di dispose().
-    final currentAyat = _audioViewModel?.currentAyat;
-    if (currentAyat != null &&
-        (_audioViewModel?.isPlaylistMode ?? false) &&
-        _cardController != null) {
-      _cardController!.jumpTo(currentAyat);
-    }
-
-    _saveLastRead();
-
-    // Dispose controller — reset akan dipanggil di controller.dispose()
-    _cardController?.dispose();
-    super.dispose();
-  }
-
-  void _onCardProgress() {
-    final controller = _cardController;
-    final detail = widget.detail;
-    if (controller == null) return;
-
-    // Buffer ayat yang sedang dibaca ke ReadingProgressViewModel
-    final ayatNomor = controller.currentAyatNomor;
-    if (ayatNomor > 0) {
-      _readingProgressViewModel?.bufferAyat(detail.nomor, ayatNomor);
-    }
-  }
-
-  void _saveLastRead() {
-    final controller = _cardController;
-    final detail = widget.detail;
-    final viewModel = _bookmarkViewModel;
-    if (controller == null || viewModel == null) return;
-
-    LastReadHelper.saveLastRead(
-      viewModel: viewModel,
-      controller: controller,
-      detail: detail,
-    );
-  }
-
-  void _initCardController(SuratDetail detail) {
-    if (_cardController != null) return;
-
+    final totalAyat = detail.ayatList.length;
+    
     // Prioritas initial index:
     // 1. initialAyat dari route param (misal dari bookmark tap)
     // 2. lastRead.ayatNomor dari BookmarkViewModel (resume saat reload)
@@ -151,30 +106,72 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     var initialIndex = 0;
 
     if (widget.initialAyat != null) {
-      initialIndex = widget.initialAyat!.clamp(1, detail.ayatList.length);
+      initialIndex = widget.initialAyat!.clamp(1, totalAyat);
     } else {
       final bookmarkState = ref.read(bookmarkViewModelProvider);
       final lastRead = bookmarkState.mapOrNull(
         success: (s) => s.lastRead,
       );
       if (lastRead != null && lastRead.suratNomor == detail.nomor) {
-        initialIndex = lastRead.ayatNomor.clamp(1, detail.ayatList.length);
+        initialIndex = lastRead.ayatNomor.clamp(1, totalAyat);
       }
     }
 
-    _cardController = CardStackController(
-      totalAyat: detail.ayatList.length,
-      initialIndex: initialIndex,
-      onProgressUpdate: (_) {},
+    // Setup initial state dan progress callback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(cardStackProvider(totalAyat).notifier)
+        ..jumpToInitial(initialIndex)
+        ..onProgressUpdate = (_) {
+          // Buffer ayat yang sedang dibaca ke ReadingProgressViewModel
+          final cardState = ref.read(cardStackProvider(totalAyat));
+          final ayatNomor = cardState.currentAyatNomor;
+          if (ayatNomor > 0) {
+            _readingProgressViewModel?.bufferAyat(detail.nomor, ayatNomor);
+          }
+        };
+    });
+
+    _isInitialized = true;
+  }
+
+  @override
+  void dispose() {
+    // Sync posisi card ke audio aktif sebelum save last read.
+    // Mencegah "stuck ayat" saat user keluar di tengah auto-read —
+    // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
+    // Pakai _audioViewModel (disimpan di initState) — context tidak valid di dispose().
+    final currentAyat = _audioViewModel?.currentAyat;
+    if (currentAyat != null &&
+        (_audioViewModel?.isPlaylistMode ?? false)) {
+      final totalAyat = widget.detail.ayatList.length;
+      ref.read(cardStackProvider(totalAyat).notifier).jumpTo(currentAyat);
+    }
+
+    _saveLastRead();
+    super.dispose();
+  }
+
+  void _saveLastRead() {
+    final detail = widget.detail;
+    final viewModel = _bookmarkViewModel;
+    if (viewModel == null) return;
+
+    final totalAyat = detail.ayatList.length;
+    final cardState = ref.read(cardStackProvider(totalAyat));
+
+    LastReadHelper.saveLastRead(
+      viewModel: viewModel,
+      cardState: cardState,
+      detail: detail,
     );
-    _cardController!.addListener(_onCardProgress);
   }
 
   @override
   Widget build(BuildContext context) {
     final detail = widget.detail;
-    final isFirstLoad = _cardController == null;
-    _initCardController(detail);
+    final isFirstLoad = !_isInitialized;
+    _initializeCardStack(detail);
 
     // Load audio download status + autoPlay — hanya sekali saat first load
     if (isFirstLoad) {
@@ -208,7 +205,7 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
 
     return SuratDetailCardView(
       detail: detail,
-      controller: _cardController!,
+      totalAyat: detail.ayatList.length,
       autoScrollEnabled: _autoScrollEnabled,
       onToggleAutoScroll: () =>
           setState(() => _autoScrollEnabled = !_autoScrollEnabled),

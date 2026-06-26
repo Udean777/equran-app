@@ -6,8 +6,7 @@ import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/auto_read_controller.dart';
-import 'package:equran_app/features/surat_detail/presentation/controllers/card_stack_controller.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/auto_read_audio_listener.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/card_view_gesture_handler.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/juz_aware_app_bar.dart';
@@ -21,7 +20,7 @@ import 'package:go_router/go_router.dart';
 class SuratDetailCardView extends ConsumerStatefulWidget {
   const SuratDetailCardView({
     required this.detail,
-    required this.controller,
+    required this.totalAyat,
     required this.onToggleAutoScroll,
     required this.autoScrollEnabled,
     required this.suratNomor,
@@ -29,7 +28,7 @@ class SuratDetailCardView extends ConsumerStatefulWidget {
   });
 
   final SuratDetail detail;
-  final CardStackController controller;
+  final int totalAyat;
   final VoidCallback onToggleAutoScroll;
   final bool autoScrollEnabled;
   final int suratNomor;
@@ -42,29 +41,17 @@ class SuratDetailCardView extends ConsumerStatefulWidget {
 class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
     with SingleTickerProviderStateMixin {
   late final CardViewGestureHandler gestureHandler;
-  late AutoReadController _autoReadController;
-  bool _isAutoReadControllerInitialized = false;
 
   @override
   void initState() {
     super.initState();
     gestureHandler = CardViewGestureHandler(this);
-    widget.controller.addListener(_onControllerChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
       final audioState = ref.read(audioViewModelProvider);
       final audioVM = ref.read(audioViewModelProvider.notifier);
-
-      // Initialize auto-read controller
-      _autoReadController = AutoReadController(
-        audioViewModel: audioVM,
-        cardController: widget.controller,
-        initialQari: audioState.currentQari,
-      );
-      _autoReadController.addListener(_onAutoReadChanged);
-      _isAutoReadControllerInitialized = true;
 
       // Sync auto-read from existing audio
       if (!audioVM.isPlaylistMode) return;
@@ -73,16 +60,18 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
       final currentAyat = audioState.currentAyat;
       if (currentAyat == null) return;
 
-      if (widget.controller.currentIndex != currentAyat) {
-        widget.controller.jumpTo(currentAyat);
+      final cardState = ref.read(cardStackProvider(widget.totalAyat));
+      if (cardState.currentIndex != currentAyat) {
+        ref.read(cardStackProvider(widget.totalAyat).notifier).jumpTo(currentAyat);
       }
 
-      _autoReadController.activateWithoutPlay(
+      ref.read(autoReadProvider(widget.totalAyat).notifier).activateWithoutPlay(
         onCompleted: () {
           if (!mounted) return;
+          final totalCards = cardState.totalCards;
           gestureHandler.animateToIndex(
-            targetIndex: widget.controller.totalCards - 1,
-            controller: widget.controller,
+            targetIndex: totalCards - 1,
+            totalAyat: widget.totalAyat,
             context: context,
           );
         },
@@ -92,34 +81,23 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onControllerChanged);
     gestureHandler.dispose();
-    if (_isAutoReadControllerInitialized) {
-      _autoReadController
-        ..removeListener(_onAutoReadChanged)
-        ..dispose();
-    }
     super.dispose();
   }
 
-  void _onAutoReadChanged() {
-    if (mounted) setState(() {});
-  }
-
-  void _onControllerChanged() {
-    if (mounted) setState(() {});
-  }
-
   void _startAutoRead() {
-    if (!_isAutoReadControllerInitialized) return;
     showSettingsToast(context, 'Mode Baca Otomatis aktif');
-    _autoReadController.start(widget.detail);
+    final audioState = ref.read(audioViewModelProvider);
+    ref.read(autoReadProvider(widget.totalAyat).notifier).start(
+      detail: widget.detail,
+      qari: audioState.currentQari,
+    );
   }
 
   void _stopAutoRead({bool showToast = true}) {
-    if (!_isAutoReadControllerInitialized) return;
-    if (!_autoReadController.isActive) return;
-    _autoReadController.stop();
+    final autoReadState = ref.read(autoReadProvider(widget.totalAyat));
+    if (!autoReadState.isActive) return;
+    ref.read(autoReadProvider(widget.totalAyat).notifier).stop();
     if (showToast && mounted) {
       showSettingsToast(
         context,
@@ -136,29 +114,29 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
   @override
   Widget build(BuildContext context) {
     final detail = widget.detail;
-    final controller = widget.controller;
+    final cardState = ref.watch(cardStackProvider(widget.totalAyat));
+    final autoReadState = ref.watch(autoReadProvider(widget.totalAyat));
     final gh = gestureHandler;
-    final isAutoRead =
-        _isAutoReadControllerInitialized && _autoReadController.isActive;
+    final isAutoRead = autoReadState.isActive;
 
     return AutoReadAudioListener(
       isAutoRead: isAutoRead,
-      controller: controller,
+      totalAyat: widget.totalAyat,
       suratNomor: widget.suratNomor,
       onAnimateToIndex: (targetIndex) => gh.animateToIndex(
         targetIndex: targetIndex,
-        controller: controller,
+        totalAyat: widget.totalAyat,
         context: context,
       ),
       child: Consumer(
         builder: (context, ref, _) {
           final audioNotifier = ref.read(audioViewModelProvider.notifier);
-          final isCompletionCard = controller.isLast;
+          final isCompletionCard = cardState.isLast;
 
           return Scaffold(
             appBar: JuzAwareAppBar(
               detail: detail,
-              controller: controller,
+              totalAyat: widget.totalAyat,
             ),
             bottomNavigationBar: Column(
               mainAxisSize: MainAxisSize.min,
@@ -168,12 +146,9 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
                   autoScrollEnabled: widget.autoScrollEnabled,
                   onToggleAutoScroll: widget.onToggleAutoScroll,
                 ),
-                ListenableBuilder(
-                  listenable: controller,
-                  builder: (_, _) => SwipeNavBar(
-                    controller: controller,
-                    onComplete: _showSuccessDialog,
-                  ),
+                SwipeNavBar(
+                  totalAyat: widget.totalAyat,
+                  onComplete: _showSuccessDialog,
                 ),
                 if (!isCompletionCard)
                   AudioPlayerBar(
@@ -184,7 +159,7 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
                             audioNotifier.playlistIndex > 0
                         ? () {
                             unawaited(audioNotifier.previousAyat());
-                            controller.goPrev();
+                            ref.read(cardStackProvider(widget.totalAyat).notifier).goPrev();
                           }
                         : null,
                     onNextCard:
@@ -193,7 +168,7 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
                                 audioNotifier.playlist.length - 1
                         ? () {
                             unawaited(audioNotifier.nextAyat());
-                            controller.goNext();
+                            ref.read(cardStackProvider(widget.totalAyat).notifier).goNext();
                           }
                         : null,
                   ),
@@ -201,10 +176,10 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
             ),
             body: GestureDetector(
               onHorizontalDragUpdate: (details) =>
-                  gh.onHorizontalDragUpdate(details, controller),
+                  gh.onHorizontalDragUpdate(details, widget.totalAyat),
               onHorizontalDragEnd: (details) => gh.onHorizontalDragEnd(
                 details,
-                controller,
+                totalAyat: widget.totalAyat,
                 context: context,
                 onStopAutoRead: isAutoRead ? _stopAutoRead : null,
               ),
@@ -220,10 +195,10 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
                   builder: (context, _) {
                     final offset = gh.isAnimating
                         ? gh.snapAnimation.value
-                        : controller.dragOffset;
+                        : cardState.dragOffset;
                     return SuratCardStack(
                       detail: detail,
-                      controller: controller,
+                      totalAyat: widget.totalAyat,
                       dragOffset: offset,
                       onStartAutoRead: _startAutoRead,
                     );

@@ -11,6 +11,7 @@ import 'package:equran_app/features/audio/domain/repositories/audio_repository.d
 import 'package:equran_app/features/audio/domain/usecases/delete_all_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/delete_ayat_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/download_ayat_audio.dart';
+import 'package:equran_app/features/audio/domain/usecases/get_audio_state_stream.dart';
 import 'package:equran_app/features/audio/domain/usecases/get_downloaded_ayats.dart';
 import 'package:equran_app/features/audio/domain/usecases/pause_audio.dart';
 import 'package:equran_app/features/audio/domain/usecases/play_audio.dart';
@@ -91,6 +92,10 @@ final seekAudioProvider = Provider<SeekAudio>((ref) {
   return SeekAudio(ref.read(audioRepositoryProvider));
 });
 
+final getAudioStateStreamProvider = Provider<GetAudioStateStream>((ref) {
+  return GetAudioStateStream(ref.read(audioRepositoryProvider));
+});
+
 final downloadAyatAudioProvider = Provider<DownloadAyatAudio>((ref) {
   return DownloadAyatAudio(ref.read(audioDownloadRepositoryProvider));
 });
@@ -118,7 +123,7 @@ final audioViewModelProvider =
           ref.read(resumeAudioProvider),
           ref.read(stopAudioProvider),
           ref.read(seekAudioProvider),
-          ref.read(audioRepositoryProvider),
+          ref.read(getAudioStateStreamProvider),
         );
         ref.onDispose(vm.dispose);
         return vm;
