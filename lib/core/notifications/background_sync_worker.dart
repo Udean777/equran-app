@@ -1,7 +1,8 @@
 // Because this file uses an entry-point for Workmanager, analyzer considers it an executable library.
 // ignore_for_file: unreachable_from_main
 
-import 'package:equran_app/core/network/dio_client.dart';
+import 'package:dio/dio.dart';
+import 'package:equran_app/core/network/api_endpoints.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_remote_data_source.dart';
@@ -30,7 +31,9 @@ void callbackDispatcher() {
         FlutterLocalNotificationsPlugin(),
       );
       await notifService.init();
-      final remoteDS = JadwalShalatRemoteDataSourceImpl(DioClient());
+      final remoteDS = JadwalShalatRemoteDataSourceImpl(
+        Dio(BaseOptions(baseUrl: ApiEndpoints.baseUrl)),
+      );
       final localDS = JadwalShalatLocalDataSourceImpl(shalatBox);
       final repo = JadwalShalatRepositoryImpl(remoteDS, localDS);
       final locationRepo = ShalatLocationRepositoryImpl(shalatBox);

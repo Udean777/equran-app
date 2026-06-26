@@ -1,5 +1,5 @@
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/context_ext.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -28,15 +28,9 @@ class JadwalShalatTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final headerBg = isDark
-        ? AppColors.surfaceDarkVariant
-        : AppColors.surfaceVariant;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final surfaceColor = context.surfaceColor;
+    final headerBg = context.surfaceVariantColor;
+    final borderColor = context.borderSubtleColor;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -62,15 +56,13 @@ class JadwalShalatTable extends StatelessWidget {
             horizontalMargin: AppDimens.spaceMD,
             columnSpacing: AppDimens.spaceMD,
             dividerThickness: 1,
-            headingTextStyle: theme.textTheme.labelSmall?.copyWith(
+            headingTextStyle: context.theme.textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.w700,
-              color: isDark
-                  ? AppColors.onSurfaceDarkVariant
-                  : AppColors.textSecondary,
+              color: context.textSecondaryColor,
               letterSpacing: 0.3,
             ),
-            dataTextStyle: theme.textTheme.bodySmall?.copyWith(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+            dataTextStyle: context.theme.textTheme.bodySmall?.copyWith(
+              color: context.textPrimaryColor,
               fontSize: 12,
             ),
             columns: _headers.map((h) => DataColumn(label: Text(h))).toList(),
@@ -79,24 +71,22 @@ class JadwalShalatTable extends StatelessWidget {
               return DataRow(
                 color: isToday
                     ? WidgetStateProperty.all(
-                        isDark
-                            ? AppColors.primaryDark.withValues(alpha: 0.4)
-                            : AppColors.primaryContainer,
+                        context.primaryContainerColor.withValues(alpha: 0.4),
                       )
                     : WidgetStateProperty.all(Colors.transparent),
                 cells: [
                   DataCell(
-                    _cell(e.tanggal.toString(), isToday, isDark, bold: true),
+                    _cell(context, e.tanggal.toString(), isToday, bold: true),
                   ),
-                  DataCell(_cell(e.hari.substring(0, 3), isToday, isDark)),
-                  DataCell(_cell(e.imsak, isToday, isDark)),
-                  DataCell(_cell(e.subuh, isToday, isDark)),
-                  DataCell(_cell(e.terbit, isToday, isDark)),
-                  DataCell(_cell(e.dhuha, isToday, isDark)),
-                  DataCell(_cell(e.dzuhur, isToday, isDark)),
-                  DataCell(_cell(e.ashar, isToday, isDark)),
-                  DataCell(_cell(e.maghrib, isToday, isDark)),
-                  DataCell(_cell(e.isya, isToday, isDark)),
+                  DataCell(_cell(context, e.hari.substring(0, 3), isToday)),
+                  DataCell(_cell(context, e.imsak, isToday)),
+                  DataCell(_cell(context, e.subuh, isToday)),
+                  DataCell(_cell(context, e.terbit, isToday)),
+                  DataCell(_cell(context, e.dhuha, isToday)),
+                  DataCell(_cell(context, e.dzuhur, isToday)),
+                  DataCell(_cell(context, e.ashar, isToday)),
+                  DataCell(_cell(context, e.maghrib, isToday)),
+                  DataCell(_cell(context, e.isya, isToday)),
                 ],
               );
             }).toList(),
@@ -107,14 +97,14 @@ class JadwalShalatTable extends StatelessWidget {
   }
 
   Widget _cell(
+    BuildContext context,
     String text,
-    bool isToday,
-    bool isDark, {
+    bool isToday, {
     bool bold = false,
   }) {
     final color = isToday
-        ? (isDark ? AppColors.primaryLighter : AppColors.primary)
-        : (isDark ? AppColors.onSurfaceDark : AppColors.textPrimary);
+        ? context.primaryActionColor
+        : context.textPrimaryColor;
 
     return Text(
       text,

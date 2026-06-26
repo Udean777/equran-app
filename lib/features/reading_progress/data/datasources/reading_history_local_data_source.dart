@@ -45,16 +45,12 @@ class ReadingHistoryLocalDataSourceImpl
 
   @override
   Future<ReadingHistory?> getByDate(String date) async {
-    try {
-      final raw = _box.get(_key(date));
-      if (raw == null) return null;
-      final dto = ReadingHistoryDto.fromJson(
-        jsonDecode(raw) as Map<String, dynamic>,
-      );
-      return dto.toEntity();
-    } on Object catch (_) {
-      return null;
-    }
+    final raw = _box.get(_key(date));
+    if (raw == null) return null;
+    final dto = ReadingHistoryDto.fromJson(
+      jsonDecode(raw) as Map<String, dynamic>,
+    );
+    return dto.toEntity();
   }
 
   @override

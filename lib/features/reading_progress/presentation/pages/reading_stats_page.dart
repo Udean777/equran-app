@@ -38,8 +38,8 @@ class _ReadingStatsPageState extends ConsumerState<ReadingStatsPage> {
     return Scaffold(
       appBar: const LuxuryAppBar(title: ReadingProgressStrings.title),
       body: state.when(
-        initial: () => const LoadingWidget(),
-        loading: () => const LoadingWidget(),
+        initial: LoadingWidget.new,
+        loading: LoadingWidget.new,
         failure: (message) => ErrorStateWidget(
           message: message,
           onRetry: () =>

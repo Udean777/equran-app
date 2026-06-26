@@ -18,15 +18,11 @@ class SuratDetailLocalDataSourceImpl implements SuratDetailLocalDataSource {
 
   @override
   Future<SuratDetailDto?> getCachedSuratDetail(int nomor) async {
-    try {
-      final entry = CacheEntry.decode(await _box.get(_key(nomor)));
-      if (entry == null || entry.isExpired) return null;
-      return SuratDetailDto.fromJson(
-        jsonDecode(entry.data) as Map<String, dynamic>,
-      );
-    } on Object catch (_) {
-      return null;
-    }
+    final entry = CacheEntry.decode(await _box.get(_key(nomor)));
+    if (entry == null || entry.isExpired) return null;
+    return SuratDetailDto.fromJson(
+      jsonDecode(entry.data) as Map<String, dynamic>,
+    );
   }
 
   @override

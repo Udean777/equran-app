@@ -62,20 +62,24 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
 
       final cardState = ref.read(cardStackProvider(widget.totalAyat));
       if (cardState.currentIndex != currentAyat) {
-        ref.read(cardStackProvider(widget.totalAyat).notifier).jumpTo(currentAyat);
+        ref
+            .read(cardStackProvider(widget.totalAyat).notifier)
+            .jumpTo(currentAyat);
       }
 
-      ref.read(autoReadProvider(widget.totalAyat).notifier).activateWithoutPlay(
-        onCompleted: () {
-          if (!mounted) return;
-          final totalCards = cardState.totalCards;
-          gestureHandler.animateToIndex(
-            targetIndex: totalCards - 1,
-            totalAyat: widget.totalAyat,
-            context: context,
+      ref
+          .read(autoReadProvider(widget.totalAyat).notifier)
+          .activateWithoutPlay(
+            onCompleted: () {
+              if (!mounted) return;
+              final totalCards = cardState.totalCards;
+              gestureHandler.animateToIndex(
+                targetIndex: totalCards - 1,
+                totalAyat: widget.totalAyat,
+                context: context,
+              );
+            },
           );
-        },
-      );
     });
   }
 
@@ -88,10 +92,12 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
   void _startAutoRead() {
     showSettingsToast(context, 'Mode Baca Otomatis aktif');
     final audioState = ref.read(audioViewModelProvider);
-    ref.read(autoReadProvider(widget.totalAyat).notifier).start(
-      detail: widget.detail,
-      qari: audioState.currentQari,
-    );
+    ref
+        .read(autoReadProvider(widget.totalAyat).notifier)
+        .start(
+          detail: widget.detail,
+          qari: audioState.currentQari,
+        );
   }
 
   void _stopAutoRead({bool showToast = true}) {
@@ -159,7 +165,11 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
                             audioNotifier.playlistIndex > 0
                         ? () {
                             unawaited(audioNotifier.previousAyat());
-                            ref.read(cardStackProvider(widget.totalAyat).notifier).goPrev();
+                            ref
+                                .read(
+                                  cardStackProvider(widget.totalAyat).notifier,
+                                )
+                                .goPrev();
                           }
                         : null,
                     onNextCard:
@@ -168,7 +178,11 @@ class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
                                 audioNotifier.playlist.length - 1
                         ? () {
                             unawaited(audioNotifier.nextAyat());
-                            ref.read(cardStackProvider(widget.totalAyat).notifier).goNext();
+                            ref
+                                .read(
+                                  cardStackProvider(widget.totalAyat).notifier,
+                                )
+                                .goNext();
                           }
                         : null,
                   ),

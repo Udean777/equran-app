@@ -32,13 +32,17 @@ class SettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final langState = ref.watch(languageViewModelProvider);
+    ref.listen<LanguageState>(languageViewModelProvider, (prev, next) {
+      next.mapOrNull(
+        error: (e) {
+          if (context.mounted) {
+            showSettingsToast(context, e.message, isSuccess: false);
+          }
+        },
+      );
+    });
 
-    if (langState is LanguageError) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showSettingsToast(context, langState.message, isSuccess: false);
-      });
-    }
+    final langState = ref.watch(languageViewModelProvider);
 
     return Scaffold(
       appBar: const LuxuryAppBar(title: SettingsStrings.pageTitle),
@@ -171,9 +175,11 @@ class SettingsPage extends ConsumerWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      await ref.read(themeViewModelProvider.notifier).reset();
-      await ref.read(quranFontViewModelProvider.notifier).reset();
-      await ref.read(languageViewModelProvider.notifier).reset();
+      await Future.wait([
+        ref.read(themeViewModelProvider.notifier).reset(),
+        ref.read(quranFontViewModelProvider.notifier).reset(),
+        ref.read(languageViewModelProvider.notifier).reset(),
+      ]);
 
       if (context.mounted) {
         showSettingsToast(context, SettingsStrings.resetAllSuccess);

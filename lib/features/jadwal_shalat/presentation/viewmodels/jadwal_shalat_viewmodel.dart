@@ -25,16 +25,18 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
   GetProvinsiShalat get _getProvinsi => ref.read(getProvinsiShalatProvider);
   GetKabkotaShalat get _getKabkota => ref.read(getKabkotaShalatProvider);
   GetJadwalShalat get _getJadwalShalat => ref.read(getJadwalShalatProvider);
-  GetLastLocationShalat get _getLastLocation => ref.read(getLastLocationShalatProvider);
-  SaveLastLocationShalat get _saveLastLocation => ref.read(saveLastLocationShalatProvider);
+  GetLastLocationShalat get _getLastLocation =>
+      ref.read(getLastLocationShalatProvider);
+  SaveLastLocationShalat get _saveLastLocation =>
+      ref.read(saveLastLocationShalatProvider);
   LocationService get _locationService => ref.read(locationServiceProvider);
-  SaveShalatNotifPrefs get _saveNotifPrefs => ref.read(saveShalatNotifPrefsProvider);
+  SaveShalatNotifPrefs get _saveNotifPrefs =>
+      ref.read(saveShalatNotifPrefsProvider);
   ShalatNotifSchedulerService get _schedulerService =>
       ref.read(shalatNotifSchedulerServiceProvider);
   LocationMatchingService get _matchingService =>
       ref.read(locationMatchingServiceProvider);
 
-  static const _defaultProvinsi = 'DKI Jakarta';
   static const _defaultKabkota = 'Kota Jakarta Pusat';
 
   Future<void> init() async {
@@ -71,9 +73,9 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
   }
 
   Future<void> selectProvinsi(String provinsi) async {
-    final currentProvinsiList = _extractProvinsiList();
+    final provinsiList = state.provinsiList;
     state = JadwalShalatState.loadingKabkota(
-      provinsi: currentProvinsiList,
+      provinsi: provinsiList,
       selectedProvinsi: provinsi,
     );
 
@@ -81,11 +83,11 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
     result.fold(
       (failure) => state = JadwalShalatState.failure(
         failure: failure,
-        provinsi: currentProvinsiList,
+        provinsi: provinsiList,
         selectedProvinsi: provinsi,
       ),
       (kabkota) => state = JadwalShalatState.kabkotaLoaded(
-        provinsi: currentProvinsiList,
+        provinsi: provinsiList,
         selectedProvinsi: provinsi,
         kabkota: kabkota,
       ),
@@ -93,9 +95,9 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
   }
 
   Future<void> selectKabkota(String kabkota) async {
-    final provinsiList = _extractProvinsiList();
-    final selectedProvinsi = _extractSelectedProvinsi();
-    final kabkotaList = _extractKabkotaList();
+    final provinsiList = state.provinsiList;
+    final selectedProvinsi = state.selectedProvinsi;
+    final kabkotaList = state.kabkotaList;
 
     if (selectedProvinsi == null) return;
 
@@ -128,6 +130,22 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
       bulan: bulan,
       tahun: tahun,
     );
+  }
+
+  Future<void> prevBulan() async {
+    final s = state;
+    if (s is! JadwalShalatSuccess) return;
+    final prevBulan = s.bulan == 1 ? 12 : s.bulan - 1;
+    final prevTahun = s.bulan == 1 ? s.tahun - 1 : s.tahun;
+    await changeBulan(prevBulan, prevTahun);
+  }
+
+  Future<void> nextBulan() async {
+    final s = state;
+    if (s is! JadwalShalatSuccess) return;
+    final nextBulan = s.bulan == 12 ? 1 : s.bulan + 1;
+    final nextTahun = s.bulan == 12 ? s.tahun + 1 : s.tahun;
+    await changeBulan(nextBulan, nextTahun);
   }
 
   Future<void> retry() async {
@@ -194,12 +212,13 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
       return;
     }
 
-    await _loadDefaultJakarta(provinsiList);
+    await _fallbackToFirstProvinsi(provinsiList);
   }
 
-  Future<void> _loadDefaultJakarta(List<String> provinsiList) async {
+  Future<void> _fallbackToFirstProvinsi(List<String> provinsiList) async {
+    final firstProvinsi = provinsiList.first;
     final kabkotaResult = await _getKabkota(
-      const GetKabkotaShalatParams(_defaultProvinsi),
+      GetKabkotaShalatParams(firstProvinsi),
     );
     final kabkota = kabkotaResult.fold((_) => null, (list) => list);
     if (kabkota == null) {
@@ -214,7 +233,7 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
     unawaited(
       _saveLastLocation(
         SaveLastLocationShalatParams(
-          provinsi: _defaultProvinsi,
+          provinsi: firstProvinsi,
           kabkota: matched,
         ),
       ),
@@ -222,7 +241,7 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
 
     await _autoLoadJadwal(
       provinsiList: provinsiList,
-      selectedProvinsi: _defaultProvinsi,
+      selectedProvinsi: firstProvinsi,
       selectedKabkota: matched,
       kabkotaList: kabkota,
     );
@@ -240,9 +259,11 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
     final targetBulan = bulan ?? now.month;
     final targetTahun = tahun ?? now.year;
 
-    final kabkota = kabkotaList ??
-        (await _getKabkota(GetKabkotaShalatParams(selectedProvinsi)))
-            .fold((_) => null, (list) => list);
+    final kabkota =
+        kabkotaList ??
+        (await _getKabkota(
+          GetKabkotaShalatParams(selectedProvinsi),
+        )).fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = JadwalShalatState.provinsiLoaded(provinsi: provinsiList);
       return;
@@ -323,40 +344,4 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
     maghrib: entry.maghrib,
     isya: entry.isya,
   );
-
-  List<String> _extractProvinsiList() {
-    final s = state;
-    return switch (s) {
-      JadwalShalatProvinsiLoaded() => s.provinsi,
-      JadwalShalatLoadingKabkota() => s.provinsi,
-      JadwalShalatKabkotaLoaded() => s.provinsi,
-      JadwalShalatLoadingJadwal() => s.provinsi,
-      JadwalShalatSuccess() => s.provinsi,
-      JadwalShalatFailure() => s.provinsi ?? [],
-      _ => [],
-    };
-  }
-
-  String? _extractSelectedProvinsi() {
-    final s = state;
-    return switch (s) {
-      JadwalShalatLoadingKabkota() => s.selectedProvinsi,
-      JadwalShalatKabkotaLoaded() => s.selectedProvinsi,
-      JadwalShalatLoadingJadwal() => s.selectedProvinsi,
-      JadwalShalatSuccess() => s.selectedProvinsi,
-      JadwalShalatFailure() => s.selectedProvinsi,
-      _ => null,
-    };
-  }
-
-  List<String> _extractKabkotaList() {
-    final s = state;
-    return switch (s) {
-      JadwalShalatKabkotaLoaded() => s.kabkota,
-      JadwalShalatLoadingJadwal() => s.kabkota,
-      JadwalShalatSuccess() => s.kabkota,
-      JadwalShalatFailure() => s.kabkota ?? [],
-      _ => [],
-    };
-  }
 }

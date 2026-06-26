@@ -125,34 +125,23 @@ class _BookmarkContentBodyState extends State<_BookmarkContentBody> {
       children: [
         if (lastRead != null) ...[
           SectionHeader(label: widget.l10n.lastRead),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.pagePadding,
-            ),
-            child: LastReadCard(lastRead: lastRead),
-          ),
+          LastReadCard(lastRead: lastRead),
         ],
 
         if (bookmarks.isNotEmpty) ...[
           SectionHeader(label: widget.l10n.ayatTersimpan),
           ...bookmarks.map(
-            (b) => Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.pagePadding,
-                vertical: AppDimens.spaceXS,
+            (b) => BookmarkCard(
+              bookmark: b,
+              onTap: () => context.push(
+                AppRoutes.suratWithAyat(b.suratNomor, b.ayatNomor),
               ),
-              child: BookmarkCard(
-                bookmark: b,
-                onTap: () => context.push(
-                  AppRoutes.suratWithAyat(b.suratNomor, b.ayatNomor),
-                ),
-                onRemove: () => ProviderScope.containerOf(context)
-                    .read(bookmarkViewModelProvider.notifier)
-                    .removeBookmark(
-                      suratNomor: b.suratNomor,
-                      ayatNomor: b.ayatNomor,
-                    ),
-              ),
+              onRemove: () => ProviderScope.containerOf(context)
+                  .read(bookmarkViewModelProvider.notifier)
+                  .removeBookmark(
+                    suratNomor: b.suratNomor,
+                    ayatNomor: b.ayatNomor,
+                  ),
             ),
           ),
         ],

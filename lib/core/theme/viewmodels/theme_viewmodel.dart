@@ -1,3 +1,4 @@
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/theme/viewmodels/theme_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
@@ -6,10 +7,11 @@ const _themeKey = 'theme_mode';
 const _darkValue = 'dark';
 const _lightValue = 'light';
 
-class ThemeViewModel extends StateNotifier<ThemeState> {
-  ThemeViewModel(this._box) : super(const ThemeState.light());
+class ThemeViewModel extends Notifier<ThemeState> {
+  Box<String> get _box => ref.read(settingsBoxProvider);
 
-  final Box<String> _box;
+  @override
+  ThemeState build() => const ThemeState.light();
 
   void load() {
     final saved = _box.get(_themeKey);

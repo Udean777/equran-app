@@ -1,4 +1,3 @@
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_cache_data_source.dart';
 import 'package:equran_app/features/imsakiyah/data/datasources/imsakiyah_remote_data_source.dart';
@@ -26,16 +25,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 export 'viewmodels/imsak_alarm_state.dart';
 export 'viewmodels/imsakiyah_state.dart';
 
-// ─── DioClient ─────────────────────────────────────────────────────────────
-
-final _dioClientProvider = Provider<DioClient>((ref) => DioClient());
-
 // ─── Data Sources ──────────────────────────────────────────────────────────
 
 final imsakiyahRemoteDataSourceProvider = Provider<ImsakiyahRemoteDataSource>((
   ref,
 ) {
-  return ImsakiyahRemoteDataSourceImpl(ref.read(_dioClientProvider));
+  return ImsakiyahRemoteDataSourceImpl(ref.read(dioProvider));
 });
 
 final imsakiyahCacheDataSourceProvider = Provider<ImsakiyahCacheDataSource>((
@@ -108,7 +103,8 @@ final imsakAlarmSchedulerProvider = Provider<ImsakAlarmScheduler>((ref) {
 
 // ─── ViewModels ────────────────────────────────────────────────────────────
 
-final AutoDisposeNotifierProvider<ImsakiyahViewModel, ImsakiyahState> imsakiyahViewModelProvider =
+final AutoDisposeNotifierProvider<ImsakiyahViewModel, ImsakiyahState>
+imsakiyahViewModelProvider =
     NotifierProvider.autoDispose<ImsakiyahViewModel, ImsakiyahState>(
       ImsakiyahViewModel.new,
     );

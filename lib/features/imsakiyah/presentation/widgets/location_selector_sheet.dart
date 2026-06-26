@@ -12,24 +12,8 @@ class ImsakiyahLocationSelectorSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(imsakiyahViewModelProvider);
 
-    final provinsiList = switch (state) {
-      ImsakiyahProvinsiLoaded() => state.provinsi,
-      ImsakiyahKabkotaLoaded() => state.provinsi,
-      ImsakiyahLoadingKabkota() => state.provinsi,
-      ImsakiyahLoadingJadwal() => state.provinsi,
-      ImsakiyahSuccess() => state.provinsi,
-      ImsakiyahFailure() => state.provinsi ?? <String>[],
-      _ => <String>[],
-    };
-
-    final kabkotaList = switch (state) {
-      ImsakiyahKabkotaLoaded() => state.kabkota,
-      ImsakiyahLoadingJadwal() => state.kabkota,
-      ImsakiyahSuccess() => state.kabkota,
-      ImsakiyahFailure() => state.kabkota ?? <String>[],
-      _ => <String>[],
-    };
-
+    final provinsiList = state.provinsiList;
+    final kabkotaList = state.kabkotaList;
     final isLoadingKabkota = state is ImsakiyahLoadingKabkota;
 
     final notifier = ref.read(imsakiyahViewModelProvider.notifier);

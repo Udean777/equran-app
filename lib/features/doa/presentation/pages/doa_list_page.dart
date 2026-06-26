@@ -143,7 +143,7 @@ class _DoaListContent extends ConsumerWidget {
     return RefreshIndicator(
       color: AppColors.primary,
       onRefresh: ref.read(doaListViewModelProvider.notifier).refresh,
-      child: ListView.builder(
+      child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(
           AppDimens.pagePadding,
           AppDimens.spaceSM,
@@ -151,6 +151,7 @@ class _DoaListContent extends ConsumerWidget {
           AppDimens.spaceLG,
         ),
         itemCount: doaList.length,
+        separatorBuilder: (_, _) => const SizedBox(height: AppDimens.spaceSM),
         itemBuilder: (_, i) => DoaCard(
           key: ValueKey(doaList[i].id),
           doa: doaList[i],

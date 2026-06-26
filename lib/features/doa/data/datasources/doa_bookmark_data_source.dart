@@ -33,7 +33,7 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   @override
   Future<void> addBookmark(int id) async {
     await _lock.synchronized(() async {
-      final ids = await _getIdsRaw();
+      final ids = await getBookmarkedIds();
       if (ids.contains(id)) return;
       ids.add(id);
       await _box.put(_key, jsonEncode(ids.toList()));
@@ -43,7 +43,7 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   @override
   Future<void> removeBookmark(int id) async {
     await _lock.synchronized(() async {
-      final ids = await _getIdsRaw();
+      final ids = await getBookmarkedIds();
       ids.remove(id);
       await _box.put(_key, jsonEncode(ids.toList()));
     });
@@ -53,17 +53,5 @@ class DoaBookmarkDataSourceImpl implements DoaBookmarkDataSource {
   Future<bool> isBookmarked(int id) async {
     final ids = await getBookmarkedIds();
     return ids.contains(id);
-  }
-
-  // Private helper — dipanggil hanya dari dalam lock
-  Future<Set<int>> _getIdsRaw() async {
-    try {
-      final raw = _box.get(_key);
-      if (raw == null) return {};
-      final list = jsonDecode(raw) as List<dynamic>;
-      return list.map((e) => e as int).toSet();
-    } on Object catch (_) {
-      return {};
-    }
   }
 }

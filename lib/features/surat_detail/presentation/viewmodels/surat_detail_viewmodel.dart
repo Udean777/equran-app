@@ -4,7 +4,8 @@ import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detai
 import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SuratDetailViewModel extends AutoDisposeFamilyNotifier<SuratDetailState, int> {
+class SuratDetailViewModel
+    extends AutoDisposeFamilyNotifier<SuratDetailState, int> {
   @override
   SuratDetailState build(int nomor) {
     unawaited(load(nomor));

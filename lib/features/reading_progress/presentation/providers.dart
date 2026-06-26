@@ -29,7 +29,7 @@ final readingStatsCalculatorProvider = Provider<ReadingStatsCalculator>((ref) {
 
 final getReadingStatsProvider = Provider<GetReadingStats>((ref) {
   return GetReadingStats(
-    ref.read(readingHistoryLocalDataSourceProvider),
+    ref.read(readingProgressRepositoryProvider),
     ref.read(readingStatsCalculatorProvider),
   );
 });

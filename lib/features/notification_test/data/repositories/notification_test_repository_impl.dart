@@ -17,6 +17,17 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
   final FlutterLocalNotificationsPlugin _plugin;
   final AudioCompositeHandler _audioHandler;
 
+  static Future<Either<Failure, Unit>> _safeCall(
+    Future<void> Function() block,
+  ) async {
+    try {
+      await block();
+      return right(unit);
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
+    }
+  }
+
   @override
   Future<Either<Failure, Unit>> scheduleAdzanNotification({
     required int id,
@@ -24,24 +35,19 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required String body,
     required tz.TZDateTime scheduledTime,
     required bool isSubuh,
-  }) async {
-    try {
-      final details = _notificationService.adzanNotificationDetails(
-        isSubuh: isSubuh,
-      );
-      await _notificationService.scheduleNotificationRaw(
-        id: id,
-        title: title,
-        body: body,
-        scheduledTime: scheduledTime,
-        details: details,
-        matchDateTimeComponents: null,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(() async {
+    final details = _notificationService.adzanNotificationDetails(
+      isSubuh: isSubuh,
+    );
+    await _notificationService.scheduleNotificationRaw(
+      id: id,
+      title: title,
+      body: body,
+      scheduledTime: scheduledTime,
+      details: details,
+      matchDateTimeComponents: null,
+    );
+  });
 
   @override
   Future<Either<Failure, Unit>> scheduleImsak({
@@ -49,21 +55,16 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
-  }) async {
-    try {
-      await _notificationService.scheduleNotificationRaw(
-        id: id,
-        title: title,
-        body: body,
-        scheduledTime: scheduledTime,
-        details: _notificationService.imsakNotificationDetails(),
-        matchDateTimeComponents: null,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(
+    () => _notificationService.scheduleNotificationRaw(
+      id: id,
+      title: title,
+      body: body,
+      scheduledTime: scheduledTime,
+      details: _notificationService.imsakNotificationDetails(),
+      matchDateTimeComponents: null,
+    ),
+  );
 
   @override
   Future<Either<Failure, Unit>> scheduleSahur({
@@ -71,21 +72,16 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
-  }) async {
-    try {
-      await _notificationService.scheduleNotificationRaw(
-        id: id,
-        title: title,
-        body: body,
-        scheduledTime: scheduledTime,
-        details: _notificationService.imsakNotificationDetails(),
-        matchDateTimeComponents: null,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(
+    () => _notificationService.scheduleNotificationRaw(
+      id: id,
+      title: title,
+      body: body,
+      scheduledTime: scheduledTime,
+      details: _notificationService.imsakNotificationDetails(),
+      matchDateTimeComponents: null,
+    ),
+  );
 
   @override
   Future<Either<Failure, Unit>> scheduleQuranReminder({
@@ -93,21 +89,16 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
-  }) async {
-    try {
-      await _notificationService.scheduleNotificationRaw(
-        id: id,
-        title: title,
-        body: body,
-        scheduledTime: scheduledTime,
-        details: _notificationService.quranReminderNotificationDetails(),
-        matchDateTimeComponents: null,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(
+    () => _notificationService.scheduleNotificationRaw(
+      id: id,
+      title: title,
+      body: body,
+      scheduledTime: scheduledTime,
+      details: _notificationService.quranReminderNotificationDetails(),
+      matchDateTimeComponents: null,
+    ),
+  );
 
   @override
   Future<Either<Failure, Unit>> scheduleChecklist({
@@ -115,21 +106,16 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
-  }) async {
-    try {
-      await _notificationService.scheduleNotificationRaw(
-        id: id,
-        title: title,
-        body: body,
-        scheduledTime: scheduledTime,
-        details: _notificationService.checklistNotificationDetails(),
-        matchDateTimeComponents: null,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(
+    () => _notificationService.scheduleNotificationRaw(
+      id: id,
+      title: title,
+      body: body,
+      scheduledTime: scheduledTime,
+      details: _notificationService.checklistNotificationDetails(),
+      matchDateTimeComponents: null,
+    ),
+  );
 
   @override
   Future<Either<Failure, Unit>> scheduleHafalan({
@@ -137,55 +123,33 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required String title,
     required String body,
     required tz.TZDateTime scheduledTime,
-  }) async {
-    try {
-      await _notificationService.scheduleNotificationRaw(
-        id: id,
-        title: title,
-        body: body,
-        scheduledTime: scheduledTime,
-        details: _notificationService.hafalanNotificationDetails(),
-        matchDateTimeComponents: null,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(
+    () => _notificationService.scheduleNotificationRaw(
+      id: id,
+      title: title,
+      body: body,
+      scheduledTime: scheduledTime,
+      details: _notificationService.hafalanNotificationDetails(),
+      matchDateTimeComponents: null,
+    ),
+  );
 
   @override
   Future<Either<Failure, Unit>> playAdzanDirect({
     required bool isSubuh,
     required String waktuNama,
-  }) async {
-    try {
-      await _audioHandler.playAdzan(
-        isSubuh: isSubuh,
-        waktuNama: waktuNama,
-      );
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  }) => _safeCall(
+    () => _audioHandler.playAdzan(
+      isSubuh: isSubuh,
+      waktuNama: waktuNama,
+    ),
+  );
 
   @override
-  Future<Either<Failure, Unit>> stopAdzanDirect() async {
-    try {
-      await _audioHandler.stopAdzan();
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  Future<Either<Failure, Unit>> stopAdzanDirect() =>
+      _safeCall(_audioHandler.stopAdzan);
 
   @override
-  Future<Either<Failure, Unit>> cancelAllTests() async {
-    try {
-      await _plugin.cancelAll();
-      return right(unit);
-    } on Object catch (e) {
-      return left(Failure.unknown(message: e.toString()));
-    }
-  }
+  Future<Either<Failure, Unit>> cancelAllTests() =>
+      _safeCall(_plugin.cancelAll);
 }

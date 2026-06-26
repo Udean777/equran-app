@@ -79,21 +79,17 @@ class _NotifCardState extends State<NotifCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
 
     return Container(
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         border: Border.all(
           color: widget.status == true
               ? AppColors.success.withValues(alpha: 0.5)
               : widget.status == false
               ? AppColors.error.withValues(alpha: 0.5)
-              : borderColor,
+              : context.borderSubtleColor,
         ),
         boxShadow: [
           BoxShadow(
@@ -135,9 +131,7 @@ class _NotifCardState extends State<NotifCard> {
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: isDark
-                                ? AppColors.onSurfaceDark
-                                : AppColors.textPrimary,
+                            color: context.textPrimaryColor,
                           ),
                         ),
                       ),
@@ -158,9 +152,7 @@ class _NotifCardState extends State<NotifCard> {
                     widget.subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
+                      color: context.textTertiaryColor,
                       height: 1.4,
                     ),
                   ),

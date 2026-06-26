@@ -25,14 +25,15 @@ class FontSettingsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(quranFontViewModelProvider, (_, next) {
+      final msg = next.errorMessage;
+      if (msg != null && context.mounted) {
+        showSettingsToast(context, msg, isSuccess: false);
+      }
+    });
+
     final state = ref.watch(quranFontViewModelProvider);
     final notifier = ref.read(quranFontViewModelProvider.notifier);
-
-    if (state.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showSettingsToast(context, state.errorMessage!, isSuccess: false);
-      });
-    }
 
     return SafeArea(
       child: Padding(

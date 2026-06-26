@@ -1,4 +1,3 @@
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/doa/data/datasources/doa_bookmark_data_source.dart';
 import 'package:equran_app/features/doa/data/datasources/doa_local_data_source.dart';
@@ -23,12 +22,10 @@ export 'viewmodels/doa_list_state.dart';
 
 // --- Core wrappers ---
 
-final dioClientProvider = Provider<DioClient>((ref) => DioClient());
-
 // --- Data Sources ---
 
 final doaRemoteDataSourceProvider = Provider<DoaRemoteDataSourceImpl>((ref) {
-  return DoaRemoteDataSourceImpl(ref.read(dioClientProvider));
+  return DoaRemoteDataSourceImpl(ref.read(dioProvider));
 });
 
 final doaLocalDataSourceProvider = Provider<DoaLocalDataSourceImpl>((ref) {
@@ -78,12 +75,14 @@ final toggleDoaBookmarkProvider = Provider<ToggleDoaBookmark>((ref) {
 
 // --- ViewModels ---
 
-final AutoDisposeNotifierProvider<DoaListViewModel, DoaListState> doaListViewModelProvider =
+final AutoDisposeNotifierProvider<DoaListViewModel, DoaListState>
+doaListViewModelProvider =
     NotifierProvider.autoDispose<DoaListViewModel, DoaListState>(
       DoaListViewModel.new,
     );
 
-final AutoDisposeNotifierProvider<DoaDetailViewModel, DoaDetailState> doaDetailViewModelProvider =
+final AutoDisposeNotifierProvider<DoaDetailViewModel, DoaDetailState>
+doaDetailViewModelProvider =
     NotifierProvider.autoDispose<DoaDetailViewModel, DoaDetailState>(
       DoaDetailViewModel.new,
     );

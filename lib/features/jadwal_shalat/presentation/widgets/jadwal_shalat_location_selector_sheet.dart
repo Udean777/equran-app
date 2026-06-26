@@ -12,24 +12,8 @@ class JadwalShalatLocationSelectorSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(jadwalShalatViewModelProvider);
 
-    final provinsiList = switch (state) {
-      JadwalShalatProvinsiLoaded() => state.provinsi,
-      JadwalShalatKabkotaLoaded() => state.provinsi,
-      JadwalShalatLoadingKabkota() => state.provinsi,
-      JadwalShalatLoadingJadwal() => state.provinsi,
-      JadwalShalatSuccess() => state.provinsi,
-      JadwalShalatFailure() => state.provinsi ?? <String>[],
-      _ => <String>[],
-    };
-
-    final kabkotaList = switch (state) {
-      JadwalShalatKabkotaLoaded() => state.kabkota,
-      JadwalShalatLoadingJadwal() => state.kabkota,
-      JadwalShalatSuccess() => state.kabkota,
-      JadwalShalatFailure() => state.kabkota ?? <String>[],
-      _ => <String>[],
-    };
-
+    final provinsiList = state.provinsiList;
+    final kabkotaList = state.kabkotaList;
     final isLoadingKabkota = state is JadwalShalatLoadingKabkota;
 
     final vm = ref.read(jadwalShalatViewModelProvider.notifier);

@@ -1,4 +1,4 @@
-import 'package:equran_app/core/network/dio_client.dart';
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_download_data_source.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_player_data_source.dart';
@@ -32,10 +32,6 @@ export 'viewmodels/audio_download_viewmodel.dart';
 export 'viewmodels/audio_storage_state.dart';
 export 'viewmodels/audio_viewmodel.dart';
 
-// ─── DioClient ─────────────────────────────────────────────────────────────
-
-final _dioClientProvider = Provider<DioClient>((ref) => DioClient());
-
 // ─── Audio Composite Handler ─────────────────────────────────────────────
 
 final audioCompositeHandlerProvider = Provider<AudioCompositeHandler>((ref) {
@@ -51,7 +47,7 @@ final audioPlayerDataSourceProvider = Provider<AudioPlayerDataSource>((ref) {
 final audioDownloadDataSourceProvider = Provider<AudioDownloadDataSource>((
   ref,
 ) {
-  return AudioDownloadDataSourceImpl(ref.read(_dioClientProvider));
+  return AudioDownloadDataSourceImpl(ref.read(dioProvider));
 });
 
 // ─── Repositories ──────────────────────────────────────────────────────────
@@ -118,12 +114,14 @@ final audioViewModelProvider =
       AudioViewModel.new,
     );
 
-final AutoDisposeNotifierProvider<AudioDownloadViewModel, AudioDownloadState> audioDownloadViewModelProvider =
+final AutoDisposeNotifierProvider<AudioDownloadViewModel, AudioDownloadState>
+audioDownloadViewModelProvider =
     NotifierProvider.autoDispose<AudioDownloadViewModel, AudioDownloadState>(
       AudioDownloadViewModel.new,
     );
 
-final AutoDisposeNotifierProvider<AudioStorageViewModel, AudioStorageState> audioStorageViewModelProvider =
+final AutoDisposeNotifierProvider<AudioStorageViewModel, AudioStorageState>
+audioStorageViewModelProvider =
     NotifierProvider.autoDispose<AudioStorageViewModel, AudioStorageState>(
       AudioStorageViewModel.new,
     );

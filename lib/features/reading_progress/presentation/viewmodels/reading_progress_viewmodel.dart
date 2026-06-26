@@ -30,6 +30,7 @@ class ReadingProgressViewModel extends Notifier<ReadingProgressState>
 
   @override
   ReadingProgressState build() {
+    WidgetsBinding.instance.removeObserver(this);
     WidgetsBinding.instance.addObserver(this);
     _startAutoFlush();
     ref.onDispose(_dispose);
@@ -39,7 +40,6 @@ class ReadingProgressViewModel extends Notifier<ReadingProgressState>
   void _dispose() {
     _autoFlushTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(flushBuffer());
   }
 
   /// Mulai periodic auto-flush.
@@ -87,15 +87,17 @@ class ReadingProgressViewModel extends Notifier<ReadingProgressState>
   /// auto-flush timer, atau app masuk background.
   Future<void> flushBuffer() async {
     if (_pendingAyat.isEmpty) return;
-    // Salin dulu agar tidak terjadi ConcurrentModificationError
-    // jika bufferAyat dipanggil saat iterasi berlangsung.
     final snapshot = Map<String, Set<String>>.from(_pendingAyat);
     _pendingAyat.clear();
     for (final entry in snapshot.entries) {
       if (entry.value.isEmpty) continue;
-      await _saveAyatReadBatch(
-        SaveAyatReadBatchParams(date: entry.key, ayatIds: entry.value),
-      );
+      try {
+        await _saveAyatReadBatch(
+          SaveAyatReadBatchParams(date: entry.key, ayatIds: entry.value),
+        );
+      } on Object catch (e) {
+        debugPrint('ReadingProgressViewModel: flush error: $e');
+      }
     }
   }
 }

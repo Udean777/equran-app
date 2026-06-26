@@ -1,5 +1,5 @@
+import 'package:dio/dio.dart';
 import 'package:equran_app/core/network/api_endpoints.dart';
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/imsakiyah/data/models/imsakiyah_dto.dart';
 
 abstract interface class ImsakiyahRemoteDataSource {
@@ -12,13 +12,13 @@ abstract interface class ImsakiyahRemoteDataSource {
 }
 
 class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
-  const ImsakiyahRemoteDataSourceImpl(this._dioClient);
+  const ImsakiyahRemoteDataSourceImpl(this._dio);
 
-  final DioClient _dioClient;
+  final Dio _dio;
 
   @override
   Future<ProvinsiResponseDto> fetchProvinsi() async {
-    final response = await _dioClient.dio.get<Map<String, dynamic>>(
+    final response = await _dio.get<Map<String, dynamic>>(
       ApiEndpoints.imsakiyahProvinsi,
     );
     return ProvinsiResponseDto.fromJson(response.data!);
@@ -26,7 +26,7 @@ class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
 
   @override
   Future<KabkotaResponseDto> fetchKabkota(String provinsi) async {
-    final response = await _dioClient.dio.post<Map<String, dynamic>>(
+    final response = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.imsakiyahKabkota,
       data: {'provinsi': provinsi},
     );
@@ -38,7 +38,7 @@ class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
     required String provinsi,
     required String kabkota,
   }) async {
-    final response = await _dioClient.dio.post<Map<String, dynamic>>(
+    final response = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.imsakiyah,
       data: {'provinsi': provinsi, 'kabkota': kabkota},
     );

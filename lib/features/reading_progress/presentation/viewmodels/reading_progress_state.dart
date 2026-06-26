@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'reading_progress_state.freezed.dart';
 
 @freezed
-abstract class ReadingProgressState with _$ReadingProgressState {
+sealed class ReadingProgressState with _$ReadingProgressState {
   const factory ReadingProgressState.initial() = _Initial;
   const factory ReadingProgressState.loading() = _Loading;
   const factory ReadingProgressState.success(ReadingStats stats) = _Success;

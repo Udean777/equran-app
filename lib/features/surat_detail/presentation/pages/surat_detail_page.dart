@@ -13,6 +13,7 @@ import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.da
 import 'package:equran_app/features/surat_detail/presentation/providers.dart';
 import 'package:equran_app/features/surat_detail/presentation/services/last_read_helper.dart';
 import 'package:equran_app/features/surat_detail/presentation/viewmodels/auto_read_notifier.dart';
+import 'package:equran_app/features/surat_detail/presentation/viewmodels/card_stack_state.dart';
 import 'package:equran_app/features/surat_detail/presentation/widgets/surat_detail_card_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,6 +84,7 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       unawaited(ref.read(quranStreakViewModelProvider.notifier).recordRead());
     });
     _bookmarkViewModel = ref.read(bookmarkViewModelProvider.notifier);
@@ -98,7 +100,7 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     if (_isInitialized) return;
 
     final totalAyat = detail.ayatList.length;
-    
+
     // Prioritas initial index:
     // 1. initialAyat dari route param (misal dari bookmark tap)
     // 2. lastRead.ayatNomor dari BookmarkViewModel (resume saat reload)
@@ -117,19 +119,10 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
       }
     }
 
-    // Setup initial state dan progress callback
+    // Setup initial state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(cardStackProvider(totalAyat).notifier)
-        ..jumpToInitial(initialIndex)
-        ..onProgressUpdate = (_) {
-          // Buffer ayat yang sedang dibaca ke ReadingProgressViewModel
-          final cardState = ref.read(cardStackProvider(totalAyat));
-          final ayatNomor = cardState.currentAyatNomor;
-          if (ayatNomor > 0) {
-            _readingProgressViewModel?.bufferAyat(detail.nomor, ayatNomor);
-          }
-        };
+      ref.read(cardStackProvider(totalAyat).notifier).jumpToInitial(initialIndex);
     });
 
     _isInitialized = true;
@@ -142,8 +135,7 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
     // Pakai _audioViewModel (disimpan di initState) — context tidak valid di dispose().
     final currentAyat = _audioViewModel?.currentAyat;
-    if (currentAyat != null &&
-        (_audioViewModel?.isPlaylistMode ?? false)) {
+    if (currentAyat != null && (_audioViewModel?.isPlaylistMode ?? false)) {
       final totalAyat = widget.detail.ayatList.length;
       ref.read(cardStackProvider(totalAyat).notifier).jumpTo(currentAyat);
     }
@@ -172,6 +164,16 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     final detail = widget.detail;
     final isFirstLoad = !_isInitialized;
     _initializeCardStack(detail);
+    
+    final totalAyat = detail.ayatList.length;
+
+    ref.listen<CardStackState>(cardStackProvider(totalAyat), (prev, next) {
+      if (prev != null && prev.maxReachedIndex != next.maxReachedIndex) {
+        if (next.currentAyatNomor > 0) {
+          _readingProgressViewModel?.bufferAyat(detail.nomor, next.currentAyatNomor);
+        }
+      }
+    });
 
     // Load audio download status + autoPlay — hanya sekali saat first load
     if (isFirstLoad) {

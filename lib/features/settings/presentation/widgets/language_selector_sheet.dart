@@ -70,7 +70,12 @@ class LanguageSelectorSheet extends ConsumerWidget {
           ...languages.map(
             (entry) {
               final (lang, label, toastMessage) = entry;
-              final isSelected = lang.runtimeType == current.runtimeType;
+              final isSelected = lang.when(
+                id: () => current is LanguageId,
+                en: () => current is LanguageEn,
+                ar: () => current is LanguageAr,
+                error: (_) => false,
+              );
               final isDark = context.isDark;
 
               return InkWell(

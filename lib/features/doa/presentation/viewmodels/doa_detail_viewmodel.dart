@@ -12,7 +12,8 @@ class DoaDetailViewModel extends AutoDisposeNotifier<DoaDetailState> {
 
   GetDoaDetail get _getDoaDetail => ref.read(getDoaDetailProvider);
   GetDoaBookmarks get _getDoaBookmarks => ref.read(getDoaBookmarksProvider);
-  ToggleDoaBookmark get _toggleDoaBookmark => ref.read(toggleDoaBookmarkProvider);
+  ToggleDoaBookmark get _toggleDoaBookmark =>
+      ref.read(toggleDoaBookmarkProvider);
 
   int? _lastId;
 

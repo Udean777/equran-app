@@ -86,12 +86,8 @@ class _ImsakiyahContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final todayTanggal = today.day;
-    final todayEntry = jadwal.imsakiyah.where(
-      (e) => e.tanggal == todayTanggal,
-    );
-    final entry = todayEntry.isNotEmpty ? todayEntry.first : null;
+    final todayTanggal = DateTime.now().day;
+    final entry = jadwal.entryByTanggal(todayTanggal);
 
     return ListView(
       padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/context_ext.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/qibla/presentation/providers.dart';
@@ -34,7 +34,6 @@ class _QiblaPageState extends ConsumerState<QiblaPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
     final state = ref.watch(qiblaViewModelProvider);
 
     return Scaffold(
@@ -46,7 +45,7 @@ class _QiblaPageState extends ConsumerState<QiblaPage> {
             IconButton(
               icon: Icon(
                 Icons.refresh_rounded,
-                color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                color: context.primaryActionColor,
               ),
               tooltip: 'Refresh',
               onPressed: () =>
@@ -95,8 +94,6 @@ class _QiblaContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.pagePadding,
@@ -107,9 +104,7 @@ class _QiblaContent extends StatelessWidget {
           Text(
             'Hadapkan diri Anda ke arah jarum kompas',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: isDark
-                  ? AppColors.onSurfaceDarkVariant
-                  : AppColors.textTertiary,
+              color: context.textTertiaryColor,
               fontStyle: FontStyle.italic,
             ),
             textAlign: TextAlign.center,

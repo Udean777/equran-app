@@ -41,6 +41,7 @@ class _NotificationTestView extends ConsumerWidget {
           title: 'Play Adzan Subuh (Direct)',
           subtitle: 'Langsung play audio adzan subuh via AudioCompositeHandler',
           type: NotificationTestType.adzanDirect,
+          isSubuh: true,
         ),
         NotificationTestItem(
           id: 'adzan_stop',
@@ -64,6 +65,7 @@ class _NotificationTestView extends ConsumerWidget {
           title: 'Adzan Subuh',
           subtitle: 'Test notif adzan Subuh (sound berbeda)',
           type: NotificationTestType.adzanNotification,
+          isSubuh: true,
         ),
       ],
     ),
@@ -141,8 +143,6 @@ class _NotificationTestView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(notificationTestViewModelProvider);
-    final isDark = context.isDark;
-    final bgColor = isDark ? AppColors.backgroundDark : AppColors.background;
     final statuses = state.statuses;
 
     // Listen for errors
@@ -168,78 +168,76 @@ class _NotificationTestView extends ConsumerWidget {
     );
 
     return Scaffold(
+      backgroundColor: context.scaffoldBackgroundColor,
       appBar: const LuxuryAppBar(title: 'Test Notifikasi'),
-      body: Scaffold(
-        backgroundColor: bgColor,
-        body: ListView.builder(
-          padding: const EdgeInsets.fromLTRB(
-            AppDimens.pagePadding,
-            AppDimens.spaceMD,
-            AppDimens.pagePadding,
-            AppDimens.spaceXXL,
-          ),
-          itemCount: _sections.length + 2,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InfoBanner(),
-                  SizedBox(height: AppDimens.spaceLG),
-                ],
-              );
-            }
-            if (index == _sections.length + 1) {
-              return Column(
-                children: [
-                  const SizedBox(height: AppDimens.spaceLG),
-                  CancelAllButton(
-                    onTap: () {
+      body: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(
+          AppDimens.pagePadding,
+          AppDimens.spaceMD,
+          AppDimens.pagePadding,
+          AppDimens.spaceXXL,
+        ),
+        itemCount: _sections.length + 2,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InfoBanner(),
+                SizedBox(height: AppDimens.spaceLG),
+              ],
+            );
+          }
+          if (index == _sections.length + 1) {
+            return Column(
+              children: [
+                const SizedBox(height: AppDimens.spaceLG),
+                CancelAllButton(
+                  onTap: () {
+                    unawaited(
+                      ref
+                          .read(notificationTestViewModelProvider.notifier)
+                          .cancelAllTests(),
+                    );
+                  },
+                ),
+              ],
+            );
+          }
+
+          final section = _sections[index - 1];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (index > 1) const SizedBox(height: AppDimens.spaceLG),
+              SectionLabel(label: section.label),
+              const SizedBox(height: AppDimens.spaceSM),
+              ...section.items.map((item) {
+                final (icon, color) = _itemConfig(item.id);
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: AppDimens.spaceSM,
+                  ),
+                  child: NotifCard(
+                    id: item.id,
+                    icon: icon,
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    color: color,
+                    status: statuses[item.id],
+                    onTest: () {
                       unawaited(
                         ref
                             .read(notificationTestViewModelProvider.notifier)
-                            .cancelAllTests(),
+                            .runTest(item),
                       );
                     },
                   ),
-                ],
-              );
-            }
-
-            final section = _sections[index - 1];
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (index > 1) const SizedBox(height: AppDimens.spaceLG),
-                SectionLabel(label: section.label),
-                const SizedBox(height: AppDimens.spaceSM),
-                ...section.items.map((item) {
-                  final (icon, color) = _itemConfig(item.id);
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: AppDimens.spaceSM,
-                    ),
-                    child: NotifCard(
-                      id: item.id,
-                      icon: icon,
-                      title: item.title,
-                      subtitle: item.subtitle,
-                      color: color,
-                      status: statuses[item.id],
-                      onTest: () {
-                        unawaited(
-                          ref
-                              .read(notificationTestViewModelProvider.notifier)
-                              .runTest(item),
-                        );
-                      },
-                    ),
-                  );
-                }),
-              ],
-            );
-          },
-        ),
+                );
+              }),
+            ],
+          );
+        },
       ),
     );
   }

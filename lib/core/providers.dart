@@ -92,7 +92,9 @@ final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationServiceImpl();
 });
 
-final locationMatchingServiceProvider = Provider<LocationMatchingService>((ref) {
+final locationMatchingServiceProvider = Provider<LocationMatchingService>((
+  ref,
+) {
   return LocationMatchingService();
 });
 

@@ -38,8 +38,8 @@ class _AppState extends State<App> {
             ref.read(themeViewModelProvider.notifier).load();
             ref.read(languageViewModelProvider.notifier).load();
             ref.read(quranFontViewModelProvider.notifier).load();
-            ref.read(shalatNotifViewModelProvider.notifier).load();
-            ref.read(quranReminderViewModelProvider.notifier).load();
+            unawaited(ref.read(shalatNotifViewModelProvider.notifier).load());
+            unawaited(ref.read(quranReminderViewModelProvider.notifier).load());
             unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
             unawaited(ref.read(quranStreakViewModelProvider.notifier).load());
             unawaited(ref.read(hafalanListViewModelProvider.notifier).load());

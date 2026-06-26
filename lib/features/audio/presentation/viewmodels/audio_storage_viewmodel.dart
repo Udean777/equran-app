@@ -16,7 +16,8 @@ class AudioStorageViewModel extends AutoDisposeNotifier<AudioStorageState> {
   @override
   AudioStorageState build() => const AudioStorageState.initial();
 
-  GetDownloadedAyats get _getDownloadedAyats => ref.read(getDownloadedAyatsProvider);
+  GetDownloadedAyats get _getDownloadedAyats =>
+      ref.read(getDownloadedAyatsProvider);
   DeleteAyatAudio get _deleteAyatAudio => ref.read(deleteAyatAudioProvider);
   DeleteAllAudio get _deleteAllAudio => ref.read(deleteAllAudioProvider);
   GetSuratDetail get _getSuratDetail => ref.read(getSuratDetailProvider);

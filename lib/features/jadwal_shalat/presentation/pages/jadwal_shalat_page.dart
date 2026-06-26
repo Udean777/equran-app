@@ -182,11 +182,8 @@ class _JadwalShalatContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final today = DateTime.now();
-    final todayEntry = jadwal.jadwal.where(
-      (e) => e.tanggal == today.day,
-    );
-    final entry = todayEntry.isNotEmpty ? todayEntry.first : null;
+    final entry = jadwal.entryByTanggal(DateTime.now().day);
+    final vm = ref.read(jadwalShalatViewModelProvider.notifier);
 
     return ListView(
       padding: const EdgeInsets.only(bottom: AppDimens.spaceXL),
@@ -199,24 +196,8 @@ class _JadwalShalatContent extends ConsumerWidget {
               builder: (_) => const JadwalShalatLocationSelectorSheet(),
             ),
           ),
-          onPrevBulan: () {
-            final prevBulan = bulan == 1 ? 12 : bulan - 1;
-            final prevTahun = bulan == 1 ? tahun - 1 : tahun;
-            unawaited(
-              ref
-                  .read(jadwalShalatViewModelProvider.notifier)
-                  .changeBulan(prevBulan, prevTahun),
-            );
-          },
-          onNextBulan: () {
-            final nextBulan = bulan == 12 ? 1 : bulan + 1;
-            final nextTahun = bulan == 12 ? tahun + 1 : tahun;
-            unawaited(
-              ref
-                  .read(jadwalShalatViewModelProvider.notifier)
-                  .changeBulan(nextBulan, nextTahun),
-            );
-          },
+          onPrevBulan: () => unawaited(vm.prevBulan()),
+          onNextBulan: () => unawaited(vm.nextBulan()),
         ),
         if (entry != null) JadwalShalatTodayCard(entry: entry),
         const SectionHeader(

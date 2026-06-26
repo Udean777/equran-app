@@ -9,7 +9,8 @@ class DoaBookmarkViewModel extends Notifier<DoaBookmarkState> {
   DoaBookmarkState build() => const DoaBookmarkState.initial();
 
   GetDoaBookmarks get _getDoaBookmarks => ref.read(getDoaBookmarksProvider);
-  ToggleDoaBookmark get _toggleDoaBookmark => ref.read(toggleDoaBookmarkProvider);
+  ToggleDoaBookmark get _toggleDoaBookmark =>
+      ref.read(toggleDoaBookmarkProvider);
   GetDoaList get _getDoaList => ref.read(getDoaListProvider);
 
   Future<void> load() async {

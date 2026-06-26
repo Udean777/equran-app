@@ -16,20 +16,27 @@ import 'package:equran_app/features/hafalan/presentation/providers.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HafalanDetailViewModel extends AutoDisposeFamilyNotifier<HafalanDetailState, int> {
+class HafalanDetailViewModel
+    extends AutoDisposeFamilyNotifier<HafalanDetailState, int> {
   @override
   HafalanDetailState build(int suratNomor) {
     unawaited(loadDetail(suratNomor));
     return const HafalanDetailState.initial();
   }
 
-  GetHafalanBySurat get _getHafalanBySurat => ref.read(getHafalanBySuratProvider);
+  GetHafalanBySurat get _getHafalanBySurat =>
+      ref.read(getHafalanBySuratProvider);
   SaveHafalanSurat get _saveHafalanSurat => ref.read(saveHafalanSuratProvider);
-  DeleteHafalanSurat get _deleteHafalanSurat => ref.read(deleteHafalanSuratProvider);
-  HafalanReminderScheduler get _reminderScheduler => ref.read(hafalanReminderSchedulerProvider);
-  CompareRecitation get _compareRecitation => ref.read(compareRecitationProvider);
-  AudioRecorderService get _audioRecorderService => ref.read(audioRecorderServiceProvider);
-  HafalanListViewModel get _listNotifier => ref.read(hafalanListViewModelProvider.notifier);
+  DeleteHafalanSurat get _deleteHafalanSurat =>
+      ref.read(deleteHafalanSuratProvider);
+  HafalanReminderScheduler get _reminderScheduler =>
+      ref.read(hafalanReminderSchedulerProvider);
+  CompareRecitation get _compareRecitation =>
+      ref.read(compareRecitationProvider);
+  AudioRecorderService get _audioRecorderService =>
+      ref.read(audioRecorderServiceProvider);
+  HafalanListViewModel get _listNotifier =>
+      ref.read(hafalanListViewModelProvider.notifier);
 
   Future<void> loadDetail(int suratNomor) async {
     state = const HafalanDetailState.loading();
@@ -220,26 +227,6 @@ class HafalanDetailViewModel extends AutoDisposeFamilyNotifier<HafalanDetailStat
         ayatNomor: ayatNomor,
         message: 'Terjadi kesalahan: $e',
       );
-    }
-  }
-
-  Future<void> warmUpServer() async {
-    state = const HafalanDetailState.connectingToServer();
-
-    try {
-      await _audioRecorderService.hasPermission();
-
-      if (_currentState != null) {
-        state = HafalanDetailState.success(hafalan: _currentState!.hafalan);
-      } else {
-        state = const HafalanDetailState.initial();
-      }
-    } on Object catch (_) {
-      if (_currentState != null) {
-        state = HafalanDetailState.success(hafalan: _currentState!.hafalan);
-      } else {
-        state = const HafalanDetailState.initial();
-      }
     }
   }
 

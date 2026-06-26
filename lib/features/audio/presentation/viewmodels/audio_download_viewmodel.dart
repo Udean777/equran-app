@@ -11,8 +11,10 @@ class AudioDownloadViewModel extends AutoDisposeNotifier<AudioDownloadState> {
   @override
   AudioDownloadState build() => const AudioDownloadState();
 
-  DownloadAyatAudio get _downloadAyatAudio => ref.read(downloadAyatAudioProvider);
-  GetDownloadedAyats get _getDownloadedAyats => ref.read(getDownloadedAyatsProvider);
+  DownloadAyatAudio get _downloadAyatAudio =>
+      ref.read(downloadAyatAudioProvider);
+  GetDownloadedAyats get _getDownloadedAyats =>
+      ref.read(getDownloadedAyatsProvider);
 
   bool _cancelSuratDownload = false;
   int? _currentSuratNomor;

@@ -21,7 +21,8 @@ part 'notification_test_viewmodel.freezed.dart';
 
 const _testDelay = Duration(seconds: 5);
 
-class NotificationTestViewModel extends AutoDisposeNotifier<NotificationTestState> {
+class NotificationTestViewModel
+    extends AutoDisposeNotifier<NotificationTestState> {
   @override
   NotificationTestState build() => const NotificationTestState.initial();
 
@@ -54,8 +55,8 @@ class NotificationTestViewModel extends AutoDisposeNotifier<NotificationTestStat
       case NotificationTestType.adzanDirect:
         result = await _playAdzanDirect(
           PlayAdzanDirectParams(
-            isSubuh: item.id.contains('subuh'),
-            waktuNama: item.id.contains('subuh') ? 'Subuh' : 'Dzuhur',
+            isSubuh: item.isSubuh,
+            waktuNama: item.isSubuh ? 'Subuh' : 'Dzuhur',
           ),
         );
       case NotificationTestType.adzanStop:
@@ -63,17 +64,15 @@ class NotificationTestViewModel extends AutoDisposeNotifier<NotificationTestStat
       case NotificationTestType.adzanNotification:
         result = await _scheduleAdzan(
           ScheduleAdzanNotificationParams(
-            id: item.id.contains('subuh')
+            id: item.isSubuh
                 ? NotificationIds.testSubuh
                 : NotificationIds.testDzuhur,
-            title: item.id.contains('subuh')
-                ? '🌅 Waktu Subuh'
-                : '☀️ Waktu Dzuhur',
-            body: item.id.contains('subuh')
+            title: item.isSubuh ? '🌅 Waktu Subuh' : '☀️ Waktu Dzuhur',
+            body: item.isSubuh
                 ? 'Sudah masuk waktu shalat Subuh'
                 : 'Sudah masuk waktu shalat Dzuhur',
             scheduledTime: scheduledTime,
-            isSubuh: item.id.contains('subuh'),
+            isSubuh: item.isSubuh,
           ),
         );
       case NotificationTestType.imsak:

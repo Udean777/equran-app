@@ -1,5 +1,4 @@
 import 'package:equran_app/features/imsakiyah/domain/entities/imsak_alarm_prefs.dart';
-import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
 import 'package:equran_app/features/imsakiyah/domain/services/imsak_alarm_scheduler.dart';
 import 'package:equran_app/features/imsakiyah/domain/usecases/get_imsak_alarm_prefs.dart';
@@ -46,15 +45,6 @@ class ImsakAlarmViewModel extends Notifier<ImsakAlarmState> {
 
     final updated = current.copyWith(menitSebelumImsak: menit);
     await _persist(updated, entry);
-  }
-
-  static ImsakiyahEntry? todayEntry(Imsakiyah jadwal) {
-    final today = DateTime.now().day;
-    final list = jadwal.imsakiyah;
-    for (final entry in list) {
-      if (entry.tanggal == today) return entry;
-    }
-    return null;
   }
 
   ImsakAlarmPrefs? get _currentPrefs {

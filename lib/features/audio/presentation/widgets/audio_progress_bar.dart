@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/audio/presentation/providers.dart';
+import 'package:equran_app/features/audio/presentation/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -71,7 +72,7 @@ class AudioProgressBar extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _formatDuration(position),
+                  position.toReadableString(),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: isDark
                         ? AppColors.onSurfaceDarkVariant
@@ -80,7 +81,7 @@ class AudioProgressBar extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  _formatDuration(duration),
+                  duration.toReadableString(),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: isDark
                         ? AppColors.onSurfaceDarkVariant
@@ -93,17 +94,5 @@ class AudioProgressBar extends ConsumerWidget {
           ),
       ],
     );
-  }
-
-  String _formatDuration(Duration d) {
-    if (d.inHours > 0) {
-      final h = d.inHours.toString().padLeft(2, '0');
-      final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-      final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-      return '$h:$m:$s';
-    }
-    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$m:$s';
   }
 }

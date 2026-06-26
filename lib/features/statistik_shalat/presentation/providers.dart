@@ -5,7 +5,6 @@ import 'package:equran_app/features/statistik_shalat/domain/repositories/statist
 import 'package:equran_app/features/statistik_shalat/domain/services/shalat_stats_calculator.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date.dart';
-import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date_range.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_stats.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/save_shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/viewmodels/statistik_shalat_viewmodel.dart';
@@ -37,8 +36,7 @@ final statistikShalatRepositoryProvider = Provider<StatistikShalatRepository>((
 // =============================================================================
 
 final shalatStatsCalculatorProvider = Provider<ShalatStatsCalculator>((ref) {
-  final dataSource = ref.watch(shalatLogLocalDataSourceProvider);
-  return ShalatStatsCalculator(dataSource);
+  return const ShalatStatsCalculator();
 });
 
 // =============================================================================
@@ -50,15 +48,10 @@ final getShalatByDateProvider = Provider<GetShalatByDate>((ref) {
   return GetShalatByDate(repository);
 });
 
-final getShalatByDateRangeProvider = Provider<GetShalatByDateRange>((ref) {
-  final repository = ref.watch(statistikShalatRepositoryProvider);
-  return GetShalatByDateRange(repository);
-});
-
 final getShalatStatsProvider = Provider<GetShalatStats>((ref) {
-  final dataSource = ref.watch(shalatLogLocalDataSourceProvider);
+  final repository = ref.watch(statistikShalatRepositoryProvider);
   final calculator = ref.watch(shalatStatsCalculatorProvider);
-  return GetShalatStats(dataSource, calculator);
+  return GetShalatStats(repository, calculator);
 });
 
 final saveShalatLogProvider = Provider<SaveShalatLog>((ref) {
@@ -75,7 +68,14 @@ final deleteShalatByDateProvider = Provider<DeleteShalatByDate>((ref) {
 // VIEWMODEL PROVIDER
 // =============================================================================
 
-final AutoDisposeNotifierProvider<StatistikShalatViewModel, StatistikShalatState> statistikShalatViewModelProvider =
-    NotifierProvider.autoDispose<StatistikShalatViewModel, StatistikShalatState>(
+final AutoDisposeNotifierProvider<
+  StatistikShalatViewModel,
+  StatistikShalatState
+>
+statistikShalatViewModelProvider =
+    NotifierProvider.autoDispose<
+      StatistikShalatViewModel,
+      StatistikShalatState
+    >(
       StatistikShalatViewModel.new,
     );

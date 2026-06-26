@@ -50,3 +50,32 @@ sealed class ImsakiyahState with _$ImsakiyahState {
     String? selectedKabkota,
   }) = ImsakiyahFailure;
 }
+
+extension ImsakiyahStateX on ImsakiyahState {
+  List<String> get provinsiList => switch (this) {
+    ImsakiyahProvinsiLoaded(:final provinsi) => provinsi,
+    ImsakiyahLoadingKabkota(:final provinsi) => provinsi,
+    ImsakiyahKabkotaLoaded(:final provinsi) => provinsi,
+    ImsakiyahLoadingJadwal(:final provinsi) => provinsi,
+    ImsakiyahSuccess(:final provinsi) => provinsi,
+    ImsakiyahFailure(:final provinsi) => provinsi ?? [],
+    _ => [],
+  };
+
+  List<String> get kabkotaList => switch (this) {
+    ImsakiyahKabkotaLoaded(:final kabkota) => kabkota,
+    ImsakiyahLoadingJadwal(:final kabkota) => kabkota,
+    ImsakiyahSuccess(:final kabkota) => kabkota,
+    ImsakiyahFailure(:final kabkota) => kabkota ?? [],
+    _ => [],
+  };
+
+  String? get selectedProvinsi => switch (this) {
+    ImsakiyahLoadingKabkota(:final selectedProvinsi) => selectedProvinsi,
+    ImsakiyahKabkotaLoaded(:final selectedProvinsi) => selectedProvinsi,
+    ImsakiyahLoadingJadwal(:final selectedProvinsi) => selectedProvinsi,
+    ImsakiyahSuccess(:final selectedProvinsi) => selectedProvinsi,
+    ImsakiyahFailure(:final selectedProvinsi) => selectedProvinsi,
+    _ => null,
+  };
+}

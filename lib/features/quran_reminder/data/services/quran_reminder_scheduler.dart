@@ -34,8 +34,4 @@ class QuranReminderScheduler {
       '${prefs.minute.toString().padLeft(2, '0')}',
     );
   }
-
-  /// Cancel notifikasi reminder.
-  Future<void> cancel() =>
-      _notificationService.cancelById(NotificationIds.quranReminder);
 }

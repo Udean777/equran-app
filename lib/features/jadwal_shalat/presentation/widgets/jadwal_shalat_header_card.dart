@@ -1,6 +1,7 @@
-import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/theme/context_ext.dart';
+import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:flutter/material.dart';
 
@@ -20,12 +21,8 @@ class JadwalShalatHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final borderColor = isDark
-        ? AppColors.outlineDark
-        : AppColors.outlineVariant;
+    final surfaceColor = context.surfaceColor;
+    final borderColor = context.borderSubtleColor;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -51,17 +48,13 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.primaryDark
-                        : AppColors.primaryContainer,
+                    color: context.primaryContainerColor,
                     borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                   ),
                   child: Icon(
                     Icons.location_on_rounded,
                     size: 16,
-                    color: isDark
-                        ? AppColors.primaryLighter
-                        : AppColors.primary,
+                    color: context.primaryActionColor,
                   ),
                 ),
                 const SizedBox(width: AppDimens.spaceSM),
@@ -71,21 +64,17 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                     children: [
                       Text(
                         jadwal.kabkota,
-                        style: theme.textTheme.titleSmall?.copyWith(
+                        style: context.theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.onSurfaceDark
-                              : AppColors.textPrimary,
+                          color: context.textPrimaryColor,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         jadwal.provinsi,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: isDark
-                              ? AppColors.onSurfaceDarkVariant
-                              : AppColors.textTertiary,
+                        style: context.theme.textTheme.bodySmall?.copyWith(
+                          color: context.textTertiaryColor,
                         ),
                       ),
                     ],
@@ -99,14 +88,12 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                       vertical: AppDimens.spaceXS,
                     ),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.primaryDark
-                          : AppColors.primaryContainer,
+                      color: context.primaryContainerColor,
                       borderRadius: BorderRadius.circular(AppDimens.radiusFull),
                       border: Border.all(
-                        color: isDark
-                            ? AppColors.primaryLight.withValues(alpha: 0.3)
-                            : AppColors.primary.withValues(alpha: 0.2),
+                        color: context.primaryActionColor.withValues(
+                          alpha: 0.2,
+                        ),
                       ),
                     ),
                     child: Row(
@@ -115,9 +102,7 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                         Icon(
                           Icons.edit_location_alt_outlined,
                           size: 12,
-                          color: isDark
-                              ? AppColors.primaryLighter
-                              : AppColors.primary,
+                          color: context.primaryActionColor,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -125,9 +110,7 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: isDark
-                                ? AppColors.primaryLighter
-                                : AppColors.primary,
+                            color: context.primaryActionColor,
                           ),
                         ),
                       ],
@@ -139,19 +122,7 @@ class JadwalShalatHeaderCard extends StatelessWidget {
 
             const SizedBox(height: AppDimens.spaceMD),
 
-            // Gold divider
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.gold.withValues(alpha: 0),
-                    AppColors.gold.withValues(alpha: 0.4),
-                    AppColors.gold.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
+            const GoldDivider(verticalMargin: 0),
 
             const SizedBox(height: AppDimens.spaceMD),
 
@@ -162,25 +133,20 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                 _NavBtn(
                   icon: Icons.chevron_left_rounded,
                   onTap: onPrevBulan,
-                  isDark: isDark,
                 ),
                 Column(
                   children: [
                     Text(
                       jadwal.bulanNama,
                       style: AppTypography.serifHeadingSmall.copyWith(
-                        color: isDark
-                            ? AppColors.onSurfaceDark
-                            : AppColors.textPrimary,
+                        color: context.textPrimaryColor,
                         fontSize: 16,
                       ),
                     ),
                     Text(
                       jadwal.tahun.toString(),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark
-                            ? AppColors.onSurfaceDarkVariant
-                            : AppColors.textTertiary,
+                      style: context.theme.textTheme.bodySmall?.copyWith(
+                        color: context.textTertiaryColor,
                       ),
                     ),
                   ],
@@ -188,7 +154,6 @@ class JadwalShalatHeaderCard extends StatelessWidget {
                 _NavBtn(
                   icon: Icons.chevron_right_rounded,
                   onTap: onNextBulan,
-                  isDark: isDark,
                 ),
               ],
             ),
@@ -203,12 +168,10 @@ class _NavBtn extends StatelessWidget {
   const _NavBtn({
     required this.icon,
     required this.onTap,
-    required this.isDark,
   });
 
   final IconData icon;
   final VoidCallback onTap;
-  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -218,12 +181,12 @@ class _NavBtn extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.primaryDark : AppColors.primaryContainer,
+          color: context.primaryContainerColor,
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: isDark ? AppColors.primaryLighter : AppColors.primary,
+          color: context.primaryActionColor,
           size: AppDimens.iconMD,
         ),
       ),

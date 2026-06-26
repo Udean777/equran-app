@@ -1,13 +1,15 @@
 import 'package:equran_app/core/locale/viewmodels/language_state.dart';
+import 'package:equran_app/core/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 
 const _languageKey = 'locale';
 
-class LanguageViewModel extends StateNotifier<LanguageState> {
-  LanguageViewModel(this._box) : super(const LanguageState.id());
+class LanguageViewModel extends Notifier<LanguageState> {
+  Box<String> get _box => ref.read(settingsBoxProvider);
 
-  final Box<String> _box;
+  @override
+  LanguageState build() => const LanguageState.id();
 
   void load() {
     final saved = _box.get(_languageKey);

@@ -1,4 +1,3 @@
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/services/audio_recorder_service.dart';
 import 'package:equran_app/features/hafalan/data/datasources/hafalan_compare_datasource.dart';
@@ -23,10 +22,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 export 'viewmodels/hafalan_detail_state.dart';
 export 'viewmodels/hafalan_list_state.dart';
 
-// ─── DioClient ─────────────────────────────────────────────────────────────
-
-final _dioClientProvider = Provider<DioClient>((ref) => DioClient());
-
 // ─── Audio Recorder Service ────────────────────────────────────────────────
 
 final audioRecorderServiceProvider = Provider<AudioRecorderService>((ref) {
@@ -42,7 +37,7 @@ final hafalanLocalDatasourceProvider = Provider<HafalanLocalDatasource>((ref) {
 final hafalanCompareDataSourceProvider = Provider<HafalanCompareDataSource>((
   ref,
 ) {
-  return HafalanCompareDataSourceImpl(ref.read(_dioClientProvider));
+  return HafalanCompareDataSourceImpl(ref.read(dioProvider));
 });
 
 // ─── Repositories ──────────────────────────────────────────────────────────
@@ -100,7 +95,12 @@ final hafalanListViewModelProvider =
       HafalanListViewModel.new,
     );
 
-final AutoDisposeNotifierProviderFamily<HafalanDetailViewModel, HafalanDetailState, int> hafalanDetailViewModelProvider =
-    NotifierProvider.autoDispose.family<HafalanDetailViewModel, HafalanDetailState, int>(
+final AutoDisposeNotifierProviderFamily<
+  HafalanDetailViewModel,
+  HafalanDetailState,
+  int
+>
+hafalanDetailViewModelProvider = NotifierProvider.autoDispose
+    .family<HafalanDetailViewModel, HafalanDetailState, int>(
       HafalanDetailViewModel.new,
     );

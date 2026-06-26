@@ -31,16 +31,18 @@ class _DoaBookmarkSectionState extends ConsumerState<DoaBookmarkSection> {
   Widget build(BuildContext context) {
     final state = ref.watch(doaBookmarkViewModelProvider);
 
+    ref.listen(doaBookmarkViewModelProvider, (_, next) {
+      final isEmpty = switch (next) {
+        DoaBookmarkSuccess(:final bookmarkedDoas) => bookmarkedDoas.isEmpty,
+        _ => true,
+      };
+      widget.onEmptyStateChanged?.call(isEmpty);
+    });
+
     final isEmpty = switch (state) {
       DoaBookmarkSuccess(:final bookmarkedDoas) => bookmarkedDoas.isEmpty,
       _ => true,
     };
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        widget.onEmptyStateChanged?.call(isEmpty);
-      }
-    });
 
     if (isEmpty) return const SizedBox.shrink();
 
@@ -51,9 +53,10 @@ class _DoaBookmarkSectionState extends ConsumerState<DoaBookmarkSection> {
         const SectionHeader(label: 'Bookmark Doa'),
         ...doas.map(
           (d) => Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.pagePadding,
-              vertical: AppDimens.spaceXS,
+            padding: const EdgeInsets.only(
+              left: AppDimens.pagePadding,
+              right: AppDimens.pagePadding,
+              bottom: AppDimens.spaceSM,
             ),
             child: DoaCard(
               doa: d,

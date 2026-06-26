@@ -5,7 +5,7 @@
   <p>
     <img src="https://img.shields.io/badge/Flutter-3.22.0-02569B?logo=flutter&style=for-the-badge" alt="Flutter Version">
     <img src="https://img.shields.io/badge/Dart-3.8.0-0175C2?logo=dart&style=for-the-badge" alt="Dart Version">
-    <img src="https://img.shields.io/badge/version-0.4.0-4CAF50?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.4.0%2B5-4CAF50?style=for-the-badge" alt="Version">
     <img src="https://img.shields.io/badge/Architecture-Clean-4CAF50?style=for-the-badge" alt="Clean Architecture">
     <img src="https://img.shields.io/badge/State%20Management-Riverpod-764ABC?logo=riverpod&style=for-the-badge" alt="Riverpod">
     <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License">
@@ -75,7 +75,7 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 
 ## 🏗️ Arsitektur & Teknologi
 
-Qurva dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang.
+Qurva dibangun dengan memisahkan kode program ke dalam tiga layer utama berdasarkan prinsip **Clean Architecture & Domain Driven Design (DDD)** untuk menjamin keterbacaan kode, kemudahan pengujian, serta perluasan fitur di masa mendatang. Seluruh _core features_ (Surat, Hafalan, Tafsir, Tasbih) memiliki kepatuhan 100% terhadap **Dependency Inversion Principle (DIP)** dan pola _Riverpod reaktif_ murni, tanpa kebocoran logika basis data maupun callback manual (*anti-patterns*).
 
 ```mermaid
 flowchart TB

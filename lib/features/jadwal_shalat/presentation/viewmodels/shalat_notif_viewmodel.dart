@@ -19,14 +19,11 @@ class ShalatNotifViewModel extends Notifier<ShalatNotifPrefs> {
 
   List<ShalatScheduleEntry> _entries = [];
 
-  void load() {
-    unawaited(
-      _getPrefs().then((result) {
-        result.fold(
-          (_) => state = const ShalatNotifPrefs(),
-          (p) => state = p,
-        );
-      }),
+  Future<void> load() async {
+    final result = await _getPrefs();
+    result.fold(
+      (_) => state = const ShalatNotifPrefs(),
+      (p) => state = p,
     );
   }
 

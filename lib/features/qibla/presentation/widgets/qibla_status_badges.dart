@@ -63,18 +63,16 @@ class QiblaGuideBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.spaceLG,
         vertical: AppDimens.spaceSM,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusFull),
         border: Border.all(
-          color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+          color: context.borderVariantColor,
         ),
       ),
       child: Row(
@@ -83,13 +81,13 @@ class QiblaGuideBadge extends StatelessWidget {
           Icon(
             Icons.explore_rounded,
             size: 16,
-            color: isDark ? AppColors.primaryLighter : AppColors.primary,
+            color: context.primaryActionColor,
           ),
           const SizedBox(width: AppDimens.spaceXS),
           Text(
             _rotationHint(qiblaAngle),
             style: TextStyle(
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              color: context.textPrimaryColor,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),

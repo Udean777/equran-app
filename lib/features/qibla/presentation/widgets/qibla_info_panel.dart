@@ -24,16 +24,14 @@ class QiblaInfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-    final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
     final borderColor = _isAligned
         ? AppColors.gold.withValues(alpha: 0.4)
-        : (isDark ? AppColors.outlineDark : AppColors.outlineVariant);
+        : context.borderVariantColor;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       decoration: BoxDecoration(
-        color: surfaceColor,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(AppDimens.radiusLG),
         border: Border.all(color: borderColor, width: _isAligned ? 1.5 : 1),
         boxShadow: _isAligned
@@ -57,7 +55,6 @@ class QiblaInfoPanel extends StatelessWidget {
                   label: 'Arah Kiblat',
                   value: '${bearing.toStringAsFixed(1)}°',
                   icon: Icons.explore_rounded,
-                  isDark: isDark,
                 ),
               ),
               const GoldDivider.vertical(height: 48),
@@ -66,7 +63,6 @@ class QiblaInfoPanel extends StatelessWidget {
                   label: 'Dari Utara',
                   value: _bearingLabel(bearing),
                   icon: Icons.navigation_rounded,
-                  isDark: isDark,
                 ),
               ),
               const GoldDivider.vertical(height: 48),
@@ -77,7 +73,6 @@ class QiblaInfoPanel extends StatelessWidget {
                   icon: _isAligned
                       ? Icons.check_circle_rounded
                       : Icons.radio_button_unchecked_rounded,
-                  isDark: isDark,
                   isAligned: _isAligned,
                 ),
               ),
@@ -88,7 +83,7 @@ class QiblaInfoPanel extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceMD),
           Divider(
             height: 1,
-            color: isDark ? AppColors.outlineDark : AppColors.outlineVariant,
+            color: context.borderVariantColor,
           ),
           const SizedBox(height: AppDimens.spaceMD),
 
@@ -118,25 +113,21 @@ class _InfoItem extends StatelessWidget {
     required this.label,
     required this.value,
     required this.icon,
-    required this.isDark,
     this.isAligned = false,
   });
 
   final String label;
   final String value;
   final IconData icon;
-  final bool isDark;
   final bool isAligned;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accentColor = isAligned
-        ? AppColors.gold
-        : (isDark ? AppColors.primaryLighter : AppColors.primary);
+    final accentColor = isAligned ? AppColors.gold : context.primaryActionColor;
     final bgColor = isAligned
-        ? AppColors.gold.withValues(alpha: isDark ? 0.15 : 0.1)
-        : (isDark ? AppColors.primaryDark : AppColors.primaryContainer);
+        ? AppColors.gold.withValues(alpha: context.isDark ? 0.15 : 0.1)
+        : context.primaryContainerColor;
 
     return Column(
       children: [
@@ -150,9 +141,7 @@ class _InfoItem extends StatelessWidget {
         Text(
           value,
           style: AppTypography.serifHeadingSmall.copyWith(
-            color: isAligned
-                ? AppColors.gold
-                : (isDark ? AppColors.onSurfaceDark : AppColors.textPrimary),
+            color: isAligned ? AppColors.gold : context.textPrimaryColor,
             fontSize: 16,
           ),
         ),
@@ -160,9 +149,7 @@ class _InfoItem extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.labelSmall?.copyWith(
-            color: isDark
-                ? AppColors.onSurfaceDarkVariant
-                : AppColors.textTertiary,
+            color: context.textTertiaryColor,
             letterSpacing: 0.5,
           ),
         ),
@@ -198,10 +185,7 @@ class _InstructionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-    final color = isAligned
-        ? AppColors.gold
-        : (isDark ? AppColors.primaryLighter : AppColors.primary);
+    final color = isAligned ? AppColors.gold : context.primaryActionColor;
 
     return Row(
       children: [
@@ -212,9 +196,7 @@ class _InstructionRow extends StatelessWidget {
             _instruction,
             style: TextStyle(
               fontSize: 12,
-              color: isDark
-                  ? AppColors.onSurfaceDarkVariant
-                  : AppColors.textSecondary,
+              color: context.textSecondaryColor,
               height: 1.4,
             ),
           ),

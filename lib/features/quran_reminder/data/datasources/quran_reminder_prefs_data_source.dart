@@ -19,18 +19,14 @@ class QuranReminderPrefsDataSourceImpl implements QuranReminderPrefsDataSource {
 
   @override
   Future<QuranReminderPrefs> getPrefs() async {
-    try {
-      final raw = _box.get(_key);
-      if (raw == null) return const QuranReminderPrefs();
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      return QuranReminderPrefs(
-        enabled: map['enabled'] as bool? ?? false,
-        hour: map['hour'] as int? ?? 20,
-        minute: map['minute'] as int? ?? 0,
-      );
-    } on Object catch (_) {
-      return const QuranReminderPrefs();
-    }
+    final raw = _box.get(_key);
+    if (raw == null) return const QuranReminderPrefs();
+    final map = jsonDecode(raw) as Map<String, dynamic>;
+    return QuranReminderPrefs(
+      enabled: map['enabled'] as bool? ?? false,
+      hour: map['hour'] as int? ?? 20,
+      minute: map['minute'] as int? ?? 0,
+    );
   }
 
   @override

@@ -34,7 +34,9 @@ class SwipeNavBar extends ConsumerWidget {
     final totalAyatCount = cardState.totalAyat;
 
     // Label tengah
-    final label = isInfoCard ? 'Info Surat' : 'Ayat $currentIndex / $totalAyatCount';
+    final label = isInfoCard
+        ? 'Info Surat'
+        : 'Ayat $currentIndex / $totalAyatCount';
 
     return Container(
       decoration: BoxDecoration(
@@ -71,7 +73,11 @@ class SwipeNavBar extends ConsumerWidget {
               // Prev button
               _NavButton(
                 icon: Icons.arrow_back_ios_rounded,
-                onPressed: isFirst ? null : () => ref.read(cardStackProvider(totalAyat).notifier).goPrev(),
+                onPressed: isFirst
+                    ? null
+                    : () => ref
+                          .read(cardStackProvider(totalAyat).notifier)
+                          .goPrev(),
                 color: isFirst ? disabledColor : primaryColor,
               ),
 
@@ -110,7 +116,11 @@ class SwipeNavBar extends ConsumerWidget {
                 icon: isLast
                     ? Icons.check_rounded
                     : Icons.arrow_forward_ios_rounded,
-                onPressed: isLast ? onComplete : () => ref.read(cardStackProvider(totalAyat).notifier).goNext(),
+                onPressed: isLast
+                    ? onComplete
+                    : () => ref
+                          .read(cardStackProvider(totalAyat).notifier)
+                          .goNext(),
                 color: isLast
                     ? isDark
                           ? AppColors.goldLight

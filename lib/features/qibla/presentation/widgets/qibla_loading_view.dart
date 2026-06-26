@@ -38,8 +38,6 @@ class _QiblaLoadingViewState extends State<QiblaLoadingView>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppDimens.spaceLG),
@@ -52,7 +50,6 @@ class _QiblaLoadingViewState extends State<QiblaLoadingView>
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Ring luar berputar
                   RotationTransition(
                     turns: _rotateAnim,
                     child: Container(
@@ -72,22 +69,19 @@ class _QiblaLoadingViewState extends State<QiblaLoadingView>
                       ),
                     ),
                   ),
-                  // Icon kompas statis
                   Container(
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isDark
-                          ? AppColors.primaryDark.withValues(alpha: 0.4)
-                          : AppColors.primaryContainer.withValues(alpha: 0.5),
+                      color: context.primaryContainerColor.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                     child: Icon(
                       Icons.explore_rounded,
                       size: 32,
-                      color: isDark
-                          ? AppColors.primaryLighter
-                          : AppColors.primary,
+                      color: context.primaryActionColor,
                     ),
                   ),
                 ],
@@ -99,9 +93,7 @@ class _QiblaLoadingViewState extends State<QiblaLoadingView>
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant
-                    : AppColors.textSecondary,
+                color: context.textSecondaryColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -110,9 +102,7 @@ class _QiblaLoadingViewState extends State<QiblaLoadingView>
               'Pastikan GPS dan izin lokasi aktif',
               style: TextStyle(
                 fontSize: 12,
-                color: isDark
-                    ? AppColors.onSurfaceDarkVariant.withValues(alpha: 0.6)
-                    : AppColors.textTertiary,
+                color: context.textTertiaryColor,
               ),
               textAlign: TextAlign.center,
             ),

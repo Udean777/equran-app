@@ -58,3 +58,32 @@ sealed class JadwalShalatState with _$JadwalShalatState {
     int? tahun,
   }) = JadwalShalatFailure;
 }
+
+extension JadwalShalatStateX on JadwalShalatState {
+  List<String> get provinsiList => switch (this) {
+    JadwalShalatProvinsiLoaded(:final provinsi) => provinsi,
+    JadwalShalatLoadingKabkota(:final provinsi) => provinsi,
+    JadwalShalatKabkotaLoaded(:final provinsi) => provinsi,
+    JadwalShalatLoadingJadwal(:final provinsi) => provinsi,
+    JadwalShalatSuccess(:final provinsi) => provinsi,
+    JadwalShalatFailure(:final provinsi) => provinsi ?? [],
+    _ => [],
+  };
+
+  List<String> get kabkotaList => switch (this) {
+    JadwalShalatKabkotaLoaded(:final kabkota) => kabkota,
+    JadwalShalatLoadingJadwal(:final kabkota) => kabkota,
+    JadwalShalatSuccess(:final kabkota) => kabkota,
+    JadwalShalatFailure(:final kabkota) => kabkota ?? [],
+    _ => [],
+  };
+
+  String? get selectedProvinsi => switch (this) {
+    JadwalShalatLoadingKabkota(:final selectedProvinsi) => selectedProvinsi,
+    JadwalShalatKabkotaLoaded(:final selectedProvinsi) => selectedProvinsi,
+    JadwalShalatLoadingJadwal(:final selectedProvinsi) => selectedProvinsi,
+    JadwalShalatSuccess(:final selectedProvinsi) => selectedProvinsi,
+    JadwalShalatFailure(:final selectedProvinsi) => selectedProvinsi,
+    _ => null,
+  };
+}

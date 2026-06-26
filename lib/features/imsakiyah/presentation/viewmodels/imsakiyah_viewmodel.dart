@@ -19,14 +19,14 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
   GetProvinsi get _getProvinsi => ref.read(getProvinsiProvider);
   GetKabkota get _getKabkota => ref.read(getKabkotaProvider);
   GetImsakiyah get _getImsakiyah => ref.read(getImsakiyahProvider);
-  GetLastLocationImsakiyah get _getLastLocation => ref.read(getLastLocationImsakiyahProvider);
+  GetLastLocationImsakiyah get _getLastLocation =>
+      ref.read(getLastLocationImsakiyahProvider);
   SaveLastLocationImsakiyah get _saveLastLocation =>
       ref.read(saveLastLocationImsakiyahProvider);
   LocationService get _locationService => ref.read(locationServiceProvider);
   LocationMatchingService get _matchingService =>
       ref.read(locationMatchingServiceProvider);
 
-  static const _defaultProvinsi = 'DKI Jakarta';
   static const _defaultKabkota = 'Kota Jakarta Pusat';
 
   Future<void> init() async {
@@ -63,9 +63,9 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
   }
 
   Future<void> selectProvinsi(String provinsi) async {
-    final currentProvinsiList = _extractProvinsiList();
+    final provinsiList = state.provinsiList;
     state = ImsakiyahState.loadingKabkota(
-      provinsi: currentProvinsiList,
+      provinsi: provinsiList,
       selectedProvinsi: provinsi,
     );
 
@@ -73,11 +73,11 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
     result.fold(
       (failure) => state = ImsakiyahState.failure(
         failure: failure,
-        provinsi: currentProvinsiList,
+        provinsi: provinsiList,
         selectedProvinsi: provinsi,
       ),
       (kabkota) => state = ImsakiyahState.kabkotaLoaded(
-        provinsi: currentProvinsiList,
+        provinsi: provinsiList,
         selectedProvinsi: provinsi,
         kabkota: kabkota,
       ),
@@ -85,9 +85,9 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
   }
 
   Future<void> selectKabkota(String kabkota) async {
-    final provinsiList = _extractProvinsiList();
-    final selectedProvinsi = _extractSelectedProvinsi();
-    final kabkotaList = _extractKabkotaList();
+    final provinsiList = state.provinsiList;
+    final selectedProvinsi = state.selectedProvinsi;
+    final kabkotaList = state.kabkotaList;
 
     if (selectedProvinsi == null) return;
 
@@ -152,11 +152,14 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
       return;
     }
 
-    await _loadDefaultJakarta(provinsiList);
+    await _fallbackToFirstProvinsi(provinsiList);
   }
 
-  Future<void> _loadDefaultJakarta(List<String> provinsiList) async {
-    final kabkotaResult = await _getKabkota(const GetKabkotaParams(_defaultProvinsi));
+  Future<void> _fallbackToFirstProvinsi(List<String> provinsiList) async {
+    final firstProvinsi = provinsiList.first;
+    final kabkotaResult = await _getKabkota(
+      GetKabkotaParams(firstProvinsi),
+    );
     final kabkota = kabkotaResult.fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = ImsakiyahState.provinsiLoaded(provinsi: provinsiList);
@@ -169,13 +172,13 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
 
     unawaited(
       _saveLastLocation(
-        SaveLastLocationParams(provinsi: _defaultProvinsi, kabkota: matched),
+        SaveLastLocationParams(provinsi: firstProvinsi, kabkota: matched),
       ),
     );
 
     await _autoLoadJadwal(
       provinsiList: provinsiList,
-      selectedProvinsi: _defaultProvinsi,
+      selectedProvinsi: firstProvinsi,
       selectedKabkota: matched,
       kabkotaList: kabkota,
     );
@@ -187,9 +190,11 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
     required String selectedKabkota,
     List<String>? kabkotaList,
   }) async {
-    final kabkota = kabkotaList ??
-        (await _getKabkota(GetKabkotaParams(selectedProvinsi)))
-            .fold((_) => null, (list) => list);
+    final kabkota =
+        kabkotaList ??
+        (await _getKabkota(
+          GetKabkotaParams(selectedProvinsi),
+        )).fold((_) => null, (list) => list);
     if (kabkota == null) {
       state = ImsakiyahState.provinsiLoaded(provinsi: provinsiList);
       return;
@@ -229,41 +234,5 @@ class ImsakiyahViewModel extends AutoDisposeNotifier<ImsakiyahState> {
         jadwal: jadwal,
       ),
     );
-  }
-
-  List<String> _extractProvinsiList() {
-    final s = state;
-    return switch (s) {
-      ImsakiyahProvinsiLoaded() => s.provinsi,
-      ImsakiyahLoadingKabkota() => s.provinsi,
-      ImsakiyahKabkotaLoaded() => s.provinsi,
-      ImsakiyahLoadingJadwal() => s.provinsi,
-      ImsakiyahSuccess() => s.provinsi,
-      ImsakiyahFailure() => s.provinsi ?? [],
-      _ => [],
-    };
-  }
-
-  String? _extractSelectedProvinsi() {
-    final s = state;
-    return switch (s) {
-      ImsakiyahLoadingKabkota() => s.selectedProvinsi,
-      ImsakiyahKabkotaLoaded() => s.selectedProvinsi,
-      ImsakiyahLoadingJadwal() => s.selectedProvinsi,
-      ImsakiyahSuccess() => s.selectedProvinsi,
-      ImsakiyahFailure() => s.selectedProvinsi,
-      _ => null,
-    };
-  }
-
-  List<String> _extractKabkotaList() {
-    final s = state;
-    return switch (s) {
-      ImsakiyahKabkotaLoaded() => s.kabkota,
-      ImsakiyahLoadingJadwal() => s.kabkota,
-      ImsakiyahSuccess() => s.kabkota,
-      ImsakiyahFailure() => s.kabkota ?? [],
-      _ => [],
-    };
   }
 }

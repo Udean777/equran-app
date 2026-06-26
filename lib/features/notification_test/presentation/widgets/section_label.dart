@@ -10,8 +10,6 @@ class SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
-
     return Padding(
       padding: const EdgeInsets.only(left: AppDimens.spaceXS),
       child: Row(
@@ -29,7 +27,7 @@ class SectionLabel extends StatelessWidget {
             label,
             style: AppTypography.serifHeadingSmall.copyWith(
               fontSize: 13,
-              color: isDark ? AppColors.onSurfaceDark : AppColors.textPrimary,
+              color: context.textPrimaryColor,
             ),
           ),
         ],

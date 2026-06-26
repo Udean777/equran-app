@@ -1,4 +1,3 @@
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_remote_data_source.dart';
@@ -26,15 +25,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'viewmodels/jadwal_shalat_state.dart';
 
-// ─── DioClient ─────────────────────────────────────────────────────────────
-
-final _dioClientProvider = Provider<DioClient>((ref) => DioClient());
-
 // ─── Data Sources ──────────────────────────────────────────────────────────
 
 final jadwalShalatRemoteDataSourceProvider =
     Provider<JadwalShalatRemoteDataSource>((ref) {
-      return JadwalShalatRemoteDataSourceImpl(ref.read(_dioClientProvider));
+      return JadwalShalatRemoteDataSourceImpl(ref.read(dioProvider));
     });
 
 final jadwalShalatLocalDataSourceProvider =
@@ -121,7 +116,8 @@ final shalatNotifViewModelProvider =
       ShalatNotifViewModel.new,
     );
 
-final AutoDisposeNotifierProvider<JadwalShalatViewModel, JadwalShalatState> jadwalShalatViewModelProvider =
+final AutoDisposeNotifierProvider<JadwalShalatViewModel, JadwalShalatState>
+jadwalShalatViewModelProvider =
     NotifierProvider.autoDispose<JadwalShalatViewModel, JadwalShalatState>(
       JadwalShalatViewModel.new,
     );

@@ -11,21 +11,21 @@ class QuranReminderViewModel extends Notifier<QuranReminderState> {
   @override
   QuranReminderState build() => const QuranReminderState.initial();
 
-  GetQuranReminderPrefs get _getPrefs => ref.read(getQuranReminderPrefsProvider);
-  SaveQuranReminderPrefs get _savePrefs => ref.read(saveQuranReminderPrefsProvider);
-  QuranReminderScheduler get _scheduler => ref.read(quranReminderSchedulerProvider);
+  GetQuranReminderPrefs get _getPrefs =>
+      ref.read(getQuranReminderPrefsProvider);
+  SaveQuranReminderPrefs get _savePrefs =>
+      ref.read(saveQuranReminderPrefsProvider);
+  QuranReminderScheduler get _scheduler =>
+      ref.read(quranReminderSchedulerProvider);
 
-  void load() {
-    unawaited(
-      _getPrefs().then((result) {
-        result.fold(
-          (failure) => state = QuranReminderState.error(failure),
-          (prefs) {
-            state = QuranReminderState.loaded(prefs);
-            unawaited(_scheduler.apply(prefs));
-          },
-        );
-      }),
+  Future<void> load() async {
+    final result = await _getPrefs();
+    result.fold(
+      (failure) => state = QuranReminderState.error(failure),
+      (prefs) {
+        state = QuranReminderState.loaded(prefs);
+        unawaited(_scheduler.apply(prefs));
+      },
     );
   }
 

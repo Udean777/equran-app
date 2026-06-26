@@ -46,7 +46,8 @@ class _StatistikShalatPageState extends ConsumerState<StatistikShalatPage> {
         title: StatistikShalatStrings.pageTitle,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.canPop() ? context.pop() : context.go(AppRoutes.home),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go(AppRoutes.home),
         ),
       ),
       body: state.when(

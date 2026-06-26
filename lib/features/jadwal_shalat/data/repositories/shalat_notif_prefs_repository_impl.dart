@@ -25,8 +25,8 @@ class ShalatNotifPrefsRepositoryImpl implements ShalatNotifPrefsRepository {
         jsonDecode(raw) as Map<String, dynamic>,
       );
       return right(dto.toEntity());
-    } on Object catch (_) {
-      return right(const ShalatNotifPrefs());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
     }
   }
 

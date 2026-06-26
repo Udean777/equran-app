@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/features/qibla/domain/entities/qibla_direction.dart';
 import 'package:equran_app/features/qibla/domain/usecases/init_qibla.dart';
 import 'package:equran_app/features/qibla/domain/usecases/watch_qibla_direction.dart';
 import 'package:equran_app/features/qibla/presentation/providers.dart';
@@ -9,7 +10,7 @@ import 'package:equran_app/features/qibla/presentation/viewmodels/qibla_state.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QiblaViewModel extends AutoDisposeNotifier<QiblaState> {
-  StreamSubscription<dynamic>? _subscription;
+  StreamSubscription<QiblaDirection>? _subscription;
   Timer? _timeoutTimer;
 
   InitQibla get _initQibla => ref.read(initQiblaProvider);
@@ -62,15 +63,15 @@ class QiblaViewModel extends AutoDisposeNotifier<QiblaState> {
 
     initResult.fold(
       (failure) => state = QiblaState.error(message: failure.toUserMessage()),
-      (_) => _subscribeToCompass(),
+      (_) => unawaited(_subscribeToCompass()),
     );
   }
 
-  void _subscribeToCompass() {
-    _watchQiblaDirection.call().fold(
+  Future<void> _subscribeToCompass() async {
+    (await _watchQiblaDirection.call()).fold(
       (failure) {
         final isSensorFailure = switch (failure) {
-          UnknownFailure(:final message) => message.contains('sensor kompas'),
+          UnknownFailure(:final message) => message.startsWith('Perangkat'),
           _ => false,
         };
         if (isSensorFailure) {
@@ -90,7 +91,9 @@ class QiblaViewModel extends AutoDisposeNotifier<QiblaState> {
             }
           },
           onError: (Object e) {
-            state = QiblaState.error(message: e.toString());
+            state = QiblaState.error(
+              message: 'Terjadi kesalahan pada sensor kompas: $e',
+            );
           },
         );
       },

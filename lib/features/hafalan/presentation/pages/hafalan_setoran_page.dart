@@ -10,7 +10,6 @@ import 'package:equran_app/core/widgets/luxury_app_bar.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
 import 'package:equran_app/features/hafalan/presentation/providers.dart';
-import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_card.dart';
 import 'package:equran_app/features/hafalan/presentation/widgets/setoran_hasil.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
@@ -118,8 +117,18 @@ class _SetoranSessionState extends ConsumerState<_SetoranSession> {
     final detailState = ref.watch(
       hafalanDetailViewModelProvider(widget.suratNomor),
     );
-    final detailNotifier = ref.read(
-      hafalanDetailViewModelProvider(widget.suratNomor).notifier,
+
+    ref.listen<HafalanDetailState>(
+      hafalanDetailViewModelProvider(widget.suratNomor),
+      (prev, next) {
+        if (next is HafalanDetailCompareSuccess &&
+            next.ayatNomor == _currentAyat.nomorAyat) {
+          _handleCompareSuccess(next.result, next.audioPath);
+        } else if (next is HafalanDetailCompareFailure &&
+            next.ayatNomor == _currentAyat.nomorAyat) {
+          _handleCompareFailure(next.message);
+        }
+      },
     );
 
     return PopScope(
@@ -160,28 +169,12 @@ class _SetoranSessionState extends ConsumerState<_SetoranSession> {
                 onSimpan: _simpanHasil,
                 onUlang: _ulangSetoran,
               )
-            : _buildSetoranCard(detailState, detailNotifier),
+            : _buildSetoranCard(detailState),
       ),
     );
   }
 
-  Widget _buildSetoranCard(
-    HafalanDetailState detailState,
-    HafalanDetailViewModel detailNotifier,
-  ) {
-    ref.listen<HafalanDetailState>(
-      hafalanDetailViewModelProvider(widget.suratNomor),
-      (prev, next) {
-        if (next is HafalanDetailCompareSuccess &&
-            next.ayatNomor == _currentAyat.nomorAyat) {
-          _handleCompareSuccess(next.result, next.audioPath);
-        } else if (next is HafalanDetailCompareFailure &&
-            next.ayatNomor == _currentAyat.nomorAyat) {
-          _handleCompareFailure(next.message);
-        }
-      },
-    );
-
+  Widget _buildSetoranCard(HafalanDetailState detailState) {
     final isComparing =
         detailState is HafalanDetailComparing &&
         detailState.ayatNomor == _currentAyat.nomorAyat;

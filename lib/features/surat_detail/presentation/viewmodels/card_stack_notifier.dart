@@ -6,8 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Mengelola navigasi antar card (info → ayat 1..N → completion),
 /// drag offset untuk animasi, dan progress tracking untuk last-read.
 class CardStackNotifier extends AutoDisposeFamilyNotifier<CardStackState, int> {
-  /// Callback saat progress berubah (0.0–1.0)
-  void Function(double progress)? onProgressUpdate;
 
   @override
   CardStackState build(int totalAyat) {
@@ -34,10 +32,6 @@ class CardStackNotifier extends AutoDisposeFamilyNotifier<CardStackState, int> {
       maxReachedIndex: newMaxReached,
       dragOffset: 0,
     );
-
-    if (newIndex > state.maxReachedIndex) {
-      onProgressUpdate?.call(state.maxProgress);
-    }
   }
 
   /// Navigasi ke card sebelumnya
@@ -61,10 +55,6 @@ class CardStackNotifier extends AutoDisposeFamilyNotifier<CardStackState, int> {
       maxReachedIndex: newMaxReached,
       dragOffset: 0,
     );
-
-    if (clamped > state.maxReachedIndex) {
-      onProgressUpdate?.call(state.maxProgress);
-    }
   }
 
   /// Update drag offset (untuk animasi real-time saat drag)

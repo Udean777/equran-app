@@ -24,33 +24,25 @@ class QiblaHowToCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDark;
     final theme = Theme.of(context);
-    final iconColor = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final iconBg = isDark ? AppColors.primaryDark : AppColors.primaryContainer;
-    final textColor = isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
-    final subtextColor = isDark
-        ? AppColors.onSurfaceDarkVariant
-        : AppColors.textSecondary;
 
     return LuxuryCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Row(
             children: [
               Container(
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: iconBg,
+                  color: context.primaryContainerColor,
                   borderRadius: BorderRadius.circular(AppDimens.radiusSM),
                 ),
                 child: Icon(
                   Icons.help_outline_rounded,
                   size: 15,
-                  color: iconColor,
+                  color: context.primaryActionColor,
                 ),
               ),
               const SizedBox(width: AppDimens.spaceSM),
@@ -58,7 +50,7 @@ class QiblaHowToCard extends StatelessWidget {
                 'Cara Menggunakan',
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: textColor,
+                  color: context.textPrimaryColor,
                 ),
               ),
             ],
@@ -80,7 +72,7 @@ class QiblaHowToCard extends StatelessWidget {
                     width: 22,
                     height: 22,
                     decoration: BoxDecoration(
-                      color: iconBg,
+                      color: context.primaryContainerColor,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -89,7 +81,7 @@ class QiblaHowToCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: iconColor,
+                          color: context.primaryActionColor,
                         ),
                       ),
                     ),
@@ -99,7 +91,7 @@ class QiblaHowToCard extends StatelessWidget {
                     child: Text(
                       step.text,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: subtextColor,
+                        color: context.textSecondaryColor,
                         height: 1.5,
                       ),
                     ),

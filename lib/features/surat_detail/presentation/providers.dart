@@ -1,9 +1,8 @@
-
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_local_data_source.dart';
 import 'package:equran_app/features/surat_detail/data/datasources/surat_detail_remote_data_source.dart';
 import 'package:equran_app/features/surat_detail/data/repositories/surat_detail_repository_impl.dart';
+import 'package:equran_app/features/surat_detail/domain/repositories/surat_detail_repository.dart';
 import 'package:equran_app/features/surat_detail/domain/usecases/get_surat_detail.dart';
 import 'package:equran_app/features/surat_detail/presentation/viewmodels/surat_detail_state.dart';
 import 'package:equran_app/features/surat_detail/presentation/viewmodels/surat_detail_viewmodel.dart';
@@ -19,10 +18,10 @@ final suratDetailLocalDataSourceProvider = Provider<SuratDetailLocalDataSource>(
 
 final suratDetailRemoteDataSourceProvider =
     Provider<SuratDetailRemoteDataSource>((ref) {
-      return SuratDetailRemoteDataSourceImpl(DioClient());
+      return SuratDetailRemoteDataSourceImpl(ref.read(dioProvider));
     });
 
-final suratDetailRepositoryProvider = Provider<SuratDetailRepositoryImpl>((
+final suratDetailRepositoryProvider = Provider<SuratDetailRepository>((
   ref,
 ) {
   return SuratDetailRepositoryImpl(
@@ -40,11 +39,7 @@ final AutoDisposeNotifierProviderFamily<
   SuratDetailState,
   int
 >
-suratDetailViewModelProvider =
-    NotifierProvider.autoDispose.family<
-      SuratDetailViewModel,
-      SuratDetailState,
-      int
-    >(
+suratDetailViewModelProvider = NotifierProvider.autoDispose
+    .family<SuratDetailViewModel, SuratDetailState, int>(
       SuratDetailViewModel.new,
     );

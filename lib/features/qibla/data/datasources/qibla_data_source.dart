@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/features/qibla/domain/entities/qibla_direction.dart';
 import 'package:flutter_compass/flutter_compass.dart';
@@ -16,7 +14,6 @@ class QiblaDataSource {
   /// Request permission lokasi dan ambil koordinat user sekali saja.
   Future<Either<Failure, Unit>> init() async {
     try {
-      // Cek apakah location service aktif
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return left(
@@ -24,7 +21,6 @@ class QiblaDataSource {
         );
       }
 
-      // Cek dan request permission
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -44,7 +40,6 @@ class QiblaDataSource {
         );
       }
 
-      // Ambil posisi user
       _userPosition = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
@@ -76,7 +71,7 @@ class QiblaDataSource {
       );
     }
 
-    final bearing = _calculateBearing(
+    final bearing = QiblaDirection.calculateBearing(
       _userPosition!.latitude,
       _userPosition!.longitude,
       _kaabaLat,
@@ -98,28 +93,4 @@ class QiblaDataSource {
 
     return right(stream);
   }
-
-  /// Kalkulasi bearing dari titik asal ke titik tujuan menggunakan formula Haversine.
-  /// Return nilai dalam derajat (0–360).
-  double _calculateBearing(
-    double fromLat,
-    double fromLng,
-    double toLat,
-    double toLng,
-  ) {
-    final fromLatRad = _toRadians(fromLat);
-    final toLatRad = _toRadians(toLat);
-    final deltaLng = _toRadians(toLng - fromLng);
-
-    final y = math.sin(deltaLng) * math.cos(toLatRad);
-    final x =
-        math.cos(fromLatRad) * math.sin(toLatRad) -
-        math.sin(fromLatRad) * math.cos(toLatRad) * math.cos(deltaLng);
-
-    final bearing = math.atan2(y, x);
-    return (_toDegrees(bearing) + 360) % 360;
-  }
-
-  double _toRadians(double degrees) => degrees * math.pi / 180;
-  double _toDegrees(double radians) => radians * 180 / math.pi;
 }

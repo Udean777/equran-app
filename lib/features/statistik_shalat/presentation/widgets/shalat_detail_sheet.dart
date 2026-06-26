@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
-import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/utils/dialog_utils.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_constants.dart';
@@ -24,17 +23,6 @@ class ShalatDetailSheet extends ConsumerWidget {
   final ShalatDayStats dayStats;
 
   static final _dateFormat = DateFormat('yyyy-MM-dd');
-
-  static Future<void> show({
-    required BuildContext context,
-    required DateTime date,
-    required ShalatDayStats dayStats,
-  }) {
-    return showAppBottomSheet<void>(
-      context,
-      builder: (_) => ShalatDetailSheet(date: date, dayStats: dayStats),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

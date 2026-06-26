@@ -3,7 +3,6 @@ import 'package:equran_app/features/statistik_shalat/data/datasources/shalat_log
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/domain/repositories/statistik_shalat_repository.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hive_ce/hive.dart';
 
 class StatistikShalatRepositoryImpl implements StatistikShalatRepository {
   const StatistikShalatRepositoryImpl(this._dataSource);
@@ -12,64 +11,45 @@ class StatistikShalatRepositoryImpl implements StatistikShalatRepository {
 
   @override
   Future<Either<Failure, ShalatDayStats?>> getByDate(String date) async {
-    try {
-      final result = await _dataSource.getByDate(date);
-      return Right(result);
-      // Menangkap HiveError secara spesifik untuk membedakan error storage
-      // ignore: avoid_catching_errors
-    } on HiveError catch (_) {
-      return const Left(Failure.storage());
-    } on FormatException catch (_) {
-      return const Left(Failure.parsing());
-    } on Object catch (e) {
-      return Left(Failure.unknown(message: e.toString()));
-    }
+    return _safeCall(() => _dataSource.getByDate(date));
   }
 
   @override
   Future<Either<Failure, List<ShalatDayStats>>> getByDateRange(
     List<String> dates,
   ) async {
-    try {
-      final result = await _dataSource.getByDateRange(dates);
-      return Right(result);
-      // Menangkap HiveError secara spesifik untuk membedakan error storage
-      // ignore: avoid_catching_errors
-    } on HiveError catch (_) {
-      return const Left(Failure.storage());
-    } on FormatException catch (_) {
-      return const Left(Failure.parsing());
-    } on Object catch (e) {
-      return Left(Failure.unknown(message: e.toString()));
-    }
+    return _safeCall(() => _dataSource.getByDateRange(dates));
   }
 
   @override
   Future<Either<Failure, Unit>> saveLog(ShalatLog log) async {
+    return _safeCallUnit(() => _dataSource.saveLog(log));
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteByDate(String date) async {
+    return _safeCallUnit(() => _dataSource.deleteByDate(date));
+  }
+
+  static Future<Either<Failure, T>> _safeCall<T>(
+    Future<T> Function() block,
+  ) async {
     try {
-      await _dataSource.saveLog(log);
-      return const Right(unit);
-      // Menangkap HiveError secara spesifik untuk membedakan error storage
-      // ignore: avoid_catching_errors
-    } on HiveError catch (_) {
-      return const Left(Failure.storage());
-    } on FormatException catch (_) {
+      return Right(await block());
+    } on FormatException {
       return const Left(Failure.parsing());
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));
     }
   }
 
-  @override
-  Future<Either<Failure, Unit>> deleteByDate(String date) async {
+  static Future<Either<Failure, Unit>> _safeCallUnit(
+    Future<void> Function() block,
+  ) async {
     try {
-      await _dataSource.deleteByDate(date);
+      await block();
       return const Right(unit);
-      // Menangkap HiveError secara spesifik untuk membedakan error storage
-      // ignore: avoid_catching_errors
-    } on HiveError catch (_) {
-      return const Left(Failure.storage());
-    } on FormatException catch (_) {
+    } on FormatException {
       return const Left(Failure.parsing());
     } on Object catch (e) {
       return Left(Failure.unknown(message: e.toString()));

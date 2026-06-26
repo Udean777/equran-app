@@ -15,12 +15,14 @@ class NotificationTestItem {
     required this.title,
     required this.subtitle,
     required this.type,
+    this.isSubuh = false,
   });
 
   final String id;
   final String title;
   final String subtitle;
   final NotificationTestType type;
+  final bool isSubuh;
 }
 
 class NotificationTestSection {

@@ -38,10 +38,13 @@ final class LocationMatchingService {
   /// Attempt auto-detection: GPS -> fuzzy match provinsi -> get kabkota -> fuzzy match kabkota.
   ///
   /// Returns matched (provinsi, kabkota) or null if detection fails.
-  Future<({
-    String provinsi,
-    String kabkota,
-  })?> autoDetectLocation({
+  Future<
+    ({
+      String provinsi,
+      String kabkota,
+    })?
+  >
+  autoDetectLocation({
     required LocationService locationService,
     required List<String> provinsiList,
     required Future<List<String>?> Function(String provinsi) getKabkotaList,

@@ -24,8 +24,8 @@ class ImsakAlarmRepositoryImpl implements ImsakAlarmRepository {
         jsonDecode(raw) as Map<String, dynamic>,
       );
       return right(dto.toEntity());
-    } on Object catch (_) {
-      return right(const ImsakAlarmPrefs());
+    } on Object catch (e) {
+      return left(Failure.unknown(message: e.toString()));
     }
   }
 

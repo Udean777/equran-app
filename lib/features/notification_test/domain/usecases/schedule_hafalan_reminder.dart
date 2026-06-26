@@ -1,11 +1,10 @@
-import 'package:equatable/equatable.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/usecase/use_case.dart';
 import 'package:equran_app/features/notification_test/domain/repositories/notification_test_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-class ScheduleHafalanReminderParams extends Equatable {
+class ScheduleHafalanReminderParams {
   const ScheduleHafalanReminderParams({
     required this.id,
     required this.title,
@@ -17,9 +16,6 @@ class ScheduleHafalanReminderParams extends Equatable {
   final String title;
   final String body;
   final tz.TZDateTime scheduledTime;
-
-  @override
-  List<Object?> get props => [id, title, body, scheduledTime];
 }
 
 class ScheduleHafalanReminder

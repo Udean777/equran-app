@@ -1,3 +1,4 @@
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/theme/viewmodels/quran_font_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
@@ -6,10 +7,11 @@ const _arabicSizeKey = 'arabic_font_size';
 const _translationSizeKey = 'translation_font_size';
 const _arabicFamilyKey = 'arabic_font_family';
 
-class QuranFontViewModel extends StateNotifier<QuranFontState> {
-  QuranFontViewModel(this._box) : super(const QuranFontState());
+class QuranFontViewModel extends Notifier<QuranFontState> {
+  Box<String> get _box => ref.read(settingsBoxProvider);
 
-  final Box<String> _box;
+  @override
+  QuranFontState build() => const QuranFontState();
 
   void load() {
     final arabicSize = double.tryParse(_box.get(_arabicSizeKey) ?? '') ?? 28.0;

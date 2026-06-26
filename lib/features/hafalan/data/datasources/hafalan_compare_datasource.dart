@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/features/hafalan/data/constants/hafalan_api_config.dart';
 import 'package:equran_app/features/hafalan/domain/constants/hafalan_thresholds.dart';
 import 'package:equran_app/features/hafalan/domain/entities/setoran_compare_result.dart';
@@ -16,9 +15,9 @@ abstract interface class HafalanCompareDataSource {
 }
 
 class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
-  const HafalanCompareDataSourceImpl(this._dioClient);
+  const HafalanCompareDataSourceImpl(this._dio);
 
-  final DioClient _dioClient;
+  final Dio _dio;
 
   @override
   Future<SetoranCompareResult> compare({
@@ -35,7 +34,7 @@ class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
       'threshold': threshold.toString(),
     });
 
-    final response = await _dioClient.dio.post<Map<String, dynamic>>(
+    final response = await _dio.post<Map<String, dynamic>>(
       '${HafalanApiConfig.apiBaseUrl}/compare',
       data: formData,
       options: Options(
@@ -53,7 +52,7 @@ class HafalanCompareDataSourceImpl implements HafalanCompareDataSource {
 
   @override
   Future<void> warmUp() async {
-    await _dioClient.dio.get<Map<String, dynamic>>(
+    await _dio.get<Map<String, dynamic>>(
       '${HafalanApiConfig.apiBaseUrl}/health',
       options: Options(
         receiveTimeout: const Duration(seconds: 60),

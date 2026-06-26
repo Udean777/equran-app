@@ -34,7 +34,7 @@ class CardViewGestureHandler {
   ) {
     if (isAnimating) return;
     if (!_state.mounted) return;
-    
+
     final cardState = _ref.read(cardStackProvider(totalAyat));
     var newOffset = cardState.dragOffset + details.delta.dx;
 
@@ -60,7 +60,7 @@ class CardViewGestureHandler {
   }) {
     if (isAnimating) return;
     if (!_state.mounted) return;
-    
+
     final cardState = _ref.read(cardStackProvider(totalAyat));
     final screenWidth = MediaQuery.of(context).size.width;
     final velocity = details.primaryVelocity ?? 0;
@@ -103,7 +103,7 @@ class CardViewGestureHandler {
   }) {
     if (isAnimating) return;
     if (!_state.mounted) return;
-    
+
     final cardState = _ref.read(cardStackProvider(totalAyat));
     if (targetIndex <= cardState.currentIndex) return;
 

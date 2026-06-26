@@ -1,4 +1,3 @@
-import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/theme/viewmodels/quran_font_state.dart';
 import 'package:equran_app/core/theme/viewmodels/quran_font_viewmodel.dart';
 import 'package:equran_app/core/theme/viewmodels/theme_state.dart';
@@ -8,13 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 export 'viewmodels/quran_font_state.dart';
 export 'viewmodels/theme_state.dart';
 
-final StateNotifierProvider<ThemeViewModel, ThemeState> themeViewModelProvider =
-    StateNotifierProvider<ThemeViewModel, ThemeState>(
-      (ref) => ThemeViewModel(ref.watch(settingsBoxProvider)),
+final NotifierProvider<ThemeViewModel, ThemeState> themeViewModelProvider =
+    NotifierProvider<ThemeViewModel, ThemeState>(
+      ThemeViewModel.new,
     );
 
-final StateNotifierProvider<QuranFontViewModel, QuranFontState>
+final NotifierProvider<QuranFontViewModel, QuranFontState>
 quranFontViewModelProvider =
-    StateNotifierProvider<QuranFontViewModel, QuranFontState>(
-      (ref) => QuranFontViewModel(ref.watch(settingsBoxProvider)),
+    NotifierProvider<QuranFontViewModel, QuranFontState>(
+      QuranFontViewModel.new,
     );

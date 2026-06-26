@@ -17,7 +17,8 @@ import 'package:intl/intl.dart';
 part 'statistik_shalat_state.dart';
 part 'statistik_shalat_viewmodel.freezed.dart';
 
-class StatistikShalatViewModel extends AutoDisposeNotifier<StatistikShalatState> {
+class StatistikShalatViewModel
+    extends AutoDisposeNotifier<StatistikShalatState> {
   @override
   StatistikShalatState build() => const StatistikShalatState.initial();
 
@@ -80,12 +81,14 @@ class StatistikShalatViewModel extends AutoDisposeNotifier<StatistikShalatState>
         );
         final status = _widgetStatusToShalatStatus(entry.value);
         if (status != null) {
-          await _saveShalatLog(ShalatLog(
-            date: today,
-            waktu: waktu,
-            status: status,
-            updatedAt: DateTime.now(),
-          ));
+          await _saveShalatLog(
+            ShalatLog(
+              date: today,
+              waktu: waktu,
+              status: status,
+              updatedAt: DateTime.now(),
+            ),
+          );
         }
       } on Object catch (_) {}
     }

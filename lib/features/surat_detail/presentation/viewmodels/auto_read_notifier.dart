@@ -19,7 +19,8 @@ class AutoReadNotifier extends AutoDisposeFamilyNotifier<AutoReadState, int> {
     return const AutoReadState();
   }
 
-  AudioViewModel get _audioViewModel => ref.read(audioViewModelProvider.notifier);
+  AudioViewModel get _audioViewModel =>
+      ref.read(audioViewModelProvider.notifier);
   CardStackNotifier get _cardNotifier =>
       ref.read(cardStackProvider(arg).notifier);
 
@@ -77,14 +78,14 @@ class AutoReadNotifier extends AutoDisposeFamilyNotifier<AutoReadState, int> {
 
 /// Provider untuk CardStackNotifier
 final AutoDisposeNotifierProviderFamily<CardStackNotifier, CardStackState, int>
-    cardStackProvider =
+cardStackProvider =
     AutoDisposeNotifierProvider.family<CardStackNotifier, CardStackState, int>(
-  CardStackNotifier.new,
-);
+      CardStackNotifier.new,
+    );
 
 /// Provider untuk AutoReadNotifier
 final AutoDisposeNotifierProviderFamily<AutoReadNotifier, AutoReadState, int>
-    autoReadProvider =
+autoReadProvider =
     AutoDisposeNotifierProvider.family<AutoReadNotifier, AutoReadState, int>(
-  AutoReadNotifier.new,
-);
+      AutoReadNotifier.new,
+    );

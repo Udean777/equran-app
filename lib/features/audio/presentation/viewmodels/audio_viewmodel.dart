@@ -25,7 +25,8 @@ class AudioViewModel extends Notifier<AudioPlayerState> {
   ResumeAudio get _resumeAudio => ref.read(resumeAudioProvider);
   StopAudio get _stopAudio => ref.read(stopAudioProvider);
   SeekAudio get _seekAudio => ref.read(seekAudioProvider);
-  GetAudioStateStream get _getAudioStateStream => ref.read(getAudioStateStreamProvider);
+  GetAudioStateStream get _getAudioStateStream =>
+      ref.read(getAudioStateStreamProvider);
 
   final AudioPlaylistManager _playlistManager = AudioPlaylistManager();
 

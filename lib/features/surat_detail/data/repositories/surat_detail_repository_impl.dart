@@ -15,13 +15,16 @@ class SuratDetailRepositoryImpl implements SuratDetailRepository {
 
   @override
   Future<Either<Failure, SuratDetail>> getSuratDetail(int nomor) async {
-    // Cache-first
-    final cached = await _local.getCachedSuratDetail(nomor);
-    if (cached != null) {
-      return right(cached.toEntity());
+    // Cache-first — fall through to network on error
+    try {
+      final cached = await _local.getCachedSuratDetail(nomor);
+      if (cached != null) {
+        return right(cached.toEntity());
+      }
+    } on Object {
+      // Cache error — ignore, try network
     }
 
-    // Network fallback
     return executeRequest(() async {
       final dto = await _remote.fetchSuratDetail(nomor);
       await _local.cacheSuratDetail(nomor, dto.data);
