@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:equran_app/core/utils/failure_extension.dart';
+import 'package:equran_app/core/widgets/shalat_widget.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date.dart';
@@ -32,6 +35,10 @@ class StatistikShalatViewModel extends StateNotifier<StatistikShalatState> {
     state = const StatistikShalatState.loading();
 
     final today = _dateFormat.format(DateTime.now());
+
+    // Sync any check-ins made via home screen widget
+    await _syncWidgetCheckins(today);
+
     final last30 = _generateDateRange(
       today,
       StatistikShalatConstants.statsDaysRange,
@@ -48,13 +55,53 @@ class StatistikShalatViewModel extends StateNotifier<StatistikShalatState> {
       (todayStats) => statsResult.fold(
         (failure) =>
             state = StatistikShalatState.failure(failure.toUserMessage()),
-        (stats) => state = StatistikShalatState.success(
-          today: todayStats ?? ShalatDayStats(date: today),
-          stats: stats,
-        ),
+        (stats) {
+          state = StatistikShalatState.success(
+            today: todayStats ?? ShalatDayStats(date: today),
+            stats: stats,
+          );
+          // Update home screen widget with latest data
+          unawaited(
+            updateShalatWidget(
+              todayStats ?? ShalatDayStats(date: today),
+              StatistikShalatConstants.totalWaktuShalat,
+            ),
+          );
+        },
       ),
     );
   }
+
+  /// Sync check-ins made via home screen widget to Hive storage.
+  Future<void> _syncWidgetCheckins(String today) async {
+    final widgetStatuses = await readWidgetCheckinStatuses();
+    if (widgetStatuses == null) return;
+
+    for (final entry in widgetStatuses.entries) {
+      if (entry.value == 'belumDicatat') continue;
+      try {
+        final waktu = WaktuShalat.values.firstWhere(
+          (e) => e.name == entry.key,
+        );
+        final status = _widgetStatusToShalatStatus(entry.value);
+        if (status != null) {
+          await _saveShalatLog(ShalatLog(
+            date: today,
+            waktu: waktu,
+            status: status,
+            updatedAt: DateTime.now(),
+          ));
+        }
+      } on Object catch (_) {}
+    }
+  }
+
+  ShalatStatus? _widgetStatusToShalatStatus(String s) => switch (s) {
+    'tepatWaktu' => ShalatStatus.tepatWaktu,
+    'qadha' => ShalatStatus.qadha,
+    'tidakShalat' => ShalatStatus.tidakShalat,
+    _ => null,
+  };
 
   Future<void> updateShalat({
     required WaktuShalat waktu,

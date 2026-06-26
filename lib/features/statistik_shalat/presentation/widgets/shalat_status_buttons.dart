@@ -17,6 +17,8 @@ class ShalatStatusButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSet = currentStatus != ShalatStatus.belumDicatat;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -25,11 +27,9 @@ class ShalatStatusButtons extends StatelessWidget {
           tooltip: StatistikShalatStrings.statusTepatWaktu,
           isSelected: currentStatus == ShalatStatus.tepatWaktu,
           selectedColor: AppColors.success,
-          onTap: () => onStatusChanged(
-            currentStatus == ShalatStatus.tepatWaktu
-                ? ShalatStatus.belumDicatat
-                : ShalatStatus.tepatWaktu,
-          ),
+          onTap: isSet
+              ? () => _showAlreadySetToast(context)
+              : () => onStatusChanged(ShalatStatus.tepatWaktu),
         ),
         const SizedBox(width: AppDimens.spaceXS),
         ShalatStatusChip(
@@ -37,11 +37,9 @@ class ShalatStatusButtons extends StatelessWidget {
           tooltip: StatistikShalatStrings.statusQadha,
           isSelected: currentStatus == ShalatStatus.qadha,
           selectedColor: AppColors.warning,
-          onTap: () => onStatusChanged(
-            currentStatus == ShalatStatus.qadha
-                ? ShalatStatus.belumDicatat
-                : ShalatStatus.qadha,
-          ),
+          onTap: isSet
+              ? () => _showAlreadySetToast(context)
+              : () => onStatusChanged(ShalatStatus.qadha),
         ),
         const SizedBox(width: AppDimens.spaceXS),
         ShalatStatusChip(
@@ -49,13 +47,28 @@ class ShalatStatusButtons extends StatelessWidget {
           tooltip: StatistikShalatStrings.statusTidakShalat,
           isSelected: currentStatus == ShalatStatus.tidakShalat,
           selectedColor: AppColors.error,
-          onTap: () => onStatusChanged(
-            currentStatus == ShalatStatus.tidakShalat
-                ? ShalatStatus.belumDicatat
-                : ShalatStatus.tidakShalat,
-          ),
+          onTap: isSet
+              ? () => _showAlreadySetToast(context)
+              : () => onStatusChanged(ShalatStatus.tidakShalat),
         ),
       ],
+    );
+  }
+
+  void _showAlreadySetToast(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Catatan shalat hari ini sudah tersimpan. Besok bisa diperbarui kembali.',
+          style: TextStyle(fontSize: 13),
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(AppDimens.pagePadding),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusLG),
+        ),
+      ),
     );
   }
 }
