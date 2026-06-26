@@ -31,7 +31,9 @@ class _BookmarkPageState extends ConsumerState<BookmarkPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
+    });
   }
 
   @override

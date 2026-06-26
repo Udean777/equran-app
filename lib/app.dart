@@ -25,21 +25,26 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   bool _precached = false;
+  bool _initialized = false;
 
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        // Initialize ViewModels on first build
-        ref.read(themeViewModelProvider.notifier).load();
-        ref.read(languageViewModelProvider.notifier).load();
-        ref.read(quranFontViewModelProvider.notifier).load();
-        ref.read(shalatNotifViewModelProvider.notifier).load();
-        ref.read(quranReminderViewModelProvider.notifier).load();
-        unawaited(ref.read(quranStreakViewModelProvider.notifier).load());
-
-        // Initialize HafalanListViewModel on first build
-        unawaited(ref.read(hafalanListViewModelProvider.notifier).load());
+        // Initialize ViewModels after first frame (avoid modifying state during build)
+        if (!_initialized) {
+          _initialized = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(themeViewModelProvider.notifier).load();
+            ref.read(languageViewModelProvider.notifier).load();
+            ref.read(quranFontViewModelProvider.notifier).load();
+            ref.read(shalatNotifViewModelProvider.notifier).load();
+            ref.read(quranReminderViewModelProvider.notifier).load();
+            unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
+            unawaited(ref.read(quranStreakViewModelProvider.notifier).load());
+            unawaited(ref.read(hafalanListViewModelProvider.notifier).load());
+          });
+        }
 
         // Listen to audio playback for lastRead updates
         ref.listen<AudioPlayerState>(audioViewModelProvider, (prev, curr) {

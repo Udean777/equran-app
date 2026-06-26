@@ -14,8 +14,7 @@ export 'viewmodels/surat_detail_state.dart';
 
 final suratDetailLocalDataSourceProvider = Provider<SuratDetailLocalDataSource>(
   (ref) {
-    final box = ref.watch(suratBoxProvider).requireValue;
-    return SuratDetailLocalDataSourceImpl(box);
+    return SuratDetailLocalDataSourceImpl(ref.watch(suratBoxProvider));
   },
 );
 

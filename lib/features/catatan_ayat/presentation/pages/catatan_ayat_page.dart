@@ -27,7 +27,9 @@ class _CatatanAyatPageState extends ConsumerState<CatatanAyatPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(catatanAyatViewModelProvider.notifier).load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(catatanAyatViewModelProvider.notifier).load());
+    });
   }
 
   @override

@@ -30,7 +30,9 @@ class _JadwalShalatPageState extends ConsumerState<JadwalShalatPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(jadwalShalatViewModelProvider.notifier).init());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(jadwalShalatViewModelProvider.notifier).init());
+    });
   }
 
   @override

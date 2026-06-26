@@ -8,8 +8,7 @@ import 'package:equran_app/features/tafsir/presentation/viewmodels/tafsir_viewmo
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tafsirLocalDataSourceProvider = Provider<TafsirLocalDataSource>((ref) {
-  final box = ref.watch(tafsirBoxProvider).requireValue;
-  return TafsirLocalDataSourceImpl(box);
+  return TafsirLocalDataSourceImpl(ref.watch(tafsirBoxProvider));
 });
 
 final tafsirRemoteDataSourceProvider = Provider<TafsirRemoteDataSource>((ref) {

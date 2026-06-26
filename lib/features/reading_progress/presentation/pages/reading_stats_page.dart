@@ -26,7 +26,9 @@ class _ReadingStatsPageState extends ConsumerState<ReadingStatsPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(readingProgressViewModelProvider.notifier).load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(readingProgressViewModelProvider.notifier).load());
+    });
   }
 
   @override

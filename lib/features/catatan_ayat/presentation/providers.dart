@@ -10,8 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final catatanAyatLocalDataSourceProvider = Provider<CatatanAyatLocalDataSource>(
   (ref) {
-    final box = ref.watch(catatanBoxProvider).requireValue;
-    return CatatanAyatLocalDataSourceImpl(box);
+    return CatatanAyatLocalDataSourceImpl(ref.watch(catatanBoxProvider));
   },
 );
 

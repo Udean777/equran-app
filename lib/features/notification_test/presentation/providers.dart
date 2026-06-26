@@ -22,7 +22,7 @@ final notificationTestRepositoryProvider = Provider<NotificationTestRepository>(
     return NotificationTestRepositoryImpl(
       ref.read(notificationServiceProvider),
       FlutterLocalNotificationsPlugin(),
-      ref.watch(audioCompositeHandlerProvider).requireValue,
+      ref.watch(audioCompositeHandlerProvider),
     );
   },
 );

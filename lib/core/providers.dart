@@ -31,7 +31,7 @@ final dioProvider = Provider<Dio>((ref) {
   return dio;
 });
 
-// ─── Hive Box Providers (pre-opened in main.dart) ─────────────────────────
+// ─── Hive Box Providers (all pre-opened in main.dart) ─────────────────────
 
 final settingsBoxProvider = Provider<Box<String>>((ref) {
   return Hive.box<String>('settings_box');
@@ -49,42 +49,40 @@ final imsakiyahBoxProvider = Provider<Box<String>>((ref) {
   return Hive.box<String>('imsakiyah_box');
 });
 
-// Lazy boxes — opened on first access
-
-final doaBoxProvider = FutureProvider<LazyBox<String>>((ref) {
-  return Hive.openLazyBox<String>('doa_box');
+final doaBoxProvider = Provider<LazyBox<String>>((ref) {
+  return Hive.lazyBox<String>('doa_box');
 });
 
-final catatanBoxProvider = FutureProvider<Box<String>>((ref) {
-  return Hive.openBox<String>('catatan_box');
+final catatanBoxProvider = Provider<Box<String>>((ref) {
+  return Hive.box<String>('catatan_box');
 });
 
-final hafalanBoxProvider = FutureProvider<LazyBox<String>>((ref) {
-  return Hive.openLazyBox<String>('hafalan_box');
+final hafalanBoxProvider = Provider<Box<String>>((ref) {
+  return Hive.box<String>('hafalan_box');
 });
 
-final doaBookmarkBoxProvider = FutureProvider<Box<String>>((ref) {
-  return Hive.openBox<String>('doa_bookmark_box');
+final doaBookmarkBoxProvider = Provider<Box<String>>((ref) {
+  return Hive.box<String>('doa_bookmark_box');
 });
 
-final statistikShalatBoxProvider = FutureProvider<Box<String>>((ref) {
-  return Hive.openBox<String>('statistik_shalat_box');
+final statistikShalatBoxProvider = Provider<Box<String>>((ref) {
+  return Hive.box<String>('statistik_shalat_box');
 });
 
-final readingHistoryBoxProvider = FutureProvider<Box<String>>((ref) {
-  return Hive.openBox<String>('reading_history_box');
+final readingHistoryBoxProvider = Provider<Box<String>>((ref) {
+  return Hive.box<String>('reading_history_box');
 });
 
-final suratBoxProvider = FutureProvider<LazyBox<String>>((ref) {
-  return Hive.openLazyBox<String>('surat_box');
+final suratBoxProvider = Provider<LazyBox<String>>((ref) {
+  return Hive.lazyBox<String>('surat_box');
 });
 
-final tafsirBoxProvider = FutureProvider<LazyBox<String>>((ref) {
-  return Hive.openLazyBox<String>('tafsir_box');
+final tafsirBoxProvider = Provider<LazyBox<String>>((ref) {
+  return Hive.lazyBox<String>('tafsir_box');
 });
 
-final tasbihBoxProvider = FutureProvider<Box<String>>((ref) {
-  return Hive.openBox<String>('tasbih_box');
+final tasbihBoxProvider = Provider<Box<String>>((ref) {
+  return Hive.box<String>('tasbih_box');
 });
 
 // ─── Location Service Provider ────────────────────────────────────────────

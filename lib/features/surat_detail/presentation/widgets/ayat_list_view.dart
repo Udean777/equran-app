@@ -132,13 +132,13 @@ class AyatListView extends ConsumerWidget {
                     }
                   },
             onShareTap: () => _showSharePage(context, ayat),
-            hasCatatan: ProviderScope.containerOf(context)
+            hasCatatan: ref
                 .read(catatanAyatViewModelProvider.notifier)
                 .hasCatatan(
                   suratNomor: detail.nomor,
                   ayatNomor: ayat.nomorAyat,
                 ),
-            onCatatanTap: () => _showCatatanSheet(context, ayat),
+            onCatatanTap: () => _showCatatanSheet(context, ref, ayat),
             onDownloadTap: audioUrl == null
                 ? null
                 : () {
@@ -165,8 +165,8 @@ class AyatListView extends ConsumerWidget {
     );
   }
 
-  void _showCatatanSheet(BuildContext context, Ayat ayat) {
-    final existing = ProviderScope.containerOf(context)
+  void _showCatatanSheet(BuildContext context, WidgetRef ref, Ayat ayat) {
+    final existing = ref
         .read(catatanAyatViewModelProvider.notifier)
         .getCatatan(
           suratNomor: detail.nomor,

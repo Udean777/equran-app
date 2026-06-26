@@ -22,7 +22,9 @@ class _DoaBookmarkSectionState extends ConsumerState<DoaBookmarkSection> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(doaBookmarkViewModelProvider.notifier).load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(doaBookmarkViewModelProvider.notifier).load());
+    });
   }
 
   @override

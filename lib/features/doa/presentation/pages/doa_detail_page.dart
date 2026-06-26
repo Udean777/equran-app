@@ -25,9 +25,11 @@ class _DoaDetailPageState extends ConsumerState<DoaDetailPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(
-      ref.read(doaDetailViewModelProvider.notifier).load(widget.id),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(
+        ref.read(doaDetailViewModelProvider.notifier).load(widget.id),
+      );
+    });
   }
 
   @override

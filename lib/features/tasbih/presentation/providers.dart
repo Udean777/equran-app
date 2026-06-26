@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tasbihLocalDataSourceProvider = Provider<TasbihLocalDataSource>((ref) {
   return TasbihLocalDataSourceImpl(
-    ref.watch(tasbihBoxProvider).requireValue,
+    ref.watch(tasbihBoxProvider),
   );
 });
 

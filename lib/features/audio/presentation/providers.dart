@@ -36,19 +36,16 @@ export 'viewmodels/audio_viewmodel.dart';
 
 final _dioClientProvider = Provider<DioClient>((ref) => DioClient());
 
-// ─── Audio Composite Handler (Future) ──────────────────────────────────────
+// ─── Audio Composite Handler ─────────────────────────────────────────────
 
-final audioCompositeHandlerProvider = FutureProvider<AudioCompositeHandler>((
-  ref,
-) {
-  return AudioServiceModule.createHandler();
+final audioCompositeHandlerProvider = Provider<AudioCompositeHandler>((ref) {
+  return AudioServiceModule.handler;
 });
 
 // ─── Data Sources ──────────────────────────────────────────────────────────
 
 final audioPlayerDataSourceProvider = Provider<AudioPlayerDataSource>((ref) {
-  final handler = ref.watch(audioCompositeHandlerProvider).requireValue;
-  return AudioPlayerDataSourceImpl(handler);
+  return AudioPlayerDataSourceImpl(ref.watch(audioCompositeHandlerProvider));
 });
 
 final audioDownloadDataSourceProvider = Provider<AudioDownloadDataSource>((

@@ -21,7 +21,9 @@ class _TasbihHistoryPageState extends ConsumerState<TasbihHistoryPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(tasbihViewModelProvider.notifier).loadSessions());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(tasbihViewModelProvider.notifier).loadSessions());
+    });
   }
 
   @override

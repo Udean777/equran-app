@@ -18,8 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final shalatLogLocalDataSourceProvider = Provider<ShalatLogLocalDataSource>((
   ref,
 ) {
-  final box = ref.watch(statistikShalatBoxProvider).requireValue;
-  return ShalatLogLocalDataSourceImpl(box);
+  return ShalatLogLocalDataSourceImpl(ref.watch(statistikShalatBoxProvider));
 });
 
 // =============================================================================

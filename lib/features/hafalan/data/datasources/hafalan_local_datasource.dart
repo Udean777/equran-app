@@ -17,7 +17,7 @@ abstract interface class HafalanLocalDatasource {
 class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
   const HafalanLocalDatasourceImpl(this._box);
 
-  final LazyBox<String> _box;
+  final Box<String> _box;
 
   /// Key format: "surat_$suratNomor"
   String _key(int suratNomor) => 'surat_$suratNomor';
@@ -28,7 +28,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
       // Iterasi key surat_1 s/d surat_114 — lebih efisien dari box.values
       final results = <HafalanSurat>[];
       for (var i = 1; i <= QuranConstants.totalSurat; i++) {
-        final raw = await _box.get(_key(i));
+        final raw = _box.get(_key(i));
         if (raw == null) continue;
         try {
           final decoded = jsonDecode(raw);
@@ -54,7 +54,7 @@ class HafalanLocalDatasourceImpl implements HafalanLocalDatasource {
   @override
   Future<HafalanSurat?> getBySurat(int suratNomor) async {
     try {
-      final raw = await _box.get(_key(suratNomor));
+      final raw = _box.get(_key(suratNomor));
       if (raw == null) return null;
       final decoded = jsonDecode(raw);
       if (decoded is! Map<String, dynamic>) {

@@ -13,8 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 export 'viewmodels/surat_list_state.dart';
 
 final suratLocalDataSourceProvider = Provider<SuratLocalDataSource>((ref) {
-  final box = ref.watch(suratBoxProvider).requireValue;
-  return SuratLocalDataSourceImpl(box);
+  return SuratLocalDataSourceImpl(ref.watch(suratBoxProvider));
 });
 
 final suratRemoteDataSourceProvider = Provider<SuratRemoteDataSource>((ref) {

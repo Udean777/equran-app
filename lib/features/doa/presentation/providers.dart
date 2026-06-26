@@ -32,14 +32,14 @@ final doaRemoteDataSourceProvider = Provider<DoaRemoteDataSourceImpl>((ref) {
 });
 
 final doaLocalDataSourceProvider = Provider<DoaLocalDataSourceImpl>((ref) {
-  return DoaLocalDataSourceImpl(ref.watch(doaBoxProvider).requireValue);
+  return DoaLocalDataSourceImpl(ref.watch(doaBoxProvider));
 });
 
 final doaBookmarkDataSourceProvider = Provider<DoaBookmarkDataSourceImpl>((
   ref,
 ) {
   return DoaBookmarkDataSourceImpl(
-    ref.watch(doaBookmarkBoxProvider).requireValue,
+    ref.watch(doaBookmarkBoxProvider),
   );
 });
 

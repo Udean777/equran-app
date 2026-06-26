@@ -4,6 +4,7 @@ import 'package:equran_app/app.dart';
 import 'package:equran_app/core/network/dio_client.dart';
 import 'package:equran_app/core/notifications/background_sync_worker.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
+import 'package:equran_app/features/audio/data/datasources/audio_service_module.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_local_data_source.dart';
 import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat_remote_data_source.dart';
 import 'package:equran_app/features/jadwal_shalat/data/repositories/jadwal_shalat_repository_impl.dart';
@@ -23,15 +24,27 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  // Preopen critical Hive boxes for synchronous provider access
-  await Hive.openBox<String>('settings_box');
-  await Hive.openBox<String>('bookmark_box');
-  await Hive.openBox<String>('shalat_box');
-  await Hive.openBox<String>('imsakiyah_box');
+  // Preopen all Hive boxes for synchronous provider access
+  await Future.wait([
+    Hive.openBox<String>('settings_box'),
+    Hive.openBox<String>('bookmark_box'),
+    Hive.openBox<String>('shalat_box'),
+    Hive.openBox<String>('imsakiyah_box'),
+    Hive.openLazyBox<String>('doa_box'),
+    Hive.openBox<String>('catatan_box'),
+    Hive.openBox<String>('hafalan_box'),
+    Hive.openBox<String>('doa_bookmark_box'),
+    Hive.openBox<String>('statistik_shalat_box'),
+    Hive.openBox<String>('reading_history_box'),
+    Hive.openLazyBox<String>('surat_box'),
+    Hive.openLazyBox<String>('tafsir_box'),
+    Hive.openBox<String>('tasbih_box'),
+  ]);
 
   final notifService = NotificationService(FlutterLocalNotificationsPlugin());
   await notifService.init();
   await BackgroundSyncWorker.init();
+  await AudioServiceModule.init();
 
   final shalatBox = Hive.box<String>('shalat_box');
   final remoteDS = JadwalShalatRemoteDataSourceImpl(DioClient());

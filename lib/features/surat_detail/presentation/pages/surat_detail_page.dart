@@ -55,7 +55,7 @@ class SuratDetailPage extends ConsumerWidget {
   }
 }
 
-class _SuratDetailView extends StatefulWidget {
+class _SuratDetailView extends ConsumerStatefulWidget {
   const _SuratDetailView({
     required this.detail,
     required this.nomor,
@@ -69,10 +69,10 @@ class _SuratDetailView extends StatefulWidget {
   final bool autoPlay;
 
   @override
-  State<_SuratDetailView> createState() => _SuratDetailViewState();
+  ConsumerState<_SuratDetailView> createState() => _SuratDetailViewState();
 }
 
-class _SuratDetailViewState extends State<_SuratDetailView> {
+class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
   CardStackController? _cardController;
   bool _autoScrollEnabled = true;
   BookmarkViewModel? _bookmarkViewModel;
@@ -82,22 +82,16 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
   @override
   void initState() {
     super.initState();
-    unawaited(
-      ProviderScope.containerOf(
-        context,
-      ).read(quranStreakViewModelProvider.notifier).recordRead(),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(quranStreakViewModelProvider.notifier).recordRead());
+    });
+    _bookmarkViewModel = ref.read(bookmarkViewModelProvider.notifier);
+    _readingProgressViewModel = ref.read(
+      readingProgressViewModelProvider.notifier,
     );
-    _bookmarkViewModel = ProviderScope.containerOf(
-      context,
-    ).read(bookmarkViewModelProvider.notifier);
-    _readingProgressViewModel = ProviderScope.containerOf(
-      context,
-    ).read(readingProgressViewModelProvider.notifier);
     // Simpan referensi AudioViewModel di initState agar aman dipakai di dispose()
     // tanpa perlu context.read (context tidak valid saat dispose).
-    _audioViewModel = ProviderScope.containerOf(
-      context,
-    ).read(audioViewModelProvider.notifier);
+    _audioViewModel = ref.read(audioViewModelProvider.notifier);
   }
 
   @override
@@ -159,9 +153,7 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
     if (widget.initialAyat != null) {
       initialIndex = widget.initialAyat!.clamp(1, detail.ayatList.length);
     } else {
-      final bookmarkState = ProviderScope.containerOf(
-        context,
-      ).read(bookmarkViewModelProvider);
+      final bookmarkState = ref.read(bookmarkViewModelProvider);
       final lastRead = bookmarkState.mapOrNull(
         success: (s) => s.lastRead,
       );
@@ -188,12 +180,10 @@ class _SuratDetailViewState extends State<_SuratDetailView> {
     if (isFirstLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        final audioNotifier = ProviderScope.containerOf(
-          context,
-        ).read(audioViewModelProvider.notifier);
+        final audioNotifier = ref.read(audioViewModelProvider.notifier);
         final qari = audioNotifier.currentQari;
         unawaited(
-          ProviderScope.containerOf(context)
+          ref
               .read(audioDownloadViewModelProvider.notifier)
               .loadDownloadedStatus(
                 suratNomor: detail.nomor,

@@ -20,6 +20,7 @@ import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_deta
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_detail_viewmodel.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_state.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_viewmodel.dart';
+import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'viewmodels/hafalan_detail_state.dart';
@@ -38,8 +39,7 @@ final audioRecorderServiceProvider = Provider<AudioRecorderService>((ref) {
 // ─── Data Sources ──────────────────────────────────────────────────────────
 
 final hafalanLocalDatasourceProvider = Provider<HafalanLocalDatasource>((ref) {
-  final box = ref.watch(hafalanBoxProvider).requireValue;
-  return HafalanLocalDatasourceImpl(box);
+  return HafalanLocalDatasourceImpl(ref.watch(hafalanBoxProvider));
 });
 
 final hafalanCompareDataSourceProvider = Provider<HafalanCompareDataSource>((
@@ -103,6 +103,7 @@ final hafalanListViewModelProvider =
       (ref) => HafalanListViewModel(
         ref.read(getAllHafalanProvider),
         ref.read(getHafalanStatsProvider),
+        ref.read(getSuratListProvider),
       ),
     );
 

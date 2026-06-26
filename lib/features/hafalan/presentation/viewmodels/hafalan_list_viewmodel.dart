@@ -2,21 +2,26 @@ import 'dart:async';
 
 import 'package:equran_app/core/constants/juz_constants.dart';
 import 'package:equran_app/core/domain/entities/surat.dart';
+import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_filter.dart';
+import 'package:equran_app/features/hafalan/domain/entities/hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/domain/entities/hafalan_surat.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_all_hafalan.dart';
 import 'package:equran_app/features/hafalan/domain/usecases/get_hafalan_stats.dart';
 import 'package:equran_app/features/hafalan/presentation/viewmodels/hafalan_list_state.dart';
+import 'package:equran_app/features/surat_list/domain/usecases/get_surat_list.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HafalanListViewModel extends StateNotifier<HafalanListState> {
   HafalanListViewModel(
     this._getAllHafalan,
     this._getHafalanStats,
+    this._getSuratList,
   ) : super(const HafalanListState.initial());
 
   final GetAllHafalan _getAllHafalan;
   final GetHafalanStats _getHafalanStats;
+  final GetSuratList _getSuratList;
 
   List<Surat> _allSurat = [];
 
@@ -34,25 +39,40 @@ class HafalanListViewModel extends StateNotifier<HafalanListState> {
 
     final hafalanResult = await _getAllHafalan();
     final statsResult = await _getHafalanStats();
+    final suratResult = await _getSuratList();
+
+    final failures = <String>[];
+    List<HafalanSurat>? hafalanList;
+    HafalanStats? stats;
+    List<Surat>? suratList;
 
     hafalanResult.fold(
-      (failure) =>
-          state = const HafalanListState.failure('Gagal memuat data hafalan'),
-      (list) => statsResult.fold(
-        (failure) =>
-            state = const HafalanListState.failure('Gagal memuat statistik'),
-        (stats) {
-          final base =
-              HafalanListState.success(
-                    hafalanList: list,
-                    stats: stats,
-                    filter: _currentState?.filter ?? HafalanFilter.semua,
-                  )
-                  as HafalanListSuccess;
-          state = _withComputedLists(base);
-        },
-      ),
+      (f) => failures.add(f.toUserMessage()),
+      (r) => hafalanList = r,
     );
+    statsResult.fold(
+      (f) => failures.add(f.toUserMessage()),
+      (r) => stats = r,
+    );
+    suratResult.fold(
+      (f) => failures.add(f.toUserMessage()),
+      (r) => suratList = r,
+    );
+
+    if (failures.isNotEmpty) {
+      state = HafalanListState.failure(failures.first);
+      return;
+    }
+
+    _allSurat = suratList!;
+    final base =
+        HafalanListState.success(
+              hafalanList: hafalanList!,
+              stats: stats!,
+              filter: _currentState?.filter ?? HafalanFilter.semua,
+            )
+            as HafalanListSuccess;
+    state = _withComputedLists(base);
   }
 
   void setFilter(HafalanFilter filter) {

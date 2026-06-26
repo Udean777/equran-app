@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SuratDetailCardView extends StatefulWidget {
+class SuratDetailCardView extends ConsumerStatefulWidget {
   const SuratDetailCardView({
     required this.detail,
     required this.controller,
@@ -35,10 +35,11 @@ class SuratDetailCardView extends StatefulWidget {
   final int suratNomor;
 
   @override
-  State<SuratDetailCardView> createState() => _SuratDetailCardViewState();
+  ConsumerState<SuratDetailCardView> createState() =>
+      _SuratDetailCardViewState();
 }
 
-class _SuratDetailCardViewState extends State<SuratDetailCardView>
+class _SuratDetailCardViewState extends ConsumerState<SuratDetailCardView>
     with SingleTickerProviderStateMixin {
   late final CardViewGestureHandler gestureHandler;
   late AutoReadController _autoReadController;
@@ -53,12 +54,8 @@ class _SuratDetailCardViewState extends State<SuratDetailCardView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      final audioState = ProviderScope.containerOf(
-        context,
-      ).read(audioViewModelProvider);
-      final audioVM = ProviderScope.containerOf(
-        context,
-      ).read(audioViewModelProvider.notifier);
+      final audioState = ref.read(audioViewModelProvider);
+      final audioVM = ref.read(audioViewModelProvider.notifier);
 
       // Initialize auto-read controller
       _autoReadController = AutoReadController(

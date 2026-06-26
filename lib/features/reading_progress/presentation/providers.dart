@@ -11,8 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final readingHistoryLocalDataSourceProvider =
     Provider<ReadingHistoryLocalDataSource>((ref) {
-      final box = ref.watch(readingHistoryBoxProvider).requireValue;
-      return ReadingHistoryLocalDataSourceImpl(box);
+      return ReadingHistoryLocalDataSourceImpl(
+        ref.watch(readingHistoryBoxProvider),
+      );
     });
 
 final readingProgressRepositoryProvider =

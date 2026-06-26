@@ -27,7 +27,9 @@ class _QiblaPageState extends ConsumerState<QiblaPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(qiblaViewModelProvider.notifier).start());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(qiblaViewModelProvider.notifier).start());
+    });
   }
 
   @override

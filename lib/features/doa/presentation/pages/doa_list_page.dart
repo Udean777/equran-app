@@ -35,7 +35,9 @@ class _DoaListPageState extends ConsumerState<DoaListPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(ref.read(doaListViewModelProvider.notifier).load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(ref.read(doaListViewModelProvider.notifier).load());
+    });
   }
 
   @override
