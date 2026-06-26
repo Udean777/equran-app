@@ -12,6 +12,7 @@ abstract class Imsakiyah with _$Imsakiyah {
     required String masehi,
     required List<ImsakiyahEntry> imsakiyah,
   }) = _Imsakiyah;
+  const Imsakiyah._();
 
   ImsakiyahEntry? entryByTanggal(int tanggal) {
     for (final e in imsakiyah) {
