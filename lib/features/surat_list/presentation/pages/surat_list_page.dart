@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equran_app/core/constants/quran_constants.dart';
 import 'package:equran_app/core/router/app_routes.dart';
+import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
 import 'package:equran_app/core/widgets/app_search_bar.dart';
@@ -14,6 +15,8 @@ import 'package:equran_app/features/doa/presentation/widgets/doa_quick_actions_w
 import 'package:equran_app/features/hafalan/presentation/providers.dart';
 import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
 import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
+import 'package:equran_app/features/reading_progress/presentation/providers.dart';
+import 'package:equran_app/features/reading_progress/presentation/widgets/reading_stats_header_card.dart';
 import 'package:equran_app/features/surat_list/presentation/providers.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/murajaah_reminder_card.dart';
 import 'package:equran_app/features/surat_list/presentation/widgets/search_bar_delegate.dart';
@@ -111,10 +114,30 @@ class _SuratListHeader extends ConsumerWidget {
         ? hafalanState.suratMurajaahHariIni
         : null;
 
+    final readingProgressState = ref.watch(readingProgressViewModelProvider);
+    final readingStats = readingProgressState.statsOrNull;
+
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (readingStats != null && (readingStats.totalAyatRead > 0 || readingStats.totalHariDenganData > 0))
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.pagePadding,
+                AppDimens.spaceMD,
+                AppDimens.pagePadding,
+                AppDimens.spaceXS,
+              ),
+              child: GestureDetector(
+                onTap: () => unawaited(context.push(AppRoutes.readingStats)),
+                child: ReadingStatsHeaderCard(
+                  stats: readingStats,
+                  streak: ref.watch(quranStreakViewModelProvider).mapOrNull(loaded: (s) => s.streak) ?? 0,
+                ),
+              ),
+            ),
+
           if (lastRead != null) LastReadCard(lastRead: lastRead),
 
           if (murajaahList != null && murajaahList.isNotEmpty)

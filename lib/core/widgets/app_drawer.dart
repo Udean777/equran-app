@@ -6,7 +6,6 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -72,16 +71,15 @@ class _AppDrawerState extends State<AppDrawer> {
                     unawaited(context.push(AppRoutes.imsakiyah));
                   },
                 ),
-                if (kDebugMode)
-                  _DrawerItem(
-                    icon: Icons.auto_stories_outlined,
-                    selectedIcon: Icons.auto_stories_rounded,
-                    label: l10n.hafalanDrawer,
-                    onTap: () {
-                      Navigator.pop(context);
-                      unawaited(context.push(AppRoutes.hafalan));
-                    },
-                  ),
+                _DrawerItem(
+                  icon: Icons.auto_stories_outlined,
+                  selectedIcon: Icons.auto_stories_rounded,
+                  label: l10n.hafalanDrawer,
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push(AppRoutes.hafalan));
+                  },
+                ),
                 _DrawerItem(
                   icon: Icons.auto_stories_outlined,
                   selectedIcon: Icons.auto_stories_rounded,

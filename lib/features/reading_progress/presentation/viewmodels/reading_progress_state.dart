@@ -5,8 +5,16 @@ part 'reading_progress_state.freezed.dart';
 
 @freezed
 sealed class ReadingProgressState with _$ReadingProgressState {
+  // ignore: unused_element
+  const ReadingProgressState._();
+
   const factory ReadingProgressState.initial() = _Initial;
   const factory ReadingProgressState.loading() = _Loading;
   const factory ReadingProgressState.success(ReadingStats stats) = _Success;
   const factory ReadingProgressState.failure(String message) = _Failure;
+
+  ReadingStats? get statsOrNull => switch (this) {
+        _Success(:final stats) => stats,
+        _ => null,
+      };
 }
