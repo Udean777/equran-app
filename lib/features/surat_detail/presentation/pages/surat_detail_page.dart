@@ -131,11 +131,9 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
   }
 
   @override
-  void dispose() {
+  void deactivate() {
     // Sync posisi card ke audio aktif sebelum save last read.
-    // Mencegah "stuck ayat" saat user keluar di tengah auto-read —
-    // _maxReachedIndex mungkin belum ter-update jika animasi belum selesai.
-    // Pakai _audioViewModel (disimpan di initState) — context tidak valid di dispose().
+    // Mencegah "stuck ayat" saat user keluar di tengah auto-read.
     final currentAyat = _audioViewModel?.currentAyat;
     if (currentAyat != null && (_audioViewModel?.isPlaylistMode ?? false)) {
       final totalAyat = widget.detail.ayatList.length;
@@ -143,6 +141,11 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     }
 
     _saveLastRead();
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
     super.dispose();
   }
 

@@ -25,6 +25,8 @@ abstract final class AppRoutes {
   static const String hafalanSetoran = '/hafalan/:suratNomor/setoran';
   static const String hafalanRiwayat = '/hafalan/:suratNomor/riwayat';
   static const String statistikShalat = '/statistik-shalat';
+  static const String shalatHistory = '/shalat-history';
+  static const String shalatFocus = '/shalat-focus';
   static const String readingStats = '/reading-stats';
   static const String notificationTest = '/notification-test';
   static const String onboarding = '/onboarding';

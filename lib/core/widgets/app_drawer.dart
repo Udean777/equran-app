@@ -128,6 +128,15 @@ class _AppDrawerState extends State<AppDrawer> {
                     unawaited(context.push(AppRoutes.statistikShalat));
                   },
                 ),
+                _DrawerItem(
+                  icon: Icons.history_edu_outlined,
+                  selectedIcon: Icons.history_edu_rounded,
+                  label: l10n.riwayatRekapShalatDrawer,
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push(AppRoutes.shalatHistory));
+                  },
+                ),
 
                 const SizedBox(height: AppDimens.spaceSM),
                 const _SectionLabel(label: 'Lainnya'),

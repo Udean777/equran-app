@@ -181,5 +181,6 @@
   "tasbihSetButton": "تعيين",
   "tasbihChangeDzikir": "تغيير الذكر",
   "tasbihReset": "إعادة ضبط",
-  "tasbihDelete": "حذف"
+  "tasbihDelete": "حذف",
+  "riwayatRekapShalatDrawer": "تاريخ ملخص الصلاة"
 }

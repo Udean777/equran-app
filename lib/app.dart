@@ -44,7 +44,9 @@ class _AppState extends State<App> {
             unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
             unawaited(ref.read(quranStreakViewModelProvider.notifier).load());
             unawaited(ref.read(hafalanListViewModelProvider.notifier).load());
-            unawaited(ref.read(readingProgressViewModelProvider.notifier).load());
+            unawaited(
+              ref.read(readingProgressViewModelProvider.notifier).load(),
+            );
           });
         }
 

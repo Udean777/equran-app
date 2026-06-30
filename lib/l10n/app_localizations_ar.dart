@@ -370,4 +370,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tasbihDelete => 'حذف';
+
+  @override
+  String get riwayatRekapShalatDrawer => 'تاريخ ملخص الصلاة';
 }

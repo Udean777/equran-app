@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
@@ -9,22 +10,26 @@ import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/pages/jadwal_shalat_page.dart';
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/quran_reminder/presentation/widgets/streak_badge_slot.dart';
+import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/providers.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/widgets/daily_recap_modal.dart';
 import 'package:equran_app/features/surat_list/presentation/pages/surat_list_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_page.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class MainPage extends StatefulWidget {
+class MainPage extends ConsumerStatefulWidget {
   const MainPage({super.key, this.initialIndex = 0});
 
   final int initialIndex;
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  ConsumerState<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage>
+class _MainPageState extends ConsumerState<MainPage>
     with SingleTickerProviderStateMixin {
   late int _currentIndex;
   late final List<Widget> _pages;
@@ -46,6 +51,40 @@ class _MainPageState extends State<MainPage>
       duration: const Duration(milliseconds: 200),
     );
     unawaited(_navAnimController.forward());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_checkDailyRecap());
+    });
+  }
+
+  Future<void> _checkDailyRecap() async {
+    try {
+      final settingsBox = ref.read(settingsBoxProvider);
+      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final lastShown = settingsBox.get('last_recap_shown_date');
+
+      if (lastShown == todayStr) return; // Sudah tampil hari ini
+
+      // Ambil data kemarin
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      final yesterdayStr = DateFormat('yyyy-MM-dd').format(yesterday);
+
+      final getShalatByDate = ref.read(getShalatByDateProvider);
+      final result = await getShalatByDate(yesterdayStr);
+
+      result.fold(
+        (_) {}, // Jika error biarkan
+        (stats) {
+          final statsToShow = stats ?? ShalatDayStats(date: yesterdayStr);
+          // Hanya tampilkan jika fitur rekap menyala
+          final isEnabled = settingsBox.get('shalat_recap_enabled') != 'false';
+          if (isEnabled && mounted) {
+            unawaited(DailyRecapModal.show(context, statsToShow));
+            unawaited(settingsBox.put('last_recap_shown_date', todayStr));
+          }
+        },
+      );
+    } on Exception catch (_) {}
   }
 
   @override

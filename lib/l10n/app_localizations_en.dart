@@ -369,4 +369,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tasbihDelete => 'Delete';
+
+  @override
+  String get riwayatRekapShalatDrawer => 'Prayer Recap History';
 }

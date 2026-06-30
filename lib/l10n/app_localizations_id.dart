@@ -369,4 +369,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tasbihDelete => 'Hapus';
+
+  @override
+  String get riwayatRekapShalatDrawer => 'Riwayat Rekap Shalat';
 }

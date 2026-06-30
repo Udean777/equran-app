@@ -777,6 +777,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Hapus'**
   String get tasbihDelete;
+
+  /// Label menu drawer riwayat rekap shalat
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat Rekap Shalat'**
+  String get riwayatRekapShalatDrawer;
 }
 
 class _AppLocalizationsDelegate

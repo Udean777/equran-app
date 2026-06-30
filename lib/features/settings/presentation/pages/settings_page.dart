@@ -16,6 +16,7 @@ import 'package:equran_app/features/settings/presentation/widgets/language_selec
 import 'package:equran_app/features/settings/presentation/widgets/settings_about_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_brand_header.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_confirmation_dialog.dart';
+import 'package:equran_app/features/settings/presentation/widgets/settings_daily_recap_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_luxury_card.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_quran_reminder_section.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_shalat_notif_section.dart';
@@ -90,7 +91,11 @@ class SettingsPage extends ConsumerWidget {
             icon: Icons.notifications_outlined,
           ),
           const SettingsLuxuryCard(
-            children: [SettingsShalatNotifSection()],
+            children: [
+              SettingsShalatNotifSection(),
+              LuxuryDivider(),
+              SettingsDailyRecapSection(),
+            ],
           ),
 
           const SizedBox(height: AppDimens.spaceMD),

@@ -504,5 +504,9 @@
   "tasbihDelete": "Hapus",
   "@tasbihDelete": {
     "description": "Tooltip tombol hapus sesi"
+  },
+  "riwayatRekapShalatDrawer": "Riwayat Rekap Shalat",
+  "@riwayatRekapShalatDrawer": {
+    "description": "Label menu drawer riwayat rekap shalat"
   }
 }
