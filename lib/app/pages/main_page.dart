@@ -65,6 +65,13 @@ class _MainPageState extends ConsumerState<MainPage>
 
       if (lastShown == todayStr) return; // Sudah tampil hari ini
 
+      if (lastShown == null) {
+        // Pengguna baru / baru pertama kali buka fitur ini
+        // Jangan tampilkan modal 'Tidak ada catatan' untuk kemarin.
+        unawaited(settingsBox.put('last_recap_shown_date', todayStr));
+        return;
+      }
+
       // Ambil data kemarin
       final yesterday = DateTime.now().subtract(const Duration(days: 1));
       final yesterdayStr = DateFormat('yyyy-MM-dd').format(yesterday);
