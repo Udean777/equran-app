@@ -181,5 +181,6 @@
   "tasbihSetButton": "Set",
   "tasbihChangeDzikir": "Change Dzikir",
   "tasbihReset": "Reset",
-  "tasbihDelete": "Delete"
+  "tasbihDelete": "Delete",
+  "riwayatRekapShalatDrawer": "Prayer Recap History"
 }

@@ -5,6 +5,7 @@ import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/features/settings/presentation/constants/settings_constants.dart';
 import 'package:equran_app/features/settings/presentation/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Widget header brand premium untuk halaman Pengaturan (Settings).
 ///
@@ -59,41 +60,50 @@ class SettingsBrandHeader extends StatelessWidget {
           const SizedBox(height: AppDimens.spaceSM),
 
           // Badge Versi Aplikasi
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.spaceSM,
-              vertical: AppDimens.spaceXXS,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.gold.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-              border: Border.all(
-                color: AppColors.gold.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: SettingsConstants.badgeSize,
-                  height: SettingsConstants.badgeSize,
-                  decoration: const BoxDecoration(
-                    color: AppColors.gold,
-                    shape: BoxShape.circle,
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              final versionText = snapshot.hasData
+                  ? 'v${snapshot.data!.version}'
+                  : SettingsStrings.brandVersion;
+
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.spaceSM,
+                  vertical: AppDimens.spaceXXS,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                  border: Border.all(
+                    color: AppColors.gold.withValues(alpha: 0.3),
                   ),
                 ),
-                const SizedBox(width: AppDimens.spaceXS),
-                const Text(
-                  SettingsStrings.brandVersion,
-                  style: TextStyle(
-                    fontSize: SettingsConstants.fontSizeExtraSmall,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.gold,
-                    letterSpacing: 0.5,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: SettingsConstants.badgeSize,
+                      height: SettingsConstants.badgeSize,
+                      decoration: const BoxDecoration(
+                        color: AppColors.gold,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: AppDimens.spaceXS),
+                    Text(
+                      versionText,
+                      style: const TextStyle(
+                        fontSize: SettingsConstants.fontSizeExtraSmall,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.gold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),

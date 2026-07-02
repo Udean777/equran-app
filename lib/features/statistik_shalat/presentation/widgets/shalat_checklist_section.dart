@@ -1,3 +1,4 @@
+import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
@@ -6,6 +7,7 @@ import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.
 import 'package:equran_app/features/statistik_shalat/presentation/constants/statistik_shalat_strings.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/widgets/shalat_status_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// Checklist 5 waktu shalat untuk hari ini.
 class ShalatChecklistSection extends StatelessWidget {
@@ -17,6 +19,23 @@ class ShalatChecklistSection extends StatelessWidget {
 
   final ShalatDayStats today;
   final void Function(WaktuShalat waktu, ShalatStatus status) onStatusChanged;
+
+  Future<void> _handleStatusChange(
+    BuildContext context,
+    WaktuShalat waktu,
+    ShalatStatus status,
+  ) async {
+    if (status == ShalatStatus.tepatWaktu || status == ShalatStatus.qadha) {
+      final success = await context.push<bool>(
+        '${AppRoutes.shalatFocus}?waktu=${waktu.name}',
+      );
+      if (success == true) {
+        onStatusChanged(waktu, status);
+      }
+    } else {
+      onStatusChanged(waktu, status);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +102,8 @@ class ShalatChecklistSection extends StatelessWidget {
                 waktu: waktu,
                 log: today.logFor(waktu),
                 isDark: context.isDark,
-                onStatusChanged: (status) => onStatusChanged(waktu, status),
+                onStatusChanged: (status) =>
+                    _handleStatusChange(context, waktu, status),
               ),
             ),
 

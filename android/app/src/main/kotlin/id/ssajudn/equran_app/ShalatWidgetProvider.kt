@@ -63,6 +63,8 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                 val statuses = JSONObject()
                 for (w in WAKTU_LIST) statuses.put(w, "belumDicatat")
                 put("statuses", statuses)
+                val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                put("date", todayDate)
             }
             prefs.edit().putString(DATA_KEY, defaultJson.toString()).apply()
         }
@@ -86,7 +88,18 @@ class ShalatWidgetProvider : AppWidgetProvider() {
 
         try {
             val json = JSONObject(jsonStr)
-            val statuses = json.optJSONObject("statuses") ?: JSONObject()
+            val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+            val savedDate = json.optString("date", "")
+
+            val statuses = if (savedDate != todayDate) {
+                val s = JSONObject()
+                for (w in WAKTU_LIST) s.put(w, "belumDicatat")
+                json.put("date", todayDate)
+                s
+            } else {
+                json.optJSONObject("statuses") ?: JSONObject()
+            }
+
             val current = statuses.optString(waktu, "belumDicatat")
 
             if (current != "belumDicatat") return
@@ -150,7 +163,11 @@ class ShalatWidgetProvider : AppWidgetProvider() {
             if (jsonStr != null) {
                 try {
                     val json = JSONObject(jsonStr)
-                    val totalCount = json.optInt("totalCount", 0)
+                    val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                    val savedDate = json.optString("date", "")
+                    val isToday = savedDate == todayDate
+
+                    val totalCount = if (isToday) json.optInt("totalCount", 0) else 0
                     val totalWaktu = json.optInt("totalWaktu", 5)
 
                     views.setTextViewText(
@@ -158,10 +175,10 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                         "Check-in Hari Ini  ·  $totalCount/$totalWaktu"
                     )
 
-                    val statuses = json.optJSONObject("statuses")
-                    if (statuses != null) {
-                        for (waktu in WAKTU_LIST) {
-                            val currentStatus = statuses.optString(waktu, "belumDicatat")
+                    val statuses = if (isToday) json.optJSONObject("statuses") else null
+                    
+                    for (waktu in WAKTU_LIST) {
+                        val currentStatus = if (isToday && statuses != null) statuses.optString(waktu, "belumDicatat") else "belumDicatat"
 
                             for (chipName in STATUS_NAMES) {
                                 val chipFullStatus = STATUS_MAP[chipName]!!
@@ -195,7 +212,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                                     )
                                     views.setOnClickPendingIntent(chipId, pi)
                                 }
-                            }
                         }
                     }
                 } catch (_: Exception) {

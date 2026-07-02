@@ -7,7 +7,6 @@ import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/bookmark/presentation/providers.dart';
 import 'package:equran_app/features/settings/presentation/widgets/settings_toast.dart';
 import 'package:equran_app/features/surat_detail/domain/entities/surat_detail.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,18 +61,16 @@ class SuratActionBar extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          if (kDebugMode) ...[
-            _ActionPill(
-              icon: Icons.auto_stories_outlined,
-              label: 'Hafalan',
-              onTap: () => unawaited(
-                context.push(
-                  AppRoutes.hafalanSurat(detail.nomor),
-                ),
+          _ActionPill(
+            icon: Icons.auto_stories_outlined,
+            label: 'Hafalan',
+            onTap: () => unawaited(
+              context.push(
+                AppRoutes.hafalanSurat(detail.nomor),
               ),
             ),
-            const _ActionDivider(),
-          ],
+          ),
+          const _ActionDivider(),
 
           if (downloadState.isDownloadingSurat)
             _DownloadingPill(

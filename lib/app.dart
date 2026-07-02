@@ -11,6 +11,7 @@ import 'package:equran_app/features/bookmark/presentation/providers.dart';
 import 'package:equran_app/features/hafalan/presentation/providers.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/providers.dart';
 import 'package:equran_app/features/quran_reminder/presentation/providers.dart';
+import 'package:equran_app/features/reading_progress/presentation/providers.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -43,6 +44,9 @@ class _AppState extends State<App> {
             unawaited(ref.read(bookmarkViewModelProvider.notifier).load());
             unawaited(ref.read(quranStreakViewModelProvider.notifier).load());
             unawaited(ref.read(hafalanListViewModelProvider.notifier).load());
+            unawaited(
+              ref.read(readingProgressViewModelProvider.notifier).load(),
+            );
           });
         }
 
@@ -82,6 +86,7 @@ class _AppState extends State<App> {
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             themeMode: themeState.themeMode,
+            themeAnimationDuration: Duration.zero,
             locale: langState.locale,
             // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
             // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu

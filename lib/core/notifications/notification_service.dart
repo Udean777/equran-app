@@ -12,6 +12,7 @@ const String kAdzanSubuhChannelId = 'adzan_subuh_channel_v4';
 const String kQuranReminderChannelId = 'quran_reminder_channel_v4';
 const String kImsakChannelId = 'imsak_channel_v4';
 const String kHafalanChannelId = 'hafalan_channel_v4';
+const String kShalatRecapChannelId = 'shalat_recap_channel_v1';
 
 class NotificationService {
   NotificationService(this._plugin);
@@ -265,6 +266,70 @@ class NotificationService {
     );
   }
 
+  /// Schedule notifikasi rekap shalat pada [hour]:[minute].
+  Future<void> scheduleDailyRecap({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+
+    // Jika waktu sudah lewat hari ini, schedule untuk besok
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+
+    const androidDetails = AndroidNotificationDetails(
+      kShalatRecapChannelId,
+      'Rekap Shalat Harian',
+      channelDescription: 'Pengingat pencapaian shalat harian',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      presentBanner: true,
+      presentList: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduled,
+      details,
+      androidScheduleMode: canExact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
   /// Schedule notifikasi dengan [NotificationDetails] custom.
   /// Digunakan oleh scheduler yang butuh channel spesifik (misal imsak).
   /// [matchDateTimeComponents] — null untuk one-shot, DateTimeComponents.time
@@ -418,6 +483,8 @@ class NotificationService {
     await _plugin.cancel(NotificationIds.sahur);
     // Quran reminder
     await _plugin.cancel(NotificationIds.quranReminder);
+    // Shalat recap
+    await _plugin.cancel(NotificationIds.shalatRecap);
     // Hafalan muraja'ah (ID range 20–133, satu per surat 1–114)
     for (var i = 0; i < QuranConstants.totalSurat; i++) {
       await _plugin.cancel(NotificationIds.hafalanReminderBase + i);
@@ -445,6 +512,7 @@ class NotificationService {
     await androidPlugin.deleteNotificationChannel('imsak_channel_v2');
     await androidPlugin.deleteNotificationChannel('hafalan_channel_v2');
     await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
+    await androidPlugin.deleteNotificationChannel('shalat_recap_channel');
 
     // Channel adzan
     await androidPlugin.createNotificationChannel(
@@ -493,6 +561,16 @@ class NotificationService {
         kHafalanChannelId,
         'Pengingat Hafalan',
         description: 'Pengingat jadwal murajaah hafalan Al-Quran',
+        importance: Importance.high,
+      ),
+    );
+
+    // Channel rekap shalat
+    await androidPlugin.createNotificationChannel(
+      const AndroidNotificationChannel(
+        kShalatRecapChannelId,
+        'Rekap Shalat Harian',
+        description: 'Pengingat pencapaian shalat harian',
         importance: Importance.high,
       ),
     );

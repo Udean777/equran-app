@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/shalat_widget.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/domain/services/shalat_recap_notification_service.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_stats.dart';
@@ -27,6 +28,8 @@ class StatistikShalatViewModel
   SaveShalatLog get _saveShalatLog => ref.read(saveShalatLogProvider);
   DeleteShalatByDate get _deleteShalatByDate =>
       ref.read(deleteShalatByDateProvider);
+  ShalatRecapNotificationService get _recapNotificationService =>
+      ref.read(shalatRecapNotificationServiceProvider);
 
   static final _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -64,13 +67,18 @@ class StatistikShalatViewModel
               StatistikShalatConstants.totalWaktuShalat,
             ),
           );
+          unawaited(
+            _recapNotificationService.updateSchedule(
+              todayStats ?? ShalatDayStats(date: today),
+            ),
+          );
         },
       ),
     );
   }
 
   Future<void> _syncWidgetCheckins(String today) async {
-    final widgetStatuses = await readWidgetCheckinStatuses();
+    final widgetStatuses = await readWidgetCheckinStatuses(today);
     if (widgetStatuses == null) return;
 
     for (final entry in widgetStatuses.entries) {

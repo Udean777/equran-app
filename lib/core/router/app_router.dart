@@ -17,6 +17,9 @@ import 'package:equran_app/features/onboarding/presentation/pages/onboarding_pag
 import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/reading_progress/presentation/pages/reading_stats_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
+import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/pages/focus_mode_page.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/pages/shalat_history_page.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/pages/statistik_shalat_page.dart';
 import 'package:equran_app/features/surat_detail/presentation/pages/surat_detail_page.dart';
 import 'package:equran_app/features/tasbih/presentation/pages/tasbih_history_page.dart';
@@ -178,6 +181,21 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.statistikShalat,
         builder: (context, state) => const StatistikShalatPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.shalatHistory,
+        builder: (context, state) => const ShalatHistoryPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.shalatFocus,
+        builder: (context, state) {
+          final waktuStr = state.uri.queryParameters['waktu'];
+          final waktu = WaktuShalat.values.firstWhere(
+            (w) => w.name == waktuStr,
+            orElse: () => WaktuShalat.subuh,
+          );
+          return FocusModePage(waktu: waktu);
+        },
       ),
       GoRoute(
         path: AppRoutes.readingStats,

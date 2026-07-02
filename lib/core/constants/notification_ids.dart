@@ -13,6 +13,9 @@ abstract final class NotificationIds {
   // Quran reminder
   static const int quranReminder = 10;
 
+  // Shalat recap
+  static const int shalatRecap = 11;
+
   // Hafalan reminder base (ID range: 20–133, satu per surat 1–114)
   static const int hafalanReminderBase = 20;
 

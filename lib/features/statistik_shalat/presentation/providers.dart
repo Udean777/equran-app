@@ -2,6 +2,7 @@ import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/features/statistik_shalat/data/datasources/shalat_log_local_data_source.dart';
 import 'package:equran_app/features/statistik_shalat/data/repositories/statistik_shalat_repository_impl.dart';
 import 'package:equran_app/features/statistik_shalat/domain/repositories/statistik_shalat_repository.dart';
+import 'package:equran_app/features/statistik_shalat/domain/services/shalat_recap_notification_service.dart';
 import 'package:equran_app/features/statistik_shalat/domain/services/shalat_stats_calculator.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/get_shalat_by_date.dart';
@@ -38,6 +39,15 @@ final statistikShalatRepositoryProvider = Provider<StatistikShalatRepository>((
 final shalatStatsCalculatorProvider = Provider<ShalatStatsCalculator>((ref) {
   return const ShalatStatsCalculator();
 });
+
+final shalatRecapNotificationServiceProvider =
+    Provider<ShalatRecapNotificationService>((ref) {
+      return ShalatRecapNotificationService(
+        ref.watch(notificationServiceProvider),
+        ref.watch(settingsBoxProvider),
+        ref.watch(getShalatByDateProvider),
+      );
+    });
 
 // =============================================================================
 // USE CASE PROVIDERS
