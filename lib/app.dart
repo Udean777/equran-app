@@ -86,6 +86,7 @@ class _AppState extends State<App> {
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             themeMode: themeState.themeMode,
+            themeAnimationDuration: Duration.zero,
             locale: langState.locale,
             // --- OPTIMASI: Hanya dukung locale yang benar-benar dipakai ---
             // Membatasi locale mencegah Flutter mem-bundle 70+ bahasa yang tidak perlu
