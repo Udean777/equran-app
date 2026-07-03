@@ -9,51 +9,129 @@ class ShalatStatusButtons extends StatelessWidget {
   const ShalatStatusButtons({
     required this.currentStatus,
     required this.onStatusChanged,
+    required this.onStartSholat,
+    this.isBeforeStart = false,
+    this.isTepatWaktuDisabled = false,
     super.key,
   });
 
   final ShalatStatus currentStatus;
+  final bool isBeforeStart;
+  final bool isTepatWaktuDisabled;
   final void Function(ShalatStatus status) onStatusChanged;
+  final VoidCallback onStartSholat;
 
   @override
   Widget build(BuildContext context) {
     final isSet = currentStatus != ShalatStatus.belumDicatat;
 
+    if (isSet) {
+      if (currentStatus == ShalatStatus.tidakShalat) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ShalatStatusChip(
+              label: _getLabel(currentStatus),
+              tooltip: _getTooltip(currentStatus),
+              isSelected: true,
+              selectedColor: _getColor(currentStatus),
+              onTap: () => _showAlreadySetToast(context),
+            ),
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: onStartSholat,
+              icon: const Icon(Icons.replay_rounded, size: 16),
+              label: const Text('Tebus Qadha', style: TextStyle(fontSize: 12)),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.warning,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        );
+      }
+      return ShalatStatusChip(
+        label: _getLabel(currentStatus),
+        tooltip: _getTooltip(currentStatus),
+        isSelected: true,
+        selectedColor: _getColor(currentStatus),
+        onTap: () => _showAlreadySetToast(context),
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ShalatStatusChip(
-          label: '✓',
-          tooltip: StatistikShalatStrings.statusTepatWaktu,
-          isSelected: currentStatus == ShalatStatus.tepatWaktu,
-          selectedColor: AppColors.success,
-          onTap: isSet
-              ? () => _showAlreadySetToast(context)
-              : () => onStatusChanged(ShalatStatus.tepatWaktu),
-        ),
-        const SizedBox(width: AppDimens.spaceXS),
-        ShalatStatusChip(
-          label: 'Q',
-          tooltip: StatistikShalatStrings.statusQadha,
-          isSelected: currentStatus == ShalatStatus.qadha,
-          selectedColor: AppColors.warning,
-          onTap: isSet
-              ? () => _showAlreadySetToast(context)
-              : () => onStatusChanged(ShalatStatus.qadha),
+        FilledButton.tonal(
+          onPressed: isBeforeStart ? onStartSholat : onStartSholat,
+          style: FilledButton.styleFrom(
+            backgroundColor: isBeforeStart
+                ? (context.isDark ? Colors.grey[800] : Colors.grey[200])
+                : (isTepatWaktuDisabled
+                      ? AppColors.warning.withValues(alpha: 0.1)
+                      : AppColors.success.withValues(alpha: 0.1)),
+            foregroundColor: isBeforeStart
+                ? Colors.grey
+                : (isTepatWaktuDisabled
+                      ? AppColors.warning
+                      : AppColors.success),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            minimumSize: const Size(0, 32),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimens.radiusSM),
+              side: BorderSide(
+                color: isBeforeStart
+                    ? Colors.transparent
+                    : (isTepatWaktuDisabled
+                          ? AppColors.warning
+                          : AppColors.success),
+              ),
+            ),
+          ),
+          child: Text(
+            isBeforeStart
+                ? 'Belum Waktunya'
+                : (isTepatWaktuDisabled ? 'Sholat (Qadha)' : 'Mulai Sholat'),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
         ),
         const SizedBox(width: AppDimens.spaceXS),
         ShalatStatusChip(
           label: '✗',
           tooltip: StatistikShalatStrings.statusTidakShalat,
-          isSelected: currentStatus == ShalatStatus.tidakShalat,
-          selectedColor: AppColors.error,
-          onTap: isSet
-              ? () => _showAlreadySetToast(context)
-              : () => onStatusChanged(ShalatStatus.tidakShalat),
+          isSelected: false,
+          selectedColor: isBeforeStart ? Colors.grey : AppColors.error,
+          onTap: () => onStatusChanged(ShalatStatus.tidakShalat),
         ),
       ],
     );
   }
+
+  String _getLabel(ShalatStatus status) => switch (status) {
+    ShalatStatus.tepatWaktu => '✓',
+    ShalatStatus.qadha => 'Q',
+    ShalatStatus.tidakShalat => '✗',
+    ShalatStatus.belumDicatat => '',
+  };
+
+  String _getTooltip(ShalatStatus status) => switch (status) {
+    ShalatStatus.tepatWaktu => StatistikShalatStrings.statusTepatWaktu,
+    ShalatStatus.qadha => StatistikShalatStrings.statusQadha,
+    ShalatStatus.tidakShalat => StatistikShalatStrings.statusTidakShalat,
+    ShalatStatus.belumDicatat => '',
+  };
+
+  Color _getColor(ShalatStatus status) => switch (status) {
+    ShalatStatus.tepatWaktu => AppColors.success,
+    ShalatStatus.qadha => AppColors.warning,
+    ShalatStatus.tidakShalat => AppColors.error,
+    ShalatStatus.belumDicatat => AppColors.outline,
+  };
 
   void _showAlreadySetToast(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(

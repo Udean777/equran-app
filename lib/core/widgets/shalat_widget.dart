@@ -9,6 +9,7 @@ class ShalatWidgetData {
     required this.totalCount,
     required this.totalWaktu,
     required this.statuses,
+    required this.jadwal,
   });
 
   factory ShalatWidgetData.fromDayStats(
@@ -16,12 +17,14 @@ class ShalatWidgetData {
     int jumlahShalat,
     int totalWaktu,
     Map<String, String> statuses,
+    Map<String, String> jadwal,
   ) {
     return ShalatWidgetData(
       date: date,
       totalCount: jumlahShalat,
       totalWaktu: totalWaktu,
       statuses: statuses,
+      jadwal: jadwal,
     );
   }
 
@@ -32,6 +35,9 @@ class ShalatWidgetData {
       totalCount: map['totalCount'] as int,
       totalWaktu: map['totalWaktu'] as int,
       statuses: Map<String, String>.from(map['statuses'] as Map),
+      jadwal: map['jadwal'] != null
+          ? Map<String, String>.from(map['jadwal'] as Map)
+          : {},
     );
   }
 
@@ -39,12 +45,14 @@ class ShalatWidgetData {
   final int totalCount;
   final int totalWaktu;
   final Map<String, String> statuses;
+  final Map<String, String> jadwal;
 
   String toJson() => jsonEncode({
     'date': date,
     'totalCount': totalCount,
     'totalWaktu': totalWaktu,
     'statuses': statuses,
+    'jadwal': jadwal,
   });
 
   static const _waktuKeys = [
@@ -75,28 +83,19 @@ class ShalatWidgetData {
   }
 }
 
-/// Read widget check-in statuses from SharedPreferences.
-/// Returns null if no data, parse error, or date mismatch.
-Future<Map<String, String>?> readWidgetCheckinStatuses(String today) async {
-  final jsonStr = await HomeWidget.getWidgetData<String>('shalat_widget_data');
-  if (jsonStr == null) return null;
-  try {
-    final data = ShalatWidgetData.fromJson(jsonStr);
-    if (data.date != today) return null;
-    return data.statuses;
-  } on FormatException catch (_) {
-    return null;
-  }
-}
-
 /// Update the home screen widget with current shalat data.
-Future<void> updateShalatWidget(ShalatDayStats today, int totalWaktu) async {
+Future<void> updateShalatWidget(
+  ShalatDayStats today,
+  int totalWaktu,
+  Map<String, String>? jadwal,
+) async {
   final statuses = ShalatWidgetData.statusesFromDay(today);
   final data = ShalatWidgetData.fromDayStats(
     today.date,
     today.jumlahShalat,
     totalWaktu,
     statuses,
+    jadwal ?? {},
   );
   await HomeWidget.saveWidgetData('shalat_widget_data', data.toJson());
   await HomeWidget.updateWidget(
