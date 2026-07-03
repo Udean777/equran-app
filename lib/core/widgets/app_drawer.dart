@@ -129,6 +129,15 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 _DrawerItem(
+                  icon: Icons.emoji_events_outlined,
+                  selectedIcon: Icons.emoji_events_rounded,
+                  label: 'Pencapaian',
+                  onTap: () {
+                    Navigator.pop(context);
+                    unawaited(context.push(AppRoutes.badges));
+                  },
+                ),
+                _DrawerItem(
                   icon: Icons.history_edu_outlined,
                   selectedIcon: Icons.history_edu_rounded,
                   label: l10n.riwayatRekapShalatDrawer,

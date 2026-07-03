@@ -6,6 +6,7 @@ import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_compass_painters.dart';
 import 'package:equran_app/features/qibla/presentation/widgets/qibla_status_badges.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Widget kompas kiblat — berputar smooth, glow saat aligned, label Mekah jelas.
 class QiblaCompassWidget extends StatefulWidget {
@@ -30,6 +31,7 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
   late Animation<double> _glowAnim;
 
   bool _wasAligned = false;
+  DateTime _lastHaptic = DateTime(2000);
 
   @override
   void initState() {
@@ -58,6 +60,7 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
   void didUpdateWidget(QiblaCompassWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     final isAligned = _isAligned(widget.qiblaAngle);
+
     if (isAligned && !_wasAligned) {
       unawaited(_pulseController.repeat(reverse: true));
       unawaited(_glowController.forward());
@@ -68,6 +71,16 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
       unawaited(_glowController.reverse());
     }
     _wasAligned = isAligned;
+
+    // Haptic feedback at tighter 2-degree threshold, debounce 500ms
+    final isHapticAligned = _isHapticAligned(widget.qiblaAngle);
+    if (isHapticAligned) {
+      final now = DateTime.now();
+      if (now.difference(_lastHaptic) > const Duration(milliseconds: 500)) {
+        _lastHaptic = now;
+        unawaited(HapticFeedback.mediumImpact());
+      }
+    }
   }
 
   @override
@@ -77,10 +90,18 @@ class _QiblaCompassWidgetState extends State<QiblaCompassWidget>
     super.dispose();
   }
 
+  static const _hapticThreshold = 2.0;
+
   bool _isAligned(double angle) {
     final normalized = angle % 360;
     return normalized <= qiblaAlignedThreshold ||
         normalized >= (360 - qiblaAlignedThreshold);
+  }
+
+  bool _isHapticAligned(double angle) {
+    final normalized = angle % 360;
+    return normalized <= _hapticThreshold ||
+        normalized >= (360 - _hapticThreshold);
   }
 
   @override

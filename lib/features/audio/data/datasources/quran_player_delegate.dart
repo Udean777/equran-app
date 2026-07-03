@@ -116,11 +116,13 @@ class QuranPlayerDelegate {
       onMediaItemChanged(
         MediaItem(
           id: url,
-          title: 'Ayat $ayatNomor',
+          title: suratName != null
+              ? '$suratName: $ayatNomor'
+              : 'Ayat $ayatNomor',
           artist: qari.name,
-          album: suratName ?? 'Al-Quran',
-          displayTitle: 'Ayat $ayatNomor',
-          displaySubtitle: qari.name,
+          album: 'Al-Quran',
+          displayTitle: suratName ?? 'Al-Quran',
+          displaySubtitle: 'Ayat $ayatNomor • ${qari.name}',
         ),
       );
 

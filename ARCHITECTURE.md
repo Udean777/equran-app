@@ -9,7 +9,7 @@ feature_name/
 │   ├── datasources/      Local/remote data access
 │   ├── models/           DTOs, JSON serialization
 │   ├── repositories/     Repository implementations
-│   └── services/         Infrastructure services (schedulers, etc)
+│   └── services/         Infrastructure services (schedulers, offline calc, etc)
 ├── domain/
 │   ├── constants/        Business rules, thresholds
 │   ├── entities/         Business models
@@ -213,4 +213,6 @@ class AudioViewModel extends Notifier<AudioPlayerState> {
 | Notifications | `flutter_local_notifications` |
 | GPS | `geolocator` + `geocoding` |
 | Qibla compass | `flutter_compass` |
+| Prayer times (offline) | `adhan` (astronomical algorithm) |
+| Wakelock | `wakelock_plus` |
 | Location matching | Custom `LocationMatchingService` |

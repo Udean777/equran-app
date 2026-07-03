@@ -133,10 +133,10 @@ class ShalatChecklistSection extends StatelessWidget {
 
                 if (startStr != null && endStr != null) {
                   final now = DateTime.now();
-                  
+
                   final startParts = startStr.split(':');
                   final endParts = endStr.split(':');
-                  
+
                   if (startParts.length == 2 && endParts.length == 2) {
                     final startHour = int.tryParse(startParts[0]) ?? 0;
                     final startMinute = int.tryParse(startParts[1]) ?? 0;
@@ -150,7 +150,7 @@ class ShalatChecklistSection extends StatelessWidget {
                       startHour,
                       startMinute,
                     );
-                    
+
                     final endTime = DateTime(
                       now.year,
                       now.month,
@@ -198,7 +198,9 @@ class ShalatChecklistSection extends StatelessWidget {
                     );
                     return;
                   }
-                  unawaited(_startSholatMode(context, waktu, isTepatWaktuDisabled));
+                  unawaited(
+                    _startSholatMode(context, waktu, isTepatWaktuDisabled),
+                  );
                 },
               );
             }),

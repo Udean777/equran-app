@@ -5,7 +5,7 @@
   <p>
     <img src="https://img.shields.io/badge/Flutter-3.22.0-02569B?logo=flutter&style=for-the-badge" alt="Flutter Version">
     <img src="https://img.shields.io/badge/Dart-3.8.0-0175C2?logo=dart&style=for-the-badge" alt="Dart Version">
-    <img src="https://img.shields.io/badge/version-0.4.0%2B5-4CAF50?style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.6.0%2B7-4CAF50?style=for-the-badge" alt="Version">
     <img src="https://img.shields.io/badge/Architecture-Clean-4CAF50?style=for-the-badge" alt="Clean Architecture">
     <img src="https://img.shields.io/badge/State%20Management-Riverpod-764ABC?logo=riverpod&style=for-the-badge" alt="Riverpod">
     <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License">
@@ -48,17 +48,17 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 
 ### 🕌 Ibadah & Spiritual
 
-- **Jadwal Shalat Otomatis** — Waktu shalat fardhu lima waktu akurat sesuai koordinat GPS real-time. Dilengkapi nama wilayah yang ter-reverse secara dinamis menggunakan _geocoding_.
-- **Timezone Tangguh & Notifikasi Adzan** — Inisialisasi timezone otomatis yang beradaptasi dengan nama zona waktu lokal (WIB, WITA, WIT, dll.). Notifikasi adzan latar belakang berjalan andal pada Android dan iOS tanpa terputus ketika user berinteraksi dengan notification shade.
+- **Jadwal Shalat 100% Offline** — Waktu shalat fardhu dihitung langsung di perangkat menggunakan algoritma astronomi (Muslim World League) via package `adhan`. Tidak perlu koneksi internet — begitu GPS aktif, jadwal muncul instan. API tetap sebagai sumber utama, kalkulasi offline sebagai fallback andal.
+- **Notifikasi Adzan Full-Screen & Anti-Doze** — Ketika waktu shalat tiba, layar menyala dengan notifikasi layar penuh (`fullScreenIntent`) dan suara adzan diputar tanpa terpotong. `WakelockPlus` menjaga perangkat tidak tidur selama adzan. Android `SCHEDULE_EXACT_ALARM` & `FOREGROUND_SERVICE_MEDIA_PLAYBACK` telah terkonfigurasi.
 - **Alarm Sahur & Imsak Independen** — Pengaturan alarm sahur (default 60 menit sebelum imsak) dan alarm imsak yang terjadwal secara terpisah dari notifikasi shalat, menghindari resiko bentrok atau terhapus saat proses sinkronisasi ulang.
-- **Kompas Kiblat Offline (Qibla Finder)** — Kompas penunjuk arah kiblat real-time yang bekerja 100% offline dengan memanfaatkan sensor magnetometer perangkat fisik.
+- **Kompas Kiblat Smooth (Low-Pass Filter)** — Kompas penunjuk arah kiblat real-time dengan low-pass filter (EMA) untuk meredam noise sensor, menghasilkan pergerakan jarum yang mulus tanpa patah-patah. Dilengkapi haptic feedback saat jarum < 2° dari kiblat.
 - **Tasbih Digital Interaktif** — Penghitung zikir yang dilengkapi dengan feedback getar (_haptic feedback_), target hitungan fleksibel (33, 99, atau custom), serta pencatatan riwayat sesi zikir yang lengkap.
 - **Kumpulan Doa Harian** — Doa-doa pilihan lengkap dengan teks Arab, latin, terjemahan, dan bookmark doa, serta rekomendasi cerdas sesuai waktu hari (Pagi, Siang, Malam).
 
 ### 📊 Progres & Statistik Ibadah
 
 - **Statistik Baca (Reading Progress)** — Lacak progress tilawah secara otomatis melalui deteksi scroll aktif (_viewport detection_). Menampilkan visualisasi premium berupa heatmap aktivitas 90 hari (GitHub-style), progress bar juz (30 juz), surat yang paling sering dibaca, dan grafik membaca harian.
-- **Statistik Shalat Harian** — Pencatatan mandiri (_self-logging_) shalat fardhu dengan status shalat (Tepat Waktu, Qadha, Tidak Shalat). Dilengkapi kalender interaktif bulanan, streak shalat berturut-turut, grafik batang (bar chart) mingguan, checklist reminder otomatis, serta fitur export log data shalat ke format CSV.
+- **Statistik Shalat Harian + Gamifikasi** — Pencatatan mandiri (_self-logging_) shalat fardhu dengan status shalat (Tepat Waktu, Qadha, Tidak Shalat). Dilengkapi kalender interaktif bulanan, streak shalat berturut-turut, grafik batang (bar chart) mingguan, checklist reminder otomatis, serta fitur export log data shalat ke format CSV. **Gamifikasi**: sistem badge (🔥 Api Istiqomah, Pejuang Subuh, Hari Sempurna, dll.) yang dihitung _on-the-fly_ dari riwayat shalat. Notifikasi qadha cerdas jam 21:00 yang menyebut shalat mana yang terlewat.
 - **Hafalan Tracker & Spaced Repetition** — Lacak progres hafalan per ayat, per surat, dan per juz. Dilengkapi mode setoran (self-test mode dengan menyembunyikan teks Arab), pengingat muraja'ah otomatis berbasis metode _spaced repetition_ (interval 1 → 3 → 7 → 30 → 90 hari), dan notifikasi muraja'ah harian.
 - **🤖 AI Setoran Hafalan (Whisper STT)** — Fitur revolusioner untuk mengevaluasi hafalan secara otomatis menggunakan teknologi **Whisper Speech-to-Text** dari OpenAI. Rekam bacaan hafalan, sistem AI akan mentranskrip dan membandingkan dengan teks asli, lalu memberikan skor akurasi real-time (Character Error Rate). Threshold passing default 85%, dengan feedback detail per kata yang salah. Backend Python (FastAPI + faster-whisper) berjalan di **Hugging Face Spaces** dengan 2 vCPU dan 16GB RAM untuk performa optimal.
 - **Quran Daily Streak & Bookmark** — Hitung konsistensi membaca Al-Quran harian dengan streak counter serta sistem penanda halaman/bookmark multi-kategori yang aman.
@@ -154,6 +154,8 @@ flowchart TB
 | **`geolocator`**                      |      `^13.0.4`      | Mengakses lokasi GPS untuk jadwal shalat & kiblat                  |
 | **`geocoding`**                       |      `^3.0.0`       | Konversi koordinat lokasi GPS ke nama kota/wilayah                 |
 | **`flutter_compass`**                 |      `^0.8.1`       | Sensor kompas fisik untuk Qibla Finder                             |
+| **`adhan`**                           |      `^2.0.0`       | Algoritma astronomi untuk kalkulasi waktu shalat offline           |
+| **`wakelock_plus`**                   |      `^1.3.3`       | Menjaga layar tetap menyala selama playback adzan                  |
 | **`share_plus`**                      |      `^10.1.4`      | Berbagi konten (teks & gambar ayat) ke media sosial                |
 | **`table_calendar`**                  |      `^3.1.2`       | Kalender bulanan interaktif untuk log Statistik Shalat             |
 | **`fpdart`**                          |      `^1.1.0`       | Penerapan Functional Programming (`Either`, `Failure`)              |

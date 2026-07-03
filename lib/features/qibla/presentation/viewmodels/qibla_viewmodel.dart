@@ -18,12 +18,18 @@ class QiblaViewModel extends AutoDisposeNotifier<QiblaState> {
       ref.read(watchQiblaDirectionProvider);
 
   /// Threshold minimum perubahan sudut (derajat) sebelum emit state baru.
-  static const _angleThreshold = 1.0;
+  static const _angleThreshold = 0.5;
+
+  /// Smoothing factor for low-pass filter (0.0–1.0).
+  /// Higher = smoother but more lag.
+  static const _filterAlpha = 0.25;
 
   /// Timeout init (permission + GPS) — 15 detik.
   static const _initTimeout = Duration(seconds: 15);
 
   double? _lastEmittedAngle;
+  double _filteredHeading = 0;
+  bool _hasFiltered = false;
 
   @override
   QiblaState build() {
@@ -83,11 +89,25 @@ class QiblaViewModel extends AutoDisposeNotifier<QiblaState> {
       (stream) {
         _subscription = stream.listen(
           (direction) {
-            final heading = direction.deviceHeading;
+            final rawHeading = direction.deviceHeading;
+
+            // Low-pass filter untuk meredam noise sensor
+            if (!_hasFiltered) {
+              _filteredHeading = rawHeading;
+              _hasFiltered = true;
+            } else {
+              _filteredHeading =
+                  _filterAlpha * rawHeading +
+                  (1 - _filterAlpha) * _filteredHeading;
+            }
+
             if (_lastEmittedAngle == null ||
-                (heading - _lastEmittedAngle!).abs() > _angleThreshold) {
-              _lastEmittedAngle = heading;
-              state = QiblaState.loaded(direction: direction);
+                (_filteredHeading - _lastEmittedAngle!).abs() >
+                    _angleThreshold) {
+              _lastEmittedAngle = _filteredHeading;
+              state = QiblaState.loaded(
+                direction: direction.copyWith(deviceHeading: _filteredHeading),
+              );
             }
           },
           onError: (Object e) {

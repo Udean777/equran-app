@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equran_app/core/location/location_matching_service.dart';
 import 'package:equran_app/core/location/location_service.dart';
 import 'package:equran_app/core/providers.dart';
+import 'package:equran_app/features/jadwal_shalat/data/services/offline_jadwal_shalat_service.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
@@ -36,6 +37,8 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
       ref.read(shalatNotifSchedulerServiceProvider);
   LocationMatchingService get _matchingService =>
       ref.read(locationMatchingServiceProvider);
+  OfflineJadwalShalatService get _offlineService =>
+      ref.read(offlineJadwalShalatServiceProvider);
 
   static const _defaultKabkota = 'Kota Jakarta Pusat';
 
@@ -291,16 +294,43 @@ class JadwalShalatViewModel extends AutoDisposeNotifier<JadwalShalatState> {
         tahun: targetTahun,
       ),
     );
-    jadwalResult.fold(
-      (failure) => state = JadwalShalatState.failure(
-        failure: failure,
-        provinsi: provinsiList,
-        selectedProvinsi: selectedProvinsi,
-        kabkota: kabkota,
-        selectedKabkota: selectedKabkota,
-        bulan: targetBulan,
-        tahun: targetTahun,
-      ),
+    await jadwalResult.fold(
+      (failure) async {
+        final pos = await _locationService.getPosition();
+        if (pos != null) {
+          final offline = _offlineService.calculate(
+            latitude: pos.latitude,
+            longitude: pos.longitude,
+            bulan: targetBulan,
+            tahun: targetTahun,
+            provinsi: selectedProvinsi,
+            kabkota: selectedKabkota,
+          );
+          state = JadwalShalatState.success(
+            provinsi: provinsiList,
+            selectedProvinsi: selectedProvinsi,
+            kabkota: kabkota,
+            selectedKabkota: selectedKabkota,
+            jadwal: offline,
+            bulan: targetBulan,
+            tahun: targetTahun,
+          );
+          final now = DateTime.now();
+          if (targetBulan == now.month && targetTahun == now.year) {
+            _scheduleNotifications(offline, targetBulan, targetTahun);
+          }
+        } else {
+          state = JadwalShalatState.failure(
+            failure: failure,
+            provinsi: provinsiList,
+            selectedProvinsi: selectedProvinsi,
+            kabkota: kabkota,
+            selectedKabkota: selectedKabkota,
+            bulan: targetBulan,
+            tahun: targetTahun,
+          );
+        }
+      },
       (jadwal) {
         state = JadwalShalatState.success(
           provinsi: provinsiList,

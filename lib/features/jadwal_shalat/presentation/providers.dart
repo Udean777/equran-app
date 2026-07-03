@@ -4,6 +4,7 @@ import 'package:equran_app/features/jadwal_shalat/data/datasources/jadwal_shalat
 import 'package:equran_app/features/jadwal_shalat/data/repositories/jadwal_shalat_repository_impl.dart';
 import 'package:equran_app/features/jadwal_shalat/data/repositories/shalat_location_repository_impl.dart';
 import 'package:equran_app/features/jadwal_shalat/data/repositories/shalat_notif_prefs_repository_impl.dart';
+import 'package:equran_app/features/jadwal_shalat/data/services/offline_jadwal_shalat_service.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/jadwal_shalat_repository.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/repositories/shalat_location_repository.dart';
@@ -96,6 +97,14 @@ final shalatNotificationSchedulerProvider =
         ref.watch(notificationServiceProvider),
       );
     });
+
+// ─── Offline Jadwal Service ───────────────────────────────────────────────
+
+final offlineJadwalShalatServiceProvider = Provider<OfflineJadwalShalatService>(
+  (ref) {
+    return const OfflineJadwalShalatService();
+  },
+);
 
 // ─── Services ──────────────────────────────────────────────────────────────
 

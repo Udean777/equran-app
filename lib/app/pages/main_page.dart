@@ -4,6 +4,7 @@ import 'package:equran_app/core/providers.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/widgets/app_drawer.dart';
+import 'package:equran_app/core/widgets/streak_badge.dart';
 import 'package:equran_app/features/audio/presentation/providers.dart';
 import 'package:equran_app/features/audio/presentation/widgets/audio_player_bar.dart';
 import 'package:equran_app/features/doa/presentation/pages/doa_list_page.dart';
@@ -112,7 +113,15 @@ class _MainPageState extends ConsumerState<MainPage>
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      drawer: const AppDrawer(streakBadge: StreakBadgeSlot()),
+      drawer: const AppDrawer(
+        streakBadge: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StreakBadgeSlot(),
+            _ShalatStreakBadge(),
+          ],
+        ),
+      ),
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
@@ -242,6 +251,23 @@ class _LuxuryBottomNav extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ShalatStreakBadge extends ConsumerWidget {
+  const _ShalatStreakBadge();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final streak = ref.watch(streakCountProvider);
+    if (streak == 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: StreakBadge(
+        streak: streak,
+        variant: StreakBadgeVariant.onPrimary,
+      ),
     );
   }
 }
