@@ -17,6 +17,11 @@ class QuranPlayerDelegate {
     required this.onMediaItemChanged,
   });
 
+  /// Dipanggil saat ayat selesai dimainkan secara natural (ProcessingState.completed).
+  /// Pihak pemanggil (AudioCompositeHandler) yang memutuskan apakah perlu advance
+  /// playlist atau emit idle — delegate tidak lagi menentukan hal ini sendiri.
+  VoidCallback? onAyatCompleted;
+
   /// Callback ke composite handler saat state berubah.
   final void Function(AudioPlayerState state) onStateChanged;
   final void Function({required bool playing, required Duration position})
@@ -62,9 +67,11 @@ class QuranPlayerDelegate {
       );
       onPlaybackStateChanged(playing: false, position: position);
     } else if (playerState.processingState == ProcessingState.completed) {
-      onStateChanged(const AudioPlayerState.idle());
-      _currentAyat = null;
+      // Jangan emit idle di sini — biarkan ViewModel yang memutuskan
+      // apakah perlu advance playlist atau emit idle.
+      // Dengan begitu, audio player bar tidak hilang saat ganti ayat.
       onPlaybackStateChanged(playing: false, position: Duration.zero);
+      onAyatCompleted?.call();
     } else if (playerState.playing) {
       onStateChanged(
         AudioPlayerState.playing(

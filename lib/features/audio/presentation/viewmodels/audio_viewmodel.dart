@@ -15,8 +15,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AudioViewModel extends Notifier<AudioPlayerState> {
   @override
   AudioPlayerState build() {
+    // Daftarkan callback ke handler agar ViewModel tahu saat ayat selesai.
+    // Ini menggantikan pola stream-based isIdle check, sehingga tidak ada
+    // idle state yang dikirim ke UI selama transisi antar ayat di playlist.
+    final handler = ref.read(audioCompositeHandlerProvider)
+      ..onAyatCompleted = _onAyatCompleted;
+    ref.onDispose(() {
+      unawaited(_subscription?.cancel());
+      handler.onAyatCompleted = null;
+    });
     _listenToStream();
-    ref.onDispose(() => unawaited(_subscription?.cancel()));
     return const AudioPlayerState.idle();
   }
 
@@ -64,16 +72,32 @@ class AudioViewModel extends Notifier<AudioPlayerState> {
 
       state = audioState;
 
-      if (audioState.isIdle && isPlaylistMode) {
-        unawaited(_advanceInPlaylist());
-      }
+      // Catatan: logika "idle → advance playlist" kini ditangani oleh
+      // _onAyatCompleted callback (dipanggil langsung dari delegate),
+      // bukan dari stream ini. Ini mencegah idle state muncul ke UI
+      // saat transisi antar ayat dalam playlist mode.
     });
+  }
+
+  /// Dipanggil langsung oleh AudioCompositeHandler saat ayat selesai natural.
+  /// Tidak melewati stream state, sehingga audio player bar tidak hilang.
+  void _onAyatCompleted() {
+    debugPrint('AudioViewModel: _onAyatCompleted called. isPlaylistMode: $isPlaylistMode');
+    if (isPlaylistMode) {
+      unawaited(_advanceInPlaylist());
+    }
   }
 
   Future<void> _advanceInPlaylist() async {
     final next = _playlistManager.advanceToNext();
+    debugPrint('AudioViewModel: _advanceInPlaylist, next is $next');
     if (next != null) {
       await _playAtIndex(next);
+    } else {
+      // Playlist selesai secara natural — stop player agar state
+      // kembali ke idle dan audio player bar menghilang dengan benar.
+      debugPrint('AudioViewModel: _advanceInPlaylist, playlist finished, stopping');
+      await _stopAudio();
     }
   }
 

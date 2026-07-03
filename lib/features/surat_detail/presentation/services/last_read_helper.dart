@@ -10,9 +10,11 @@ abstract final class LastReadHelper {
     required BookmarkViewModel viewModel,
     required CardStackState cardState,
     required SuratDetail detail,
+    int? overrideAyatNomor,
   }) {
     final totalAyat = detail.ayatList.length;
-    final ayatNomor = cardState.lastReadAyatNomor.clamp(1, totalAyat);
+    final baseAyatNomor = overrideAyatNomor ?? cardState.lastReadAyatNomor;
+    final ayatNomor = baseAyatNomor.clamp(1, totalAyat);
     final scrollPercent = totalAyat > 0
         ? (ayatNomor / totalAyat).clamp(0.0, 1.0)
         : 0.0;

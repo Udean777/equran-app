@@ -107,15 +107,28 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     // 3. 0 (info card)
     var initialIndex = 0;
 
+    final bookmarkState = ref.read(bookmarkViewModelProvider);
+    final lastRead = bookmarkState.mapOrNull(
+      success: (s) => s.lastRead,
+    );
+
+    final isCompleted =
+        lastRead != null &&
+        lastRead.suratNomor == detail.nomor &&
+        lastRead.ayatNomor == totalAyat;
+
     if (widget.initialAyat != null) {
       initialIndex = widget.initialAyat!.clamp(1, totalAyat);
+      if (isCompleted && initialIndex == totalAyat) {
+        initialIndex = totalAyat + 1;
+      }
     } else {
-      final bookmarkState = ref.read(bookmarkViewModelProvider);
-      final lastRead = bookmarkState.mapOrNull(
-        success: (s) => s.lastRead,
-      );
       if (lastRead != null && lastRead.suratNomor == detail.nomor) {
-        initialIndex = lastRead.ayatNomor.clamp(1, totalAyat);
+        if (isCompleted) {
+          initialIndex = totalAyat + 1;
+        } else {
+          initialIndex = lastRead.ayatNomor.clamp(1, totalAyat);
+        }
       }
     }
 
@@ -132,14 +145,6 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
 
   @override
   void deactivate() {
-    // Sync posisi card ke audio aktif sebelum save last read.
-    // Mencegah "stuck ayat" saat user keluar di tengah auto-read.
-    final currentAyat = _audioViewModel?.currentAyat;
-    if (currentAyat != null && (_audioViewModel?.isPlaylistMode ?? false)) {
-      final totalAyat = widget.detail.ayatList.length;
-      ref.read(cardStackProvider(totalAyat).notifier).jumpTo(currentAyat);
-    }
-
     _saveLastRead();
     super.deactivate();
   }
@@ -157,10 +162,19 @@ class _SuratDetailViewState extends ConsumerState<_SuratDetailView> {
     final totalAyat = detail.ayatList.length;
     final cardState = ref.read(cardStackProvider(totalAyat));
 
+    int? overrideAyatNomor;
+
+    // Sync posisi last read ke audio aktif jika user keluar di tengah auto-read.
+    final currentAyat = _audioViewModel?.currentAyat;
+    if (currentAyat != null && (_audioViewModel?.isPlaylistMode ?? false)) {
+      overrideAyatNomor = currentAyat;
+    }
+
     LastReadHelper.saveLastRead(
       viewModel: viewModel,
       cardState: cardState,
       detail: detail,
+      overrideAyatNomor: overrideAyatNomor,
     );
   }
 

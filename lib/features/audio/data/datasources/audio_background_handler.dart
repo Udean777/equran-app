@@ -31,6 +31,10 @@ class AudioCompositeHandler extends BaseAudioHandler {
   /// Stream state audio untuk dikonsumsi AudioViewModel.
   Stream<AudioPlayerState> get audioStateStream => _stateController.stream;
 
+  /// Dipanggil oleh AudioViewModel saat ayat selesai natural (ProcessingState.completed).
+  /// AudioViewModel yang menentukan apakah perlu advance playlist atau emit idle.
+  VoidCallback? onAyatCompleted;
+
   Future<void> _init() async {
     _quranDelegate = QuranPlayerDelegate(
       onStateChanged: (state) {
@@ -41,6 +45,11 @@ class AudioCompositeHandler extends BaseAudioHandler {
       onPlaybackStateChanged: _updatePlaybackState,
       onMediaItemChanged: mediaItem.add,
     );
+
+    // Forward ayat-completed signal ke ViewModel via mutable callback.
+    // Lambda ini membaca onAyatCompleted secara dinamis, sehingga ViewModel
+    // bisa meng-assign callback kapan saja setelah handler dibuat.
+    _quranDelegate.onAyatCompleted = () => onAyatCompleted?.call();
 
     _adzanDelegate = AdzanPlayerDelegate(
       onPlaybackStateChanged: ({required playing, required position}) {
