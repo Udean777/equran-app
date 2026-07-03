@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equran_app/core/fullscreen/fullscreen_provider.dart';
 import 'package:equran_app/core/locale/providers.dart';
 import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
@@ -74,6 +75,9 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 onTap: () => _showFontSettingsSheet(context),
               ),
+              const LuxuryDivider(),
+              // Fullscreen
+              const _FullscreenTile(),
               const LuxuryDivider(),
               // Bahasa
               _LanguageTile(
@@ -211,6 +215,52 @@ class SettingsPage extends ConsumerWidget {
       showAppBottomSheet<void>(
         context,
         builder: (_) => LanguageSelectorSheet(current: current, l10n: l10n),
+      ),
+    );
+  }
+}
+
+class _FullscreenTile extends ConsumerWidget {
+  const _FullscreenTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = context.isDark;
+    final isFullscreen = ref.watch(fullscreenProvider);
+    return LuxuryListTile(
+      icon: Icons.fullscreen_rounded,
+      title: SettingsStrings.fullscreenToggle,
+      subtitle: SettingsStrings.fullscreenSubtitle,
+      iconColor: isFullscreen
+          ? (isDark ? AppColors.primaryLighter : AppColors.primary)
+          : (isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary),
+      iconBackgroundColor: isFullscreen
+          ? (isDark
+                ? AppColors.primaryLight.withValues(alpha: 0.2)
+                : AppColors.primaryContainer)
+          : (isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant),
+      trailing: Switch(
+        value: isFullscreen,
+        onChanged: (_) {
+          unawaited(
+            ref.read(fullscreenProvider.notifier).toggle(),
+          );
+          showSettingsToast(
+            context,
+            isFullscreen
+                ? SettingsStrings.fullscreenInactive
+                : SettingsStrings.fullscreenActive,
+            isSuccess: !isFullscreen,
+          );
+        },
+        activeThumbColor: AppColors.onPrimary,
+        activeTrackColor: isDark ? AppColors.primaryLighter : AppColors.primary,
+        inactiveThumbColor: isDark
+            ? AppColors.onSurfaceDarkVariant
+            : AppColors.textTertiary,
+        inactiveTrackColor: isDark
+            ? AppColors.surfaceDarkVariant
+            : AppColors.surfaceVariant,
       ),
     );
   }

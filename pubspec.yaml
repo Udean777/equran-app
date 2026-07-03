@@ -1,13 +1,14 @@
 name: equran_app
 description: "Qurva: Quran & Islamic Habit Tracker"
 publish_to: "none"
-version: 0.5.0+6
+version: 0.6.0+7
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
   flutter: ">=3.22.0"
 
 dependencies:
+  adhan: ^2.0.0
   audio_service: ^0.18.0
   audio_session: ^0.1.21
   cupertino_icons: ^1.0.8

@@ -13,17 +13,22 @@ class ImsakiyahTable extends StatelessWidget {
   final List<ImsakiyahEntry> entries;
   final int todayTanggal;
 
-  static const _headers = [
-    'Tgl',
-    'Imsak',
-    'Subuh',
-    'Terbit',
-    'Dhuha',
-    'Dzuhur',
-    'Ashar',
-    'Maghrib',
-    'Isya',
-  ];
+  static List<String> get _headers {
+    final dzuhur = DateTime.now().weekday == DateTime.friday
+        ? 'Jumat'
+        : 'Dzuhur';
+    return [
+      'Tgl',
+      'Imsak',
+      'Subuh',
+      'Terbit',
+      'Dhuha',
+      dzuhur,
+      'Ashar',
+      'Maghrib',
+      'Isya',
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

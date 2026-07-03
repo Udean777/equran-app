@@ -78,12 +78,55 @@ class _FocusModePageState extends State<FocusModePage>
     _timer?.cancel();
     unawaited(WakelockPlus.disable());
     if (mounted) {
-      context.pop(true);
+      context.pop('success');
     }
   }
 
   void _cancel() {
-    context.pop(false);
+    context.pop('cancel');
+  }
+
+  Future<void> _showCancelConfirmation() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.surfaceDark,
+          title: const Text(
+            'Nggak jadi sholat?',
+            style: TextStyle(color: AppColors.onSurfaceDark),
+          ),
+          content: Text(
+            'Jika Anda membatalkan, status sholat ${widget.waktu.label} Anda akan otomatis menjadi "Tidak Sholat" dan tidak dapat diubah.',
+            style: const TextStyle(color: AppColors.onSurfaceDarkVariant),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(
+                'Lanjut Sholat',
+                style: TextStyle(color: AppColors.gold),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(
+                'Iya, batal',
+                style: TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      _timer?.cancel();
+      unawaited(WakelockPlus.disable());
+      if (mounted) {
+        context.pop('abort');
+      }
+    }
   }
 
   String get _timerText {
@@ -119,7 +162,7 @@ class _FocusModePageState extends State<FocusModePage>
 
                   // Teks Judul
                   Text(
-                    _isFailed ? 'Khusyuk Terganggu' : 'Mode Khusyuk',
+                    _isFailed ? 'Sholat Terganggu' : 'Sholat',
                     style: AppTypography.serifHeadingMedium.copyWith(
                       color: AppColors.onSurfaceDark,
                     ),
@@ -132,7 +175,7 @@ class _FocusModePageState extends State<FocusModePage>
                     _isFailed
                         ? 'Wah, kamu ketahuan membuka aplikasi lain! Waktu shalat dibatalkan, silakan mulai dari awal jika kamu benar-benar ingin shalat.'
                         : (_isRunning
-                              ? 'Layar ini akan terus menyala. Silakan letakkan HP Anda dan tunaikan shalat ${widget.waktu.label} dengan khusyuk.'
+                              ? 'Layar ini akan terus menyala. Silakan letakkan HP Anda dan tunaikan shalat ${widget.waktu.label} dengan tenang.'
                               : 'Tentukan durasi shalat Anda. HP dilarang ditutup atau pindah aplikasi selama durasi ini.'),
                     style: const TextStyle(
                       fontSize: 15,
@@ -199,9 +242,9 @@ class _FocusModePageState extends State<FocusModePage>
                   // Tombol Aksi
                   if (_isRunning)
                     TextButton.icon(
-                      onPressed: _failFocus,
+                      onPressed: _showCancelConfirmation,
                       icon: const Icon(Icons.close_rounded),
-                      label: const Text('Batalkan Shalat'),
+                      label: const Text('Nggak jadi sholat?'),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.error,
                       ),

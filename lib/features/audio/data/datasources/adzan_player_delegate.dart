@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 /// Delegate yang handle playback audio adzan dari local asset.
 /// Digunakan oleh [AudioCompositeHandler].
@@ -86,9 +87,12 @@ class AdzanPlayerDelegate {
 
       await _player.setAsset(assetPath);
 
+      unawaited(WakelockPlus.enable());
+
       _stateSub = _player.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           _isPlaying = false;
+          unawaited(WakelockPlus.disable());
           onAdzanPlayingChanged(isPlaying: false);
           onPlaybackStateChanged(playing: false, position: Duration.zero);
           onAdzanCompleted();
@@ -124,6 +128,7 @@ class AdzanPlayerDelegate {
         await _player.stop();
       }
       _isPlaying = false;
+      await WakelockPlus.disable();
       onAdzanPlayingChanged(isPlaying: false);
       onPlaybackStateChanged(playing: false, position: Duration.zero);
 

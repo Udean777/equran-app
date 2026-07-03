@@ -24,6 +24,10 @@ abstract interface class LocationService {
   /// - GPS tidak tersedia / disabled
   /// - reverse geocode gagal menghasilkan data
   Future<DetectedLocation?> detectCurrentLocation();
+
+  /// Dapatkan posisi GPS [Position].
+  /// Return null jika gagal / permission ditolak.
+  Future<Position?> getPosition();
 }
 
 class LocationServiceImpl implements LocationService {
@@ -83,6 +87,32 @@ class LocationServiceImpl implements LocationService {
       return DetectedLocation(
         provinsi: _normalize(rawProvinsi),
         kabkota: _normalize(rawKabkota),
+      );
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
+  Future<Position?> getPosition() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return null;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: NetworkConfig.locationTimeout,
+        ),
       );
     } on Object {
       return null;

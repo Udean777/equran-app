@@ -50,10 +50,12 @@ abstract final class AppDimens {
   static const double bottomSheetInitialChildSize = 0.7;
 
   // ---------------------------------------------------------------------------
-  // Bottom nav
+  // Bottom nav — floating pill
   // ---------------------------------------------------------------------------
   static const double bottomNavHeight = 72;
   static const double bottomNavIconSize = 22;
+  static const double bottomNavFloatingMargin = 16;
+  static const double bottomNavBorderRadius = 24;
 
   // ---------------------------------------------------------------------------
   // Luxury specific

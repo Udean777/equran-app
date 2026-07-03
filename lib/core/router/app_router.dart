@@ -18,6 +18,7 @@ import 'package:equran_app/features/qibla/presentation/pages/qibla_page.dart';
 import 'package:equran_app/features/reading_progress/presentation/pages/reading_stats_page.dart';
 import 'package:equran_app/features/settings/presentation/pages/settings_page.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
+import 'package:equran_app/features/statistik_shalat/presentation/pages/badges_page.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/pages/focus_mode_page.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/pages/shalat_history_page.dart';
 import 'package:equran_app/features/statistik_shalat/presentation/pages/statistik_shalat_page.dart';
@@ -200,6 +201,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.readingStats,
         builder: (context, state) => const ReadingStatsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.badges,
+        builder: (context, state) => const BadgesPage(),
       ),
       if (kDebugMode)
         GoRoute(

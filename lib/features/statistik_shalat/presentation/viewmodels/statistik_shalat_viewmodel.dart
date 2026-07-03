@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:equran_app/core/utils/failure_extension.dart';
 import 'package:equran_app/core/widgets/shalat_widget.dart';
+import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
+import 'package:equran_app/features/jadwal_shalat/presentation/providers.dart';
+
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:equran_app/features/statistik_shalat/domain/services/shalat_recap_notification_service.dart';
 import 'package:equran_app/features/statistik_shalat/domain/usecases/delete_shalat_by_date.dart';
@@ -38,8 +41,6 @@ class StatistikShalatViewModel
 
     final today = _dateFormat.format(DateTime.now());
 
-    await _syncWidgetCheckins(today);
-
     final last30 = _generateDateRange(
       today,
       StatistikShalatConstants.statsDaysRange,
@@ -61,10 +62,30 @@ class StatistikShalatViewModel
             today: todayStats ?? ShalatDayStats(date: today),
             stats: stats,
           );
+          final jadwalState = ref.read(jadwalShalatViewModelProvider);
+          Map<String, String>? jadwalMap;
+          if (jadwalState is JadwalShalatSuccess) {
+            final todayJadwal = jadwalState.jadwal.entryByTanggal(
+              DateTime.now().day,
+            );
+            if (todayJadwal != null) {
+              String cleanTime(String t) =>
+                  t.replaceAll(RegExp('[^0-9:]'), '').trim();
+              jadwalMap = {
+                'subuh': cleanTime(todayJadwal.subuh),
+                'dzuhur': cleanTime(todayJadwal.dzuhur),
+                'ashar': cleanTime(todayJadwal.ashar),
+                'maghrib': cleanTime(todayJadwal.maghrib),
+                'isya': cleanTime(todayJadwal.isya),
+              };
+            }
+          }
+
           unawaited(
             updateShalatWidget(
               todayStats ?? ShalatDayStats(date: today),
               StatistikShalatConstants.totalWaktuShalat,
+              jadwalMap,
             ),
           );
           unawaited(
@@ -76,38 +97,6 @@ class StatistikShalatViewModel
       ),
     );
   }
-
-  Future<void> _syncWidgetCheckins(String today) async {
-    final widgetStatuses = await readWidgetCheckinStatuses(today);
-    if (widgetStatuses == null) return;
-
-    for (final entry in widgetStatuses.entries) {
-      if (entry.value == 'belumDicatat') continue;
-      try {
-        final waktu = WaktuShalat.values.firstWhere(
-          (e) => e.name == entry.key,
-        );
-        final status = _widgetStatusToShalatStatus(entry.value);
-        if (status != null) {
-          await _saveShalatLog(
-            ShalatLog(
-              date: today,
-              waktu: waktu,
-              status: status,
-              updatedAt: DateTime.now(),
-            ),
-          );
-        }
-      } on Object catch (_) {}
-    }
-  }
-
-  ShalatStatus? _widgetStatusToShalatStatus(String s) => switch (s) {
-    'tepatWaktu' => ShalatStatus.tepatWaktu,
-    'qadha' => ShalatStatus.qadha,
-    'tidakShalat' => ShalatStatus.tidakShalat,
-    _ => null,
-  };
 
   Future<void> updateShalat({
     required WaktuShalat waktu,
@@ -172,5 +161,67 @@ class StatistikShalatViewModel
       days,
       (i) => _dateFormat.format(base.subtract(Duration(days: days - 1 - i))),
     );
+  }
+
+  bool _hasAutoMarked = false;
+
+  Future<void> autoMarkMissedPrayers(JadwalShalatEntry todayJadwal) async {
+    if (_hasAutoMarked) return;
+    _hasAutoMarked = true;
+
+    final today = _dateFormat.format(DateTime.now());
+    final result = await _getShalatByDate(today);
+
+    await result.fold((_) async {}, (todayStats) async {
+      final stats = todayStats ?? ShalatDayStats(date: today);
+      var hasChanges = false;
+      final now = DateTime.now();
+
+      final times = [
+        todayJadwal.subuh,
+        todayJadwal.dzuhur,
+        todayJadwal.ashar,
+        todayJadwal.maghrib,
+        todayJadwal.isya,
+      ];
+
+      for (var i = 0; i < WaktuShalat.values.length; i++) {
+        final waktu = WaktuShalat.values[i];
+        final log = stats.logFor(waktu);
+
+        if (log.status == ShalatStatus.belumDicatat) {
+          if (i < 4) {
+            final nextTimeStr = times[i + 1];
+            final timeParts = nextTimeStr.split(':');
+            if (timeParts.length == 2) {
+              final nextHour = int.tryParse(timeParts[0]) ?? 0;
+              final nextMinute = int.tryParse(timeParts[1]) ?? 0;
+              final nextPrayerTime = DateTime(
+                now.year,
+                now.month,
+                now.day,
+                nextHour,
+                nextMinute,
+              );
+
+              if (now.isAfter(nextPrayerTime)) {
+                await _saveShalatLog(
+                  ShalatLog(
+                    date: today,
+                    waktu: waktu,
+                    status: ShalatStatus.tidakShalat,
+                    updatedAt: DateTime.now(),
+                  ),
+                );
+                hasChanges = true;
+              }
+            }
+          }
+        }
+      }
+      if (hasChanges) {
+        unawaited(load());
+      }
+    });
   }
 }

@@ -3,7 +3,6 @@ package id.ssajudn.equran_app
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -11,47 +10,17 @@ import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import org.json.JSONObject
+import java.util.Calendar
+import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class ShalatWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val PREFS_NAME = "HomeWidgetPreferences"
         private const val DATA_KEY = "shalat_widget_data"
-        private const val ACTION_SET_STATUS = "id.ssajudn.equran_app.SET_SHALAT_STATUS"
-
         private val WAKTU_LIST = listOf("subuh", "dzuhur", "ashar", "maghrib", "isya")
-        private val STATUS_NAMES = listOf("tepat", "qadha", "tidak")
-        private val STATUS_MAP = mapOf(
-            "tepat" to "tepatWaktu",
-            "qadha" to "qadha",
-            "tidak" to "tidakShalat",
-        )
-
-        private fun drawableFor(chipName: String, isSelected: Boolean): Int = when {
-            chipName == "tepat" && isSelected -> R.drawable.chip_tepat_selected
-            chipName == "tepat" && !isSelected -> R.drawable.chip_tepat_unselected
-            chipName == "qadha" && isSelected -> R.drawable.chip_qadha_selected
-            chipName == "qadha" && !isSelected -> R.drawable.chip_qadha_unselected
-            chipName == "tidak" && isSelected -> R.drawable.chip_tidak_selected
-            else -> R.drawable.chip_tidak_unselected
-        }
-
-        private fun textColorFor(chipName: String, isSelected: Boolean): Int = when {
-            isSelected -> 0xFFFFFFFF.toInt()
-            chipName == "tepat" -> 0xFF1A5C38.toInt()
-            chipName == "qadha" -> 0xFFF57F17.toInt()
-            else -> 0xFFB00020.toInt()
-        }
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        if (ACTION_SET_STATUS == intent.action) {
-            val waktu = intent.getStringExtra("waktu") ?: return
-            val targetStatus = intent.getStringExtra("targetStatus") ?: return
-            setShalatStatus(context, waktu, targetStatus)
-            return
-        }
-        super.onReceive(context, intent)
     }
 
     override fun onEnabled(context: Context) {
@@ -61,9 +30,14 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                 put("totalCount", 0)
                 put("totalWaktu", 5)
                 val statuses = JSONObject()
-                for (w in WAKTU_LIST) statuses.put(w, "belumDicatat")
+                val jadwal = JSONObject()
+                for (w in WAKTU_LIST) {
+                    statuses.put(w, "belumDicatat")
+                    jadwal.put(w, "--:--")
+                }
                 put("statuses", statuses)
-                val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                put("jadwal", jadwal)
+                val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                 put("date", todayDate)
             }
             prefs.edit().putString(DATA_KEY, defaultJson.toString()).apply()
@@ -77,54 +51,6 @@ class ShalatWidgetProvider : AppWidgetProvider() {
     ) {
         for (appWidgetId in appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId)
-        }
-    }
-
-    private fun setShalatStatus(context: Context, waktu: String, targetStatus: String) {
-        val fullStatus = STATUS_MAP[targetStatus] ?: return
-
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val jsonStr = prefs.getString(DATA_KEY, null) ?: return
-
-        try {
-            val json = JSONObject(jsonStr)
-            val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
-            val savedDate = json.optString("date", "")
-
-            val statuses = if (savedDate != todayDate) {
-                val s = JSONObject()
-                for (w in WAKTU_LIST) s.put(w, "belumDicatat")
-                json.put("date", todayDate)
-                s
-            } else {
-                json.optJSONObject("statuses") ?: JSONObject()
-            }
-
-            val current = statuses.optString(waktu, "belumDicatat")
-
-            if (current != "belumDicatat") return
-
-            statuses.put(waktu, fullStatus)
-            json.put("statuses", statuses)
-
-            var count = 0
-            for (w in WAKTU_LIST) {
-                val s = statuses.optString(w)
-                if (s == "tepatWaktu" || s == "qadha") count++
-            }
-            json.put("totalCount", count)
-
-            prefs.edit().putString(DATA_KEY, json.toString()).apply()
-
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val ids = appWidgetManager.getAppWidgetIds(
-                ComponentName(context, ShalatWidgetProvider::class.java)
-            )
-            for (id in ids) {
-                updateWidget(context, appWidgetManager, id)
-            }
-        } catch (e: Exception) {
-            Log.e("ShalatWidget", "setShalatStatus error", e)
         }
     }
 
@@ -142,86 +68,103 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                 Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
             val textPrimary = if (isDark) 0xFFE2EDE6.toInt() else 0xFF0D1F16.toInt()
+            val textSecondary = if (isDark) 0xFFA0AAB2.toInt() else 0xFF666666.toInt()
             val dividerColor = if (isDark) 0xFF2A3D2F.toInt() else 0xFFEEF4F0.toInt()
 
-            // Header text
-            views.setTextColor(R.id.widget_title, textPrimary)
-
-            // Label colors
-            for (waktu in WAKTU_LIST) {
-                val labelId = context.resources.getIdentifier(
-                    "label_$waktu", "id", context.packageName
-                )
-                if (labelId != 0) {
-                    views.setTextColor(labelId, textPrimary)
-                }
-            }
-
-            // Divider
+            views.setTextColor(R.id.next_prayer_title, textPrimary)
+            views.setTextColor(R.id.progress_text, textSecondary)
             views.setInt(R.id.divider, "setBackgroundColor", dividerColor)
 
             if (jsonStr != null) {
                 try {
                     val json = JSONObject(jsonStr)
-                    val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                    val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                     val savedDate = json.optString("date", "")
                     val isToday = savedDate == todayDate
 
                     val totalCount = if (isToday) json.optInt("totalCount", 0) else 0
                     val totalWaktu = json.optInt("totalWaktu", 5)
+                    views.setTextViewText(R.id.progress_text, "Progress Hari Ini: $totalCount/$totalWaktu")
 
-                    views.setTextViewText(
-                        R.id.widget_title,
-                        "Check-in Hari Ini  ·  $totalCount/$totalWaktu"
-                    )
+                    val statuses = if (isToday) json.optJSONObject("statuses") ?: JSONObject() else JSONObject()
+                    val jadwal = if (isToday) json.optJSONObject("jadwal") ?: JSONObject() else JSONObject()
 
-                    val statuses = if (isToday) json.optJSONObject("statuses") else null
-                    
-                    for (waktu in WAKTU_LIST) {
-                        val currentStatus = if (isToday && statuses != null) statuses.optString(waktu, "belumDicatat") else "belumDicatat"
+                    val calendar = Calendar.getInstance()
+                    val nowMinutes = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE)
 
-                            for (chipName in STATUS_NAMES) {
-                                val chipFullStatus = STATUS_MAP[chipName]!!
-                                val isSelected = currentStatus == chipFullStatus
-                                val chipId = context.resources.getIdentifier(
-                                    "${chipName}_$waktu", "id", context.packageName
-                                )
-                                if (chipId != 0) {
-                                    views.setInt(
-                                        chipId,
-                                        "setBackgroundResource",
-                                        drawableFor(chipName, isSelected)
-                                    )
-                                    views.setTextColor(
-                                        chipId,
-                                        textColorFor(chipName, isSelected)
-                                    )
-
-                                    val intent = Intent(
-                                        context, ShalatWidgetProvider::class.java
-                                    ).apply {
-                                        action = ACTION_SET_STATUS
-                                        putExtra("waktu", waktu)
-                                        putExtra("targetStatus", chipName)
-                                    }
-                                    val pi = PendingIntent.getBroadcast(
-                                        context,
-                                        "${waktu}_$chipName".hashCode(),
-                                        intent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                                    )
-                                    views.setOnClickPendingIntent(chipId, pi)
-                                }
+                    val timesInMinutes = mutableMapOf<String, Int>()
+                    for (w in WAKTU_LIST) {
+                        val t = jadwal.optString(w, "")
+                        if (t.isNotEmpty() && t.contains(":")) {
+                            val parts = t.split(":")
+                            if (parts.size >= 2) {
+                                val h = parts[0].replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+                                val m = parts[1].replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+                                timesInMinutes[w] = h * 60 + m
+                            }
                         }
                     }
-                } catch (_: Exception) {
-                    views.setTextViewText(R.id.widget_title, "Check-in Hari Ini")
+
+                    var nextWaktuIdx = -1
+                    for (i in 0 until WAKTU_LIST.size) {
+                        val w = WAKTU_LIST[i]
+                        val t = timesInMinutes[w] ?: 0
+                        if (t > nowMinutes) {
+                            nextWaktuIdx = i
+                            break
+                        }
+                    }
+
+                    val currentWaktu: String
+                    val nextWaktu: String
+                    val nextTimeStr: String
+                    val nextTitle: String
+
+                    val isFriday = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
+                    val capitalize = { s: String -> s.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }
+                    val displayName = { s: String -> if (isFriday && s == "dzuhur") "Jumat" else capitalize(s) }
+
+                    if (nextWaktuIdx == -1) {
+                        currentWaktu = "isya"
+                        nextWaktu = "subuh"
+                        nextTimeStr = jadwal.optString("subuh", "--:--")
+                        nextTitle = "Menunggu Subuh (Esok)"
+                    } else {
+                        nextWaktu = WAKTU_LIST[nextWaktuIdx]
+                        nextTimeStr = jadwal.optString(nextWaktu, "--:--")
+                        nextTitle = "Menunggu ${displayName(nextWaktu)}"
+                        if (nextWaktuIdx == 0) {
+                            currentWaktu = "isya"
+                        } else {
+                            currentWaktu = WAKTU_LIST[nextWaktuIdx - 1]
+                        }
+                    }
+
+                    views.setTextViewText(R.id.next_prayer_title, nextTitle)
+                    views.setTextViewText(R.id.next_prayer_time, nextTimeStr)
+
+                    val currentStatus = statuses.optString(currentWaktu, "belumDicatat")
+                    if (currentStatus == "tepatWaktu" || currentStatus == "qadha") {
+                        views.setViewVisibility(R.id.current_prayer_action, android.view.View.GONE)
+                        views.setViewVisibility(R.id.current_prayer_done, android.view.View.VISIBLE)
+                        views.setTextViewText(R.id.current_prayer_done, "✓ Alhamdulillah, ${displayName(currentWaktu)} Selesai")
+                    } else {
+                        views.setViewVisibility(R.id.current_prayer_action, android.view.View.VISIBLE)
+                        views.setViewVisibility(R.id.current_prayer_done, android.view.View.GONE)
+                        val btnText = if (currentStatus == "tidakShalat") "Tebus Qadha ${displayName(currentWaktu)}" else "Mulai Sholat ${displayName(currentWaktu)}"
+                        views.setTextViewText(R.id.current_prayer_action, btnText)
+                    }
+
+                } catch (e: Exception) {
+                    views.setTextViewText(R.id.next_prayer_title, "Menunggu Waktu Sholat")
+                    views.setTextViewText(R.id.next_prayer_time, "--:--")
                 }
             } else {
-                views.setTextViewText(R.id.widget_title, "Check-in Hari Ini")
+                views.setTextViewText(R.id.next_prayer_title, "Menunggu Waktu Sholat")
+                views.setTextViewText(R.id.next_prayer_time, "--:--")
             }
 
-            // Open app on card tap
+            // Open app on tap
             val intent = Intent(context, MainActivity::class.java).apply {
                 action = Intent.ACTION_VIEW
                 data = Uri.parse("qurva:///statistik-shalat")

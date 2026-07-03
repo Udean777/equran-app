@@ -32,6 +32,7 @@ This creates the full directory structure and template files.
    - Implement data sources in `data/datasources/`
    - Implement repository in `data/repositories/`
    - DTO/models in `data/models/`
+   - Infrastructure services in `data/services/` (e.g. offline calculation, schedulers)
 
 3. **Presentation layer**:
    - State class in `presentation/viewmodels/` — `@freezed` sealed class

@@ -3,7 +3,7 @@
 # Jalankan: make <target>
 ##############################################################
 
-.PHONY: help clean build-android-apk install-apk build-android-aab build-ios build-web build-all analyze
+.PHONY: help clean build-android-apk install-apk build-android-aab build-ios build-web build-all run _run-detect _run-platform analyze
 
 # Direktori untuk menyimpan debug symbols (wajib untuk --obfuscate)
 DEBUG_INFO_DIR := build/debug-info
@@ -94,6 +94,53 @@ build-web: ## Build Web (PWA)
 build-all: clean build-android-apk build-android-aab ## Build semua target Android (clean + APK + AAB)
 	@echo ""
 	@echo "🎉 Semua build selesai!"
+
+run: ## Build & deploy ke device terhubung. Set DEVICE_ID=... untuk skip deteksi
+	@$(MAKE) _run-detect
+
+_run-detect:
+ifeq ($(origin DEVICE_ID),command line)
+	$(MAKE) _run-platform DEVICE_ID=$(DEVICE_ID) PLATFORM=
+else
+	@devices=$$(flutter devices --machine 2>/dev/null); \
+	count=$$(echo "$$devices" | python3 -c "import sys,json;d=json.load(sys.stdin);print(len(d))" 2>/dev/null); \
+	if [ "$$count" = "0" ]; then echo "❌ Tidak ada device terhubung."; exit 1; fi; \
+	if [ "$$count" -gt 1 ]; then \
+		echo "❌ $$count device terdeteksi. Gunakan: make run DEVICE_ID=<id>"; \
+		echo "$$devices" | python3 -c "import sys,json;[print(f'  {d[\"id\"]}  {d[\"name\"]}') for d in json.load(sys.stdin)]"; \
+		exit 1; \
+	fi; \
+	device=$$(echo "$$devices" | python3 -c "import sys,json;print(json.load(sys.stdin)[0]['id'])"); \
+	plat=$$(echo "$$devices" | python3 -c "import sys,json;t=json.load(sys.stdin)[0]['targetPlatform'];print({'darwin':'macos'}.get(t,t.split('-')[0]))"); \
+	$(MAKE) _run-platform DEVICE_ID=$$device PLATFORM=$$plat
+endif
+
+_run-platform:
+	@plat=$(PLATFORM); \
+	if [ -z "$$plat" ]; then \
+		plat=$$(flutter devices --machine 2>/dev/null | python3 -c \
+			"import sys,json;d=[x for x in json.load(sys.stdin) if x['id']=='$(DEVICE_ID)'];print(d[0]['targetPlatform'] if d else '')" | python3 -c "import sys;t=sys.stdin.read().strip();print({'darwin':'macos'}.get(t,t.split('-')[0]))"); \
+		if [ -z "$$plat" ]; then echo "❌ Device '$(DEVICE_ID)' tidak ditemukan."; exit 1; fi; \
+	fi; \
+	echo "📱 $(DEVICE_ID) ($$plat)"; \
+	case $$plat in \
+		android) \
+			flutter build apk --debug && flutter install --debug -d "$(DEVICE_ID)" && echo "✅ Selesai" ;; \
+		ios) \
+			flutter build ios --debug --no-codesign && \
+			echo "⚠️  iOS: jalankan 'flutter run --no-build -d $(DEVICE_ID)' untuk deploy ke simulator" ;; \
+		macos) \
+			flutter build macos --debug || exit 1; \
+			app=$$(find build/macos -name "equran_app.app" -maxdepth 4 2>/dev/null | head -1); \
+			if [ -n "$$app" ]; then open "$$app"; else echo "✅ Build selesai di build/macos/Build/Products/Debug/"; fi ;; \
+		windows) \
+			flutter build windows --debug || exit 1; \
+			echo "✅ Build selesai. Jalankan: build/windows/runner/Debug/equran_app.exe" ;; \
+		web) \
+			echo "⚠️  Web: jalankan 'flutter run -d $(DEVICE_ID)'" && exit 1 ;; \
+		*) \
+			echo "❌ Platform $$plat tidak didukung" && exit 1 ;; \
+	esac
 
 analyze: ## Jalankan analisis ukuran build (size report)
 	@echo "📊 Menganalisis ukuran app..."

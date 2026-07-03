@@ -30,6 +30,7 @@ abstract final class AppRoutes {
   static const String readingStats = '/reading-stats';
   static const String notificationTest = '/notification-test';
   static const String onboarding = '/onboarding';
+  static const String badges = '/badges';
 
   // ---------------------------------------------------------------------------
   // Location builders — dipakai di context.push(...) / context.go(...)

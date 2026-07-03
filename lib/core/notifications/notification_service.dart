@@ -122,6 +122,8 @@ class NotificationService {
       channelDescription: 'Notifikasi waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.alarm,
       sound: RawResourceAndroidNotificationSound(
         isSubuh ? 'adzan_subuh' : 'adzan',
       ),
@@ -175,6 +177,8 @@ class NotificationService {
       channelDescription: 'Notifikasi waktu shalat',
       importance: Importance.max,
       priority: Priority.high,
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.alarm,
       sound: RawResourceAndroidNotificationSound(
         isSubuh ? 'adzan_subuh' : 'adzan',
       ),
@@ -377,6 +381,8 @@ class NotificationService {
         channelDescription: 'Notifikasi waktu shalat',
         importance: Importance.max,
         priority: Priority.high,
+        fullScreenIntent: true,
+        category: AndroidNotificationCategory.alarm,
         sound: RawResourceAndroidNotificationSound(
           isSubuh ? 'adzan_subuh' : 'adzan',
         ),

@@ -58,13 +58,24 @@ class ShalatRecapNotificationService {
     var body = 'Yuk catat shalatmu hari ini agar terekam dengan baik!';
 
     if (todayStats != null && todayStats.hasData) {
-      if (todayStats.isSempurna) {
-        title = 'Alhamdulillah 5 Waktu Tuntas! 🌟';
+      // Cek apakah ada shalat yang tidak ditunaikan hari ini
+      final missedPrayers = todayStats.logs.values
+          .where((l) => l.status == ShalatStatus.tidakShalat)
+          .toList();
+
+      if (missedPrayers.isNotEmpty) {
+        // Prioritaskan notifikasi qadha — sebut shalat yang terlewat
+        final missedNames = missedPrayers.map((l) => l.waktu.label).join(', ');
+        title = 'Tebus Qadha Yuk!';
+        body =
+            'Malam ini belum tidur? Sempatkan 5 menit untuk menebus shalat $missedNames yang tadi terlewat.';
+      } else if (todayStats.isSempurna) {
+        title = 'Alhamdulillah 5 Waktu Tuntas!';
         body = 'MasyaAllah, kerja bagus! Terus konsisten dan jaga shalatmu ya!';
       } else if (todayStats.jumlahQadha > 2) {
         title = 'Catatan Shalat Hari Ini';
         body =
-            'Hari ini cukup banyak shalat yang terqadha. Besok usahakan lebih tepat waktu ya, pasti bisa! 💪';
+            'Hari ini cukup banyak shalat yang terqadha. Besok usahakan lebih tepat waktu ya, pasti bisa!';
       } else if (todayStats.jumlahShalat == 0) {
         title = 'Belum Ada Shalat Terjadwal?';
         body =

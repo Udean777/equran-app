@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equran_app/core/debug/debug_overlay.dart';
+import 'package:equran_app/core/fullscreen/fullscreen_provider.dart';
 import 'package:equran_app/core/locale/providers.dart';
 import 'package:equran_app/core/router/providers.dart';
 import 'package:equran_app/core/theme/app_theme.dart';
@@ -36,6 +37,7 @@ class _AppState extends State<App> {
         if (!_initialized) {
           _initialized = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(fullscreenProvider.notifier).load();
             ref.read(themeViewModelProvider.notifier).load();
             ref.read(languageViewModelProvider.notifier).load();
             ref.read(quranFontViewModelProvider.notifier).load();
