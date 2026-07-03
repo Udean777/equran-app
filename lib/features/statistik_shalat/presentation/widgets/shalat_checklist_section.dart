@@ -282,7 +282,7 @@ class _ShalatRow extends StatelessWidget {
           // Nama waktu
           Expanded(
             child: Text(
-              waktu.label,
+              waktu.displayName(),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,

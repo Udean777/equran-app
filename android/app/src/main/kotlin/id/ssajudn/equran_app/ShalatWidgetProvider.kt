@@ -120,7 +120,9 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                     val nextTimeStr: String
                     val nextTitle: String
 
+                    val isFriday = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
                     val capitalize = { s: String -> s.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } }
+                    val displayName = { s: String -> if (isFriday && s == "dzuhur") "Jumat" else capitalize(s) }
 
                     if (nextWaktuIdx == -1) {
                         currentWaktu = "isya"
@@ -130,7 +132,7 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                     } else {
                         nextWaktu = WAKTU_LIST[nextWaktuIdx]
                         nextTimeStr = jadwal.optString(nextWaktu, "--:--")
-                        nextTitle = "Menunggu ${capitalize(nextWaktu)}"
+                        nextTitle = "Menunggu ${displayName(nextWaktu)}"
                         if (nextWaktuIdx == 0) {
                             currentWaktu = "isya"
                         } else {
@@ -145,11 +147,11 @@ class ShalatWidgetProvider : AppWidgetProvider() {
                     if (currentStatus == "tepatWaktu" || currentStatus == "qadha") {
                         views.setViewVisibility(R.id.current_prayer_action, android.view.View.GONE)
                         views.setViewVisibility(R.id.current_prayer_done, android.view.View.VISIBLE)
-                        views.setTextViewText(R.id.current_prayer_done, "✓ Alhamdulillah, ${capitalize(currentWaktu)} Selesai")
+                        views.setTextViewText(R.id.current_prayer_done, "✓ Alhamdulillah, ${displayName(currentWaktu)} Selesai")
                     } else {
                         views.setViewVisibility(R.id.current_prayer_action, android.view.View.VISIBLE)
                         views.setViewVisibility(R.id.current_prayer_done, android.view.View.GONE)
-                        val btnText = if (currentStatus == "tidakShalat") "Tebus Qadha ${capitalize(currentWaktu)}" else "Mulai Sholat ${capitalize(currentWaktu)}"
+                        val btnText = if (currentStatus == "tidakShalat") "Tebus Qadha ${displayName(currentWaktu)}" else "Mulai Sholat ${displayName(currentWaktu)}"
                         views.setTextViewText(R.id.current_prayer_action, btnText)
                     }
 

@@ -44,6 +44,15 @@ extension WaktuShalatX on WaktuShalat {
   }
 
   String get key => name;
+
+  /// Return label dengan penyesuaian hari Jumat: Dzuhur → Jumat.
+  String displayName([DateTime? date]) {
+    if (this == WaktuShalat.dzuhur) {
+      final d = date ?? DateTime.now();
+      if (d.weekday == DateTime.friday) return 'Jumat';
+    }
+    return label;
+  }
 }
 
 /// Log shalat untuk satu waktu shalat pada satu hari.

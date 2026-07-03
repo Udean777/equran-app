@@ -26,100 +26,106 @@ class NotificationTestPage extends ConsumerWidget {
 class _NotificationTestView extends ConsumerWidget {
   const _NotificationTestView();
 
-  static const List<NotificationTestSection> _sections = [
-    NotificationTestSection(
-      label: 'Adzan Direct (Audio Player)',
-      items: [
-        NotificationTestItem(
-          id: 'adzan_direct_dzuhur',
-          title: 'Play Adzan Dzuhur (Direct)',
-          subtitle: 'Langsung play audio adzan via AudioCompositeHandler',
-          type: NotificationTestType.adzanDirect,
-        ),
-        NotificationTestItem(
-          id: 'adzan_direct_subuh',
-          title: 'Play Adzan Subuh (Direct)',
-          subtitle: 'Langsung play audio adzan subuh via AudioCompositeHandler',
-          type: NotificationTestType.adzanDirect,
-          isSubuh: true,
-        ),
-        NotificationTestItem(
-          id: 'adzan_stop',
-          title: 'Stop Adzan',
-          subtitle: 'Hentikan audio adzan yang sedang playing',
-          type: NotificationTestType.adzanStop,
-        ),
-      ],
-    ),
-    NotificationTestSection(
-      label: 'Adzan Notifikasi (Visual)',
-      items: [
-        NotificationTestItem(
-          id: 'adzan_dzuhur',
-          title: 'Adzan Dzuhur',
-          subtitle: 'Test notif adzan biasa (Dzuhur, Ashar, Maghrib, Isya)',
-          type: NotificationTestType.adzanNotification,
-        ),
-        NotificationTestItem(
-          id: 'adzan_subuh',
-          title: 'Adzan Subuh',
-          subtitle: 'Test notif adzan Subuh (sound berbeda)',
-          type: NotificationTestType.adzanNotification,
-          isSubuh: true,
-        ),
-      ],
-    ),
-    NotificationTestSection(
-      label: 'Alarm Imsakiyah',
-      items: [
-        NotificationTestItem(
-          id: 'imsak',
-          title: 'Waktu Imsak',
-          subtitle: 'Test alarm imsak Ramadan',
-          type: NotificationTestType.imsak,
-        ),
-        NotificationTestItem(
-          id: 'sahur',
-          title: 'Alarm Sahur',
-          subtitle: 'Test alarm sahur (30 menit sebelum imsak)',
-          type: NotificationTestType.sahur,
-        ),
-      ],
-    ),
-    NotificationTestSection(
-      label: 'Reminder Baca Quran',
-      items: [
-        NotificationTestItem(
-          id: 'quran_reminder',
-          title: 'Reminder Baca Quran',
-          subtitle: 'Test pengingat harian membaca Al-Quran',
-          type: NotificationTestType.quranReminder,
-        ),
-      ],
-    ),
-    NotificationTestSection(
-      label: 'Reminder Checklist Shalat',
-      items: [
-        NotificationTestItem(
-          id: 'checklist',
-          title: 'Checklist Shalat',
-          subtitle: 'Test pengingat catat status shalat harian',
-          type: NotificationTestType.checklist,
-        ),
-      ],
-    ),
-    NotificationTestSection(
-      label: 'Pengingat Hafalan',
-      items: [
-        NotificationTestItem(
-          id: 'hafalan',
-          title: 'Murajaah Hafalan',
-          subtitle: 'Test pengingat jadwal murajaah hafalan',
-          type: NotificationTestType.hafalan,
-        ),
-      ],
-    ),
-  ];
+  static List<NotificationTestSection> get _sections {
+    final dzuhur = DateTime.now().weekday == DateTime.friday
+        ? 'Jumat'
+        : 'Dzuhur';
+    return [
+      NotificationTestSection(
+        label: 'Adzan Direct (Audio Player)',
+        items: [
+          NotificationTestItem(
+            id: 'adzan_direct_dzuhur',
+            title: 'Play Adzan $dzuhur (Direct)',
+            subtitle: 'Langsung play audio adzan via AudioCompositeHandler',
+            type: NotificationTestType.adzanDirect,
+          ),
+          const NotificationTestItem(
+            id: 'adzan_direct_subuh',
+            title: 'Play Adzan Subuh (Direct)',
+            subtitle:
+                'Langsung play audio adzan subuh via AudioCompositeHandler',
+            type: NotificationTestType.adzanDirect,
+            isSubuh: true,
+          ),
+          const NotificationTestItem(
+            id: 'adzan_stop',
+            title: 'Stop Adzan',
+            subtitle: 'Hentikan audio adzan yang sedang playing',
+            type: NotificationTestType.adzanStop,
+          ),
+        ],
+      ),
+      NotificationTestSection(
+        label: 'Adzan Notifikasi (Visual)',
+        items: [
+          NotificationTestItem(
+            id: 'adzan_dzuhur',
+            title: 'Adzan $dzuhur',
+            subtitle: 'Test notif adzan biasa ($dzuhur, Ashar, Maghrib, Isya)',
+            type: NotificationTestType.adzanNotification,
+          ),
+          const NotificationTestItem(
+            id: 'adzan_subuh',
+            title: 'Adzan Subuh',
+            subtitle: 'Test notif adzan Subuh (sound berbeda)',
+            type: NotificationTestType.adzanNotification,
+            isSubuh: true,
+          ),
+        ],
+      ),
+      const NotificationTestSection(
+        label: 'Alarm Imsakiyah',
+        items: [
+          NotificationTestItem(
+            id: 'imsak',
+            title: 'Waktu Imsak',
+            subtitle: 'Test alarm imsak Ramadan',
+            type: NotificationTestType.imsak,
+          ),
+          NotificationTestItem(
+            id: 'sahur',
+            title: 'Alarm Sahur',
+            subtitle: 'Test alarm sahur (30 menit sebelum imsak)',
+            type: NotificationTestType.sahur,
+          ),
+        ],
+      ),
+      const NotificationTestSection(
+        label: 'Reminder Baca Quran',
+        items: [
+          NotificationTestItem(
+            id: 'quran_reminder',
+            title: 'Reminder Baca Quran',
+            subtitle: 'Test pengingat harian membaca Al-Quran',
+            type: NotificationTestType.quranReminder,
+          ),
+        ],
+      ),
+      const NotificationTestSection(
+        label: 'Reminder Checklist Shalat',
+        items: [
+          NotificationTestItem(
+            id: 'checklist',
+            title: 'Checklist Shalat',
+            subtitle: 'Test pengingat catat status shalat harian',
+            type: NotificationTestType.checklist,
+          ),
+        ],
+      ),
+      const NotificationTestSection(
+        label: 'Pengingat Hafalan',
+        items: [
+          NotificationTestItem(
+            id: 'hafalan',
+            title: 'Murajaah Hafalan',
+            subtitle: 'Test pengingat jadwal murajaah hafalan',
+            type: NotificationTestType.hafalan,
+          ),
+        ],
+      ),
+    ];
+  }
 
   static (IconData icon, Color color) _itemConfig(String id) {
     return switch (id) {

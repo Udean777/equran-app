@@ -6,7 +6,6 @@ import 'package:equran_app/core/utils/bottom_sheet_utils.dart';
 import 'package:equran_app/core/widgets/error_state_widget.dart';
 import 'package:equran_app/core/widgets/loading_widget.dart';
 import 'package:equran_app/core/widgets/luxury_app_bar.dart';
-import 'package:equran_app/core/widgets/section_header.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/jadwal_shalat_entry.dart';
 import 'package:equran_app/features/jadwal_shalat/presentation/providers.dart';
 import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
@@ -117,11 +116,9 @@ class _StatistikContent extends ConsumerWidget {
                 ),
           ),
         ),
+
         const SizedBox(height: AppDimens.spaceSM),
-        const SectionHeader(
-          label: StatistikShalatStrings.sectionKalender,
-          icon: Icons.calendar_month_rounded,
-        ),
+
         ShalatCalendarSection(
           statsByDate: {
             for (final d in stats.dailyStats) d.date: d,
@@ -129,10 +126,9 @@ class _StatistikContent extends ConsumerWidget {
           onDayTap: (date, dayStats) =>
               _showDetail(context, ref, date, dayStats),
         ),
-        const SectionHeader(
-          label: StatistikShalatStrings.sectionStatistikMingguan,
-          icon: Icons.bar_chart_rounded,
-        ),
+
+        const SizedBox(height: AppDimens.spaceSM),
+
         ShalatWeeklyStatsSection(
           dailyStats: stats.dailyStats,
           totalTepatWaktu: stats.totalTepatWaktu,

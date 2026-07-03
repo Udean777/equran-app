@@ -30,7 +30,7 @@ class ShalatNotificationSchedulerImpl implements IShalatNotificationScheduler {
         ),
         _WaktuShalat(
           id: NotificationIds.dzuhur,
-          nama: 'Dzuhur',
+          nama: entry.date.weekday == DateTime.friday ? 'Jumat' : 'Dzuhur',
           waktu: entry.dzuhur,
           enabled: prefs.dzuhur,
           isSubuh: false,

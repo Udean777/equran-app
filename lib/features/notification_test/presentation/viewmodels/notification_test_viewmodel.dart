@@ -21,6 +21,9 @@ part 'notification_test_viewmodel.freezed.dart';
 
 const _testDelay = Duration(seconds: 5);
 
+bool get _isFriday => DateTime.now().weekday == DateTime.friday;
+String get _dzuhurNama => _isFriday ? 'Jumat' : 'Dzuhur';
+
 class NotificationTestViewModel
     extends AutoDisposeNotifier<NotificationTestState> {
   @override
@@ -56,7 +59,7 @@ class NotificationTestViewModel
         result = await _playAdzanDirect(
           PlayAdzanDirectParams(
             isSubuh: item.isSubuh,
-            waktuNama: item.isSubuh ? 'Subuh' : 'Dzuhur',
+            waktuNama: item.isSubuh ? 'Subuh' : _dzuhurNama,
           ),
         );
       case NotificationTestType.adzanStop:
@@ -67,10 +70,10 @@ class NotificationTestViewModel
             id: item.isSubuh
                 ? NotificationIds.testSubuh
                 : NotificationIds.testDzuhur,
-            title: item.isSubuh ? '🌅 Waktu Subuh' : '☀️ Waktu Dzuhur',
+            title: item.isSubuh ? '🌅 Waktu Subuh' : '☀️ Waktu $_dzuhurNama',
             body: item.isSubuh
                 ? 'Sudah masuk waktu shalat Subuh'
-                : 'Sudah masuk waktu shalat Dzuhur',
+                : 'Sudah masuk waktu shalat $_dzuhurNama',
             scheduledTime: scheduledTime,
             isSubuh: item.isSubuh,
           ),
@@ -106,8 +109,9 @@ class NotificationTestViewModel
         result = await _scheduleChecklist(
           ScheduleChecklistReminderParams(
             id: NotificationIds.testAshar,
-            title: '✅ Sudah shalat Dzuhur?',
-            body: 'Catat status shalat Dzuhur hari ini di Statistik Shalat.',
+            title: '✅ Sudah shalat $_dzuhurNama?',
+            body:
+                'Catat status shalat $_dzuhurNama hari ini di Statistik Shalat.',
             scheduledTime: scheduledTime,
           ),
         );

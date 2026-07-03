@@ -5,6 +5,7 @@ import 'package:equran_app/core/widgets/luxury_divider.dart';
 import 'package:equran_app/core/widgets/primary_gradient_card.dart';
 import 'package:equran_app/core/widgets/shalat_time_grid.dart';
 import 'package:equran_app/features/imsakiyah/domain/entities/imsakiyah_entry.dart';
+import 'package:equran_app/features/statistik_shalat/domain/entities/shalat_log.dart';
 import 'package:flutter/material.dart';
 
 class ImsakiyahTodayCard extends StatelessWidget {
@@ -81,7 +82,7 @@ class ImsakiyahTodayCard extends StatelessWidget {
                 icon: Icons.sunny_snowing,
               ),
               ShalatTimeItem(
-                label: 'Dzuhur',
+                label: WaktuShalat.dzuhur.displayName(),
                 time: entry.dzuhur,
                 icon: Icons.light_mode_outlined,
               ),

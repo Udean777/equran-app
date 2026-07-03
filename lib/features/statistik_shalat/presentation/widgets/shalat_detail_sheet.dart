@@ -109,7 +109,7 @@ class ShalatDetailSheet extends ConsumerWidget {
           // Shalat list
           ...WaktuShalat.values.map(
             (waktu) => _DetailRow(
-              date: dateStr,
+              date: date,
               waktu: waktu,
               log: dayStats.logFor(waktu),
             ),
@@ -128,9 +128,11 @@ class _DetailRow extends ConsumerWidget {
     required this.log,
   });
 
-  final String date;
+  final DateTime date;
   final WaktuShalat waktu;
   final ShalatLog log;
+
+  static final _dateFormat = DateFormat('yyyy-MM-dd');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -159,7 +161,7 @@ class _DetailRow extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  waktu.label,
+                  waktu.displayName(date),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -181,7 +183,7 @@ class _DetailRow extends ConsumerWidget {
                 ref
                     .read(statistikShalatViewModelProvider.notifier)
                     .updateShalatForDate(
-                      date: date,
+                      date: _dateFormat.format(date),
                       waktu: waktu,
                       status: status,
                     ),
