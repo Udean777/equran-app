@@ -137,7 +137,34 @@ class _MainPageState extends ConsumerState<MainPage>
 }
 
 // ---------------------------------------------------------------------------
-// Luxury Bottom Navigation Bar
+// Audio player bar (shared between nav states)
+// ---------------------------------------------------------------------------
+
+class _AudioPlayerSection extends StatelessWidget {
+  const _AudioPlayerSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final audioState = ref.watch(audioViewModelProvider);
+        if (audioState.isIdle) return const SizedBox.shrink();
+        return const Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppDimens.bottomNavFloatingMargin,
+            0,
+            AppDimens.bottomNavFloatingMargin,
+            8,
+          ),
+          child: AudioPlayerBar(),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Floating Pill Navigation Bar
 // ---------------------------------------------------------------------------
 
 class _LuxuryBottomNav extends StatelessWidget {
@@ -155,102 +182,99 @@ class _LuxuryBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final surfaceColor = isDark ? AppColors.surfaceDark : AppColors.surface;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Audio player bar
-        Consumer(
-          builder: (context, ref, _) {
-            final audioState = ref.watch(audioViewModelProvider);
-            if (audioState.isIdle) return const SizedBox.shrink();
-            return const AudioPlayerBar();
-          },
-        ),
+    return SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Audio player bar (di luar floating bar)
+          const _AudioPlayerSection(),
 
-        // Nav bar container dengan top border tipis
-        Container(
-          decoration: BoxDecoration(
-            color: surfaceColor,
-            border: Border(
-              top: BorderSide(
-                color: isDark
-                    ? AppColors.outlineDark
-                    : AppColors.outlineVariant,
-              ),
+          // Floating pill container
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppDimens.bottomNavFloatingMargin,
+              0,
+              AppDimens.bottomNavFloatingMargin,
+              8,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-                blurRadius: 16,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              height: AppDimens.bottomNavHeight,
-              child: Row(
-                children: [
-                  _NavItem(
-                    index: 0,
-                    currentIndex: currentIndex,
-                    icon: Icons.menu_book_outlined,
-                    selectedIcon: Icons.menu_book_rounded,
-                    label: l10n.suratNav,
-                    onTap: onDestinationSelected,
-                    theme: theme,
-                    isDark: isDark,
+            child: Container(
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(
+                  AppDimens.bottomNavBorderRadius,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, -2),
                   ),
-                  _NavItem(
-                    index: 1,
-                    currentIndex: currentIndex,
-                    icon: Icons.auto_stories_outlined,
-                    selectedIcon: Icons.auto_stories_rounded,
-                    label: l10n.doaNav,
-                    onTap: onDestinationSelected,
-                    theme: theme,
-                    isDark: isDark,
-                  ),
-                  _NavItem(
-                    index: 2,
-                    currentIndex: currentIndex,
-                    icon: Icons.mosque_outlined,
-                    selectedIcon: Icons.mosque_rounded,
-                    label: l10n.jadwalShalatNav,
-                    onTap: onDestinationSelected,
-                    theme: theme,
-                    isDark: isDark,
-                  ),
-                  _NavItem(
-                    index: 3,
-                    currentIndex: currentIndex,
-                    icon: Icons.grain_outlined,
-                    selectedIcon: Icons.grain_rounded,
-                    label: l10n.tasbihNav,
-                    onTap: onDestinationSelected,
-                    theme: theme,
-                    isDark: isDark,
-                  ),
-                  _NavItem(
-                    index: 4,
-                    currentIndex: currentIndex,
-                    icon: Icons.explore_outlined,
-                    selectedIcon: Icons.explore_rounded,
-                    label: l10n.qiblaNav,
-                    onTap: onDestinationSelected,
-                    theme: theme,
-                    isDark: isDark,
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.03),
+                    blurRadius: 40,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
+              child: SizedBox(
+                height: AppDimens.bottomNavHeight,
+                child: Row(
+                  children: [
+                    _NavItem(
+                      index: 0,
+                      currentIndex: currentIndex,
+                      icon: Icons.menu_book_outlined,
+                      selectedIcon: Icons.menu_book_rounded,
+                      label: l10n.suratNav,
+                      onTap: onDestinationSelected,
+                      isDark: isDark,
+                    ),
+                    _NavItem(
+                      index: 1,
+                      currentIndex: currentIndex,
+                      icon: Icons.auto_stories_outlined,
+                      selectedIcon: Icons.auto_stories_rounded,
+                      label: l10n.doaNav,
+                      onTap: onDestinationSelected,
+                      isDark: isDark,
+                    ),
+                    _NavItem(
+                      index: 2,
+                      currentIndex: currentIndex,
+                      icon: Icons.mosque_outlined,
+                      selectedIcon: Icons.mosque_rounded,
+                      label: l10n.jadwalShalatNav,
+                      onTap: onDestinationSelected,
+                      isDark: isDark,
+                    ),
+                    _NavItem(
+                      index: 3,
+                      currentIndex: currentIndex,
+                      icon: Icons.grain_outlined,
+                      selectedIcon: Icons.grain_rounded,
+                      label: l10n.tasbihNav,
+                      onTap: onDestinationSelected,
+                      isDark: isDark,
+                    ),
+                    _NavItem(
+                      index: 4,
+                      currentIndex: currentIndex,
+                      icon: Icons.explore_outlined,
+                      selectedIcon: Icons.explore_rounded,
+                      label: l10n.qiblaNav,
+                      onTap: onDestinationSelected,
+                      isDark: isDark,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -280,7 +304,6 @@ class _NavItem extends StatelessWidget {
     required this.selectedIcon,
     required this.label,
     required this.onTap,
-    required this.theme,
     required this.isDark,
   });
 
@@ -290,7 +313,6 @@ class _NavItem extends StatelessWidget {
   final IconData selectedIcon;
   final String label;
   final ValueChanged<int> onTap;
-  final ThemeData theme;
   final bool isDark;
 
   bool get _isSelected => index == currentIndex;
@@ -306,29 +328,22 @@ class _NavItem extends StatelessWidget {
       child: GestureDetector(
         onTap: () => onTap(index),
         behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: AppDimens.spaceXS),
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon dengan indicator pill
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimens.spaceMD,
-                  vertical: AppDimens.spaceXS,
-                ),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOutCubic,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: _isSelected
                       ? (isDark
                             ? AppColors.primaryDark
                             : AppColors.primaryContainer)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                  borderRadius: BorderRadius.circular(22),
                 ),
                 child: Icon(
                   _isSelected ? selectedIcon : icon,
@@ -336,20 +351,17 @@ class _NavItem extends StatelessWidget {
                   color: _isSelected ? primaryColor : inactiveColor,
                 ),
               ),
-              const SizedBox(height: 2),
-              // Label
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: theme.textTheme.labelSmall!.copyWith(
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
                   color: _isSelected ? primaryColor : inactiveColor,
                   fontWeight: _isSelected ? FontWeight.w600 : FontWeight.w400,
                   fontSize: 10,
                 ),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
             ],
           ),
