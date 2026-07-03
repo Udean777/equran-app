@@ -31,6 +31,11 @@ abstract final class SettingsStrings {
   static const fontResetButton = 'Reset ke Default';
   static const fontResetSuccess = 'Tampilan teks direset ke default';
 
+  static const fullscreenToggle = 'Mode Layar Penuh';
+  static const fullscreenSubtitle = 'Sembunyikan status bar & navigasi';
+  static const fullscreenActive = 'Mode layar penuh aktif';
+  static const fullscreenInactive = 'Mode layar penuh dimatikan';
+
   static String fontArabicSizeValue(int size) => 'Ukuran teks Arab: ${size}px';
   static String fontTranslationSizeValue(int size) =>
       'Ukuran terjemahan: ${size}px';
