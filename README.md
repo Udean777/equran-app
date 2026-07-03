@@ -48,7 +48,7 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 
 ### 🕌 Ibadah & Spiritual
 
-- **Jadwal Shalat 100% Offline** — Waktu shalat fardhu dihitung langsung di perangkat menggunakan algoritma astronomi (Muslim World League) via package `adhan`. Tidak perlu koneksi internet — begitu GPS aktif, jadwal muncul instan. API tetap sebagai sumber utama, kalkulasi offline sebagai fallback andal.
+- **Jadwal Shalat 100% Offline** — Waktu shalat fardhu dihitung langsung di perangkat menggunakan algoritma astronomi (Muslim World League) via package `adhan`. Tidak perlu koneksi internet — begitu GPS aktif, jadwal muncul instan. Mendukung label dinamis khusus "Jumat" yang otomatis menyesuaikan pada hari Jumat.
 - **Notifikasi Adzan Full-Screen & Anti-Doze** — Ketika waktu shalat tiba, layar menyala dengan notifikasi layar penuh (`fullScreenIntent`) dan suara adzan diputar tanpa terpotong. `WakelockPlus` menjaga perangkat tidak tidur selama adzan. Android `SCHEDULE_EXACT_ALARM` & `FOREGROUND_SERVICE_MEDIA_PLAYBACK` telah terkonfigurasi.
 - **Alarm Sahur & Imsak Independen** — Pengaturan alarm sahur (default 60 menit sebelum imsak) dan alarm imsak yang terjadwal secara terpisah dari notifikasi shalat, menghindari resiko bentrok atau terhapus saat proses sinkronisasi ulang.
 - **Kompas Kiblat Smooth (Low-Pass Filter)** — Kompas penunjuk arah kiblat real-time dengan low-pass filter (EMA) untuk meredam noise sensor, menghasilkan pergerakan jarum yang mulus tanpa patah-patah. Dilengkapi haptic feedback saat jarum < 2° dari kiblat.
@@ -68,6 +68,8 @@ Berikut adalah visualisasi antarmuka premium dari **Qurva** yang dirancang denga
 - **Slide Onboarding Premium** — Pengenalan aplikasi interaktif sebanyak 6 slide untuk memandu konfigurasi awal (izin lokasi, notifikasi, pengenalan fitur Al-Quran, Jadwal Shalat, Hafalan, hingga inisialisasi aplikasi).
 - **Desain Adaptif Multi-Tema** — Mode Terang, Gelap, dan **Sepia** (mode membaca khusus yang dirancang dengan temperatur warna hangat untuk mengurangi kelelahan mata di malam hari).
 - **Pilihan Font & Ukuran Kustom** — Pengaturan fleksibel ukuran teks Arab, serta pemilihan tipe font Mushaf premium (font mushaf standar **Amiri** atau **KFGQPC**).
+- **UX & Navigasi Premium** — Desain _Floating Bottom Navigation Bar_ elegan yang menyatu dengan mulus bersama _Audio Player_ baru. Tersedia juga opsi **Fullscreen Mode** di Settings untuk pengalaman membaca yang lebih imersif.
+- **Surah Completion UX** — Fitur cerdas di mana *Completion Card* otomatis muncul saat pengguna kembali ke surat yang telah selesai dibaca, mempermudah akses untuk membaca ulang tanpa *scrolling* jauh.
 - **Lokalisasi Multi-Bahasa** — Bahasa Indonesia, English, dan العربية.
 - **Branding Elegan & Optimalisasi RAM** — Integrasi ikon resmi Qurva di berbagai area (Welcome Slide, Success Slide, Home AppBar, App Drawer Header, Loading State, dll.). Menggunakan _pre-caching_ gambar dinamis dan pembatasan RAM (`cacheWidth`/`cacheHeight`) pada pemrosesan aset gambar agar memori tetap ringan dan performa anti-lag yang mulus.
 
