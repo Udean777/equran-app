@@ -82,7 +82,9 @@ class AudioViewModel extends Notifier<AudioPlayerState> {
   /// Dipanggil langsung oleh AudioCompositeHandler saat ayat selesai natural.
   /// Tidak melewati stream state, sehingga audio player bar tidak hilang.
   void _onAyatCompleted() {
-    debugPrint('AudioViewModel: _onAyatCompleted called. isPlaylistMode: $isPlaylistMode');
+    debugPrint(
+      'AudioViewModel: _onAyatCompleted called. isPlaylistMode: $isPlaylistMode',
+    );
     if (isPlaylistMode) {
       unawaited(_advanceInPlaylist());
     }
@@ -96,7 +98,9 @@ class AudioViewModel extends Notifier<AudioPlayerState> {
     } else {
       // Playlist selesai secara natural — stop player agar state
       // kembali ke idle dan audio player bar menghilang dengan benar.
-      debugPrint('AudioViewModel: _advanceInPlaylist, playlist finished, stopping');
+      debugPrint(
+        'AudioViewModel: _advanceInPlaylist, playlist finished, stopping',
+      );
       await _stopAudio();
     }
   }
