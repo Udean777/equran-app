@@ -1,5 +1,6 @@
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
+import 'package:equran_app/core/theme/app_theme_palette.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ abstract final class AppTheme {
     useMaterial3: true,
     colorScheme: _lightColorScheme,
     textTheme: AppTypography.textTheme,
+    extensions: const [AppThemePalette.light],
 
     // AppBar — putih bersih, judul gelap, status bar dark icons
     appBarTheme: AppBarTheme(
@@ -278,6 +280,7 @@ abstract final class AppTheme {
     useMaterial3: true,
     colorScheme: _darkColorScheme,
     textTheme: AppTypography.textTheme,
+    extensions: const [AppThemePalette.dark],
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.surfaceDark,
       foregroundColor: AppColors.onSurfaceDark,

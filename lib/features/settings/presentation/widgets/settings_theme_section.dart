@@ -14,7 +14,6 @@ class SettingsThemeSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = context.isDark;
     final themeState = ref.watch(themeViewModelProvider);
 
     if (themeState is ThemeError) {
@@ -36,15 +35,13 @@ class SettingsThemeSection extends ConsumerWidget {
                 width: SettingsConstants.iconContainerSize,
                 height: SettingsConstants.iconContainerSize,
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.primaryDark
-                      : AppColors.primaryContainer,
+                  color: context.primaryContainerColor,
                   borderRadius: BorderRadius.circular(AppDimens.radiusMD),
                 ),
                 child: Icon(
                   Icons.palette_outlined,
                   size: AppDimens.iconSM,
-                  color: isDark ? AppColors.primaryLighter : AppColors.primary,
+                  color: context.primaryActionColor,
                 ),
               ),
               const SizedBox(width: AppDimens.spaceMD),
@@ -56,18 +53,14 @@ class SettingsThemeSection extends ConsumerWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: SettingsConstants.fontSizeMedium,
-                      color: isDark
-                          ? AppColors.onSurfaceDark
-                          : AppColors.textPrimary,
+                      color: context.textPrimaryColor,
                     ),
                   ),
                   Text(
                     _themeLabel(selected),
                     style: TextStyle(
                       fontSize: SettingsConstants.fontSizeSecondary,
-                      color: isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textTertiary,
+                      color: context.textTertiaryColor,
                     ),
                   ),
                 ],
@@ -82,7 +75,6 @@ class SettingsThemeSection extends ConsumerWidget {
                 label: SettingsStrings.themeLight,
                 icon: Icons.light_mode_rounded,
                 isSelected: selected == 'light',
-                isDark: isDark,
                 onTap: () {
                   if (selected != 'light') {
                     unawaited(
@@ -101,7 +93,6 @@ class SettingsThemeSection extends ConsumerWidget {
                 label: SettingsStrings.themeDark,
                 icon: Icons.dark_mode_rounded,
                 isSelected: selected == 'dark',
-                isDark: isDark,
                 onTap: () {
                   if (selected != 'dark') {
                     unawaited(
@@ -137,7 +128,6 @@ class _ThemeChip extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.isSelected,
-    required this.isDark,
     required this.onTap,
   });
 
@@ -145,7 +135,6 @@ class _ThemeChip extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool isSelected;
-  final bool isDark;
   final VoidCallback onTap;
 
   @override
@@ -163,15 +152,13 @@ class _ThemeChip extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? AppColors.primaryLight : AppColors.primary)
-                : (isDark
-                      ? AppColors.surfaceDarkVariant
-                      : AppColors.surfaceVariant),
+                ? context.primaryActionColor
+                : context.surfaceVariantColor,
             borderRadius: BorderRadius.circular(AppDimens.radiusLG),
             border: Border.all(
               color: isSelected
                   ? Colors.transparent
-                  : (isDark ? AppColors.outlineDark : AppColors.outlineVariant),
+                  : context.borderVariantColor,
             ),
           ),
           child: Column(
@@ -182,9 +169,7 @@ class _ThemeChip extends StatelessWidget {
                 size: 18,
                 color: isSelected
                     ? AppColors.onPrimary
-                    : (isDark
-                          ? AppColors.onSurfaceDarkVariant
-                          : AppColors.textSecondary),
+                    : context.textSecondaryColor,
               ),
               const SizedBox(height: 4),
               Text(
@@ -194,9 +179,7 @@ class _ThemeChip extends StatelessWidget {
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   color: isSelected
                       ? AppColors.onPrimary
-                      : (isDark
-                            ? AppColors.onSurfaceDarkVariant
-                            : AppColors.textSecondary),
+                      : context.textSecondaryColor,
                 ),
               ),
             ],

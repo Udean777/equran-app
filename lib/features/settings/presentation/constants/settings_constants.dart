@@ -47,7 +47,7 @@ abstract final class SettingsConstants {
 
   // ── Animation ─────────────────────────────────────────────────────
   /// Duration untuk theme toggle animation (ms)
-  static const int themeToggleAnimationMs = 200;
+  static const int themeToggleAnimationMs = 320;
 
   // ── Typography Sizes (widget-specific, jika tidak ada di AppDimens) ──
   /// Font size untuk subtitle/secondary text

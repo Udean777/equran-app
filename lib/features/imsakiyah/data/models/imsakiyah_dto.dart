@@ -35,8 +35,34 @@ abstract class ImsakiyahResponseDto with _$ImsakiyahResponseDto {
     required ImsakiyahDto data,
   }) = _ImsakiyahResponseDto;
 
-  factory ImsakiyahResponseDto.fromJson(Map<String, dynamic> json) =>
-      _$ImsakiyahResponseDtoFromJson(json);
+  /// The Imsakiyah API has returned both `data: {...}` and
+  /// `data: [{...}]` over time. Normalize both shapes at the boundary so the
+  /// rest of the feature can work with one stable DTO.
+  factory ImsakiyahResponseDto.fromJson(Map<String, dynamic> json) {
+    final rawData = json['data'];
+    final Map<String, dynamic> data;
+    if (rawData is Map<String, dynamic>) {
+      data = rawData;
+    } else if (rawData is List<dynamic> && rawData.isNotEmpty) {
+      final first = rawData.first;
+      if (first is! Map) {
+        throw const FormatException(
+          'Response Imsakiyah tidak memiliki data yang valid.',
+        );
+      }
+      data = first.map((key, value) => MapEntry(key.toString(), value));
+    } else {
+      throw const FormatException(
+        'Response Imsakiyah tidak memiliki data yang valid.',
+      );
+    }
+
+    return ImsakiyahResponseDto(
+      code: (json['code'] as num?)?.toInt() ?? 0,
+      message: json['message'] as String? ?? '',
+      data: ImsakiyahDto.fromJson(data),
+    );
+  }
 }
 
 @freezed

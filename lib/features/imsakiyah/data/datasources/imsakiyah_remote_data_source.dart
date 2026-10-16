@@ -38,10 +38,73 @@ class ImsakiyahRemoteDataSourceImpl implements ImsakiyahRemoteDataSource {
     required String provinsi,
     required String kabkota,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      ApiEndpoints.imsakiyah,
-      data: {'provinsi': provinsi, 'kabkota': kabkota},
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.imsakiyah,
+        data: {'provinsi': provinsi, 'kabkota': kabkota},
+      );
+      return ImsakiyahResponseDto.fromJson(response.data!);
+    } on DioException catch (error) {
+      // Imsakiyah is a Ramadan-only dataset. Outside Ramadan the API returns
+      // 404, while the year-round shalat endpoint still provides imsak and
+      // all prayer times for the selected location.
+      if (error.response?.statusCode != 404) rethrow;
+
+      final now = DateTime.now();
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.shalat,
+        data: {
+          'provinsi': provinsi,
+          'kabkota': kabkota,
+          'bulan': now.month,
+          'tahun': now.year,
+        },
+      );
+
+      return _fromJadwalShalatResponse(
+        response.data!,
+        fallbackProvinsi: provinsi,
+        fallbackKabkota: kabkota,
+        fallbackTahun: now.year,
+      );
+    }
+  }
+
+  ImsakiyahResponseDto _fromJadwalShalatResponse(
+    Map<String, dynamic> json, {
+    required String fallbackProvinsi,
+    required String fallbackKabkota,
+    required int fallbackTahun,
+  }) {
+    final rawData = json['data'];
+    if (rawData is! Map) {
+      throw const FormatException(
+        'Response jadwal shalat tidak memiliki data yang valid.',
+      );
+    }
+
+    final data = rawData.map(
+      (key, value) => MapEntry(key.toString(), value),
     );
-    return ImsakiyahResponseDto.fromJson(response.data!);
+    final rawJadwal = data['jadwal'];
+    if (rawJadwal is! List) {
+      throw const FormatException(
+        'Response jadwal shalat tidak memiliki daftar jadwal.',
+      );
+    }
+
+    return ImsakiyahResponseDto.fromJson({
+      'code': (json['code'] as num?)?.toInt() ?? 200,
+      'message': json['message'] as String? ?? 'Jadwal shalat berhasil diambil',
+      'data': {
+        'provinsi': data['provinsi'] ?? fallbackProvinsi,
+        'kabkota': data['kabkota'] ?? fallbackKabkota,
+        // These fields are only metadata for the Ramadan response. Keep the
+        // DTO contract while making the year-round fallback explicit.
+        'hijriah': 'Jadwal shalat',
+        'masehi': '${data['tahun'] ?? fallbackTahun}',
+        'imsakiyah': rawJadwal,
+      },
+    });
   }
 }

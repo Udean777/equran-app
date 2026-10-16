@@ -4,6 +4,7 @@ import 'package:equran_app/core/router/app_routes.dart';
 import 'package:equran_app/core/theme/app_colors.dart';
 import 'package:equran_app/core/theme/app_dimens.dart';
 import 'package:equran_app/core/theme/app_typography.dart';
+import 'package:equran_app/core/utils/ramadan_calendar.dart';
 import 'package:equran_app/core/widgets/app_logo.dart';
 import 'package:equran_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,22 @@ class _AppDrawerState extends State<AppDrawer> {
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
     if (mounted) setState(() => _version = 'eQuran v${info.version}');
+  }
+
+  /// Tutup drawer terlebih dahulu sebelum meminta GoRouter melakukan navigasi.
+  ///
+  /// AppDrawer dipakai oleh beberapa nested Scaffold. Menjalankan
+  /// `Navigator.pop` lalu `context.push` pada frame/animasi yang sama dapat
+  /// membuat Drawer barrier tetap menangkap input setelah drawer terlihat
+  /// tertutup.
+  void _navigateAfterClose(BuildContext context, String route) {
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    unawaited(
+      Future<void>.delayed(const Duration(milliseconds: 300), () async {
+        await router.push(route);
+      }),
+    );
   }
 
   @override
@@ -62,32 +79,26 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
               children: [
                 const _SectionLabel(label: 'Ibadah'),
-                _DrawerItem(
-                  icon: Icons.mosque_outlined,
-                  selectedIcon: Icons.mosque_rounded,
-                  label: l10n.imsakiyahNav,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.imsakiyah));
-                  },
-                ),
+                if (RamadanCalendar.isRamadan())
+                  _DrawerItem(
+                    icon: Icons.mosque_outlined,
+                    selectedIcon: Icons.mosque_rounded,
+                    label: l10n.imsakiyahNav,
+                    onTap: () =>
+                        _navigateAfterClose(context, AppRoutes.imsakiyah),
+                  ),
                 _DrawerItem(
                   icon: Icons.auto_stories_outlined,
                   selectedIcon: Icons.auto_stories_rounded,
                   label: l10n.hafalanDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.hafalan));
-                  },
+                  onTap: () => _navigateAfterClose(context, AppRoutes.hafalan),
                 ),
                 _DrawerItem(
                   icon: Icons.auto_stories_outlined,
                   selectedIcon: Icons.auto_stories_rounded,
                   label: l10n.doaHarianDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.doaHarian));
-                  },
+                  onTap: () =>
+                      _navigateAfterClose(context, AppRoutes.doaHarian),
                 ),
 
                 const SizedBox(height: AppDimens.spaceSM),
@@ -96,55 +107,40 @@ class _AppDrawerState extends State<AppDrawer> {
                   icon: Icons.bookmark_outline_rounded,
                   selectedIcon: Icons.bookmark_rounded,
                   label: l10n.bookmarkNav,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.bookmark));
-                  },
+                  onTap: () => _navigateAfterClose(context, AppRoutes.bookmark),
                 ),
                 _DrawerItem(
                   icon: Icons.edit_note_outlined,
                   selectedIcon: Icons.edit_note_rounded,
                   label: l10n.catatanDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.catatan));
-                  },
+                  onTap: () => _navigateAfterClose(context, AppRoutes.catatan),
                 ),
                 _DrawerItem(
                   icon: Icons.bar_chart_outlined,
                   selectedIcon: Icons.bar_chart_rounded,
                   label: l10n.statistikBacaDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.readingStats));
-                  },
+                  onTap: () =>
+                      _navigateAfterClose(context, AppRoutes.readingStats),
                 ),
                 _DrawerItem(
                   icon: Icons.mosque_outlined,
                   selectedIcon: Icons.mosque_rounded,
                   label: l10n.statistikShalatDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.statistikShalat));
-                  },
+                  onTap: () =>
+                      _navigateAfterClose(context, AppRoutes.statistikShalat),
                 ),
                 _DrawerItem(
                   icon: Icons.emoji_events_outlined,
                   selectedIcon: Icons.emoji_events_rounded,
                   label: 'Pencapaian',
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.badges));
-                  },
+                  onTap: () => _navigateAfterClose(context, AppRoutes.badges),
                 ),
                 _DrawerItem(
                   icon: Icons.history_edu_outlined,
                   selectedIcon: Icons.history_edu_rounded,
                   label: l10n.riwayatRekapShalatDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.shalatHistory));
-                  },
+                  onTap: () =>
+                      _navigateAfterClose(context, AppRoutes.shalatHistory),
                 ),
 
                 const SizedBox(height: AppDimens.spaceSM),
@@ -153,19 +149,14 @@ class _AppDrawerState extends State<AppDrawer> {
                   icon: Icons.audio_file_outlined,
                   selectedIcon: Icons.audio_file_rounded,
                   label: l10n.manajemenAudioDrawer,
-                  onTap: () {
-                    Navigator.pop(context);
-                    unawaited(context.push(AppRoutes.audioStorage));
-                  },
+                  onTap: () =>
+                      _navigateAfterClose(context, AppRoutes.audioStorage),
                 ),
                 _DrawerItem(
                   icon: Icons.settings_outlined,
                   selectedIcon: Icons.settings_rounded,
                   label: l10n.pengaturanDrawer,
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await context.push(AppRoutes.settings);
-                  },
+                  onTap: () => _navigateAfterClose(context, AppRoutes.settings),
                 ),
               ],
             ),

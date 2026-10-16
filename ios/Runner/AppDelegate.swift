@@ -1,5 +1,7 @@
 import Flutter
 import UIKit
+import UserNotifications
+import alarm
 import workmanager_apple
 
 @main
@@ -11,6 +13,10 @@ import workmanager_apple
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
+
+    // Register the alarm plugin's background refresh task so scheduled
+    // alarms can be restored while the app is not running.
+    SwiftAlarmPlugin.registerBackgroundTasks()
     
     WorkmanagerPlugin.registerPeriodicTask(withIdentifier: "sync_task_1", frequency: NSNumber(value: 24 * 60 * 60))
 

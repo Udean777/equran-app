@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   adhan: ^2.0.0
+  alarm: ^5.5.0
   audio_service: ^0.18.0
   audio_session: ^0.1.21
   cupertino_icons: ^1.0.8

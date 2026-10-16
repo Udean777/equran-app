@@ -1,3 +1,4 @@
+import 'package:alarm/alarm.dart';
 import 'package:equran_app/core/error/failure.dart';
 import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/features/audio/data/datasources/audio_background_handler.dart';
@@ -36,17 +37,22 @@ class NotificationTestRepositoryImpl implements NotificationTestRepository {
     required tz.TZDateTime scheduledTime,
     required bool isSubuh,
   }) => _safeCall(() async {
-    final details = _notificationService.adzanNotificationDetails(
-      isSubuh: isSubuh,
-    );
-    await _notificationService.scheduleNotificationRaw(
+    final alarmSettings = AlarmSettings(
       id: id,
-      title: title,
-      body: body,
-      scheduledTime: scheduledTime,
-      details: details,
-      matchDateTimeComponents: null,
+      dateTime: scheduledTime,
+      assetAudioPath: isSubuh
+          ? 'assets/audio/adzan_subuh.m4a'
+          : 'assets/audio/adzan.m4a',
+      volumeSettings: VolumeSettings.fade(
+        volume: 1,
+        fadeDuration: const Duration(seconds: 3),
+      ),
+      notificationSettings: NotificationSettings(
+        title: title,
+        body: body,
+      ),
     );
+    await Alarm.set(alarmSettings: alarmSettings);
   });
 
   @override

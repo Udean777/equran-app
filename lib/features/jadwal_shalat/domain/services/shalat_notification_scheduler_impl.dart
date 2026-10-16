@@ -1,5 +1,5 @@
+import 'package:alarm/alarm.dart';
 import 'package:equran_app/core/constants/notification_ids.dart';
-import 'package:equran_app/core/notifications/notification_service.dart';
 import 'package:equran_app/core/utils/time_parsing.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_notif_prefs.dart';
 import 'package:equran_app/features/jadwal_shalat/domain/entities/shalat_schedule_entry.dart';
@@ -7,9 +7,7 @@ import 'package:equran_app/features/jadwal_shalat/domain/services/shalat_notific
 import 'package:timezone/timezone.dart' as tz;
 
 class ShalatNotificationSchedulerImpl implements IShalatNotificationScheduler {
-  ShalatNotificationSchedulerImpl(this._notificationService);
-
-  final NotificationService _notificationService;
+  ShalatNotificationSchedulerImpl();
 
   @override
   Future<void> scheduleForNextDays(
@@ -75,13 +73,22 @@ class ShalatNotificationSchedulerImpl implements IShalatNotificationScheduler {
 
         final uniqueId = waktu.id + (dayIndex * 1000);
 
-        await _notificationService.scheduleNotification(
+        final alarmSettings = AlarmSettings(
           id: uniqueId,
-          title: 'Waktu ${waktu.nama}',
-          body: 'Sudah masuk waktu shalat ${waktu.nama}',
-          scheduledTime: scheduledTime,
-          isSubuh: waktu.isSubuh,
+          dateTime: scheduledTime,
+          assetAudioPath: waktu.isSubuh
+              ? 'assets/audio/adzan_subuh.m4a'
+              : 'assets/audio/adzan.m4a',
+          volumeSettings: VolumeSettings.fade(
+            volume: 1,
+            fadeDuration: const Duration(seconds: 3),
+          ),
+          notificationSettings: NotificationSettings(
+            title: 'Waktu ${waktu.nama}',
+            body: 'Sudah masuk waktu shalat ${waktu.nama}',
+          ),
         );
+        await Alarm.set(alarmSettings: alarmSettings);
       }
       dayIndex++;
     }
@@ -97,18 +104,18 @@ class ShalatNotificationSchedulerImpl implements IShalatNotificationScheduler {
       NotificationIds.isya,
     ]) {
       for (var day = 0; day < 60; day++) {
-        await _notificationService.cancelById(baseId + (day * 1000));
+        await Alarm.stop(baseId + (day * 1000));
       }
-      await _notificationService.cancelById(baseId);
+      await Alarm.stop(baseId);
     }
   }
 
   @override
   Future<void> cancelById(int id) async {
     for (var day = 0; day < 60; day++) {
-      await _notificationService.cancelById(id + (day * 1000));
+      await Alarm.stop(id + (day * 1000));
     }
-    await _notificationService.cancelById(id);
+    await Alarm.stop(id);
   }
 }
 
