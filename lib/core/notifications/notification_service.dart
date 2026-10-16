@@ -7,8 +7,6 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 /// Channel IDs
-const String kAdzanChannelId = 'adzan_channel_v4';
-const String kAdzanSubuhChannelId = 'adzan_subuh_channel_v4';
 const String kQuranReminderChannelId = 'quran_reminder_channel_v4';
 const String kImsakChannelId = 'imsak_channel_v4';
 const String kHafalanChannelId = 'hafalan_channel_v4';
@@ -104,105 +102,6 @@ class NotificationService {
     }
 
     return granted;
-  }
-
-  /// Schedule notifikasi adzan pada [scheduledTime].
-  /// Menggunakan native notification sound (Android & iOS).
-  /// [isSubuh] menentukan sound yang digunakan.
-  Future<void> scheduleNotification({
-    required int id,
-    required String title,
-    required String body,
-    required tz.TZDateTime scheduledTime,
-    required bool isSubuh,
-  }) async {
-    final androidDetails = AndroidNotificationDetails(
-      isSubuh ? kAdzanSubuhChannelId : kAdzanChannelId,
-      'Adzan',
-      channelDescription: 'Notifikasi waktu shalat',
-      importance: Importance.max,
-      priority: Priority.high,
-      fullScreenIntent: true,
-      category: AndroidNotificationCategory.alarm,
-      sound: RawResourceAndroidNotificationSound(
-        isSubuh ? 'adzan_subuh' : 'adzan',
-      ),
-    );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      presentBanner: true,
-      presentList: true,
-    );
-
-    final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    final androidPlugin = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    final canExact =
-        await androidPlugin?.canScheduleExactNotifications() ?? false;
-
-    await _plugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledTime,
-      details,
-      androidScheduleMode: canExact
-          ? AndroidScheduleMode.exactAllowWhileIdle
-          : AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
-  }
-
-  /// Tampilkan notifikasi adzan secara instan (non-scheduled).
-  /// Digunakan untuk test adzan atau manual trigger.
-  Future<void> showNotification({
-    required int id,
-    required String title,
-    required String body,
-    bool isSubuh = false,
-  }) async {
-    final androidDetails = AndroidNotificationDetails(
-      isSubuh ? kAdzanSubuhChannelId : kAdzanChannelId,
-      'Adzan',
-      channelDescription: 'Notifikasi waktu shalat',
-      importance: Importance.max,
-      priority: Priority.high,
-      fullScreenIntent: true,
-      category: AndroidNotificationCategory.alarm,
-      sound: RawResourceAndroidNotificationSound(
-        isSubuh ? 'adzan_subuh' : 'adzan',
-      ),
-    );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      presentBanner: true,
-      presentList: true,
-    );
-
-    final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    await _plugin.show(
-      id,
-      title,
-      body,
-      details,
-    );
   }
 
   /// Schedule notifikasi harian pada [hour]:[minute].
@@ -372,31 +271,6 @@ class NotificationService {
   // NotificationDetails helpers
   // ---------------------------------------------------------------------------
 
-  /// Notification details untuk notifikasi adzan.
-  NotificationDetails adzanNotificationDetails({required bool isSubuh}) {
-    return NotificationDetails(
-      android: AndroidNotificationDetails(
-        isSubuh ? kAdzanSubuhChannelId : kAdzanChannelId,
-        'Adzan',
-        channelDescription: 'Notifikasi waktu shalat',
-        importance: Importance.max,
-        priority: Priority.high,
-        fullScreenIntent: true,
-        category: AndroidNotificationCategory.alarm,
-        sound: RawResourceAndroidNotificationSound(
-          isSubuh ? 'adzan_subuh' : 'adzan',
-        ),
-      ),
-      iOS: const DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        presentBanner: true,
-        presentList: true,
-      ),
-    );
-  }
-
   /// Notification details untuk alarm imsak.
   NotificationDetails imsakNotificationDetails() {
     return const NotificationDetails(
@@ -519,28 +393,6 @@ class NotificationService {
     await androidPlugin.deleteNotificationChannel('hafalan_channel_v2');
     await androidPlugin.deleteNotificationChannel('shalat_checklist_channel');
     await androidPlugin.deleteNotificationChannel('shalat_recap_channel');
-
-    // Channel adzan
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        kAdzanChannelId,
-        'Adzan',
-        description: 'Notifikasi waktu shalat',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('adzan'),
-      ),
-    );
-
-    // Channel adzan subuh
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        kAdzanSubuhChannelId,
-        'Adzan Subuh',
-        description: 'Notifikasi waktu shalat subuh',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('adzan_subuh'),
-      ),
-    );
 
     // Channel reminder baca Quran
     await androidPlugin.createNotificationChannel(

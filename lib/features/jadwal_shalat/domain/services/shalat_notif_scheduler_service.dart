@@ -67,11 +67,11 @@ class ShalatNotifSchedulerService {
       ),
     );
 
-    jadwalResult.fold(
-      (failure) => debugPrint(
+    await jadwalResult.fold(
+      (failure) async => debugPrint(
         'ShalatNotifSchedulerService.initAndSchedule: gagal load jadwal — $failure',
       ),
-      (jadwal) {
+      (jadwal) async {
         final futureEntries = jadwal.jadwal
             .where((e) => e.tanggal >= now.day)
             .take(2)
@@ -94,7 +94,7 @@ class ShalatNotifSchedulerService {
           return;
         }
 
-        unawaited(_reschedule(futureEntries, prefs));
+        await _reschedule(futureEntries, prefs);
       },
     );
   }

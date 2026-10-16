@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:alarm/alarm.dart';
 import 'package:equran_app/app.dart';
 import 'package:equran_app/core/notifications/background_sync_worker.dart';
 import 'package:equran_app/core/providers.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Alarm.init();
   await HiveInitializer.init();
 
   final container = ProviderContainer();

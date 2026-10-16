@@ -1,6 +1,7 @@
 import 'package:equran_app/app/pages/main_page.dart';
 import 'package:equran_app/core/pages/not_found_page.dart';
 import 'package:equran_app/core/router/app_routes.dart';
+import 'package:equran_app/core/utils/ramadan_calendar.dart';
 import 'package:equran_app/features/audio/presentation/pages/audio_storage_page.dart';
 import 'package:equran_app/features/bookmark/presentation/pages/bookmark_page.dart';
 import 'package:equran_app/features/catatan_ayat/presentation/pages/catatan_ayat_page.dart';
@@ -42,6 +43,11 @@ class AppRouter {
       final isOnboarding = location == AppRoutes.onboarding;
 
       if (isOnboarding) return null;
+
+      if (location == AppRoutes.imsakiyah &&
+          !RamadanCalendar.isRamadan()) {
+        return AppRoutes.home;
+      }
 
       if (_isOnboardingDone()) return null;
 

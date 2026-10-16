@@ -93,9 +93,7 @@ final saveShalatNotifPrefsProvider = Provider<SaveShalatNotifPrefs>((ref) {
 
 final shalatNotificationSchedulerProvider =
     Provider<IShalatNotificationScheduler>((ref) {
-      return ShalatNotificationSchedulerImpl(
-        ref.watch(notificationServiceProvider),
-      );
+      return ShalatNotificationSchedulerImpl();
     });
 
 // ─── Offline Jadwal Service ───────────────────────────────────────────────

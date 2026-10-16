@@ -1,4 +1,4 @@
-import 'package:equran_app/core/theme/app_colors.dart';
+import 'package:equran_app/core/theme/app_theme_palette.dart';
 import 'package:flutter/material.dart';
 
 extension BuildContextThemeExt on BuildContext {
@@ -8,34 +8,29 @@ extension BuildContextThemeExt on BuildContext {
 
   ColorScheme get colorScheme => theme.colorScheme;
 
-  Color get surfaceColor => isDark ? AppColors.surfaceDark : AppColors.surface;
+  AppThemePalette get _palette =>
+      theme.extension<AppThemePalette>() ??
+      (isDark ? AppThemePalette.dark : AppThemePalette.light);
 
-  Color get surfaceVariantColor =>
-      isDark ? AppColors.surfaceDarkVariant : AppColors.surfaceVariant;
+  Color get surfaceColor => _palette.surface;
 
-  Color get borderColor => isDark ? AppColors.outlineDark : AppColors.outline;
+  Color get surfaceVariantColor => _palette.surfaceVariant;
 
-  Color get borderVariantColor =>
-      isDark ? AppColors.outlineDarkVariant : AppColors.outlineVariant;
+  Color get borderColor => _palette.border;
 
-  Color get textPrimaryColor =>
-      isDark ? AppColors.onSurfaceDark : AppColors.textPrimary;
+  Color get borderVariantColor => _palette.borderVariant;
 
-  Color get textSecondaryColor =>
-      isDark ? AppColors.onSurfaceDarkVariant : AppColors.textSecondary;
+  Color get textPrimaryColor => _palette.textPrimary;
 
-  Color get scaffoldBackgroundColor =>
-      isDark ? AppColors.backgroundDark : AppColors.background;
+  Color get textSecondaryColor => _palette.textSecondary;
 
-  Color get primaryActionColor =>
-      isDark ? AppColors.primaryLighter : AppColors.primary;
+  Color get scaffoldBackgroundColor => _palette.background;
 
-  Color get primaryContainerColor =>
-      isDark ? AppColors.primaryDark : AppColors.primaryContainer;
+  Color get primaryActionColor => _palette.primaryAction;
 
-  Color get textTertiaryColor =>
-      isDark ? AppColors.onSurfaceDarkVariant : AppColors.textTertiary;
+  Color get primaryContainerColor => _palette.primaryContainer;
 
-  Color get borderSubtleColor =>
-      isDark ? AppColors.outlineDark : AppColors.outlineVariant;
+  Color get textTertiaryColor => _palette.textTertiary;
+
+  Color get borderSubtleColor => _palette.borderVariant;
 }
