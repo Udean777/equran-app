@@ -39,6 +39,9 @@
     "ayahLabel": "Ayat {{number}}",
     "ayahProgressLabel": "Ayat {{number}} dari {{total}}",
     "basmalah": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    "englishAttribution": "Terjemahan Inggris: Muhammad Asad (alquran.cloud)",
+    "tafsirEnUnavailable": "Tafsir versi bahasa Inggris belum tersedia. Stay tune di equran.id untuk update selanjutnya.",
+    "dismissToast": "Tutup notifikasi",
     "back": "Kembali"
   },
   "tabs": {

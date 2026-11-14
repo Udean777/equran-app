@@ -4,11 +4,17 @@ import { db } from "@/lib/db/client";
 import { err, ok, type Result } from "@/lib/result";
 
 import {
+  type QuranLanguage,
   type SurahDetail,
   type SurahSummary,
   type SurahTafsir,
 } from "../domain/entities";
-import { fetchSurahDetail, fetchSurahList, fetchSurahTafsir } from "./api";
+import {
+  fetchEnglishSurahDetail,
+  fetchSurahDetail,
+  fetchSurahList,
+  fetchSurahTafsir,
+} from "./api";
 import {
   AyahRowSchema,
   mapAyahRowToDomain,
@@ -23,8 +29,14 @@ const TOTAL_SURAH_COUNT = 114;
 
 const upsertSurah = (surah: SurahSummary, now: number): void => {
   db.runSync(
-    `INSERT OR REPLACE INTO surah (number, name, latin, ayat_count, revelation, synced_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO surah (number, name, latin, ayat_count, revelation, synced_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(number) DO UPDATE SET
+       name = excluded.name,
+       latin = excluded.latin,
+       ayat_count = excluded.ayat_count,
+       revelation = excluded.revelation,
+       synced_at = excluded.synced_at`,
     surah.number,
     surah.name,
     surah.latin,
@@ -69,6 +81,7 @@ export const getSurahList = async (
 
 export const getSurahDetail = async (
   surahNumber: number,
+  language: QuranLanguage = "id",
   signal?: AbortSignal,
 ): Promise<Result<SurahDetail>> => {
   if (!SurahNumberSchema.safeParse(surahNumber).success) {
@@ -78,37 +91,67 @@ export const getSurahDetail = async (
   const cachedSurah = readCachedSurah(surahNumber);
   if (cachedSurah) {
     const ayahRows = db.getAllSync<unknown>(
-      "SELECT surah_number, number, text_arabic, text_latin, translation FROM ayah WHERE surah_number = ? ORDER BY number ASC",
+      "SELECT surah_number, number, text_arabic, text_latin, translation, translation_en FROM ayah WHERE surah_number = ? ORDER BY number ASC",
       surahNumber,
     );
     const parsedAyahs = z.array(AyahRowSchema).safeParse(ayahRows);
-    if (
+    const hasCompleteLanguageRows =
       parsedAyahs.success &&
-      parsedAyahs.data.length === cachedSurah.ayatCount
-    ) {
+      parsedAyahs.data.length === cachedSurah.ayatCount &&
+      parsedAyahs.data.every((row) =>
+        language === "en"
+          ? typeof row.translation_en === "string" &&
+            row.translation_en.length > 0
+          : row.translation.length > 0,
+      );
+
+    if (hasCompleteLanguageRows) {
       return ok({
         surah: cachedSurah,
-        ayat: parsedAyahs.data.map(mapAyahRowToDomain),
+        ayat: parsedAyahs.data.map((row) => mapAyahRowToDomain(row, language)),
       });
     }
   }
 
-  const remote = await fetchSurahDetail(surahNumber, signal);
+  const remote =
+    language === "en"
+      ? await fetchEnglishSurahDetail(surahNumber, signal)
+      : await fetchSurahDetail(surahNumber, signal);
   if (!remote.ok) return remote;
 
   const now = Date.now();
   db.withTransactionSync(() => {
     upsertSurah(remote.value.surah, now);
     for (const ayah of remote.value.ayat) {
-      db.runSync(
-        `INSERT OR REPLACE INTO ayah (surah_number, number, text_arabic, text_latin, translation)
-         VALUES (?, ?, ?, ?, ?)`,
-        ayah.surahNumber,
-        ayah.number,
-        ayah.textArabic,
-        ayah.textLatin,
-        ayah.translation,
-      );
+      if (language === "en") {
+        db.runSync(
+          `INSERT INTO ayah (surah_number, number, text_arabic, text_latin, translation, translation_en)
+           VALUES (?, ?, ?, ?, '', ?)
+           ON CONFLICT(surah_number, number) DO UPDATE SET
+             text_arabic = excluded.text_arabic,
+             text_latin = excluded.text_latin,
+             translation_en = excluded.translation_en`,
+          ayah.surahNumber,
+          ayah.number,
+          ayah.textArabic,
+          ayah.textLatin,
+          ayah.translation,
+        );
+      } else {
+        db.runSync(
+          `INSERT INTO ayah (surah_number, number, text_arabic, text_latin, translation)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(surah_number, number) DO UPDATE SET
+             text_arabic = excluded.text_arabic,
+             text_latin = excluded.text_latin,
+             translation = excluded.translation`,
+          ayah.surahNumber,
+          ayah.number,
+          ayah.textArabic,
+          ayah.textLatin,
+          ayah.translation,
+        );
+      }
     }
   });
 

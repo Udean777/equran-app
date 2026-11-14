@@ -1,5 +1,9 @@
+export type QuranLanguage = "id" | "en";
 export type RevelationPlace = "Mekah" | "Madinah";
 export type RevelationFilter = "all" | RevelationPlace;
+
+export const resolveQuranLanguage = (language: string): QuranLanguage =>
+  language.toLowerCase().startsWith("en") ? "en" : "id";
 
 export type SurahSummary = Readonly<{
   number: number;

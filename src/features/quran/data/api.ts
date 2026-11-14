@@ -8,6 +8,8 @@ import {
   type SurahTafsir,
 } from "../domain/entities";
 import {
+  EnglishSuratDetailResponseSchema,
+  mapEnglishSurahDetailDtoToDomain,
   mapSurahDetailDtoToDomain,
   mapSurahDtoToDomain,
   mapTafsirDtoToDomain,
@@ -16,10 +18,12 @@ import {
   TafsirResponseSchema,
 } from "./schema";
 
-const BASE_URL = "https://equran.id/api/v2";
+const V2_BASE_URL = "https://equran.id/api/v2";
+const EN_BASE_URL = "https://equran.id/api/en";
 const REQUEST_TIMEOUT_MS = 15_000;
 
 const fetchAndParse = async <TSchema extends z.ZodTypeAny, TDomain>(
+  baseUrl: string,
   path: string,
   schema: TSchema,
   mapper: (parsed: z.infer<TSchema>) => TDomain,
@@ -32,7 +36,7 @@ const fetchAndParse = async <TSchema extends z.ZodTypeAny, TDomain>(
   signal?.addEventListener("abort", onAbort, { once: true });
 
   try {
-    const response = await fetch(`${BASE_URL}${path}`, {
+    const response = await fetch(`${baseUrl}${path}`, {
       signal: controller.signal,
       headers: { Accept: "application/json" },
     });
@@ -66,6 +70,7 @@ export const fetchSurahList = (
   signal?: AbortSignal,
 ): Promise<Result<readonly SurahSummary[]>> =>
   fetchAndParse(
+    V2_BASE_URL,
     "/surat",
     SuratListResponseSchema,
     (res) => res.data.map(mapSurahDtoToDomain),
@@ -77,9 +82,22 @@ export const fetchSurahDetail = (
   signal?: AbortSignal,
 ): Promise<Result<SurahDetail>> =>
   fetchAndParse(
+    V2_BASE_URL,
     `/surat/${surahNumber}`,
     SuratDetailResponseSchema,
     (res) => mapSurahDetailDtoToDomain(res.data),
+    signal,
+  );
+
+export const fetchEnglishSurahDetail = (
+  surahNumber: number,
+  signal?: AbortSignal,
+): Promise<Result<SurahDetail>> =>
+  fetchAndParse(
+    EN_BASE_URL,
+    `/surah/${surahNumber}`,
+    EnglishSuratDetailResponseSchema,
+    (res) => mapEnglishSurahDetailDtoToDomain(res.data),
     signal,
   );
 
@@ -88,6 +106,7 @@ export const fetchSurahTafsir = (
   signal?: AbortSignal,
 ): Promise<Result<SurahTafsir>> =>
   fetchAndParse(
+    V2_BASE_URL,
     `/tafsir/${surahNumber}`,
     TafsirResponseSchema,
     (res) => mapTafsirDtoToDomain(res.data),

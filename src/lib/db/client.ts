@@ -47,6 +47,7 @@ const migrations = [
      notification_id TEXT NOT NULL,
      scheduled_for INTEGER NOT NULL
    );`,
+  `ALTER TABLE ayah ADD COLUMN translation_en TEXT;`,
 ];
 
 export const migrate = (): void => {

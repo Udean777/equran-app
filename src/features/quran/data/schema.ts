@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   type Ayah,
+  type QuranLanguage,
   type RevelationPlace,
   type SurahDetail,
   type SurahSummary,
@@ -10,6 +11,7 @@ import {
 } from "../domain/entities";
 
 export const RevelationPlaceSchema = z.enum(["Mekah", "Madinah"]);
+export const EnglishRevelationTypeSchema = z.enum(["Meccan", "Medinan"]);
 
 export const SurahNumberSchema = z.coerce.number().int().min(1).max(114);
 
@@ -59,6 +61,28 @@ export const TafsirResponseSchema = z.object({
   data: TafsirDataDtoSchema,
 });
 
+export const EnglishAyahDtoSchema = z.object({
+  numberInSurah: z.number().int().positive(),
+  textArabic: z.string().min(1),
+  textLatin: z.string(),
+  textEnglish: z.string(),
+});
+
+export const EnglishSuratDetailDtoSchema = z.object({
+  number: z.number().int().min(1).max(114),
+  name: z.string().min(1),
+  englishName: z.string().min(1),
+  numberOfAyahs: z.number().int().positive(),
+  revelationType: EnglishRevelationTypeSchema,
+  ayahs: z.array(EnglishAyahDtoSchema),
+});
+
+export const EnglishSuratDetailResponseSchema = z.object({
+  code: z.number().int(),
+  message: z.string(),
+  data: EnglishSuratDetailDtoSchema,
+});
+
 export const SurahRowSchema = z.object({
   number: z.number().int().min(1).max(114),
   name: z.string().min(1),
@@ -74,6 +98,7 @@ export const AyahRowSchema = z.object({
   text_arabic: z.string().min(1),
   text_latin: z.string(),
   translation: z.string(),
+  translation_en: z.string().nullable().optional(),
 });
 
 export const TafsirEntrySchema = z.object({
@@ -92,10 +117,15 @@ export const TafsirRowSchema = z.object({
 export type SuratDto = z.infer<typeof SuratDtoSchema>;
 export type SuratDetailDto = z.infer<typeof SuratDetailDtoSchema>;
 export type TafsirDataDto = z.infer<typeof TafsirDataDtoSchema>;
+export type EnglishSuratDetailDto = z.infer<typeof EnglishSuratDetailDtoSchema>;
 export type SurahRow = z.infer<typeof SurahRowSchema>;
 export type AyahRow = z.infer<typeof AyahRowSchema>;
 
 const toRevelation = (value: RevelationPlace): RevelationPlace => value;
+
+const toRevelationFromEnglish = (
+  value: z.infer<typeof EnglishRevelationTypeSchema>,
+): RevelationPlace => (value === "Meccan" ? "Mekah" : "Madinah");
 
 export const mapSurahDtoToDomain = (dto: SuratDto): SurahSummary => ({
   number: dto.nomor,
@@ -113,12 +143,34 @@ export const mapSurahRowToDomain = (row: SurahRow): SurahSummary => ({
   revelation: toRevelation(row.revelation),
 });
 
-export const mapAyahRowToDomain = (row: AyahRow): Ayah => ({
+export const mapAyahRowToDomain = (
+  row: AyahRow,
+  language: QuranLanguage = "id",
+): Ayah => ({
   surahNumber: row.surah_number,
   number: row.number,
   textArabic: row.text_arabic,
   textLatin: row.text_latin,
-  translation: row.translation,
+  translation: language === "en" ? (row.translation_en ?? "") : row.translation,
+});
+
+export const mapEnglishSurahDetailDtoToDomain = (
+  dto: EnglishSuratDetailDto,
+): SurahDetail => ({
+  surah: {
+    number: dto.number,
+    name: dto.name,
+    latin: dto.englishName,
+    ayatCount: dto.numberOfAyahs,
+    revelation: toRevelationFromEnglish(dto.revelationType),
+  },
+  ayat: dto.ayahs.map((ayah) => ({
+    surahNumber: dto.number,
+    number: ayah.numberInSurah,
+    textArabic: ayah.textArabic,
+    textLatin: ayah.textLatin,
+    translation: ayah.textEnglish,
+  })),
 });
 
 export const mapSurahDetailDtoToDomain = (

@@ -1,4 +1,6 @@
 import {
+  EnglishSuratDetailResponseSchema,
+  mapEnglishSurahDetailDtoToDomain,
   mapSurahDetailDtoToDomain,
   mapSurahDtoToDomain,
   mapTafsirDtoToDomain,
@@ -109,6 +111,48 @@ describe("quran schemas", () => {
       const tafsir = mapTafsirDtoToDomain(parsed.data.data);
       expect(tafsir.entries).toEqual([
         { ayahNumber: 1, text: "Tafsir ayat pertama." },
+      ]);
+    }
+  });
+
+  it("parses English surah detail with false/null navigation boundaries", () => {
+    const payload = {
+      code: 200,
+      message: "Data retrieved successfully",
+      data: {
+        number: 1,
+        name: "الفاتحة",
+        englishName: "Al-Fatihah",
+        englishNameTranslation: "The Opening",
+        numberOfAyahs: 1,
+        revelationType: "Meccan",
+        previousSurah: false,
+        nextSurah: null,
+        ayahs: [
+          {
+            numberInSurah: 1,
+            textArabic: "بِسْمِ اللّٰهِ",
+            textLatin: "Bismillāh",
+            textEnglish: "In the name of God",
+            audio: { "05": "https://example.com/001001.mp3" },
+          },
+        ],
+      },
+    };
+
+    const parsed = EnglishSuratDetailResponseSchema.safeParse(payload);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const detail = mapEnglishSurahDetailDtoToDomain(parsed.data.data);
+      expect(detail.surah.revelation).toBe("Mekah");
+      expect(detail.ayat).toEqual([
+        {
+          surahNumber: 1,
+          number: 1,
+          textArabic: "بِسْمِ اللّٰهِ",
+          textLatin: "Bismillāh",
+          translation: "In the name of God",
+        },
       ]);
     }
   });

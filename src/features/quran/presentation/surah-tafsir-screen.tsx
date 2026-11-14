@@ -2,6 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Search, X } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, TextInput } from "react-native";
 import Animated, {
@@ -14,8 +15,10 @@ import Animated, {
 import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
 import { StateView } from "@/components/state-view";
+import { Toast } from "@/components/toast";
 import { getThemePalette } from "@/theme/palette";
 
+import { resolveQuranLanguage } from "../domain/entities";
 import { TafsirCard } from "./tafsir-card";
 import { useSurahTafsir } from "./use-surah-tafsir";
 
@@ -24,10 +27,12 @@ type Props = Readonly<{
 }>;
 
 export const SurahTafsirScreen = ({ surahNumber }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const palette = getThemePalette(colorScheme);
+  const isEnglish = resolveQuranLanguage(i18n.language) === "en";
+  const [toastDismissed, setToastDismissed] = useState(false);
   const {
     tafsir,
     filteredEntries,
@@ -113,6 +118,13 @@ export const SurahTafsirScreen = ({ surahNumber }: Props) => {
           />
         </Animated.View>
       ) : null}
+
+      <Toast
+        visible={isEnglish && !toastDismissed}
+        message={t("quran.tafsirEnUnavailable")}
+        dismissLabel={t("quran.dismissToast")}
+        onDismiss={() => setToastDismissed(true)}
+      />
     </Screen>
   );
 };

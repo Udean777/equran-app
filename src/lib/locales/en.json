@@ -39,6 +39,9 @@
     "ayahLabel": "Ayah {{number}}",
     "ayahProgressLabel": "Ayah {{number}} of {{total}}",
     "basmalah": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    "englishAttribution": "English translation: Muhammad Asad (alquran.cloud)",
+    "tafsirEnUnavailable": "English tafsir is not available yet. Stay tuned to equran.id for future updates.",
+    "dismissToast": "Dismiss notification",
     "back": "Back"
   },
   "tabs": {

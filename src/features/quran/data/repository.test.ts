@@ -1,6 +1,11 @@
 import { err, ok } from "@/lib/result";
 
-import { fetchSurahDetail, fetchSurahList, fetchSurahTafsir } from "./api";
+import {
+  fetchEnglishSurahDetail,
+  fetchSurahDetail,
+  fetchSurahList,
+  fetchSurahTafsir,
+} from "./api";
 import { getSurahDetail, getSurahList, getSurahTafsir } from "./repository";
 
 const mockGetAllSync = jest.fn();
@@ -20,6 +25,7 @@ jest.mock("@/lib/db/client", () => ({
 jest.mock("./api", () => ({
   fetchSurahList: jest.fn(),
   fetchSurahDetail: jest.fn(),
+  fetchEnglishSurahDetail: jest.fn(),
   fetchSurahTafsir: jest.fn(),
 }));
 
@@ -122,5 +128,86 @@ describe("quran repository", () => {
     expect(result.ok).toBe(true);
     expect(fetchSurahTafsir).toHaveBeenCalledWith(1, undefined);
     expect(mockWithTransactionSync).toHaveBeenCalledTimes(1);
+  });
+
+  it("lazily hydrates English translation when translation_en is missing in SQLite", async () => {
+    mockGetFirstSync.mockReturnValue({
+      number: 1,
+      name: "الفاتحة",
+      latin: "Al-Fatihah",
+      ayat_count: 1,
+      revelation: "Mekah",
+      synced_at: 1000,
+    });
+    mockGetAllSync.mockReturnValue([
+      {
+        surah_number: 1,
+        number: 1,
+        text_arabic: "بِسْمِ اللّٰهِ",
+        text_latin: "Bismillah",
+        translation: "Dengan nama Allah",
+        translation_en: null,
+      },
+    ]);
+    jest.mocked(fetchEnglishSurahDetail).mockResolvedValue(
+      ok({
+        surah: {
+          number: 1,
+          name: "الفاتحة",
+          latin: "Al-Fatihah",
+          ayatCount: 1,
+          revelation: "Mekah",
+        },
+        ayat: [
+          {
+            surahNumber: 1,
+            number: 1,
+            textArabic: "بِسْمِ اللّٰهِ",
+            textLatin: "Bismillah",
+            translation: "In the name of God",
+          },
+        ],
+      }),
+    );
+
+    const result = await getSurahDetail(1, "en");
+    expect(result.ok).toBe(true);
+    expect(fetchEnglishSurahDetail).toHaveBeenCalledWith(1, undefined);
+    expect(mockRunSync).toHaveBeenCalledWith(
+      expect.stringContaining("ON CONFLICT(surah_number, number) DO UPDATE"),
+      1,
+      1,
+      "بِسْمِ اللّٰهِ",
+      "Bismillah",
+      "In the name of God",
+    );
+  });
+
+  it("returns cached English translation without hitting API", async () => {
+    mockGetFirstSync.mockReturnValue({
+      number: 1,
+      name: "الفاتحة",
+      latin: "Al-Fatihah",
+      ayat_count: 1,
+      revelation: "Mekah",
+      synced_at: 1000,
+    });
+    mockGetAllSync.mockReturnValue([
+      {
+        surah_number: 1,
+        number: 1,
+        text_arabic: "بِسْمِ اللّٰهِ",
+        text_latin: "Bismillah",
+        translation: "Dengan nama Allah",
+        translation_en: "In the name of God",
+      },
+    ]);
+
+    const result = await getSurahDetail(1, "en");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.ayat[0]?.translation).toBe("In the name of God");
+    }
+    expect(fetchEnglishSurahDetail).not.toHaveBeenCalled();
   });
 });

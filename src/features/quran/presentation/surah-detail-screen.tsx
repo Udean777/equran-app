@@ -36,6 +36,7 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
   const {
     detail,
     filteredAyat,
+    language,
     searchQuery,
     setSearchQuery,
     isLoading,
@@ -146,6 +147,13 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
             ListHeaderComponent={
               searchQuery.trim().length === 0 ? (
                 <SurahBannerCard surah={detail.surah} />
+              ) : null
+            }
+            ListFooterComponent={
+              language === "en" ? (
+                <Text className="pb-6 pt-2 text-center text-xs text-muted">
+                  {t("quran.englishAttribution")}
+                </Text>
               ) : null
             }
             keyboardShouldPersistTaps="handled"
