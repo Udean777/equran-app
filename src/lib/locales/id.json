@@ -9,5 +9,72 @@
     "prayer": "Shalat",
     "hafalan": "Hafalan",
     "settings": "Pengaturan"
+  },
+  "onboarding": {
+    "actions": {
+      "back": "Kembali",
+      "next": "Lanjut",
+      "skip": "Lewati",
+      "start": "Mulai Sekarang",
+      "allowPermissions": "Izinkan Sekarang",
+      "permissionsGranted": "Semua izin diberikan. Tekan Lanjut.",
+      "permissionsPartial": "Sebagian izin belum aktif. Kamu bisa mengaturnya nanti di Pengaturan."
+    },
+    "permissions": {
+      "locationTitle": "Akses Lokasi",
+      "locationDesc": "Menghitung jadwal shalat dan arah kiblat yang akurat sesuai posisi kamu.",
+      "notificationTitle": "Notifikasi & Alarm",
+      "notificationDesc": "Mengirim pengingat adzan tepat waktu dan jadwal muraja'ah hafalan.",
+      "granted": "Diizinkan",
+      "notGranted": "Belum diizinkan"
+    },
+    "slides": {
+      "welcome": {
+        "title": "Qurva",
+        "subtitle": "Teman Ibadah Sehari-hari",
+        "description": "Al-Quran digital dengan audio murattal, jadwal shalat offline, kompas kiblat, dan pelacak hafalan."
+      },
+      "permissions": {
+        "title": "Izinkan Akses",
+        "subtitle": "Agar fitur utama berjalan optimal",
+        "description": "Qurva membutuhkan izin lokasi dan notifikasi untuk jadwal shalat otomatis dan pengingat adzan."
+      },
+      "quran": {
+        "title": "Al-Quran & Tafsir",
+        "subtitle": "Baca dan dengarkan kapan saja",
+        "description": "114 surah lengkap dengan teks Arab, latin, terjemahan, dan tafsir yang tersimpan untuk akses offline.",
+        "point1": "114 surah dan tafsir lengkap dengan cache SQLite offline",
+        "point2": "Teks Arab, transliterasi latin, dan terjemahan bahasa Indonesia",
+        "point3": "Audio murattal per ayat maupun per surah hingga layar terkunci"
+      },
+      "prayer": {
+        "title": "Jadwal Shalat & Kiblat",
+        "subtitle": "Tepat waktu di mana pun berada",
+        "description": "Perhitungan waktu shalat langsung di perangkat berbasis GPS tanpa bergantung koneksi internet.",
+        "point1": "Perhitungan jadwal shalat offline akurat sesuai lokasi GPS",
+        "point2": "Alarm pengingat waktu shalat dengan izin exact alarm",
+        "point3": "Kompas arah kiblat real-time berbasis sensor perangkat"
+      },
+      "hafalan": {
+        "title": "Hafalan & Muraja'ah",
+        "subtitle": "Jaga konsistensi setoran",
+        "description": "Rekam setoran bacaan untuk dievaluasi AI dan jadwalkan pengingat muraja'ah secara teratur.",
+        "point1": "Rekam setoran hafalan dan lihat skor evaluasi AI",
+        "point2": "Pengingat muraja'ah otomatis dengan interval bertahap",
+        "point3": "Riwayat setoran dan statistik progres hafalan per surah"
+      },
+      "ready": {
+        "title": "Semua Siap!",
+        "subtitle": "Mulai perjalanan ibadahmu",
+        "description": "Qurva siap menemani tilawah, shalat, dan hafalan harianmu.",
+        "basmalahArabic": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+        "basmalahMeaning": "Dengan nama Allah Yang Maha Pengasih, Maha Penyayang"
+      }
+    }
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "rerunOnboarding": "Putar Ulang Onboarding",
+    "rerunOnboardingDesc": "Lihat kembali pengenalan fitur dan atur ulang izin aplikasi"
   }
 }
