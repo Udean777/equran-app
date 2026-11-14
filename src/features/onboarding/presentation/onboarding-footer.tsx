@@ -66,7 +66,7 @@ export const OnboardingFooter = ({
     : t("onboarding.actions.next");
 
   return (
-    <View className="gap-5 px-6 pb-6 pt-3">
+    <View className="gap-4 border-t border-gold/15 px-6 pb-6 pt-4">
       <View className="flex-row items-center justify-center gap-2">
         {Array.from({ length: totalSlides }, (_, index) => (
           <PaginationDot key={index} active={index === currentIndex} />
@@ -80,7 +80,7 @@ export const OnboardingFooter = ({
             accessibilityRole="button"
             accessibilityLabel={t("onboarding.actions.back")}
             onPress={onPrev}
-            className="min-h-11 min-w-11 items-center justify-center rounded-full border border-gold/40 bg-onboarding-surface px-5 py-3"
+            className="min-h-12 min-w-11 items-center justify-center rounded-2xl border border-gold/40 bg-onboarding-surface px-5 py-3"
           >
             <Text className="text-sm font-semibold text-onboarding-text">
               {t("onboarding.actions.back")}
@@ -94,7 +94,7 @@ export const OnboardingFooter = ({
             accessibilityRole="button"
             accessibilityLabel={primaryLabel}
             onPress={onNext}
-            className="min-h-11 min-w-11 items-center justify-center rounded-full bg-gold px-5 py-3"
+            className="min-h-12 min-w-11 items-center justify-center rounded-2xl bg-gold px-5 py-3"
           >
             <Text className="text-sm font-bold text-on-gold">
               {primaryLabel}
@@ -106,9 +106,9 @@ export const OnboardingFooter = ({
             accessibilityRole="button"
             accessibilityLabel={t("onboarding.actions.skip")}
             onPress={onSkip}
-            className="min-h-11 min-w-11 items-center justify-center rounded-full border border-gold/40 bg-onboarding-surface px-5 py-3"
+            className="min-h-12 min-w-11 items-center justify-center rounded-2xl border border-gold/40 bg-onboarding-surface px-5 py-3"
           >
-            <Text className="text-sm font-semibold text-onboarding-muted">
+            <Text className="text-sm font-semibold text-onboarding-text">
               {t("onboarding.actions.skip")}
             </Text>
           </AnimatedPressable>

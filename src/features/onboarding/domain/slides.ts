@@ -1,8 +1,13 @@
 export type OnboardingSlideId =
-  "welcome" | "permissions" | "quran" | "prayer" | "hafalan" | "ready";
+  "welcome" | "features" | "permissions" | "ready";
 
-export type OnboardingSlideKind =
-  "welcome" | "permissions" | "feature" | "ready";
+export type OnboardingSlideKind = OnboardingSlideId;
+
+export type OnboardingFeatureItem = Readonly<{
+  id: "quran" | "prayer" | "hafalan";
+  titleKey: string;
+  descriptionKey: string;
+}>;
 
 export type OnboardingSlide = Readonly<{
   id: OnboardingSlideId;
@@ -10,7 +15,7 @@ export type OnboardingSlide = Readonly<{
   titleKey: string;
   subtitleKey: string;
   descriptionKey: string;
-  pointKeys: readonly string[];
+  features: readonly OnboardingFeatureItem[];
 }>;
 
 export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
@@ -20,7 +25,31 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
     titleKey: "onboarding.slides.welcome.title",
     subtitleKey: "onboarding.slides.welcome.subtitle",
     descriptionKey: "onboarding.slides.welcome.description",
-    pointKeys: [],
+    features: [],
+  },
+  {
+    id: "features",
+    kind: "features",
+    titleKey: "onboarding.slides.features.title",
+    subtitleKey: "onboarding.slides.features.subtitle",
+    descriptionKey: "onboarding.slides.features.description",
+    features: [
+      {
+        id: "quran",
+        titleKey: "onboarding.slides.features.quranTitle",
+        descriptionKey: "onboarding.slides.features.quranDesc",
+      },
+      {
+        id: "prayer",
+        titleKey: "onboarding.slides.features.prayerTitle",
+        descriptionKey: "onboarding.slides.features.prayerDesc",
+      },
+      {
+        id: "hafalan",
+        titleKey: "onboarding.slides.features.hafalanTitle",
+        descriptionKey: "onboarding.slides.features.hafalanDesc",
+      },
+    ],
   },
   {
     id: "permissions",
@@ -28,43 +57,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
     titleKey: "onboarding.slides.permissions.title",
     subtitleKey: "onboarding.slides.permissions.subtitle",
     descriptionKey: "onboarding.slides.permissions.description",
-    pointKeys: [],
-  },
-  {
-    id: "quran",
-    kind: "feature",
-    titleKey: "onboarding.slides.quran.title",
-    subtitleKey: "onboarding.slides.quran.subtitle",
-    descriptionKey: "onboarding.slides.quran.description",
-    pointKeys: [
-      "onboarding.slides.quran.point1",
-      "onboarding.slides.quran.point2",
-      "onboarding.slides.quran.point3",
-    ],
-  },
-  {
-    id: "prayer",
-    kind: "feature",
-    titleKey: "onboarding.slides.prayer.title",
-    subtitleKey: "onboarding.slides.prayer.subtitle",
-    descriptionKey: "onboarding.slides.prayer.description",
-    pointKeys: [
-      "onboarding.slides.prayer.point1",
-      "onboarding.slides.prayer.point2",
-      "onboarding.slides.prayer.point3",
-    ],
-  },
-  {
-    id: "hafalan",
-    kind: "feature",
-    titleKey: "onboarding.slides.hafalan.title",
-    subtitleKey: "onboarding.slides.hafalan.subtitle",
-    descriptionKey: "onboarding.slides.hafalan.description",
-    pointKeys: [
-      "onboarding.slides.hafalan.point1",
-      "onboarding.slides.hafalan.point2",
-      "onboarding.slides.hafalan.point3",
-    ],
+    features: [],
   },
   {
     id: "ready",
@@ -72,11 +65,11 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlide[] = [
     titleKey: "onboarding.slides.ready.title",
     subtitleKey: "onboarding.slides.ready.subtitle",
     descriptionKey: "onboarding.slides.ready.description",
-    pointKeys: [],
+    features: [],
   },
 ];
 
-export const PERMISSION_SLIDE_INDEX = 1;
+export const PERMISSION_SLIDE_INDEX = 2;
 
 export const clampSlideIndex = (index: number): number => {
   const maxIndex = ONBOARDING_SLIDES.length - 1;

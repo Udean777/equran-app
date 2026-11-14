@@ -11,16 +11,18 @@ The Flutter app is archived in `backup/` (gitignored) and is the **behavioural r
 
 | Feature | In scope | Notes |
 |---|---|---|
-| Onboarding (6 slides) | Yes | One-time flag, re-run from Settings |
-| Surah list / detail / tafsir | Yes | Offline-first, API `equran.id` |
+| Onboarding (4 slides) | Yes | One-time flag, re-run from Settings |
+| Surah list / detail / tafsir | Yes | Offline-first, API `equran.id` (`/api/v2` for `id` + tafsir, `/api/en` for `en` translation) |
 | Murattal audio | Yes | Background + lock screen, per-ayah and per-surah |
+| Doa & dzikir | Yes | Offline-first SQLite cache (227 items via `/api/doa`), local filter by `grup`/`tag` |
+| Semantic search | Yes | Online-only via `POST /api/vector` across `surat`, `ayat`, `tafsir`, `doa` |
 | Prayer times | Yes | Computed offline (`adhan-js`) + location |
 | Prayer notification / alarm | Yes | `alarmClock` delivery, exact alarm permission |
 | Qibla | Yes | Compass heading + location |
 | Hafalan: list, status, setoran (record + AI compare), stats, muraja'ah reminders, history | Yes | Uploads to existing FastAPI service |
 | Home screen widget (Android) | Yes | `expo-widgets` |
 | Settings, i18n (id/en), theme | Yes | |
-| Tasbih, prayer stats, imsakiyah, doa, catatan ayat, quran reminder, hafalan juz/filter/ayah-grid | No | Deliberately out of scope |
+| Tasbih, prayer stats, imsakiyah, catatan ayat, quran reminder, hafalan juz/filter/ayah-grid | No | Deliberately out of scope |
 | iOS widget, live activity | No | Android widget only |
 
 ## 2. Stack
@@ -62,6 +64,9 @@ src/
       settings.tsx
     surah/[number].tsx
     surah/[number]/tafsir.tsx
+    doa/index.tsx
+    doa/[id].tsx
+    search.tsx
     hafalan/[surah]/index.tsx
     hafalan/[surah]/setoran.tsx
     _layout.tsx
@@ -77,6 +82,8 @@ src/
       presentation/         # components + query hooks used by screens
         use-surah-list.ts
         surah-card.tsx
+    doa/
+    search/
     audio/
     prayer/
     qibla/
@@ -102,7 +109,10 @@ Remote:
 
 | Source | Endpoint | Use |
 |---|---|---|
-| `https://equran.id/api/v2` | `/surat`, `/surat/{n}`, `/tafsir/{n}`, `/shalat`, `/shalat/provinsi`, `/shalat/kabkota` | Surah, tafsir, prayer reference data |
+| `https://equran.id/api/v2` | `/surat`, `/surat/{n}`, `/tafsir/{n}`, `/shalat`, `/shalat/provinsi`, `/shalat/kabkota` | Surah (`id`), tafsir, prayer reference data |
+| `https://equran.id/api/en` | `/surah`, `/surah/{n}` | English Quran translation (`alquran.cloud / Muhammad Asad`, UI attribution required; no tafsir) |
+| `https://equran.id/api/doa` | `/`, `/{id}` | Doa & dzikir (227 items, 44 groups, 22 tags) |
+| `https://equran.id/api/vector` | `POST /` | Semantic search across `surat`, `ayat`, `tafsir`, `doa` |
 | `https://cdn.islamic.network/quran/audio/{bitrate}/{qari}/{globalAyah}.mp3` | — | Murattal (no API key) |
 | `https://ssajudn-equran-hafalan-api.hf.space` | `POST /compare` (multipart: `user_audio`, `target_text`, `threshold`), `GET /health` | Hafalan AI scoring. Server: `server/` (FastAPI + faster-whisper + Levenshtein). |
 
@@ -110,6 +120,12 @@ Wire rules:
 
 - Every response is parsed by a zod schema before it reaches the app. Unknown field → ignore; missing required field → typed `ParseError`, surfaced as a retryable failure.
 - API shape changes are handled in `schema.ts`, never in components.
+- **Excluded legacy/SDK**: `v1 (/api)` (legacy `400` error shape) and the `equran` npm SDK (duplicates TanStack Query + SQLite cache and introduces foreign types) are not used.
+- **HTTP cache**: REST endpoints (`/api/v2`, `/api/en`, `/api/doa`, `/api/v2/shalat`) serve `public, max-age=2592000, stale-while-revalidate=604800` (30 days) with `ETag` (`If-None-Match` → `304`). `/api/vector` serves `Cache-Control: no-store` and is never persisted to SQLite.
+- **Surah boundaries**: `previousSurah` / `suratSebelumnya` returns `false` on surah 1 and `nextSurah` / `suratSelanjutnya` returns `null` on surah 114; model both safely in Zod.
+- **Doa (`/api/doa`)**: Valid IDs are `1..227` (`228` → `404 { status: "error", message }`). `tr`, `idn`, and `tentang` can be empty strings (`z.string()`, never `.min(1)`). Server ignores `?limit`/`?page` and AND-s `?grup` + `?tag`; sync all 227 items and filter locally.
+- **Vector (`/api/vector`)**: `POST` `{ cari, batas, tipe[], skorMin }`; clamp `batas` to `1..10` (avoid `0`, which returns `1`). Parse `hasil[].data` with a `z.discriminatedUnion` per `tipe` (`snake_case` fields). Handle `400 { status: "gagal", kode }` (`PENCARIAN_KOSONG`, `TIPE_TIDAK_VALID`). Debounce/throttle on client (30 req/min server limit exposes no `RateLimit-*` headers).
+- **Shalat (`/api/v2/shalat`)**: Reference only (`adhan-js` remains primary). Only years `2026–2028` currently return `200` (outside → `404`); validate `bulan`/`tahun` on client before `POST` (server silently falls back to current month/year on invalid values) and always use `POST` (`GET` returns `200` docs JSON).
 - `/health` is called when the setoran screen opens (HF Spaces sleeps), not when the user taps record.
 - Upload body: `FormData` with `{ uri, name: 'recording.m4a', type: 'audio/m4a' }`; `AbortController` with a 120 s timeout; one retry on network failure only.
 
@@ -117,8 +133,9 @@ Local SQLite (`qurva.db`):
 
 ```
 surah(number PK, name, latin, ayat_count, revelation, synced_at)
-ayah(surah_number, number, text_arabic, text_latin, translation, PRIMARY KEY(surah_number, number))
+ayah(surah_number, number, text_arabic, text_latin, translation, translation_en, PRIMARY KEY(surah_number, number))
 tafsir(surah_number PK, content, synced_at)
+doa(id PK, group_name, title, text_arabic, text_latin, translation, notes, tags_json, synced_at)
 hafalan(id PK, surah_number, level, status, last_setoran_at, next_murajaah_at, note)
 setoran(id PK, hafalan_id, created_at, score, cer, result_json)
 notification_ref(id PK, hafalan_id, notification_id, scheduled_for)
@@ -149,7 +166,7 @@ Migrations: one plain SQL string per schema version in `lib/db/client.ts`, appli
 ## 7. Error, offline, and i18n policy
 
 - One `Result<T, AppError>` type in `lib/result.ts`; `AppError` has codes (`network`, `timeout`, `parse`, `notFound`, `permission`, `server`). UI maps codes to i18n messages; repositories never format user-facing strings.
-- Offline: surah/tafsir render from SQLite; audio requires network. Every list screen has an empty, loading, and error state — no screen renders raw errors.
+- Offline: `surah`, `tafsir`, and `doa` render from SQLite; `audio` and `vector search` require network (show offline/retry state when disconnected). Every list screen has an empty, loading, and error state — no screen renders raw errors.
 - All user-facing copy goes through i18next (`id` default, `en` secondary). Domain and data layers contain no strings.
 
 ## 8. Testing
@@ -167,11 +184,12 @@ A new rule, parser, or scheduling calculation without a test is not done.
 
 1. **Spike (2 weeks, gates the rest).** Prove on a physical device: `alarmClock` notification with screen off, 30 min background audio, Android widget via `expo-widgets`, Arabic mushaf-style text rendering. If alarm or Arabic text fails, stop and re-evaluate.
 2. **Foundation.** Scaffold with `bun create expo --template default@sdk-58`, prebuild, expo-router, NativeWind tokens, i18n, CI, onboarding.
-3. **Quran reading.** Surah list/detail/tafsir, SQLite + Query, offline.
+3. **Quran reading.** Surah list/detail/tafsir, English Quran mode (`/api/en` + `translation_en` lazy hydration), SQLite + Query, offline.
 4. **Audio.** Playlist, lock screen, per-ayah seek.
 5. **Prayer + qibla.** adhan-js, location, alarm, compass.
 6. **Hafalan.** Record → upload → compare → save → schedule → reminder → history → stats.
-7. **Widget + polish + README** with screenshots and the three "lessons learned" notes.
+7. **Doa & semantic search.** Offline-first doa & dzikir (`/api/doa`), online semantic search (`POST /api/vector`).
+8. **Widget + polish + README** with screenshots and the three "lessons learned" notes.
 
 ## 10. Decisions worth remembering
 
@@ -191,3 +209,4 @@ A new rule, parser, or scheduling calculation without a test is not done.
 - iOS alarm parity is not achievable; product copy must not promise it.
 - `expo-widgets` is one SDK old; if it proves too limited, fall back to a Kotlin widget behind the same data update path.
 - `server/` and the Hugging Face Space are external dependencies; the setoran UI needs a demo fallback so the repo runs without them.
+- `/api/v2/shalat` year availability (`2026–2028`) and `/api/vector` rate-limit enforcement (30 req/min without headers) may shift server-side without notice.

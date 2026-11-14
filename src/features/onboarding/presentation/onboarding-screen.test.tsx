@@ -35,7 +35,7 @@ describe("OnboardingScreen", () => {
     await i18next.changeLanguage("en");
   });
 
-  it("walks through all 6 slides, requests permissions, and marks onboarding done", async () => {
+  it("walks through all 4 slides, requests permissions, and marks onboarding done", async () => {
     (Location.requestForegroundPermissionsAsync as jest.Mock).mockResolvedValue(
       {
         granted: true,
@@ -52,6 +52,9 @@ describe("OnboardingScreen", () => {
     expect(getByText("Qurva")).toBeTruthy();
 
     await fireEvent.press(getByLabelText("Next"));
+    expect(getByText("Focused & Offline-First")).toBeTruthy();
+
+    await fireEvent.press(getByLabelText("Next"));
     expect(getByText("Grant Access")).toBeTruthy();
     expect(queryByLabelText("Next")).toBeNull();
 
@@ -60,15 +63,6 @@ describe("OnboardingScreen", () => {
     await waitFor(() => {
       expect(getByLabelText("Next")).toBeTruthy();
     });
-
-    await fireEvent.press(getByLabelText("Next"));
-    expect(getByText("Quran & Tafsir")).toBeTruthy();
-
-    await fireEvent.press(getByLabelText("Next"));
-    expect(getByText("Prayer Times & Qibla")).toBeTruthy();
-
-    await fireEvent.press(getByLabelText("Next"));
-    expect(getByText("Hafalan & Muraja'ah")).toBeTruthy();
 
     await fireEvent.press(getByLabelText("Next"));
     expect(getByText("All Set!")).toBeTruthy();
@@ -80,11 +74,13 @@ describe("OnboardingScreen", () => {
     expect(mockReplace).toHaveBeenCalledWith("/(tabs)");
   });
 
-  it("allows skipping from the permission slide and persists completion", async () => {
-    const { getByLabelText } = await render(<OnboardingScreen />);
+  it("allows skipping from the top bar and persists completion", async () => {
+    const { getAllByLabelText } = await render(<OnboardingScreen />);
 
-    await fireEvent.press(getByLabelText("Next"));
-    await fireEvent.press(getByLabelText("Skip"));
+    const skipButtons = getAllByLabelText("Skip");
+    const firstSkip = skipButtons[0];
+    if (!firstSkip) throw new Error("Expected Skip button");
+    await fireEvent.press(firstSkip);
 
     expect(getOnboardingDone()).toBe(true);
     expect(mockReplace).toHaveBeenCalledWith("/(tabs)");

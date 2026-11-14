@@ -48,6 +48,7 @@
     "settings": "Settings"
   },
   "onboarding": {
+    "stepLabel": "{{current}} of {{total}}",
     "actions": {
       "back": "Back",
       "next": "Next",
@@ -55,13 +56,13 @@
       "start": "Get Started",
       "allowPermissions": "Allow Permissions",
       "permissionsGranted": "All permissions granted. Tap Next.",
-      "permissionsPartial": "Some permissions were not granted. You can enable them later in Settings."
+      "permissionsPartial": "Some permissions are off; you can enable them later in Settings."
     },
     "permissions": {
-      "locationTitle": "Location Access",
-      "locationDesc": "Computes accurate prayer times and Qibla direction for your current position.",
+      "locationTitle": "Location",
+      "locationDesc": "Accurate GPS-based prayer times & Qibla direction.",
       "notificationTitle": "Notifications & Alarms",
-      "notificationDesc": "Delivers timely prayer reminders and scheduled muraja'ah notifications.",
+      "notificationDesc": "Timely prayer alarms & scheduled muraja'ah reminders.",
       "granted": "Granted",
       "notGranted": "Not granted"
     },
@@ -69,41 +70,31 @@
       "welcome": {
         "title": "Qurva",
         "subtitle": "Your Daily Worship Companion",
-        "description": "Digital Quran with murattal audio, offline prayer times, Qibla compass, and memorisation tracker."
+        "description": "Offline Quran, murattal audio, prayer times, Qibla compass, and memorisation tracker in one app.",
+        "chipQuran": "114 Surahs",
+        "chipPrayer": "Offline Prayer",
+        "chipHafalan": "AI Hafalan"
+      },
+      "features": {
+        "title": "Focused & Offline-First",
+        "subtitle": "Core Features",
+        "description": "Everything for daily worship without relying on a constant connection.",
+        "quranTitle": "Quran, Tafsir & Murattal",
+        "quranDesc": "114 surahs with Arabic, transliteration, translation & tafsir offline, plus per-ayah/surah lock-screen audio.",
+        "prayerTitle": "Prayer Times & Qibla",
+        "prayerDesc": "Offline GPS prayer calculation, exact prayer alarms, and a real-time Qibla compass.",
+        "hafalanTitle": "Hafalan & Muraja'ah",
+        "hafalanDesc": "Record setoran for AI evaluation, track per-surah progress, and get spaced-repetition reminders."
       },
       "permissions": {
         "title": "Grant Access",
-        "subtitle": "Keep core features working smoothly",
-        "description": "Qurva uses location and notification access for automatic prayer times and timely reminders."
-      },
-      "quran": {
-        "title": "Quran & Tafsir",
-        "subtitle": "Read and listen anywhere",
-        "description": "All 114 surahs with Arabic script, transliteration, translation, and tafsir cached for offline reading.",
-        "point1": "114 surahs and tafsir cached offline in local SQLite",
-        "point2": "Arabic script, transliteration, and clear translations",
-        "point3": "Per-ayah and full-surah murattal audio with lock-screen controls"
-      },
-      "prayer": {
-        "title": "Prayer Times & Qibla",
-        "subtitle": "Stay on time wherever you are",
-        "description": "Prayer schedules computed locally from your GPS coordinates without requiring a network connection.",
-        "point1": "Offline prayer time calculation based on GPS location",
-        "point2": "Prayer alarms scheduled with exact alarm permissions",
-        "point3": "Real-time Qibla compass using device heading sensors"
-      },
-      "hafalan": {
-        "title": "Hafalan & Muraja'ah",
-        "subtitle": "Build lasting memorisation",
-        "description": "Record recitations for AI evaluation and keep your memorisation fresh with scheduled reminders.",
-        "point1": "Record setoran recitations and review AI comparison scores",
-        "point2": "Spaced-repetition muraja'ah reminders",
-        "point3": "Setoran history and per-surah memorisation progress stats"
+        "subtitle": "Device Permissions",
+        "description": "Needed for automatic prayer schedules and timely reminders."
       },
       "ready": {
         "title": "All Set!",
-        "subtitle": "Begin your daily routine",
-        "description": "Qurva is ready to support your daily Quran reading, prayers, and memorisation.",
+        "subtitle": "Begin Your Routine",
+        "description": "Qurva is ready to support your daily reading, prayers, and memorisation.",
         "basmalahArabic": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
         "basmalahMeaning": "In the name of Allah, the Entirely Merciful, the Especially Merciful"
       }

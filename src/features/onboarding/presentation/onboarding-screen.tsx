@@ -1,7 +1,9 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { Text, View } from "react-native";
 
+import { AnimatedPressable } from "@/components/animated-pressable";
 import { Screen } from "@/components/screen";
 
 import { OnboardingFooter } from "./onboarding-footer";
@@ -10,6 +12,7 @@ import { useOnboarding } from "./use-onboarding";
 
 export const OnboardingScreen = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const {
     currentIndex,
     totalSlides,
@@ -36,6 +39,32 @@ export const OnboardingScreen = () => {
   return (
     <Screen className="bg-onboarding-bg">
       <View className="flex-1 justify-between">
+        <View className="flex-row items-center justify-between px-6 pb-2 pt-3">
+          <View className="rounded-full border border-gold/35 bg-onboarding-surface px-3 py-1">
+            <Text className="text-xs font-semibold text-onboarding-muted">
+              {t("onboarding.stepLabel", {
+                current: currentIndex + 1,
+                total: totalSlides,
+              })}
+            </Text>
+          </View>
+
+          {!isLast ? (
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={t("onboarding.actions.skip")}
+              onPress={() => skip(navigateHome)}
+              className="min-h-11 min-w-11 items-end justify-center px-2"
+            >
+              <Text className="text-sm font-semibold text-onboarding-muted">
+                {t("onboarding.actions.skip")}
+              </Text>
+            </AnimatedPressable>
+          ) : (
+            <View className="min-h-11" />
+          )}
+        </View>
+
         <OnboardingSlideCard
           slide={slide}
           direction={direction}
@@ -46,6 +75,7 @@ export const OnboardingScreen = () => {
             void requestPermissions();
           }}
         />
+
         <OnboardingFooter
           currentIndex={currentIndex}
           totalSlides={totalSlides}
