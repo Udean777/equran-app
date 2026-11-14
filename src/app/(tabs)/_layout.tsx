@@ -3,6 +3,7 @@ import { BookOpen, Brain, Clock, Settings } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 
+import { FluidTabBar } from "@/components/fluid-tab-bar";
 import { TabBarAnimatedIcon } from "@/components/tab-bar-animated-icon";
 import { useOnboardingStore } from "@/features/onboarding/presentation/use-onboarding-store";
 import { TAB_TRANSITIONS } from "@/theme/navigation-transitions";
@@ -20,22 +21,11 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      tabBar={(props) => <FluidTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         ...TAB_TRANSITIONS.shift,
         sceneStyle: { backgroundColor: palette.bg },
-        tabBarActiveTintColor: palette.primary,
-        tabBarInactiveTintColor: palette.muted,
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
-        },
-        tabBarStyle: {
-          backgroundColor: palette.surface,
-          borderTopColor: palette.border,
-          paddingTop: 6,
-          height: 64,
-        },
       }}
     >
       <Tabs.Screen

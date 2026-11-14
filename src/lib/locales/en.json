@@ -115,6 +115,24 @@
     "languageId": "Indonesia",
     "languageEn": "English",
     "rerunOnboarding": "Replay Onboarding",
-    "rerunOnboardingDesc": "Review the app introduction and permission prompts"
+    "rerunOnboardingDesc": "Review the app introduction and permission prompts",
+    "qari": "Murattal Qari"
+  },
+  "audio": {
+    "play": "Play",
+    "pause": "Pause",
+    "playSurah": "Play Surah",
+    "pauseSurah": "Pause Audio",
+    "playAyah": "Play Ayah {{number}}",
+    "pauseAyah": "Pause Ayah {{number}}",
+    "prevAyah": "Previous ayah",
+    "nextAyah": "Next ayah",
+    "stop": "Stop audio",
+    "qari": {
+      "alafasy": "Mishary Rashid Alafasy",
+      "sudais": "Abdurrahmaan As-Sudais",
+      "husary": "Mahmoud Khalil Al-Husary",
+      "minshawi": "Mohamed Siddiq Al-Minshawi"
+    }
   }
 }

@@ -16,6 +16,8 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
 import { StateView } from "@/components/state-view";
+import { MurattalMiniPlayer } from "@/features/audio/presentation/murattal-mini-player";
+import { useMurattalPlayer } from "@/features/audio/presentation/use-murattal-player";
 import { getThemePalette } from "@/theme/palette";
 
 import { AyahCard } from "./ayah-card";
@@ -43,6 +45,17 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
     error,
     refetch,
   } = useSurahDetail(surahNumber);
+  const {
+    activeSurah,
+    currentAyah,
+    playbackMode,
+    isPlaying,
+    playAyah,
+    playSurah,
+  } = useMurattalPlayer();
+  const isThisSurahActive = activeSurah?.number === detail?.surah.number;
+  const isThisSurahPlaying =
+    isThisSurahActive && playbackMode === "surah" && isPlaying;
 
   useEffect(() => {
     if (!detail) return;
@@ -137,16 +150,27 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
           <FlashList
             data={filteredAyat}
             keyExtractor={(item) => String(item.number)}
-            renderItem={({ item }) => (
-              <AyahCard
-                ayah={item}
-                totalAyat={detail.surah.ayatCount}
-                onOpenTafsir={openTafsir}
-              />
-            )}
+            renderItem={({ item }) => {
+              const isActiveAyah =
+                isThisSurahActive && currentAyah === item.number;
+              return (
+                <AyahCard
+                  ayah={item}
+                  totalAyat={detail.surah.ayatCount}
+                  isActiveAyah={isActiveAyah}
+                  isPlayingAyah={isActiveAyah && isPlaying}
+                  onTogglePlay={() => playAyah(detail.surah, item.number)}
+                  onOpenTafsir={openTafsir}
+                />
+              );
+            }}
             ListHeaderComponent={
               searchQuery.trim().length === 0 ? (
-                <SurahBannerCard surah={detail.surah} />
+                <SurahBannerCard
+                  surah={detail.surah}
+                  isPlayingSurah={isThisSurahPlaying}
+                  onTogglePlaySurah={() => playSurah(detail.surah)}
+                />
               ) : null
             }
             ListFooterComponent={
@@ -162,6 +186,8 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
           />
         </Animated.View>
       ) : null}
+
+      <MurattalMiniPlayer />
     </Screen>
   );
 };

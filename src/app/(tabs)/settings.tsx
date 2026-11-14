@@ -6,6 +6,7 @@ import {
   RotateCcw,
   Smartphone,
   Sun,
+  Volume2,
 } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
@@ -15,6 +16,8 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
 import { SectionHeader } from "@/components/section-header";
+import { QARI_PROFILES } from "@/features/audio/domain/audio-url";
+import { useMurattalPlayer } from "@/features/audio/presentation/use-murattal-player";
 import { cn } from "@/lib/cn";
 import {
   type AppLanguage,
@@ -48,6 +51,7 @@ export default function SettingsScreen() {
   const palette = getThemePalette(colorScheme);
   const mode = useThemeStore((state) => state.mode);
   const setMode = useThemeStore((state) => state.setMode);
+  const { qariId, selectQari } = useMurattalPlayer();
   const currentLang: AppLanguage = i18n.language === "en" ? "en" : "id";
 
   const handleLanguageChange = (lang: AppLanguage) => {
@@ -155,6 +159,51 @@ export default function SettingsScreen() {
                     )}
                   >
                     {t(option.labelKey)}
+                  </Text>
+                </AnimatedPressable>
+              );
+            })}
+          </View>
+
+          <View className="my-4 h-px bg-border" />
+
+          <View className="flex-row items-center gap-2">
+            <Volume2 color={palette.primary} size={16} />
+            <Text className="text-sm font-bold text-text">
+              {t("settings.qari")}
+            </Text>
+          </View>
+          <View className="mt-3 gap-2">
+            {QARI_PROFILES.map((qari) => {
+              const active = qariId === qari.id;
+              return (
+                <AnimatedPressable
+                  key={qari.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(qari.labelKey)}
+                  onPress={() => selectQari(qari.id)}
+                  className={cn(
+                    "min-h-11 flex-row items-center justify-between rounded-2xl border px-3.5 py-2.5",
+                    active
+                      ? "border-primary bg-primary"
+                      : "border-border bg-surface-variant",
+                  )}
+                >
+                  <Text
+                    className={cn(
+                      "text-xs font-bold",
+                      active ? "text-on-primary" : "text-text",
+                    )}
+                  >
+                    {t(qari.labelKey)}
+                  </Text>
+                  <Text
+                    className={cn(
+                      "text-xs",
+                      active ? "text-on-primary" : "text-muted",
+                    )}
+                  >
+                    {qari.bitrate} kbps
                   </Text>
                 </AnimatedPressable>
               );

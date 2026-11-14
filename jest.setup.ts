@@ -41,3 +41,20 @@ jest.mock("react-native-reanimated", () => {
     withSpring: <T>(toValue: T) => toValue,
   };
 });
+
+jest.mock("expo-audio", () => ({
+  setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
+  createAudioPlaylist: jest.fn(() => ({
+    addListener: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn(),
+    next: jest.fn(),
+    previous: jest.fn(),
+    skipTo: jest.fn(),
+    clear: jest.fn(),
+    add: jest.fn(),
+    setActiveForLockScreen: jest.fn(),
+    updateLockScreenMetadata: jest.fn(),
+    clearLockScreenControls: jest.fn(),
+  })),
+}));

@@ -25,9 +25,9 @@ export const TabBarAnimatedIcon = ({ focused, children }: Props) => {
     if (focused) {
       scale.set(
         withSpring(target, {
-          damping: 9,
-          stiffness: 320,
-          mass: 0.7,
+          damping: 16,
+          stiffness: 260,
+          mass: 0.75,
         }),
       );
       return;

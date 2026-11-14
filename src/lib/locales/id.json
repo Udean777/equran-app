@@ -115,6 +115,24 @@
     "languageId": "Indonesia",
     "languageEn": "English",
     "rerunOnboarding": "Putar Ulang Onboarding",
-    "rerunOnboardingDesc": "Lihat kembali pengenalan fitur dan atur ulang izin aplikasi"
+    "rerunOnboardingDesc": "Lihat kembali pengenalan fitur dan atur ulang izin aplikasi",
+    "qari": "Qari Murattal"
+  },
+  "audio": {
+    "play": "Putar",
+    "pause": "Jeda",
+    "playSurah": "Putar Surah",
+    "pauseSurah": "Jeda Audio",
+    "playAyah": "Putar Ayat {{number}}",
+    "pauseAyah": "Jeda Ayat {{number}}",
+    "prevAyah": "Ayat sebelumnya",
+    "nextAyah": "Ayat berikutnya",
+    "stop": "Hentikan audio",
+    "qari": {
+      "alafasy": "Misyari Rasyid Al-Afasy",
+      "sudais": "Abdurrahman As-Sudais",
+      "husary": "Mahmud Khalil Al-Husary",
+      "minshawi": "Muhammad Siddiq Al-Minshawi"
+    }
   }
 }

@@ -11,6 +11,7 @@ import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
 import { SectionHeader } from "@/components/section-header";
 import { StateView } from "@/components/state-view";
+import { MurattalMiniPlayer } from "@/features/audio/presentation/murattal-mini-player";
 import { cn } from "@/lib/cn";
 import { getThemePalette } from "@/theme/palette";
 import { useThemeStore } from "@/theme/use-theme-store";
@@ -189,6 +190,8 @@ export const SurahListScreen = () => {
           />
         </Animated.View>
       ) : null}
+
+      <MurattalMiniPlayer />
     </Screen>
   );
 };

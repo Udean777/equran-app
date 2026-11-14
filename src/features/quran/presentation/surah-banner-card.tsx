@@ -1,6 +1,10 @@
+import { Pause, Play } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+
+import { AnimatedPressable } from "@/components/animated-pressable";
+import { BRAND_COLORS } from "@/theme/palette";
 
 import {
   shouldShowBasmalahHeader,
@@ -9,14 +13,23 @@ import {
 
 type Props = Readonly<{
   surah: SurahSummary;
+  isPlayingSurah?: boolean;
+  onTogglePlaySurah?: () => void;
 }>;
 
-export const SurahBannerCard = ({ surah }: Props) => {
+export const SurahBannerCard = ({
+  surah,
+  isPlayingSurah = false,
+  onTogglePlaySurah,
+}: Props) => {
   const { t } = useTranslation();
   const revelationLabel =
     surah.revelation === "Mekah"
       ? t("quran.revelationMekah")
       : t("quran.revelationMadinah");
+  const playLabel = isPlayingSurah
+    ? t("audio.pauseSurah")
+    : t("audio.playSurah");
 
   return (
     <Animated.View
@@ -57,6 +70,22 @@ export const SurahBannerCard = ({ surah }: Props) => {
             {t("quran.basmalah")}
           </Text>
         </View>
+      ) : null}
+
+      {onTogglePlaySurah ? (
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={playLabel}
+          onPress={onTogglePlaySurah}
+          className="mt-4 min-h-11 min-w-11 flex-row items-center justify-center gap-2 rounded-2xl bg-gold px-5 py-2.5"
+        >
+          {isPlayingSurah ? (
+            <Pause color={BRAND_COLORS.gold.onGold} size={16} />
+          ) : (
+            <Play color={BRAND_COLORS.gold.onGold} size={16} />
+          )}
+          <Text className="text-xs font-bold text-on-gold">{playLabel}</Text>
+        </AnimatedPressable>
       ) : null}
     </Animated.View>
   );
