@@ -40,14 +40,20 @@ module.exports = {
         "success-container": colors.semantic.successContainer,
         warning: colors.semantic.warning,
         "warning-container": colors.semantic.warningContainer,
-        "mekah-badge": colors.quran.mekahBadge,
-        "mekah-badge-text": colors.quran.mekahBadgeText,
-        "madinah-badge": colors.quran.madinahBadge,
-        "madinah-badge-text": colors.quran.madinahBadgeText,
+        "mekah-badge": "rgb(var(--color-mekah-badge) / <alpha-value>)",
+        "mekah-badge-text":
+          "rgb(var(--color-mekah-badge-text) / <alpha-value>)",
+        "madinah-badge": "rgb(var(--color-madinah-badge) / <alpha-value>)",
+        "madinah-badge-text":
+          "rgb(var(--color-madinah-badge-text) / <alpha-value>)",
         "onboarding-bg": colors.onboarding.bg,
         "onboarding-surface": colors.onboarding.bgEnd,
         "onboarding-text": colors.onboarding.text,
         "onboarding-muted": colors.onboarding.muted,
+      },
+      fontSize: {
+        "arabic-ayah": ["28px", { lineHeight: "52px" }],
+        "arabic-surah": ["22px", { lineHeight: "32px" }],
       },
       fontFamily: {
         arabic: ["KFGQPCUthmanicScriptHAFS"],

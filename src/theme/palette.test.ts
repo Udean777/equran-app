@@ -18,10 +18,11 @@ describe("theme palette", () => {
   it("matches the Flutter dark palette tokens and defaults to dark when undefined", () => {
     expect(getThemePalette("dark")).toEqual(DARK_PALETTE);
     expect(getThemePalette(undefined)).toEqual(DARK_PALETTE);
-    expect(DARK_PALETTE.bg).toBe("#0F1A13");
-    expect(DARK_PALETTE.surface).toBe("#1A2B1E");
-    expect(DARK_PALETTE.primary).toBe("#3D9B65");
-    expect(DARK_PALETTE.text).toBe("#E2EDE6");
+    expect(DARK_PALETTE.bg).toBe("#111312");
+    expect(DARK_PALETTE.surface).toBe("#191C1A");
+    expect(DARK_PALETTE.primary).toBe("#46A870");
+    expect(DARK_PALETTE.onPrimary).toBe("#071F10");
+    expect(DARK_PALETTE.text).toBe("#ECEFED");
   });
 
   it("exposes Flutter gold and onboarding brand colors", () => {

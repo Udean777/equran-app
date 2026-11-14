@@ -9,7 +9,10 @@ export const PlaceholderScreen = ({ messageKey }: Props) => {
   const { t } = useTranslation();
 
   return (
-    <Screen className="items-center justify-center">
+    <Screen
+      edges={["top", "left", "right"]}
+      className="items-center justify-center"
+    >
       <Text className="text-base text-text">{t(messageKey)}</Text>
     </Screen>
   );

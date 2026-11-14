@@ -3,7 +3,9 @@ import { BookOpen, Brain, Clock, Settings } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 
+import { TabBarAnimatedIcon } from "@/components/tab-bar-animated-icon";
 import { useOnboardingStore } from "@/features/onboarding/presentation/use-onboarding-store";
+import { TAB_TRANSITIONS } from "@/theme/navigation-transitions";
 import { getThemePalette } from "@/theme/palette";
 
 export default function TabsLayout() {
@@ -20,11 +22,19 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        ...TAB_TRANSITIONS.shift,
+        sceneStyle: { backgroundColor: palette.bg },
         tabBarActiveTintColor: palette.primary,
         tabBarInactiveTintColor: palette.muted,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
+        },
         tabBarStyle: {
           backgroundColor: palette.surface,
           borderTopColor: palette.border,
+          paddingTop: 6,
+          height: 64,
         },
       }}
     >
@@ -32,8 +42,10 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: t("tabs.quran"),
-          tabBarIcon: ({ color, size }) => (
-            <BookOpen color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabBarAnimatedIcon focused={focused}>
+              <BookOpen color={color} size={size} />
+            </TabBarAnimatedIcon>
           ),
         }}
       />
@@ -41,22 +53,32 @@ export default function TabsLayout() {
         name="prayer"
         options={{
           title: t("tabs.prayer"),
-          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabBarAnimatedIcon focused={focused}>
+              <Clock color={color} size={size} />
+            </TabBarAnimatedIcon>
+          ),
         }}
       />
       <Tabs.Screen
         name="hafalan"
         options={{
           title: t("tabs.hafalan"),
-          tabBarIcon: ({ color, size }) => <Brain color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabBarAnimatedIcon focused={focused}>
+              <Brain color={color} size={size} />
+            </TabBarAnimatedIcon>
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: t("tabs.settings"),
-          tabBarIcon: ({ color, size }) => (
-            <Settings color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabBarAnimatedIcon focused={focused}>
+              <Settings color={color} size={size} />
+            </TabBarAnimatedIcon>
           ),
         }}
       />

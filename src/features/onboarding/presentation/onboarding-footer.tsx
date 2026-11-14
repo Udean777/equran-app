@@ -1,7 +1,45 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
-import { cn } from "@/lib/cn";
+import { AnimatedPressable } from "@/components/animated-pressable";
+import { BRAND_COLORS } from "@/theme/palette";
+
+type DotProps = Readonly<{
+  active: boolean;
+}>;
+
+const PaginationDot = ({ active }: DotProps) => {
+  const reducedMotion = useReducedMotion();
+  const width = useSharedValue(active ? 24 : 8);
+  const opacity = useSharedValue(active ? 1 : 0.45);
+
+  useEffect(() => {
+    const targetWidth = active ? 24 : 8;
+    const targetOpacity = active ? 1 : 0.45;
+    if (reducedMotion) {
+      width.set(targetWidth);
+      opacity.set(targetOpacity);
+      return;
+    }
+    width.set(withTiming(targetWidth, { duration: 220 }));
+    opacity.set(withTiming(targetOpacity, { duration: 220 }));
+  }, [active, opacity, reducedMotion, width]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: width.value,
+    opacity: opacity.value,
+    backgroundColor: BRAND_COLORS.gold.DEFAULT,
+  }));
+
+  return <Animated.View className="h-2 rounded-full" style={animatedStyle} />;
+};
 
 type Props = Readonly<{
   currentIndex: number;
@@ -31,52 +69,49 @@ export const OnboardingFooter = ({
     <View className="gap-5 px-6 pb-6 pt-3">
       <View className="flex-row items-center justify-center gap-2">
         {Array.from({ length: totalSlides }, (_, index) => (
-          <View
-            key={index}
-            className={cn(
-              "h-2 rounded-full",
-              index === currentIndex ? "w-6 bg-gold" : "w-2 bg-gold/30",
-            )}
-          />
+          <PaginationDot key={index} active={index === currentIndex} />
         ))}
       </View>
 
       <View className="flex-row items-center gap-3">
         {currentIndex > 0 ? (
-          <Pressable
+          <AnimatedPressable
+            containerClassName="flex-1"
             accessibilityRole="button"
             accessibilityLabel={t("onboarding.actions.back")}
             onPress={onPrev}
-            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full border border-gold/30 bg-onboarding-surface px-5 py-3"
+            className="min-h-11 min-w-11 items-center justify-center rounded-full border border-gold/40 bg-onboarding-surface px-5 py-3"
           >
             <Text className="text-sm font-semibold text-onboarding-text">
               {t("onboarding.actions.back")}
             </Text>
-          </Pressable>
+          </AnimatedPressable>
         ) : null}
 
         {canAdvance ? (
-          <Pressable
+          <AnimatedPressable
+            containerClassName="flex-1"
             accessibilityRole="button"
             accessibilityLabel={primaryLabel}
             onPress={onNext}
-            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full bg-gold px-5 py-3"
+            className="min-h-11 min-w-11 items-center justify-center rounded-full bg-gold px-5 py-3"
           >
             <Text className="text-sm font-bold text-on-gold">
               {primaryLabel}
             </Text>
-          </Pressable>
+          </AnimatedPressable>
         ) : (
-          <Pressable
+          <AnimatedPressable
+            containerClassName="flex-1"
             accessibilityRole="button"
             accessibilityLabel={t("onboarding.actions.skip")}
             onPress={onSkip}
-            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full border border-gold/30 bg-onboarding-surface px-5 py-3"
+            className="min-h-11 min-w-11 items-center justify-center rounded-full border border-gold/40 bg-onboarding-surface px-5 py-3"
           >
             <Text className="text-sm font-semibold text-onboarding-muted">
               {t("onboarding.actions.skip")}
             </Text>
-          </Pressable>
+          </AnimatedPressable>
         )}
       </View>
     </View>

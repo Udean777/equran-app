@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from "@/components/placeholder-screen";
+import { SurahListScreen } from "@/features/quran/presentation/surah-list-screen";
 
 export default function QuranScreen() {
-  return <PlaceholderScreen messageKey="tabs.quran" />;
+  return <SurahListScreen />;
 }

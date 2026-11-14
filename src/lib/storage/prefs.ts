@@ -15,11 +15,20 @@ export const QariIdSchema = z.enum([
 ]);
 export type QariId = z.infer<typeof QariIdSchema>;
 
+export const LastReadSurahSchema = z.object({
+  number: z.number().int().min(1).max(114),
+  name: z.string().min(1),
+  latin: z.string().min(1),
+  ayatCount: z.number().int().positive(),
+});
+export type LastReadSurah = z.infer<typeof LastReadSurahSchema>;
+
 export const PREF_KEYS = {
   onboardingDone: "onboarding_done",
   theme: "theme",
   qari: "qari",
   language: "language",
+  lastReadSurah: "last_read_surah",
 } as const;
 
 export const prefsStorage = new MMKV({ id: "qurva.prefs" });
@@ -66,6 +75,21 @@ export const getLanguage = (fallback: AppLanguage = "id"): AppLanguage => {
 
 export const setLanguage = (language: AppLanguage): void => {
   prefsStorage.set(PREF_KEYS.language, language);
+};
+
+export const getLastReadSurah = (): LastReadSurah | null => {
+  const raw = prefsStorage.getString(PREF_KEYS.lastReadSurah);
+  if (!raw) return null;
+  try {
+    const parsed = LastReadSurahSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+};
+
+export const setLastReadSurah = (surah: LastReadSurah): void => {
+  prefsStorage.set(PREF_KEYS.lastReadSurah, JSON.stringify(surah));
 };
 
 export const clearAllPrefs = (): void => {

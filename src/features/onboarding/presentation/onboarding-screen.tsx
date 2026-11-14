@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 
 import { Screen } from "@/components/screen";
@@ -24,6 +25,8 @@ export const OnboardingScreen = () => {
     requestPermissions,
   } = useOnboarding();
 
+  const [direction, setDirection] = useState<1 | -1>(1);
+
   const navigateHome = () => {
     router.replace("/(tabs)");
   };
@@ -35,6 +38,7 @@ export const OnboardingScreen = () => {
       <View className="flex-1 justify-between">
         <OnboardingSlideCard
           slide={slide}
+          direction={direction}
           permissions={permissions}
           permissionRequested={permissionRequested}
           isRequesting={isRequesting}
@@ -47,8 +51,14 @@ export const OnboardingScreen = () => {
           totalSlides={totalSlides}
           canAdvance={canAdvance}
           isLast={isLast}
-          onPrev={prev}
-          onNext={() => next(navigateHome)}
+          onPrev={() => {
+            setDirection(-1);
+            prev();
+          }}
+          onNext={() => {
+            setDirection(1);
+            next(navigateHome);
+          }}
           onSkip={() => skip(navigateHome)}
         />
       </View>
