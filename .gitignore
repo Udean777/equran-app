@@ -1,79 +1,54 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# Bun
+.bun-tag-*
+bun.lockb
+
+# Build output
+android/.gradle/
+android/app/build/
+android/local.properties
+.kotlin/
+ios/Pods/
+ios/build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+.metro-health-check*
+*.tsbuildinfo
+
+# Env
+.env*.local
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS / editors
+.DS_Store
+*.pem
 .idea/
 
-.vscode/
+# Legacy Flutter app (archived reference, not tracked)
+backup/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Debug symbols untuk crash symbolication (--obfuscate)
-# JANGAN commit — simpan di tempat aman untuk decode stack traces
-build/debug-info/
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Generated code (regenerate via build_runner)
-*.freezed.dart
-*.g.dart
-injection_container.config.dart
-
-# Plan / design documents
-PLAN_*.md
-
-# documentation
-docs/
-
-# Android release keystore dan key properties
-android/app/release.keystore
-android/key.properties
-
-# Python backend (server/)
+# Python backend
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
+.venv/
 venv/
-env/
-ENV/
-.venv
-*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .coverage
 htmlcov/
-dist/
-*.egg
+
+# Local debug signing
+android/app/debug.keystore

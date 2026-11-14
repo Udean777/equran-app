@@ -1,0 +1,13 @@
+{
+  "common": {
+    "retry": "Retry",
+    "loading": "Loading…",
+    "empty": "No data yet"
+  },
+  "tabs": {
+    "quran": "Quran",
+    "prayer": "Shalat",
+    "hafalan": "Hafalan",
+    "settings": "Pengaturan"
+  }
+}
