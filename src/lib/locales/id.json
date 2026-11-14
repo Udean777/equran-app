@@ -74,6 +74,10 @@
   },
   "settings": {
     "title": "Pengaturan",
+    "theme": "Tema Tampilan",
+    "themeLight": "Terang",
+    "themeDark": "Gelap",
+    "themeSystem": "Sistem",
     "rerunOnboarding": "Putar Ulang Onboarding",
     "rerunOnboardingDesc": "Lihat kembali pengenalan fitur dan atur ulang izin aplikasi"
   }

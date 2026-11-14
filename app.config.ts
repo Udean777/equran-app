@@ -24,7 +24,7 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-localization",
     ["expo-audio", { enableBackgroundPlayback: true }],
-    ["expo-notifications", { color: "#2DD4BF" }],
+    ["expo-notifications", { color: "#1A5C38" }],
     [
       "expo-location",
       {
@@ -48,7 +48,7 @@ const config: ExpoConfig = {
         image: "./assets/images/splash-icon.png",
         imageWidth: 160,
         resizeMode: "contain",
-        backgroundColor: "#0B1215",
+        backgroundColor: "#0A2E1A",
       },
     ],
     // Aktifkan saat fase widget:

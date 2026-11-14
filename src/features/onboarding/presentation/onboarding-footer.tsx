@@ -35,7 +35,7 @@ export const OnboardingFooter = ({
             key={index}
             className={cn(
               "h-2 rounded-full",
-              index === currentIndex ? "w-6 bg-primary" : "w-2 bg-border",
+              index === currentIndex ? "w-6 bg-gold" : "w-2 bg-gold/30",
             )}
           />
         ))}
@@ -47,9 +47,9 @@ export const OnboardingFooter = ({
             accessibilityRole="button"
             accessibilityLabel={t("onboarding.actions.back")}
             onPress={onPrev}
-            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full border border-border bg-surface px-5 py-3"
+            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full border border-gold/30 bg-onboarding-surface px-5 py-3"
           >
-            <Text className="text-sm font-semibold text-text">
+            <Text className="text-sm font-semibold text-onboarding-text">
               {t("onboarding.actions.back")}
             </Text>
           </Pressable>
@@ -60,9 +60,9 @@ export const OnboardingFooter = ({
             accessibilityRole="button"
             accessibilityLabel={primaryLabel}
             onPress={onNext}
-            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full bg-primary px-5 py-3"
+            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full bg-gold px-5 py-3"
           >
-            <Text className="text-sm font-semibold text-on-primary">
+            <Text className="text-sm font-bold text-on-gold">
               {primaryLabel}
             </Text>
           </Pressable>
@@ -71,9 +71,9 @@ export const OnboardingFooter = ({
             accessibilityRole="button"
             accessibilityLabel={t("onboarding.actions.skip")}
             onPress={onSkip}
-            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full border border-border bg-surface px-5 py-3"
+            className="min-h-11 min-w-11 flex-1 items-center justify-center rounded-full border border-gold/30 bg-onboarding-surface px-5 py-3"
           >
-            <Text className="text-sm font-semibold text-muted">
+            <Text className="text-sm font-semibold text-onboarding-muted">
               {t("onboarding.actions.skip")}
             </Text>
           </Pressable>

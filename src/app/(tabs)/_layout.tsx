@@ -1,12 +1,15 @@
 import { Redirect, Tabs } from "expo-router";
 import { BookOpen, Brain, Clock, Settings } from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 
 import { useOnboardingStore } from "@/features/onboarding/presentation/use-onboarding-store";
-import colors from "@/theme/colors.json";
+import { getThemePalette } from "@/theme/palette";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const palette = getThemePalette(colorScheme);
   const completed = useOnboardingStore((state) => state.completed);
 
   if (!completed) {
@@ -17,11 +20,11 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.muted,
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.muted,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
+          backgroundColor: palette.surface,
+          borderTopColor: palette.border,
         },
       }}
     >

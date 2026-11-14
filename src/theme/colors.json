@@ -1,9 +1,80 @@
 {
-  "bg": "#0B1215",
-  "surface": "#131C20",
-  "border": "#22303A",
-  "primary": "#2DD4BF",
-  "onPrimary": "#04211D",
-  "text": "#E6F0EE",
-  "muted": "#8FA3A0"
+  "bg": "#0F1A13",
+  "surface": "#1A2B1E",
+  "border": "#2A3D2F",
+  "primary": "#3D9B65",
+  "onPrimary": "#FFFFFF",
+  "text": "#E2EDE6",
+  "muted": "#9DB8A6",
+  "light": {
+    "bg": "#FAFCFA",
+    "surface": "#FFFFFF",
+    "surfaceVariant": "#F0F7F3",
+    "surfaceTint": "#E8F5EE",
+    "border": "#DDE8E2",
+    "borderVariant": "#EEF4F0",
+    "text": "#0D1F16",
+    "muted": "#4A6355",
+    "subtle": "#8FA99A",
+    "disabled": "#BDD0C6",
+    "primary": "#1A5C38",
+    "primaryLight": "#2D7A4F",
+    "primaryLighter": "#3D9B65",
+    "primaryContainer": "#D6EDE1",
+    "onPrimary": "#FFFFFF",
+    "onPrimaryContainer": "#0D3320"
+  },
+  "dark": {
+    "bg": "#0F1A13",
+    "bgSecondary": "#141F17",
+    "surface": "#1A2B1E",
+    "surfaceVariant": "#1F3324",
+    "border": "#2A3D2F",
+    "borderVariant": "#223328",
+    "text": "#E2EDE6",
+    "muted": "#9DB8A6",
+    "subtle": "#9DB8A6",
+    "disabled": "#4A6355",
+    "primary": "#3D9B65",
+    "primaryLight": "#2D7A4F",
+    "primaryLighter": "#3D9B65",
+    "primaryContainer": "#0A3D0A",
+    "onPrimary": "#FFFFFF",
+    "onPrimaryContainer": "#D6EDE1"
+  },
+  "gold": {
+    "DEFAULT": "#C9A84C",
+    "light": "#E8C97A",
+    "lighter": "#F5E4A8",
+    "dark": "#A07830",
+    "onGold": "#3A2800"
+  },
+  "semantic": {
+    "error": "#B00020",
+    "onError": "#FFFFFF",
+    "errorContainer": "#FFDAD6",
+    "success": "#1A5C38",
+    "successContainer": "#D6EDE1",
+    "warning": "#F57F17",
+    "warningContainer": "#FFEDD0"
+  },
+  "quran": {
+    "mekahBadge": "#FFF3E0",
+    "mekahBadgeText": "#E65100",
+    "madinahBadge": "#E8F5E9",
+    "madinahBadgeText": "#1A5C38",
+    "ayatNumberBg": "#1A5C38",
+    "ayatNumberText": "#FFFFFF",
+    "ayatDivider": "#DDE8E2"
+  },
+  "shimmer": {
+    "base": "#EEF4F0",
+    "highlight": "#F8FBF9"
+  },
+  "onboarding": {
+    "bg": "#0A2E1A",
+    "bgEnd": "#0D3D22",
+    "text": "#FFFFFF",
+    "muted": "#C7DDD0"
+  }
 }

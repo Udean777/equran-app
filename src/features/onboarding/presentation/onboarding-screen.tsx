@@ -31,7 +31,7 @@ export const OnboardingScreen = () => {
   if (!slide) return null;
 
   return (
-    <Screen>
+    <Screen className="bg-onboarding-bg">
       <View className="flex-1 justify-between">
         <OnboardingSlideCard
           slide={slide}

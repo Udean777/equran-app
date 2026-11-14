@@ -74,6 +74,10 @@
   },
   "settings": {
     "title": "Settings",
+    "theme": "Appearance",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
     "rerunOnboarding": "Replay Onboarding",
     "rerunOnboardingDesc": "Review the app introduction and permission prompts"
   }
