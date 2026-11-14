@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from "@/components/placeholder-screen";
+import { HafalanScreen } from "@/features/hafalan/presentation/hafalan-screen";
 
-export default function HafalanScreen() {
-  return <PlaceholderScreen messageKey="tabs.hafalan" />;
+export default function HafalanRoute() {
+  return <HafalanScreen />;
 }

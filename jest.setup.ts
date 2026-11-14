@@ -58,3 +58,12 @@ jest.mock("expo-audio", () => ({
     clearLockScreenControls: jest.fn(),
   })),
 }));
+
+jest.mock("react-native-compass-heading", () => ({
+  __esModule: true,
+  default: {
+    start: jest.fn(async () => true),
+    stop: jest.fn(async () => undefined),
+    hasCompass: jest.fn(async () => true),
+  },
+}));

@@ -29,6 +29,9 @@ export const PREF_KEYS = {
   qari: "qari",
   language: "language",
   lastReadSurah: "last_read_surah",
+  lastLocation: "last_location",
+  prayerAlarmsEnabled: "prayer_alarms_enabled",
+  prayerNotificationIds: "prayer_notification_ids",
 } as const;
 
 export const prefsStorage = new MMKV({ id: "qurva.prefs" });
@@ -90,6 +93,54 @@ export const getLastReadSurah = (): LastReadSurah | null => {
 
 export const setLastReadSurah = (surah: LastReadSurah): void => {
   prefsStorage.set(PREF_KEYS.lastReadSurah, JSON.stringify(surah));
+};
+
+export const LastLocationSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  city: z.string().optional(),
+  updatedAt: z.number(),
+});
+
+export type LastLocation = z.infer<typeof LastLocationSchema>;
+
+export const getLastLocation = (): LastLocation | undefined => {
+  const raw = prefsStorage.getString(PREF_KEYS.lastLocation);
+  if (!raw) return undefined;
+  try {
+    const parsed = LastLocationSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const setLastLocation = (location: LastLocation): void => {
+  prefsStorage.set(PREF_KEYS.lastLocation, JSON.stringify(location));
+};
+
+export const getPrayerAlarmsEnabled = (): boolean =>
+  prefsStorage.getBoolean(PREF_KEYS.prayerAlarmsEnabled) ?? true;
+
+export const setPrayerAlarmsEnabled = (enabled: boolean): void => {
+  prefsStorage.set(PREF_KEYS.prayerAlarmsEnabled, enabled);
+};
+
+const NotificationIdsSchema = z.array(z.string());
+
+export const getPrayerNotificationIds = (): readonly string[] => {
+  const raw = prefsStorage.getString(PREF_KEYS.prayerNotificationIds);
+  if (!raw) return [];
+  try {
+    const parsed = NotificationIdsSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : [];
+  } catch {
+    return [];
+  }
+};
+
+export const setPrayerNotificationIds = (ids: readonly string[]): void => {
+  prefsStorage.set(PREF_KEYS.prayerNotificationIds, JSON.stringify(ids));
 };
 
 export const clearAllPrefs = (): void => {
