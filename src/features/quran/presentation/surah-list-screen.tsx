@@ -1,14 +1,16 @@
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { Moon, Search, Sun, X } from "lucide-react-native";
+import { Moon, Sun } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Text, View } from "react-native";
 import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 
 import { AnimatedPressable } from "@/components/animated-pressable";
+import { IconButton } from "@/components/icon-button";
 import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
+import { SearchInput } from "@/components/search-input";
 import { SectionHeader } from "@/components/section-header";
 import { StateView } from "@/components/state-view";
 import { MurattalMiniPlayer } from "@/features/audio/presentation/murattal-mini-player";
@@ -78,42 +80,23 @@ export const SurahListScreen = () => {
         subtitle={t("quran.title")}
         showBrandMark
         rightAction={
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={t("settings.theme")}
-            onPress={toggleTheme}
-            className="h-11 w-11 items-center justify-center rounded-2xl border border-border bg-surface"
-          >
+          <IconButton label={t("settings.theme")} onPress={toggleTheme}>
             {colorScheme === "dark" ? (
               <Sun color={palette.primary} size={19} />
             ) : (
               <Moon color={palette.primary} size={19} />
             )}
-          </AnimatedPressable>
+          </IconButton>
         }
       />
 
-      <View className="mb-2.5 min-h-11 flex-row items-center gap-2.5 rounded-2xl border border-border bg-surface px-3.5">
-        <Search color={palette.primary} size={18} />
-        <TextInput
-          accessibilityLabel={t("quran.searchPlaceholder")}
-          placeholder={t("quran.searchPlaceholder")}
-          placeholderTextColor={palette.muted}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          className="flex-1 py-2.5 text-sm text-text"
-        />
-        {searchQuery.length > 0 ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("quran.clearSearch")}
-            onPress={() => setSearchQuery("")}
-            className="min-h-11 min-w-11 items-center justify-center"
-          >
-            <X color={palette.muted} size={16} />
-          </Pressable>
-        ) : null}
-      </View>
+      <SearchInput
+        className="mb-2.5"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder={t("quran.searchPlaceholder")}
+        clearLabel={t("quran.clearSearch")}
+      />
 
       <View className="mb-3 flex-row items-center gap-2">
         {FILTER_OPTIONS.map((item) => {

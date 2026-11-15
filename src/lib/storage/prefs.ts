@@ -80,16 +80,19 @@ export const setLanguage = (language: AppLanguage): void => {
   prefsStorage.set(PREF_KEYS.language, language);
 };
 
-export const getLastReadSurah = (): LastReadSurah | null => {
-  const raw = prefsStorage.getString(PREF_KEYS.lastReadSurah);
-  if (!raw) return null;
+const readJsonPref = <T>(key: string, schema: z.ZodType<T>, fallback: T): T => {
+  const raw = prefsStorage.getString(key);
+  if (!raw) return fallback;
   try {
-    const parsed = LastReadSurahSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : null;
+    const parsed = schema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : fallback;
   } catch {
-    return null;
+    return fallback;
   }
 };
+
+export const getLastReadSurah = (): LastReadSurah | null =>
+  readJsonPref(PREF_KEYS.lastReadSurah, LastReadSurahSchema, null);
 
 export const setLastReadSurah = (surah: LastReadSurah): void => {
   prefsStorage.set(PREF_KEYS.lastReadSurah, JSON.stringify(surah));
@@ -104,16 +107,8 @@ export const LastLocationSchema = z.object({
 
 export type LastLocation = z.infer<typeof LastLocationSchema>;
 
-export const getLastLocation = (): LastLocation | undefined => {
-  const raw = prefsStorage.getString(PREF_KEYS.lastLocation);
-  if (!raw) return undefined;
-  try {
-    const parsed = LastLocationSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : undefined;
-  } catch {
-    return undefined;
-  }
-};
+export const getLastLocation = (): LastLocation | undefined =>
+  readJsonPref(PREF_KEYS.lastLocation, LastLocationSchema, undefined);
 
 export const setLastLocation = (location: LastLocation): void => {
   prefsStorage.set(PREF_KEYS.lastLocation, JSON.stringify(location));
@@ -128,16 +123,8 @@ export const setPrayerAlarmsEnabled = (enabled: boolean): void => {
 
 const NotificationIdsSchema = z.array(z.string());
 
-export const getPrayerNotificationIds = (): readonly string[] => {
-  const raw = prefsStorage.getString(PREF_KEYS.prayerNotificationIds);
-  if (!raw) return [];
-  try {
-    const parsed = NotificationIdsSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : [];
-  } catch {
-    return [];
-  }
-};
+export const getPrayerNotificationIds = (): readonly string[] =>
+  readJsonPref(PREF_KEYS.prayerNotificationIds, NotificationIdsSchema, []);
 
 export const setPrayerNotificationIds = (ids: readonly string[]): void => {
   prefsStorage.set(PREF_KEYS.prayerNotificationIds, JSON.stringify(ids));

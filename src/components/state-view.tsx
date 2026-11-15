@@ -2,8 +2,7 @@ import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, View } from "react-native";
 
-import { AnimatedPressable } from "@/components/animated-pressable";
-
+import { Button } from "@/components/button";
 import { type AppErrorCode } from "@/lib/result";
 import { getThemePalette } from "@/theme/palette";
 
@@ -64,16 +63,7 @@ export const StateView = (props: Props) => {
         {t(ERROR_KEY_BY_CODE[props.errorCode])}
       </Text>
       {props.onRetry ? (
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("common.retry")}
-          onPress={props.onRetry}
-          className="min-h-11 min-w-11 items-center justify-center rounded-full bg-primary px-6 py-2.5"
-        >
-          <Text className="text-sm font-semibold text-on-primary">
-            {t("common.retry")}
-          </Text>
-        </AnimatedPressable>
+        <Button label={t("common.retry")} onPress={props.onRetry} />
       ) : null}
     </View>
   );

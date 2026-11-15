@@ -18,7 +18,7 @@ import Animated, {
   FadeOutRight,
 } from "react-native-reanimated";
 
-import { AnimatedPressable } from "@/components/animated-pressable";
+import { Button } from "@/components/button";
 import { cn } from "@/lib/cn";
 import { BRAND_COLORS } from "@/theme/palette";
 
@@ -278,18 +278,15 @@ export const OnboardingSlideCard = ({
               </Text>
             </View>
           ) : (
-            <AnimatedPressable
+            <Button
               containerClassName="mt-5"
-              accessibilityRole="button"
-              accessibilityLabel={t("onboarding.actions.allowPermissions")}
+              variant="gold"
+              size="lg"
+              shape="rounded"
+              label={t("onboarding.actions.allowPermissions")}
               disabled={isRequesting}
               onPress={onRequestPermissions}
-              className="min-h-12 min-w-11 items-center justify-center rounded-2xl bg-gold px-6 py-3"
-            >
-              <Text className="text-base font-bold text-on-gold">
-                {t("onboarding.actions.allowPermissions")}
-              </Text>
-            </AnimatedPressable>
+            />
           )}
         </ScrollView>
       </Animated.View>

@@ -10,10 +10,38 @@ import { compareRecitation } from "@/features/hafalan/data/hafalan-api";
 import { saveSetoranResult } from "@/features/hafalan/data/hafalan-repository";
 import { scheduleMurajaahReminder } from "@/features/hafalan/data/murajaah-reminder-service";
 import type { CompareResponse } from "@/features/hafalan/data/schema";
+import { err, ok, type Result } from "@/lib/result";
 import { hafalanKeys } from "./hafalan-keys";
 
 export type SetoranPhase =
   "idle" | "recording" | "comparing" | "done" | "error";
+
+const submitSetoranRecitation = async (params: {
+  audioUri: string;
+  hafalanId: string;
+  surahLabel: string;
+  targetText: string;
+  reminderCopy: Readonly<{ channelName: string; title: string; body: string }>;
+}): Promise<Result<CompareResponse>> => {
+  const compared = await compareRecitation({
+    audioUri: params.audioUri,
+    targetText: params.targetText,
+  });
+  if (!compared.ok) return err("network", compared.error.message);
+
+  const saved = saveSetoranResult({
+    hafalanId: params.hafalanId,
+    compareResult: compared.value,
+  });
+  if (saved.ok && saved.value.nextMurajaahAt) {
+    await scheduleMurajaahReminder({
+      hafalanId: params.hafalanId,
+      scheduledFor: new Date(saved.value.nextMurajaahAt),
+      ...params.reminderCopy,
+    });
+  }
+  return ok(compared.value);
+};
 
 export const useSetoran = () => {
   const { t } = useTranslation();
@@ -46,38 +74,28 @@ export const useSetoran = () => {
     try {
       await recorder.stop();
       await restorePlaybackAudioMode();
-      const audioUri = recorder.uri;
-      if (!audioUri) {
+      if (!recorder.uri) {
         setPhase("error");
         setErrorMessage(t("hafalan.recordingEmptyError"));
         return;
       }
 
-      const compared = await compareRecitation({
-        audioUri,
-        targetText: params.targetText,
+      const submitted = await submitSetoranRecitation({
+        audioUri: recorder.uri,
+        ...params,
+        reminderCopy: {
+          channelName: t("hafalan.reminderChannel"),
+          title: t("hafalan.reminderTitle"),
+          body: t("hafalan.reminderBody", { surah: params.surahLabel }),
+        },
       });
-      if (!compared.ok) {
+      if (!submitted.ok) {
         setPhase("error");
         setErrorMessage(t("hafalan.compareFailedError"));
         return;
       }
 
-      const saved = saveSetoranResult({
-        hafalanId: params.hafalanId,
-        compareResult: compared.value,
-      });
-      if (saved.ok && saved.value.nextMurajaahAt) {
-        await scheduleMurajaahReminder({
-          hafalanId: params.hafalanId,
-          scheduledFor: new Date(saved.value.nextMurajaahAt),
-          channelName: t("hafalan.reminderChannel"),
-          title: t("hafalan.reminderTitle"),
-          body: t("hafalan.reminderBody", { surah: params.surahLabel }),
-        });
-      }
-
-      setResult(compared.value);
+      setResult(submitted.value);
       setPhase("done");
       void queryClient.invalidateQueries({ queryKey: hafalanKeys.all });
     } catch {

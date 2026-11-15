@@ -81,7 +81,6 @@ export const QiblaCompassView = ({ latitude, longitude, cityLabel }: Props) => {
             bearing: qiblaBearingDeg.toFixed(0),
           })}
         >
-          {/* Inner decorative ring */}
           <View className="absolute h-56 w-56 rounded-full border border-gold/20" />
 
           {/* Rotating degree ticks and cardinal markers */}

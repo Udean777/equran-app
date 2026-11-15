@@ -3,7 +3,7 @@ import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, View } from "react-native";
 
-import { AnimatedPressable } from "@/components/animated-pressable";
+import { IconButton } from "@/components/icon-button";
 import { getThemePalette } from "@/theme/palette";
 
 import { useMurattalPlayer } from "./use-murattal-player";
@@ -42,21 +42,19 @@ export const MurattalMiniPlayer = () => {
       </View>
 
       <View className="flex-row items-center gap-1">
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("audio.prevAyah")}
+        <IconButton
+          variant="ghost"
+          label={t("audio.prevAyah")}
           disabled={!canPrev}
           onPress={skipPrev}
-          className="min-h-11 min-w-11 items-center justify-center rounded-xl"
         >
           <SkipBack color={canPrev ? palette.text : palette.muted} size={18} />
-        </AnimatedPressable>
+        </IconButton>
 
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={playPauseLabel}
+        <IconButton
+          variant="primary"
+          label={playPauseLabel}
           onPress={togglePlayPause}
-          className="min-h-11 min-w-11 items-center justify-center rounded-2xl bg-primary"
         >
           {isBuffering ? (
             <ActivityIndicator size="small" color={palette.onPrimary} />
@@ -65,29 +63,23 @@ export const MurattalMiniPlayer = () => {
           ) : (
             <Play color={palette.onPrimary} size={18} />
           )}
-        </AnimatedPressable>
+        </IconButton>
 
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("audio.nextAyah")}
+        <IconButton
+          variant="ghost"
+          label={t("audio.nextAyah")}
           disabled={!canNext}
           onPress={skipNext}
-          className="min-h-11 min-w-11 items-center justify-center rounded-xl"
         >
           <SkipForward
             color={canNext ? palette.text : palette.muted}
             size={18}
           />
-        </AnimatedPressable>
+        </IconButton>
 
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("audio.stop")}
-          onPress={stop}
-          className="min-h-11 min-w-11 items-center justify-center rounded-xl"
-        >
+        <IconButton variant="ghost" label={t("audio.stop")} onPress={stop}>
           <X color={palette.muted} size={18} />
-        </AnimatedPressable>
+        </IconButton>
       </View>
     </View>
   );

@@ -1,15 +1,27 @@
+import type { TFunction } from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  cancelAllPrayerAlarms,
   checkExactAlarmPermission,
+  cancelAllPrayerAlarms,
+  type PrayerAlarmCopy,
+  type PrayerAlarmSyncResult,
   requestExactAlarmPermission,
   schedulePrayerAlarms,
 } from "@/features/prayer/data/prayer-alarm-service";
+import type { Result } from "@/lib/result";
 import {
   getPrayerAlarmsEnabled,
   setPrayerAlarmsEnabled,
 } from "@/lib/storage/prefs";
+
+const buildAlarmCopy = (t: TFunction): PrayerAlarmCopy => ({
+  channelName: t("prayer.alarmChannelName"),
+  titleForPrayer: (prayer) =>
+    t("prayer.alarmTitle", { prayer: t(`prayer.names.${prayer}`) }),
+  bodyForPrayer: (prayer) =>
+    t("prayer.alarmBody", { prayer: t(`prayer.names.${prayer}`) }),
+});
 
 export const usePrayerAlarms = (latitude: number, longitude: number) => {
   const { t } = useTranslation();
@@ -19,16 +31,14 @@ export const usePrayerAlarms = (latitude: number, longitude: number) => {
   const [exactAlarmGranted, setExactAlarmGranted] = useState<boolean>(true);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
 
-  const buildCopy = useCallback(
-    () => ({
-      channelName: t("prayer.alarmChannelName"),
-      titleForPrayer: (prayer: "fajr" | "dhuhr" | "asr" | "maghrib" | "isha") =>
-        t("prayer.alarmTitle", { prayer: t(`prayer.names.${prayer}`) }),
-      bodyForPrayer: (prayer: "fajr" | "dhuhr" | "asr" | "maghrib" | "isha") =>
-        t("prayer.alarmBody", { prayer: t(`prayer.names.${prayer}`) }),
-    }),
-    [t],
-  );
+  const applySyncResult = useCallback((res: Result<PrayerAlarmSyncResult>) => {
+    if (res.ok) {
+      setExactAlarmGranted(res.value.exactAlarmGranted);
+      setPermissionDenied(false);
+    } else if (res.error.code === "permission") {
+      setPermissionDenied(true);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -39,22 +49,16 @@ export const usePrayerAlarms = (latitude: number, longitude: number) => {
       };
     }
 
-    void schedulePrayerAlarms({ latitude, longitude }, buildCopy(), {
+    void schedulePrayerAlarms({ latitude, longitude }, buildAlarmCopy(t), {
       requestPermission: false,
     }).then((res) => {
-      if (!active) return;
-      if (res.ok) {
-        setExactAlarmGranted(res.value.exactAlarmGranted);
-        setPermissionDenied(false);
-      } else if (res.error.code === "permission") {
-        setPermissionDenied(true);
-      }
+      if (active) applySyncResult(res);
     });
 
     return () => {
       active = false;
     };
-  }, [buildCopy, enabled, latitude, longitude]);
+  }, [applySyncResult, enabled, latitude, longitude, t]);
 
   const toggleAlarms = async (next: boolean): Promise<void> => {
     setEnabled(next);
@@ -65,17 +69,10 @@ export const usePrayerAlarms = (latitude: number, longitude: number) => {
     }
     const res = await schedulePrayerAlarms(
       { latitude, longitude },
-      buildCopy(),
-      {
-        requestPermission: true,
-      },
+      buildAlarmCopy(t),
+      { requestPermission: true },
     );
-    if (res.ok) {
-      setExactAlarmGranted(res.value.exactAlarmGranted);
-      setPermissionDenied(false);
-    } else if (res.error.code === "permission") {
-      setPermissionDenied(true);
-    }
+    applySyncResult(res);
   };
 
   const requestExactAlarm = async (): Promise<void> => {
@@ -83,7 +80,7 @@ export const usePrayerAlarms = (latitude: number, longitude: number) => {
     const checked = granted || (await checkExactAlarmPermission());
     setExactAlarmGranted(checked);
     if (checked && enabled) {
-      await schedulePrayerAlarms({ latitude, longitude }, buildCopy(), {
+      await schedulePrayerAlarms({ latitude, longitude }, buildAlarmCopy(t), {
         requestPermission: false,
       });
     }

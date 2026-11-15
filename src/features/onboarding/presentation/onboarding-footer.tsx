@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { AnimatedPressable } from "@/components/animated-pressable";
+import { Button } from "@/components/button";
 import { BRAND_COLORS } from "@/theme/palette";
 
 type DotProps = Readonly<{
@@ -75,43 +75,34 @@ export const OnboardingFooter = ({
 
       <View className="flex-row items-center gap-3">
         {currentIndex > 0 ? (
-          <AnimatedPressable
+          <Button
             containerClassName="flex-1"
-            accessibilityRole="button"
-            accessibilityLabel={t("onboarding.actions.back")}
+            variant="outline"
+            size="lg"
+            shape="rounded"
+            label={t("onboarding.actions.back")}
             onPress={onPrev}
-            className="min-h-12 min-w-11 items-center justify-center rounded-2xl border border-gold/40 bg-onboarding-surface px-5 py-3"
-          >
-            <Text className="text-sm font-semibold text-onboarding-text">
-              {t("onboarding.actions.back")}
-            </Text>
-          </AnimatedPressable>
+          />
         ) : null}
 
         {canAdvance ? (
-          <AnimatedPressable
+          <Button
             containerClassName="flex-1"
-            accessibilityRole="button"
-            accessibilityLabel={primaryLabel}
+            variant="gold"
+            size="lg"
+            shape="rounded"
+            label={primaryLabel}
             onPress={onNext}
-            className="min-h-12 min-w-11 items-center justify-center rounded-2xl bg-gold px-5 py-3"
-          >
-            <Text className="text-sm font-bold text-on-gold">
-              {primaryLabel}
-            </Text>
-          </AnimatedPressable>
+          />
         ) : (
-          <AnimatedPressable
+          <Button
             containerClassName="flex-1"
-            accessibilityRole="button"
-            accessibilityLabel={t("onboarding.actions.skip")}
+            variant="outline"
+            size="lg"
+            shape="rounded"
+            label={t("onboarding.actions.skip")}
             onPress={onSkip}
-            className="min-h-12 min-w-11 items-center justify-center rounded-2xl border border-gold/40 bg-onboarding-surface px-5 py-3"
-          >
-            <Text className="text-sm font-semibold text-onboarding-text">
-              {t("onboarding.actions.skip")}
-            </Text>
-          </AnimatedPressable>
+          />
         )}
       </View>
     </View>

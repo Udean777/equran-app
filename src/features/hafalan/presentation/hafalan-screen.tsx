@@ -1,6 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
 import { format } from "date-fns";
-import { BookOpen, History, Mic, Plus, Trash2 } from "lucide-react-native";
+import { BookOpen, History, Plus } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,17 +8,18 @@ import { Text, View } from "react-native";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
+import { SegmentedTabs } from "@/components/segmented-tabs";
 import type { HafalanItem } from "@/features/hafalan/domain/murajaah";
 import { HafalanStatsCard } from "@/features/hafalan/presentation/hafalan-stats-card";
+import { HafalanTargetCard } from "@/features/hafalan/presentation/hafalan-target-card";
 import { SetoranSheet } from "@/features/hafalan/presentation/setoran-sheet";
 import { SurahPickerModal } from "@/features/hafalan/presentation/surah-picker-modal";
 import { useHafalan } from "@/features/hafalan/presentation/use-hafalan";
 import { useSurahList } from "@/features/quran/presentation/use-surah-list";
 import { cn } from "@/lib/cn";
-import { BRAND_COLORS, getThemePalette } from "@/theme/palette";
+import { getThemePalette } from "@/theme/palette";
 
 type ActiveTab = "targets" | "history";
-const goldColor = BRAND_COLORS.gold.DEFAULT;
 
 export const HafalanScreen = () => {
   const { t } = useTranslation();
@@ -60,55 +61,23 @@ export const HafalanScreen = () => {
 
       <HafalanStatsCard stats={stats} />
 
-      <View className="mb-3 flex-row rounded-2xl border border-border bg-surface p-1">
-        <AnimatedPressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: activeTab === "targets" }}
-          accessibilityLabel={t("hafalan.tabTargets")}
-          onPress={() => setActiveTab("targets")}
-          className={cn(
-            "min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-xl px-3",
-            activeTab === "targets" ? "bg-onboarding-bg" : "bg-transparent",
-          )}
-        >
-          <BookOpen
-            size={15}
-            color={activeTab === "targets" ? goldColor : palette.muted}
-          />
-          <Text
-            className={cn(
-              "text-sm font-semibold",
-              activeTab === "targets" ? "text-onboarding-text" : "text-muted",
-            )}
-          >
-            {t("hafalan.tabTargets")}
-          </Text>
-        </AnimatedPressable>
-
-        <AnimatedPressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: activeTab === "history" }}
-          accessibilityLabel={t("hafalan.tabHistory")}
-          onPress={() => setActiveTab("history")}
-          className={cn(
-            "min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-xl px-3",
-            activeTab === "history" ? "bg-onboarding-bg" : "bg-transparent",
-          )}
-        >
-          <History
-            size={15}
-            color={activeTab === "history" ? goldColor : palette.muted}
-          />
-          <Text
-            className={cn(
-              "text-sm font-semibold",
-              activeTab === "history" ? "text-onboarding-text" : "text-muted",
-            )}
-          >
-            {t("hafalan.tabHistory")}
-          </Text>
-        </AnimatedPressable>
-      </View>
+      <SegmentedTabs<ActiveTab>
+        className="mb-3"
+        value={activeTab}
+        onChange={setActiveTab}
+        options={[
+          {
+            value: "targets",
+            label: t("hafalan.tabTargets"),
+            renderIcon: (color) => <BookOpen size={15} color={color} />,
+          },
+          {
+            value: "history",
+            label: t("hafalan.tabHistory"),
+            renderIcon: (color) => <History size={15} color={color} />,
+          },
+        ]}
+      />
 
       {activeTab === "targets" ? (
         <FlashList
@@ -136,90 +105,14 @@ export const HafalanScreen = () => {
               </AnimatedPressable>
             </View>
           }
-          renderItem={({ item }) => {
-            const surah = surahByNumber.get(item.surahNumber);
-            const isDue = item.status === "due";
-            return (
-              <View
-                className={cn(
-                  "mb-3 rounded-2xl border bg-surface p-4",
-                  isDue
-                    ? "border-l-4 border-border border-l-gold"
-                    : "border-border",
-                )}
-              >
-                <View className="flex-row items-start justify-between gap-3">
-                  <View className="flex-1">
-                    <View className="flex-row items-center gap-2">
-                      <Text className="font-serif text-lg font-bold text-text">
-                        {surah?.latin ??
-                          t("quran.surahNumberLabel", {
-                            number: item.surahNumber,
-                          })}
-                      </Text>
-                      <View
-                        className={cn(
-                          "rounded-md px-2 py-0.5",
-                          isDue ? "bg-gold" : "bg-primary-container",
-                        )}
-                      >
-                        <Text
-                          className={cn(
-                            "text-[11px] font-semibold",
-                            isDue
-                              ? "text-on-gold"
-                              : "text-on-primary-container",
-                          )}
-                        >
-                          {t(`hafalan.status.${item.status}`)}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <Text className="mt-1 text-xs text-muted">
-                      {item.nextMurajaahAt
-                        ? t("hafalan.nextMurajaahDate", {
-                            date: format(
-                              new Date(item.nextMurajaahAt),
-                              "dd MMM yyyy",
-                            ),
-                          })
-                        : t("hafalan.notTestedYet")}
-                    </Text>
-                  </View>
-
-                  {surah ? (
-                    <Text className="font-arabic text-xl text-primary">
-                      {surah.name}
-                    </Text>
-                  ) : null}
-                </View>
-
-                <View className="mt-3 flex-row items-center justify-between gap-2">
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("hafalan.startSetoran")}
-                    onPress={() => setActiveSetoranItem(item)}
-                    className="min-h-11 flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary px-4"
-                  >
-                    <Mic size={15} color={palette.onPrimary} />
-                    <Text className="text-xs font-bold text-on-primary">
-                      {t("hafalan.startSetoran")}
-                    </Text>
-                  </AnimatedPressable>
-
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("hafalan.deleteTarget")}
-                    onPress={() => void deleteTarget(item.id)}
-                    className="h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface-variant"
-                  >
-                    <Trash2 size={16} color={palette.muted} />
-                  </AnimatedPressable>
-                </View>
-              </View>
-            );
-          }}
+          renderItem={({ item }) => (
+            <HafalanTargetCard
+              item={item}
+              surah={surahByNumber.get(item.surahNumber)}
+              onStartSetoran={setActiveSetoranItem}
+              onDelete={(id) => void deleteTarget(id)}
+            />
+          )}
         />
       ) : (
         <FlashList

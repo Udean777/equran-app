@@ -4,6 +4,7 @@ import { Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 import { AnimatedPressable } from "@/components/animated-pressable";
+import { Button } from "@/components/button";
 import { type LastReadSurah } from "@/lib/storage/prefs";
 import { BRAND_COLORS } from "@/theme/palette";
 
@@ -66,20 +67,16 @@ export const QuranHeroCard = ({ lastRead, onOpenSurah }: Props) => {
             </Text>
           </View>
 
-          <AnimatedPressable
+          <Button
             containerClassName="mt-3"
-            accessibilityRole="button"
-            accessibilityLabel={
+            variant="gold"
+            size="sm"
+            label={
               lastRead ? t("quran.continueReading") : t("quran.startFatihah")
             }
+            icon={<BookOpen color={onGoldColor} size={14} />}
             onPress={() => onOpenSurah(lastRead ? lastRead.number : 1)}
-            className="min-h-11 min-w-11 flex-row items-center justify-center gap-1.5 rounded-full bg-gold px-4 py-2"
-          >
-            <BookOpen color={onGoldColor} size={14} />
-            <Text className="text-xs font-bold text-on-gold">
-              {lastRead ? t("quran.continueReading") : t("quran.startFatihah")}
-            </Text>
-          </AnimatedPressable>
+          />
         </View>
       </View>
 

@@ -1,10 +1,13 @@
+import { Image } from "expo-image";
 import { ArrowLeft } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import type { ReactNode } from "react";
 import { Text, View } from "react-native";
 
-import { AnimatedPressable } from "@/components/animated-pressable";
+import { IconButton } from "@/components/icon-button";
 import { getThemePalette } from "@/theme/palette";
+
+const BRAND_LOGO = require("../../assets/images/brand-logo.webp");
 
 type Props = Readonly<{
   title: string;
@@ -30,19 +33,19 @@ export const LuxuryHeader = ({
     <View className="mb-3 flex-row items-center justify-between gap-3 border-b border-border pb-3">
       <View className="flex-1 flex-row items-center gap-3">
         {onBack ? (
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={backLabel ?? title}
-            onPress={onBack}
-            className="h-11 w-11 items-center justify-center rounded-2xl border border-border bg-surface"
-          >
+          <IconButton label={backLabel ?? title} onPress={onBack}>
             <ArrowLeft color={palette.text} size={20} />
-          </AnimatedPressable>
+          </IconButton>
         ) : null}
 
         {showBrandMark ? (
-          <View className="h-11 w-11 items-center justify-center rounded-2xl border border-gold/40 bg-onboarding-bg">
-            <Text className="font-arabic text-xl text-gold">ق</Text>
+          <View className="h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-gold/40 bg-onboarding-bg">
+            <Image
+              source={BRAND_LOGO}
+              contentFit="cover"
+              style={{ width: 42, height: 42 }}
+              accessibilityLabel={title}
+            />
           </View>
         ) : null}
 

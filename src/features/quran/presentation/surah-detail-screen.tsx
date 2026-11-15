@@ -1,10 +1,10 @@
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { BookOpenText, Search, X } from "lucide-react-native";
+import { BookOpenText } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, Text, TextInput } from "react-native";
+import { Text } from "react-native";
 import Animated, {
   FadeIn,
   FadeInUp,
@@ -15,6 +15,7 @@ import Animated, {
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
+import { SearchInput } from "@/components/search-input";
 import { StateView } from "@/components/state-view";
 import { MurattalMiniPlayer } from "@/features/audio/presentation/murattal-mini-player";
 import { useMurattalPlayer } from "@/features/audio/presentation/use-murattal-player";
@@ -104,27 +105,14 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
         <Animated.View
           entering={FadeInUp.duration(180)}
           exiting={FadeOutUp.duration(140)}
-          className="mb-3 min-h-11 flex-row items-center gap-2.5 rounded-2xl border border-border bg-surface px-3.5"
+          className="mb-3"
         >
-          <Search color={palette.primary} size={17} />
-          <TextInput
-            accessibilityLabel={t("quran.searchAyatPlaceholder")}
-            placeholder={t("quran.searchAyatPlaceholder")}
-            placeholderTextColor={palette.muted}
+          <SearchInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            className="flex-1 py-2 text-sm text-text"
+            placeholder={t("quran.searchAyatPlaceholder")}
+            clearLabel={t("quran.clearSearch")}
           />
-          {searchQuery.length > 0 ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t("quran.clearSearch")}
-              onPress={() => setSearchQuery("")}
-              className="min-h-11 min-w-11 items-center justify-center"
-            >
-              <X color={palette.muted} size={16} />
-            </Pressable>
-          ) : null}
         </Animated.View>
       ) : null}
 
