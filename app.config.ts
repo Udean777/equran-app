@@ -39,6 +39,10 @@ const config: ExpoConfig = {
           enableShrinkResourcesInReleaseBuilds: true,
           enablePngCrunchInReleaseBuilds: true,
           useLegacyPackaging: true,
+          // WorkManager builds its Room database reflectively at startup; without
+          // this R8 strips WorkDatabase_Impl's constructor and launch crashes.
+          extraProguardRules:
+            "-keep class * extends androidx.room.RoomDatabase { *; }",
           gifEnabled: false,
           webpEnabled: false,
           buildArchs: ["arm64-v8a", "armeabi-v7a"],
