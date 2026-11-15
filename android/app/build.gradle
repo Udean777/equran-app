@@ -105,6 +105,15 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            def storeFilePath = findProperty('QURVA_UPLOAD_STORE_FILE')
+            if (storeFilePath) {
+                storeFile file(storeFilePath)
+                storePassword findProperty('QURVA_UPLOAD_STORE_PASSWORD')
+                keyAlias findProperty('QURVA_UPLOAD_KEY_ALIAS')
+                keyPassword findProperty('QURVA_UPLOAD_KEY_PASSWORD')
+            }
+        }
     }
     def isBundleTask = gradle.startParameter.taskNames.any { it.toLowerCase().contains("bundle") }
     splits {
@@ -120,9 +129,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig findProperty('QURVA_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

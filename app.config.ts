@@ -46,6 +46,7 @@ const config: ExpoConfig = {
       },
     ],
     "./plugins/with-android-size-optimization",
+    "./plugins/with-android-release-signing",
     ["expo-audio", { enableBackgroundPlayback: true }],
     [
       "expo-notifications",

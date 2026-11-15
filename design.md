@@ -48,7 +48,7 @@ The Flutter app is archived in `backup/` (gitignored) and is the **behavioural r
 | Prayer times | `adhan-js` | Same algorithm as the Flutter `adhan` package |
 | i18n | `i18next` + `react-i18next` + `expo-localization` | Flat JSON, no codegen |
 | Testing | **Jest** (`jest-expo`) + `@testing-library/react-native` + one Maestro flow | Expo SDK 58 ships `jest-expo` and RNTL 14 is supported on the Jest path; two runners in one repo is a smell. |
-| CI | GitHub Actions (typecheck, lint, test) + Expo Build for artifacts | Matches common practice; Build is free at this volume |
+| CI | GitHub Actions: `ci.yml` (typecheck, lint, test) + `release.yml` (manual, signed APK + AAB via Gradle) | One stored upload keystore, no EAS account; release stays a deliberate dispatch, not a side effect of a push |
 
 ## 3. Architecture
 
@@ -162,6 +162,8 @@ Migrations: one plain SQL string per schema version in `lib/db/client.ts`, appli
 **Sensors.** Qibla reads the raw heading stream from `react-native-compass-heading` (`degreeUpdateRate: 2`), smoothed with an exponential moving average kept in *unwrapped* degrees so rotations never take the 359°→0° long way. The steady stream is written to Reanimated shared values on the JS thread and applied on the UI thread; React state (digits, aligned badge) updates at most 5 Hz. `adhan.Qibla` returns a true-north bearing while the sensor reports magnetic north, so `expo-location` `getHeadingAsync()` is read once per compass session (1.5 s timeout; Android stays silent and iOS throws without a location fix) to get the declination. If it cannot be resolved, declination is 0 and the compass runs magnetic — never show a silently wrong direction, and fall back to "device does not support compass" when the sensor is missing. Never request `HIGH_SAMPLING_RATE_SENSORS` unnecessarily.
 
 **Hafalan reminders.** On save, compute the next muraja'ah date from `[1, 3, 7, 30, 90]` days by level, cancel the previous notification, schedule a new one, and persist `notification_id` in `notification_ref`. Missing this bookkeeping is the classic bug: stale notifications accumulate.
+
+**Release builds.** `.github/workflows/release.yml` is manual (`workflow_dispatch`) and takes a bump type: `patch`, `minor`, `major`, or `custom`. The version is derived from the latest `v*` tag (Flutter-era build metadata such as `v0.6.0+7` is stripped, so the RN line continues at `0.7.0`), must be newer than that tag, and is written into `android/app/build.gradle`; `versionCode = major*10000 + minor*100 + patch`. One dispatch produces a signed AAB (Play) plus two split release APKs (`arm64-v8a`, `armeabi-v7a`) attached to a GitHub Release. Signing comes from `plugins/with-android-release-signing.js`, which reads keystore values from `-PQURVA_UPLOAD_*` properties; the keystore itself exists only in the four `ANDROID_*` repository secrets. There is no `eas build` path.
 
 ## 7. Error, offline, and i18n policy
 
