@@ -12,3 +12,7 @@
 -keep class com.facebook.react.turbomodule.** { *; }
 
 # Add any project specific keep options here:
+
+# WorkManager builds its Room database reflectively at startup; without this R8
+# strips WorkDatabase_Impl's constructor and the app dies on launch.
+-keep class * extends androidx.room.RoomDatabase { *; }

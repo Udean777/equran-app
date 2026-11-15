@@ -15,9 +15,9 @@ const RELEASE_SIGNING_CONFIG = `        release {
                 keyAlias findProperty('QURVA_UPLOAD_KEY_ALIAS')
                 keyPassword findProperty('QURVA_UPLOAD_KEY_PASSWORD')
             }
-            // Explicit on purpose: v1 keeps old Android installs working, v2/v3 are
-            // required from Android 11, v4 enables incremental adb installs.
-            enableV1Signing true
+            // v2/v3 are mandatory from Android 11 and allow key rotation; v4 only
+            // writes the .idsig file used by incremental adb installs. v1 is
+            // skipped by AGP because minSdk is 24.
             enableV2Signing true
             enableV3Signing true
             enableV4Signing true
