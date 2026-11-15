@@ -52,3 +52,5 @@ htmlcov/
 
 # Local debug signing
 android/app/debug.keystore
+# Release keystore decoded by the release workflow; the real file lives in secrets
+android/app/release.keystore

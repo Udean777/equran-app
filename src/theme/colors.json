@@ -1,9 +1,84 @@
 {
-  "bg": "#0B1215",
-  "surface": "#131C20",
-  "border": "#22303A",
-  "primary": "#2DD4BF",
-  "onPrimary": "#04211D",
-  "text": "#E6F0EE",
-  "muted": "#8FA3A0"
+  "bg": "#111312",
+  "surface": "#191C1A",
+  "border": "#2B302D",
+  "primary": "#46A870",
+  "onPrimary": "#071F10",
+  "text": "#ECEFED",
+  "muted": "#A0A8A3",
+  "light": {
+    "bg": "#FAFCFA",
+    "surface": "#FFFFFF",
+    "surfaceVariant": "#F0F7F3",
+    "surfaceTint": "#E8F5EE",
+    "border": "#DDE8E2",
+    "borderVariant": "#EEF4F0",
+    "text": "#0D1F16",
+    "muted": "#4A6355",
+    "subtle": "#8FA99A",
+    "disabled": "#BDD0C6",
+    "primary": "#1A5C38",
+    "primaryLight": "#2D7A4F",
+    "primaryLighter": "#3D9B65",
+    "primaryContainer": "#D6EDE1",
+    "onPrimary": "#FFFFFF",
+    "onPrimaryContainer": "#0D3320"
+  },
+  "dark": {
+    "bg": "#111312",
+    "bgSecondary": "#151816",
+    "surface": "#191C1A",
+    "surfaceVariant": "#222624",
+    "border": "#2B302D",
+    "borderVariant": "#222624",
+    "text": "#ECEFED",
+    "muted": "#A0A8A3",
+    "subtle": "#8B948E",
+    "disabled": "#565E59",
+    "primary": "#46A870",
+    "primaryLight": "#2D7A4F",
+    "primaryLighter": "#46A870",
+    "primaryContainer": "#1B3325",
+    "onPrimary": "#071F10",
+    "onPrimaryContainer": "#D6EDE1"
+  },
+  "gold": {
+    "DEFAULT": "#C9A84C",
+    "light": "#E8C97A",
+    "lighter": "#F5E4A8",
+    "dark": "#A07830",
+    "onGold": "#3A2800"
+  },
+  "semantic": {
+    "error": "#B00020",
+    "onError": "#FFFFFF",
+    "errorContainer": "#FFDAD6",
+    "success": "#1A5C38",
+    "successContainer": "#D6EDE1",
+    "warning": "#F57F17",
+    "warningContainer": "#FFEDD0"
+  },
+  "quran": {
+    "mekahBadge": "#FFF3E0",
+    "mekahBadgeText": "#B53D00",
+    "mekahBadgeDark": "#2D2216",
+    "mekahBadgeTextDark": "#F0B36A",
+    "madinahBadge": "#E8F5E9",
+    "madinahBadgeText": "#1A5C38",
+    "madinahBadgeDark": "#182B20",
+    "madinahBadgeTextDark": "#8FD4AA",
+    "ayatNumberBg": "#1A5C38",
+    "ayatNumberText": "#FFFFFF",
+    "ayatDivider": "#DDE8E2"
+  },
+  "shimmer": {
+    "base": "#EEF4F0",
+    "highlight": "#F8FBF9"
+  },
+  "onboarding": {
+    "bg": "#0A2E1A",
+    "bgEnd": "#0D3D22",
+    "text": "#FFFFFF",
+    "muted": "#C7DDD0"
+  }
 }

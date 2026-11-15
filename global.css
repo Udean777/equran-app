@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: 250 252 250;
+    --color-surface: 255 255 255;
+    --color-surface-variant: 240 247 243;
+    --color-surface-tint: 232 245 238;
+    --color-border: 221 232 226;
+    --color-border-variant: 238 244 240;
+    --color-text: 13 31 22;
+    --color-muted: 74 99 85;
+    --color-subtle: 143 169 154;
+    --color-disabled: 189 208 198;
+    --color-primary: 26 92 56;
+    --color-primary-container: 214 237 225;
+    --color-on-primary: 255 255 255;
+    --color-on-primary-container: 13 51 32;
+    --color-mekah-badge: 255 243 224;
+    --color-mekah-badge-text: 181 61 0;
+    --color-madinah-badge: 232 245 233;
+    --color-madinah-badge-text: 26 92 56;
+  }
+
+  .dark:root {
+    --color-bg: 17 19 18;
+    --color-surface: 25 28 26;
+    --color-surface-variant: 34 38 36;
+    --color-surface-tint: 29 34 31;
+    --color-border: 43 48 45;
+    --color-border-variant: 34 38 36;
+    --color-text: 236 239 237;
+    --color-muted: 160 168 163;
+    --color-subtle: 139 148 142;
+    --color-disabled: 86 94 89;
+    --color-primary: 70 168 112;
+    --color-primary-container: 27 51 37;
+    --color-on-primary: 7 31 16;
+    --color-on-primary-container: 214 237 225;
+    --color-mekah-badge: 45 34 22;
+    --color-mekah-badge-text: 240 179 106;
+    --color-madinah-badge: 24 43 32;
+    --color-madinah-badge-text: 143 212 170;
+  }
+}

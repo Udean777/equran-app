@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from "@/components/placeholder-screen";
+import { SettingsScreen } from "@/features/settings/presentation/settings-screen";
 
-export default function SettingsScreen() {
-  return <PlaceholderScreen messageKey="tabs.settings" />;
+export default function SettingsRoute() {
+  return <SettingsScreen />;
 }

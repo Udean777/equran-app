@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from "@/components/placeholder-screen";
+import { PrayerScreen } from "@/features/prayer/presentation/prayer-screen";
 
-export default function PrayerScreen() {
-  return <PlaceholderScreen messageKey="tabs.prayer" />;
+export default function PrayerRoute() {
+  return <PrayerScreen />;
 }

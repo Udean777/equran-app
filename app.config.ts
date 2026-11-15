@@ -6,13 +6,21 @@ const config: ExpoConfig = {
   scheme: "qurva",
   version: "0.1.0",
   orientation: "portrait",
+  icon: "./assets/images/icon.png",
   userInterfaceStyle: "automatic",
   ios: {
     bundleIdentifier: "id.ssajudn.qurva.rn",
     supportsTablet: false,
+    icon: "./assets/images/icon.png",
   },
   android: {
     package: "id.ssajudn.qurva.rn",
+    adaptiveIcon: {
+      foregroundImage: "./assets/images/android-icon-foreground.png",
+      backgroundImage: "./assets/images/android-icon-background.png",
+      backgroundColor: "#062214",
+      monochromeImage: "./assets/images/android-icon-monochrome.png",
+    },
     permissions: [
       "android.permission.SCHEDULE_EXACT_ALARM",
       "android.permission.USE_EXACT_ALARM",
@@ -23,8 +31,30 @@ const config: ExpoConfig = {
   plugins: [
     "expo-router",
     "expo-localization",
+    [
+      "expo-build-properties",
+      {
+        android: {
+          enableMinifyInReleaseBuilds: true,
+          enableShrinkResourcesInReleaseBuilds: true,
+          enablePngCrunchInReleaseBuilds: true,
+          useLegacyPackaging: true,
+          gifEnabled: false,
+          webpEnabled: false,
+          buildArchs: ["arm64-v8a", "armeabi-v7a"],
+        },
+      },
+    ],
+    "./plugins/with-android-size-optimization",
+    "./plugins/with-android-release-signing",
     ["expo-audio", { enableBackgroundPlayback: true }],
-    ["expo-notifications", { color: "#2DD4BF" }],
+    [
+      "expo-notifications",
+      {
+        icon: "./assets/images/notification-icon.png",
+        color: "#1A5C38",
+      },
+    ],
     [
       "expo-location",
       {
@@ -46,9 +76,9 @@ const config: ExpoConfig = {
       "expo-splash-screen",
       {
         image: "./assets/images/splash-icon.png",
-        imageWidth: 160,
+        imageWidth: 180,
         resizeMode: "contain",
-        backgroundColor: "#0B1215",
+        backgroundColor: "#062214",
       },
     ],
     // Aktifkan saat fase widget:
