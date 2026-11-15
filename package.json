@@ -12,8 +12,8 @@
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "TZ=Asia/Jakarta jest",
+    "test:watch": "TZ=Asia/Jakarta jest --watch"
   },
   "jest": {
     "preset": "jest-expo",

@@ -182,6 +182,10 @@ Migrations: one plain SQL string per schema version in `lib/db/client.ts`, appli
 
 A new rule, parser, or scheduling calculation without a test is not done.
 
+Tests run with `TZ=Asia/Jakarta`. `adhan` derives the prayer day from local date getters, so any
+future-based schedule fixture is only meaningful in a fixed timezone — a UTC runner otherwise
+computes a different day and the prayer-time tests fail for reasons unrelated to the change.
+
 Outstanding: Maestro is not set up yet (the single flow above), and the repository layer still
 relies on unit tests with a mocked `db`.
 
