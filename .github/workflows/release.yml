@@ -182,10 +182,32 @@ jobs:
           sha256sum ./* > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
-      - name: Verify signing certificate
+      - name: Verify release signing
         run: |
-          SIGCHECK=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)
-          "$SIGCHECK" verify --print-certs dist/qurva-*-arm64-v8a.apk | grep -i "certificate DN"
+          BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          ZIPALIGN="$BUILD_TOOLS/zipalign"
+
+          for apk in dist/*.apk; do
+            echo "== $apk"
+            "$ZIPALIGN" -c -v 4 "$apk" > /dev/null
+
+            CERTS=$("$APKSIGNER" verify -v --print-certs "$apk")
+            echo "$CERTS"
+
+            if echo "$CERTS" | grep -qi "CN=Android Debug"; then
+              echo "::error::$apk is signed with the debug certificate"
+              exit 1
+            fi
+            # v2 is mandatory from Android 11; v3 lets the key be rotated.
+            echo "$CERTS" | grep -q "Verified using v2 scheme (APK Signature Scheme v2): true"
+            echo "$CERTS" | grep -q "Verified using v3 scheme (APK Signature Scheme v3): true"
+          done
+
+          for aab in dist/*.aab; do
+            echo "== $aab"
+            jarsigner -verify "$aab" | grep -q "jar verified"
+          done
 
       - name: Push git tag
         run: |

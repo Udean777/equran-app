@@ -81,6 +81,11 @@ def enableMinifyInReleaseBuilds = (findProperty('android.enableMinifyInReleaseBu
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def qurvaReleaseTaskRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+if (qurvaReleaseTaskRequested && !findProperty('QURVA_UPLOAD_STORE_FILE')) {
+    throw new GradleException('Release build refused: pass -PQURVA_UPLOAD_STORE_FILE, -PQURVA_UPLOAD_STORE_PASSWORD, -PQURVA_UPLOAD_KEY_ALIAS and -PQURVA_UPLOAD_KEY_PASSWORD. A debug-signed APK/AAB cannot be installed reliably or uploaded to Play.')
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -113,6 +118,12 @@ android {
                 keyAlias findProperty('QURVA_UPLOAD_KEY_ALIAS')
                 keyPassword findProperty('QURVA_UPLOAD_KEY_PASSWORD')
             }
+            // Explicit on purpose: v1 keeps old Android installs working, v2/v3 are
+            // required from Android 11, v4 enables incremental adb installs.
+            enableV1Signing true
+            enableV2Signing true
+            enableV3Signing true
+            enableV4Signing true
         }
     }
     def isBundleTask = gradle.startParameter.taskNames.any { it.toLowerCase().contains("bundle") }
@@ -129,7 +140,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig findProperty('QURVA_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug
+            signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
