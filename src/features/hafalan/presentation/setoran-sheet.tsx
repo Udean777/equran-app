@@ -5,7 +5,10 @@ import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { Button } from "@/components/button";
 import { ModalSheet } from "@/components/modal-sheet";
 import type { HafalanItem } from "@/features/hafalan/domain/murajaah";
-import { useSetoran } from "@/features/hafalan/presentation/use-setoran";
+import {
+  useSetoran,
+  useWarmHafalanApi,
+} from "@/features/hafalan/presentation/use-setoran";
 import { useSurahDetail } from "@/features/quran/presentation/use-surah-detail";
 import { cn } from "@/lib/cn";
 import { BRAND_COLORS, getThemePalette } from "@/theme/palette";
@@ -23,6 +26,7 @@ export const SetoranSheet = ({ item, surahLabel, onClose }: Props) => {
   const { detail, isLoading } = useSurahDetail(item?.surahNumber ?? 1);
   const { phase, result, errorMessage, startRecording, stopAndCompare, reset } =
     useSetoran();
+  useWarmHafalanApi(item !== null);
 
   const targetText =
     detail?.ayat.map((ayah) => ayah.textArabic).join(" ") ?? "";

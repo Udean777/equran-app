@@ -2,7 +2,7 @@ import "../../global.css";
 import "@/lib/i18n";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { type ErrorBoundaryProps, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
@@ -11,9 +11,11 @@ import {
   useColorScheme,
 } from "nativewind";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { Button } from "@/components/button";
 import { migrate } from "@/lib/db/client";
 import { queryClient } from "@/lib/query-client";
 import { STACK_TRANSITIONS } from "@/theme/navigation-transitions";
@@ -81,5 +83,20 @@ export default function RootLayout() {
         </View>
       </SafeAreaProvider>
     </QueryClientProvider>
+  );
+}
+
+/** Route-level crash fallback: keeps a render error from leaving a blank screen. */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  const { t } = useTranslation();
+
+  return (
+    <View className="flex-1 items-center justify-center gap-3 bg-bg px-6">
+      <Text className="font-serif text-xl font-bold text-text">
+        {t("common.crashTitle")}
+      </Text>
+      <Text className="text-center text-sm text-muted">{error.message}</Text>
+      <Button label={t("common.retry")} onPress={() => void retry()} />
+    </View>
   );
 }

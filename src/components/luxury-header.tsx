@@ -51,6 +51,7 @@ export const LuxuryHeader = ({
 
         <View className="flex-1">
           <Text
+            accessibilityRole="header"
             numberOfLines={1}
             className="font-serif text-xl font-bold text-text"
           >

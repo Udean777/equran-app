@@ -44,6 +44,7 @@ The Flutter app is archived in `backup/` (gitignored) and is the **behavioural r
 | Widget | **`expo-widgets`** (Android, opt-in) | Widget UI in TSX. Fallback: native Kotlin + `react-native-android-widget`. |
 | Sensors | `expo-sensors` + `react-native-compass-heading` 3 | Heading has a maintained lib; Magnetometer for fallback |
 | Location | `expo-location` | |
+| Offline detection | `@react-native-community/netinfo` | Drives the audio offline notice; nothing else blocks on it |
 | Prayer times | `adhan-js` | Same algorithm as the Flutter `adhan` package |
 | i18n | `i18next` + `react-i18next` + `expo-localization` | Flat JSON, no codegen |
 | Testing | **Jest** (`jest-expo`) + `@testing-library/react-native` + one Maestro flow | Expo SDK 58 ships `jest-expo` and RNTL 14 is supported on the Jest path; two runners in one repo is a smell. |
@@ -60,15 +61,10 @@ src/
     (tabs)/
       index.tsx             # surah list
       prayer.tsx
-      hafalan.tsx
+      hafalan.tsx           # targets + history; setoran via sheet
       settings.tsx
-    surah/[number].tsx
+    surah/[number]/index.tsx
     surah/[number]/tafsir.tsx
-    doa/index.tsx
-    doa/[id].tsx
-    search.tsx
-    hafalan/[surah]/index.tsx
-    hafalan/[surah]/setoran.tsx
     _layout.tsx
   features/
     quran/
@@ -94,6 +90,10 @@ src/
   lib/                      # db client, query client, i18n, logger, result type
   theme/                    # tokens consumed by NativeWind
 ```
+
+Hafalan has no nested routes: `surah-picker-modal.tsx` and `setoran-sheet.tsx` live in
+`features/hafalan/presentation/` and open from the tab. Planned but not built yet:
+`doa/index.tsx`, `doa/[id].tsx`, `search.tsx` (delivery phase 7 in §9).
 
 **Dependency rule:** `presentation → domain ← data`. A screen imports from `features/*/presentation`; presentation calls `data` only through feature hooks; `domain` imports nothing from the app. No screen talks to `fetch` or SQLite directly.
 
@@ -126,8 +126,8 @@ Wire rules:
 - **Doa (`/api/doa`)**: Valid IDs are `1..227` (`228` → `404 { status: "error", message }`). `tr`, `idn`, and `tentang` can be empty strings (`z.string()`, never `.min(1)`). Server ignores `?limit`/`?page` and AND-s `?grup` + `?tag`; sync all 227 items and filter locally.
 - **Vector (`/api/vector`)**: `POST` `{ cari, batas, tipe[], skorMin }`; clamp `batas` to `1..10` (avoid `0`, which returns `1`). Parse `hasil[].data` with a `z.discriminatedUnion` per `tipe` (`snake_case` fields). Handle `400 { status: "gagal", kode }` (`PENCARIAN_KOSONG`, `TIPE_TIDAK_VALID`). Debounce/throttle on client (30 req/min server limit exposes no `RateLimit-*` headers).
 - **Shalat (`/api/v2/shalat`)**: Reference only (`adhan-js` remains primary). Only years `2026–2028` currently return `200` (outside → `404`); validate `bulan`/`tahun` on client before `POST` (server silently falls back to current month/year on invalid values) and always use `POST` (`GET` returns `200` docs JSON).
-- `/health` is called when the setoran screen opens (HF Spaces sleeps), not when the user taps record.
-- Upload body: `FormData` with `{ uri, name: 'recording.m4a', type: 'audio/m4a' }`; `AbortController` with a 120 s timeout; one retry on network failure only.
+- `/health` is called with a 5 s timeout when the setoran sheet opens (HF Spaces sleeps), not when the user taps record.
+- Upload body: `FormData` with `user_audio` as an `expo-file-system` `File`, plus `target_text`, `threshold`, `is_arabic`, sent through `expo/fetch`; `AbortController` with a 120 s timeout; one retry on network failure only (timeout, server, and parse errors are not retried).
 
 Local SQLite (`qurva.db`):
 
@@ -159,14 +159,14 @@ Migrations: one plain SQL string per schema version in `lib/db/client.ts`, appli
 
 **Widget.** `expo-widgets` plugin with `enableAndroid: true`; widget bodies use the `'widget'` directive, are pure, and receive data only via `updateSnapshot` props. No hooks, no async, no imports from app modules. Update on app foreground and after prayer-time recomputation.
 
-**Sensors.** Qibla reads heading from `react-native-compass-heading`, smoothed with an exponential moving average; fall back to "device does not support compass" rather than showing a wrong direction. Never request `HIGH_SAMPLING_RATE_SENSORS` unnecessarily.
+**Sensors.** Qibla reads the raw heading stream from `react-native-compass-heading` (`degreeUpdateRate: 2`), smoothed with an exponential moving average kept in *unwrapped* degrees so rotations never take the 359°→0° long way. The steady stream is written to Reanimated shared values on the JS thread and applied on the UI thread; React state (digits, aligned badge) updates at most 5 Hz. `adhan.Qibla` returns a true-north bearing while the sensor reports magnetic north, so `expo-location` `getHeadingAsync()` is read once per compass session (1.5 s timeout; Android stays silent and iOS throws without a location fix) to get the declination. If it cannot be resolved, declination is 0 and the compass runs magnetic — never show a silently wrong direction, and fall back to "device does not support compass" when the sensor is missing. Never request `HIGH_SAMPLING_RATE_SENSORS` unnecessarily.
 
 **Hafalan reminders.** On save, compute the next muraja'ah date from `[1, 3, 7, 30, 90]` days by level, cancel the previous notification, schedule a new one, and persist `notification_id` in `notification_ref`. Missing this bookkeeping is the classic bug: stale notifications accumulate.
 
 ## 7. Error, offline, and i18n policy
 
 - One `Result<T, AppError>` type in `lib/result.ts`; `AppError` has codes (`network`, `timeout`, `parse`, `notFound`, `permission`, `server`). UI maps codes to i18n messages; repositories never format user-facing strings.
-- Offline: `surah`, `tafsir`, and `doa` render from SQLite; `audio` and `vector search` require network (show offline/retry state when disconnected). Every list screen has an empty, loading, and error state — no screen renders raw errors.
+- Offline: `surah`, `tafsir`, and `doa` render from SQLite; `audio` and `vector search` require network (show offline/retry state when disconnected). Every list screen has an empty, loading, and error state — no screen renders raw errors. `useIsOffline` (`netinfo`) gates starting murattal playback with a translated toast; hafalan setoran stays a network-only write path.
 - All user-facing copy goes through i18next (`id` default, `en` secondary). Domain and data layers contain no strings.
 
 ## 8. Testing
@@ -174,11 +174,14 @@ Migrations: one plain SQL string per schema version in `lib/db/client.ts`, appli
 | Level | Tool | What must be covered |
 |---|---|---|
 | Unit | Jest (`jest-expo`) | Muraja'ah interval math, ayah global numbering, prayer-time inputs, zod schema edge cases, heading smoothing |
-| Integration | Jest + `expo-sqlite` in memory | Repository read/write, notification bookkeeping |
+| Integration | Jest + `sql.js` (wasm SQLite) | Migrations applied in order against the real schema (`src/lib/db/migrations.test.ts`); repository SQL and notification bookkeeping still to add |
 | Component | RNTL | One happy path per critical component (setoran result, surah card) |
 | E2E | Maestro (1 flow) | Open surah → play → pause from lock screen → open setoran |
 
 A new rule, parser, or scheduling calculation without a test is not done.
+
+Outstanding: Maestro is not set up yet (the single flow above), and the repository layer still
+relies on unit tests with a mocked `db`.
 
 ## 9. Delivery phases
 
@@ -208,5 +211,5 @@ A new rule, parser, or scheduling calculation without a test is not done.
 - Arabic text layout (line breaking, kashida, page-accurate mushaf) is weaker in RN than Flutter. Validate in the spike; if it fails, ship text-mode reading, not mushaf pages.
 - iOS alarm parity is not achievable; product copy must not promise it.
 - `expo-widgets` is one SDK old; if it proves too limited, fall back to a Kotlin widget behind the same data update path.
-- `server/` and the Hugging Face Space are external dependencies; the setoran UI needs a demo fallback so the repo runs without them.
+- `server/` and the Hugging Face Space are external dependencies; setoran requires the service and fails with a retryable error (no demo scores are fabricated).
 - `/api/v2/shalat` year availability (`2026–2028`) and `/api/vector` rate-limit enforcement (30 req/min without headers) may shift server-side without notice.

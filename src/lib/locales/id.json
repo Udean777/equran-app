@@ -2,7 +2,9 @@
   "common": {
     "retry": "Coba lagi",
     "loading": "Memuat…",
-    "empty": "Belum ada data"
+    "empty": "Belum ada data",
+    "crashTitle": "Terjadi kesalahan",
+    "needsConnection": "Audio murattal membutuhkan koneksi internet."
   },
   "errors": {
     "network": "Tidak dapat terhubung ke internet. Periksa koneksi kamu.",
@@ -166,6 +168,8 @@
   "qibla": {
     "aligned": "Arah Kiblat Tepat",
     "turnDevice": "Putar perangkat sejajar panah",
+    "offsetRight": "Putar {{deg}}° ke kanan",
+    "offsetLeft": "Putar {{deg}}° ke kiri",
     "compassA11y": "Kompas kiblat, arah kiblat {{bearing}} derajat",
     "bearingLabel": "Arah Kiblat",
     "headingLabel": "Arah Perangkat",

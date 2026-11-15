@@ -33,10 +33,13 @@ export const ModalSheet = ({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-bg px-4 pt-4">
+      <View accessibilityViewIsModal className="flex-1 bg-bg px-4 pt-4">
         <View className="mb-4 flex-row items-center justify-between border-b border-border pb-3">
           <View className="flex-1 pr-3">
-            <Text className="font-serif text-xl font-bold text-text">
+            <Text
+              accessibilityRole="header"
+              className="font-serif text-xl font-bold text-text"
+            >
               {title}
             </Text>
             {subtitle ? (

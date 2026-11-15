@@ -2,7 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { BookOpenText } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text } from "react-native";
 import Animated, {
@@ -17,8 +17,10 @@ import { LuxuryHeader } from "@/components/luxury-header";
 import { Screen } from "@/components/screen";
 import { SearchInput } from "@/components/search-input";
 import { StateView } from "@/components/state-view";
+import { Toast } from "@/components/toast";
 import { MurattalMiniPlayer } from "@/features/audio/presentation/murattal-mini-player";
 import { useMurattalPlayer } from "@/features/audio/presentation/use-murattal-player";
+import { useIsOffline } from "@/lib/use-is-offline";
 import { getThemePalette } from "@/theme/palette";
 
 import { AyahCard } from "./ayah-card";
@@ -57,6 +59,24 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
   const isThisSurahActive = activeSurah?.number === detail?.surah.number;
   const isThisSurahPlaying =
     isThisSurahActive && playbackMode === "surah" && isPlaying;
+  const isOffline = useIsOffline();
+  const [isOfflineNoticeVisible, setOfflineNoticeVisible] = useState(false);
+
+  const playAyahWhenOnline = (ayahNumber: number) => {
+    if (isOffline) {
+      setOfflineNoticeVisible(true);
+      return;
+    }
+    if (detail) playAyah(detail.surah, ayahNumber);
+  };
+
+  const playSurahWhenOnline = () => {
+    if (isOffline) {
+      setOfflineNoticeVisible(true);
+      return;
+    }
+    if (detail) playSurah(detail.surah);
+  };
 
   useEffect(() => {
     if (!detail) return;
@@ -147,7 +167,7 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
                   totalAyat={detail.surah.ayatCount}
                   isActiveAyah={isActiveAyah}
                   isPlayingAyah={isActiveAyah && isPlaying}
-                  onTogglePlay={() => playAyah(detail.surah, item.number)}
+                  onTogglePlay={() => playAyahWhenOnline(item.number)}
                   onOpenTafsir={openTafsir}
                 />
               );
@@ -157,7 +177,7 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
                 <SurahBannerCard
                   surah={detail.surah}
                   isPlayingSurah={isThisSurahPlaying}
-                  onTogglePlaySurah={() => playSurah(detail.surah)}
+                  onTogglePlaySurah={playSurahWhenOnline}
                 />
               ) : null
             }
@@ -176,6 +196,13 @@ export const SurahDetailScreen = ({ surahNumber }: Props) => {
       ) : null}
 
       <MurattalMiniPlayer />
+
+      <Toast
+        visible={isOfflineNoticeVisible}
+        message={t("common.needsConnection")}
+        dismissLabel={t("quran.dismissToast")}
+        onDismiss={() => setOfflineNoticeVisible(false)}
+      />
     </Screen>
   );
 };

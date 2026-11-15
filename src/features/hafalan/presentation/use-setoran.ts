@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RecordingPresets, useAudioRecorder } from "expo-audio";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -6,7 +6,10 @@ import {
   ensureRecordingReady,
   restorePlaybackAudioMode,
 } from "@/features/hafalan/data/audio-recorder";
-import { compareRecitation } from "@/features/hafalan/data/hafalan-api";
+import {
+  compareRecitation,
+  warmHafalanApi,
+} from "@/features/hafalan/data/hafalan-api";
 import { saveSetoranResult } from "@/features/hafalan/data/hafalan-repository";
 import { scheduleMurajaahReminder } from "@/features/hafalan/data/murajaah-reminder-service";
 import type { CompareResponse } from "@/features/hafalan/data/schema";
@@ -15,6 +18,19 @@ import { hafalanKeys } from "./hafalan-keys";
 
 export type SetoranPhase =
   "idle" | "recording" | "comparing" | "done" | "error";
+
+const HEALTH_STALE_TIME_MS = 5 * 60_000;
+
+/** Wake the sleeping HF Space while the setoran sheet is open. */
+export const useWarmHafalanApi = (enabled: boolean): void => {
+  useQuery({
+    queryKey: hafalanKeys.health(),
+    queryFn: warmHafalanApi,
+    enabled,
+    retry: false,
+    staleTime: HEALTH_STALE_TIME_MS,
+  });
+};
 
 const submitSetoranRecitation = async (params: {
   audioUri: string;

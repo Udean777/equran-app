@@ -2,7 +2,9 @@
   "common": {
     "retry": "Retry",
     "loading": "Loading…",
-    "empty": "No data yet"
+    "empty": "No data yet",
+    "crashTitle": "Something went wrong",
+    "needsConnection": "Murattal audio needs an internet connection."
   },
   "errors": {
     "network": "Unable to connect. Please check your internet connection.",
@@ -166,6 +168,8 @@
   "qibla": {
     "aligned": "Aligned with Qibla",
     "turnDevice": "Rotate device to align with the arrow",
+    "offsetRight": "Turn {{deg}}° right",
+    "offsetLeft": "Turn {{deg}}° left",
     "compassA11y": "Qibla compass, Qibla bearing {{bearing}} degrees",
     "bearingLabel": "Qibla Bearing",
     "headingLabel": "Device Heading",
